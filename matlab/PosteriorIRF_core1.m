@@ -177,7 +177,7 @@ while fpar<B
         if SS(i,i) > 1e-13
             y=irf(dr,SS(M_.exo_names_orig_ord,i), options_.irf, options_.drop,options_.replic,options_.order);
             if options_.relative_irf
-                y = 100*y/cs(i,i);
+                y = 100*y/SS(i,i);
             end
             for j = 1:nvar
                 if max(y(IndxVariables(j),:)) - min(y(IndxVariables(j),:)) > 1e-12
