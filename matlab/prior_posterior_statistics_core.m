@@ -47,9 +47,6 @@ if nargin<4,
     whoiam=0;
 end
 
-global options_ oo_ M_ bayestopt_ estim_params_
-
-
 % Reshape 'myinputs' for local computation.
 % In order to avoid confusion in the name space, the instruction struct2local(myinputs) is replaced by:
 
@@ -131,6 +128,24 @@ if RemoteFlag==1,
     OutputFileName_forc_point = {};
     % OutputFileName_moments = {};
 end
+
+%initialize arrays
+if run_smoother
+  stock_smooth=NaN(endo_nbr,gend,MAX_nsmoo);
+  stock_update=NaN(endo_nbr,gend,MAX_nsmoo);
+  stock_innov=NaN(M_.exo_nbr,gend,MAX_ninno);  
+  stock_forcst_mean= NaN(endo_nbr,horizon+maxlag,MAX_nforc1);
+  stock_forcst_point = NaN(endo_nbr,horizon+maxlag,MAX_nforc2);
+end
+if nvn
+  stock_error = NaN(endo_nbr,gend,MAX_nerro);
+end
+if naK
+    stock_filter_step_ahead =NaN(length(options_.filter_step_ahead),endo_nbr,gend+max(options_.filter_step_ahead),MAX_naK);
+end
+stock_param = NaN(MAX_nruns,size(myinputs.x,2));
+stock_logpo = NaN(MAX_nruns,1);
+stock_ys = NaN(MAX_nruns,endo_nbr);
 
 for b=fpar:B
 
