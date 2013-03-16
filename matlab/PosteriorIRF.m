@@ -311,7 +311,7 @@ for i = 1:M_.exo_nbr
         eval(['oo_.PosteriorIRF.dsge.Mean.' name ' = MeanIRF(:,j,i);']);
         eval(['oo_.PosteriorIRF.dsge.Median.' name ' = MedianIRF(:,j,i);']);
         eval(['oo_.PosteriorIRF.dsge.Var.' name ' = VarIRF(:,j,i);']);
-        eval(['oo_.PosteriorIRF.dsge.Distribution.' name ' = DistribIRF(:,:,j,i);']);
+        eval(['oo_.PosteriorIRF.dsge.deciles.' name ' = DistribIRF(:,:,j,i);']);
         eval(['oo_.PosteriorIRF.dsge.HPDinf.' name ' = HPDIRF(:,1,j,i);']);
         eval(['oo_.PosteriorIRF.dsge.HPDsup.' name ' = HPDIRF(:,2,j,i);']);
     end
@@ -348,7 +348,7 @@ if MAX_nirfs_dsgevar
             eval(['oo_.PosteriorIRF.bvardsge.Mean.' name ' = MeanIRFdsgevar(:,j,i);']);
             eval(['oo_.PosteriorIRF.bvardsge.Median.' name ' = MedianIRFdsgevar(:,j,i);']);
             eval(['oo_.PosteriorIRF.bvardsge.Var.' name ' = VarIRFdsgevar(:,j,i);']);
-            eval(['oo_.PosteriorIRF.bvardsge.Distribution.' name ' = DistribIRFdsgevar(:,:,j,i);']);
+            eval(['oo_.PosteriorIRF.bvardsge.deciles.' name ' = DistribIRFdsgevar(:,:,j,i);']);
             eval(['oo_.PosteriorIRF.bvardsge.HPDinf.' name ' = HPDIRFdsgevar(:,1,j,i);']);
             eval(['oo_.PosteriorIRF.bvardsge.HPDsup.' name ' = HPDIRFdsgevar(:,2,j,i);']);
         end

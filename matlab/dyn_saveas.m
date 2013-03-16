@@ -32,16 +32,16 @@ function dyn_saveas(h,fname,DynareOptions)
 
 if any(strcmp('eps',cellstr(DynareOptions.graph_format)))
     if exist('OCTAVE_VERSION')
-        eval(['print -depsc2 ' fname '.eps']);
+        eval(['print -depsc2 ' fname '.eps']); % still need to be fixed to take handle into account
     else
-        eval(['print -depsc2 ' fname]);
+        print(h,'-depsc2',[fname,'.eps']) 
     end
 end
 if any(strcmp('pdf',cellstr(DynareOptions.graph_format)))
     if exist('OCTAVE_VERSION')
         warning('Octave cannot create pdf files!')
     else
-        eval(['print -dpdf ' fname]);
+        print(h,'-dpdf',[fname,'.pdf']) 
     end
 end
 if any(strcmp('fig',cellstr(DynareOptions.graph_format)))

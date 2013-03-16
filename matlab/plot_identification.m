@@ -108,6 +108,7 @@ if SampleSize == 1,
         for ip=1:nparam,
             text(ip,dy(1),name{is(ip)},'rotation',90,'HorizontalAlignment','right','interpreter','none')
         end
+        legend('Moments','Model','LRE model','Location','Best')
         title('Sensitivity bars using derivatives (log-scale)')
         dyn_saveas(hh,[IdentifDirectoryName '/' M_.fname '_sensitivity_' tittxt1 ],options_);
         
