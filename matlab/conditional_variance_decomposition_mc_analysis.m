@@ -46,7 +46,7 @@ if isfield(oo_, [ TYPE 'TheoreticalMoments' ])
     if isfield(temporary_structure,'dsge')
         eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge;'])
         if isfield(temporary_structure,'ConditionalVarianceDecomposition')
-            eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.mean;'])
+            eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.Mean;'])
             if isfield(temporary_structure,name)
                 if sum(Steps-temporary_structure.(name)(1,:)) == 0
                     % Nothing (new) to do here...
@@ -85,11 +85,11 @@ for i=1:length(Steps)
     p_hpdsup(i) = hpd_interval(2);
     p_density(:,:,i) = pp_density;
 end
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.steps = Steps;']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.mean.' name ' = p_mean;']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.median.' name ' = p_median;']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.variance.' name ' = p_variance;']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.hpdinf.' name ' = p_hpdinf;']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.hpdsup.' name ' = p_hpdsup;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.Steps = Steps;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.Mean.' name ' = p_mean;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.Median.' name ' = p_median;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.Variance.' name ' = p_variance;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.HPDinf.' name ' = p_hpdinf;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.HPDsup.' name ' = p_hpdsup;']);
 eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.deciles.' name ' = p_deciles;']);
 eval(['oo_.' TYPE 'TheoreticalMoments.dsge.ConditionalVarianceDecomposition.density.' name ' = p_density;']);

@@ -194,7 +194,7 @@ if ~options_.load_mh_file && ~options_.mh_recover
     record.InitialParameters = ix2;
     record.InitialLogLiK = ilogpo2;
     record.LastParameters = zeros(nblck,npar);
-    record.LastLogLiK = zeros(nblck,1);
+    record.LastLogPost = zeros(nblck,1);
     record.LastFileNumber = AnticipatedNumberOfFiles ;
     record.LastLineNumber = AnticipatedNumberOfLinesInTheLastFile;
     save([MhDirectoryName '/' ModelName '_mh_history.mat'],'record');  
@@ -253,7 +253,7 @@ elseif options_.load_mh_file && ~options_.mh_recover
     else
         NewFile = ones(nblck,1)*(LastFileNumber+1);
     end
-    ilogpo2 = record.LastLogLiK;
+    ilogpo2 = record.LastLogPost;
     ix2 = record.LastParameters;
     fblck = 1;
     fline = ones(nblck,1)*(LastLineNumber+1);
@@ -292,7 +292,7 @@ elseif options_.mh_recover
     end
     %% Default initialization:
     if OldMh
-        ilogpo2 = record.LastLogLiK;
+        ilogpo2 = record.LastLogPost;
         ix2 = record.LastParameters;
     else
         ilogpo2 = record.InitialLogLiK;

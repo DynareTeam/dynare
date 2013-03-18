@@ -61,7 +61,11 @@ if ~options_.noprint %options_.nomoments == 0
     dyntable(title,headers,labels,z,lh,11,4);
     if M_.exo_nbr > 1 && size(stationary_vars, 1) > 0
         disp(' ')
-        title='VARIANCE DECOMPOSITION (in percent)';
+        if options_.order == 2
+            title='VARIANCE DECOMPOSITION (in percent), based on first order approximation';            
+        else
+            title='VARIANCE DECOMPOSITION (in percent)';
+        end
         if options_.hp_filter
             title = [title ' (HP filter, lambda = ' ...
                      num2str(options_.hp_filter) ')'];

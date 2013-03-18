@@ -35,14 +35,14 @@ end
 load conditional_forecasts;
 
 if nargin==1 || isempty(periods) % Set default number of periods.
-    eval(['periods = length(forecasts.cond.mean.' Variables(1,:) ');']);
+    eval(['periods = length(forecasts.cond.Mean.' Variables(1,:) ');']);
 end
 
 for i=1:size(Variables,1)
     eval(['ci1 = forecasts.cond.ci.' Variables(i,:) ';'])
-    eval(['m1 = forecasts.cond.mean.' Variables(i,:) ';'])
+    eval(['m1 = forecasts.cond.Mean.' Variables(i,:) ';'])
     eval(['ci2 = forecasts.uncond.ci.' Variables(i,:) ';'])
-    eval(['m2 = forecasts.uncond.mean.' Variables(i,:) ';'])
+    eval(['m2 = forecasts.uncond.Mean.' Variables(i,:) ';'])
     build_figure(Variables(i,:),ci1(:,1:periods),ci2(:,1:periods),m1(1:periods),m2(1:periods),options_);
 end
 

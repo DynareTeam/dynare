@@ -552,6 +552,9 @@ options_.graph_save_formats.fig = 0;
 % risky steady state
 options_.risky_steadystate = 0;
 
+% endogenous prior
+options_.endogenous_prior = 0;
+
 % use GPU
 options_.gpu = 0;
 

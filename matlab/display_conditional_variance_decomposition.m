@@ -49,8 +49,13 @@ StateSpaceModel.order_var = dr.order_var;
 conditional_decomposition_array = conditional_variance_decomposition(StateSpaceModel,Steps,SubsetOfVariables );
 
 if options_.noprint == 0
-    disp(' ')
+  if options_.order == 2
+    disp(' ')                
+    disp('CONDITIONAL VARIANCE DECOMPOSITION (in percent), based on first order approximation')
+  else
+    disp(' ')                
     disp('CONDITIONAL VARIANCE DECOMPOSITION (in percent)')
+  end
 end
 
 vardec_i = zeros(length(SubsetOfVariables),exo_nbr);

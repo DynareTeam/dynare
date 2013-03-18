@@ -156,7 +156,7 @@ if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.m
         oo_.Smoother.SteadyState = ys;
         oo_.Smoother.TrendCoeffs = trend_coeff;
         if options_.filter_covariance
-            oo_.Smoother.variance = P;
+            oo_.Smoother.Variance = P;
         end
         i_endo = bayestopt_.smoother_saved_var_list;
         if options_.nk ~= 0
@@ -482,12 +482,12 @@ if options_.mode_check == 1 && ~options_.mh_posterior_mode_estimation
 end
 
 oo_.posterior.optimization.mode = xparam1;
-oo_.posterior.optimization.variance = [];
+oo_.posterior.optimization.Variance = [];
 if ~options_.mh_posterior_mode_estimation
     if options_.cova_compute
         invhess = inv(hh);
         stdh = sqrt(diag(invhess));
-        oo_.posterior.optimization.variance = invhess;
+        oo_.posterior.optimization.Variance = invhess;
     end
 else
     variances = bayestopt_.p2.*bayestopt_.p2;
@@ -921,7 +921,7 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
         ana_deriv = options_.analytic_derivation;
         options_.analytic_derivation = 0;
         if options_.cova_compute
-            feval(options_.posterior_sampling_method,objective_function,options_.proposal_distribution,xparam1,invhess,bounds,dataset_,options_,M_,estim_params_,bayestopt_,oo_);
+            oo_.MC_record=feval(options_.posterior_sampling_method,objective_function,options_.proposal_distribution,xparam1,invhess,bounds,dataset_,options_,M_,estim_params_,bayestopt_,oo_);
         else
             error('I Cannot start the MCMC because the hessian of the posterior kernel at the mode was not computed.')
         end
@@ -943,7 +943,7 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
             if ~options_.nograph
                 oo_ = PlotPosteriorDistributions(estim_params_, M_, options_, bayestopt_, oo_);
             end
-            [oo_.posterior.metropolis.mean,oo_.posterior.metropolis.variance] ...
+            [oo_.posterior.metropolis.mean,oo_.posterior.metropolis.Variance] ...
                 = GetPosteriorMeanVariance(M_,options_.mh_drop);
         else
             load([M_.fname '_results'],'oo_');
@@ -974,7 +974,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
     [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp] = DsgeSmoother(xparam1,dataset_.info.ntobs,dataset_.data,dataset_.missing.aindex,dataset_.missing.state);
     oo_.Smoother.SteadyState = ys;
     oo_.Smoother.TrendCoeffs = trend_coeff;
-    oo_.Smoother.variance = P;
+    oo_.Smoother.Variance = P;
     i_endo = bayestopt_.smoother_saved_var_list;
     if options_.nk ~= 0
         oo_.FilteredVariablesKStepAhead = aK(options_.filter_step_ahead, ...

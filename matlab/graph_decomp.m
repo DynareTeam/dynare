@@ -39,7 +39,7 @@ for j=1:nvar
     if ymax-ymin < 1e-6
         continue
     end
-    fhandle = dyn_figure(DynareOptions,'Name',endo_names(i_var(j),:));
+    fhandle = dyn_figure(DynareOptions,'Name',['Shock decomposition: ',endo_names(i_var(j),:)]);
     ax=axes('Position',[0.1 0.1 0.6 0.8]);
     axis(ax,[xmin xmax ymin ymax]);
     plot(ax,x(2:end),z1(end,:),'k-','LineWidth',2)
@@ -79,6 +79,6 @@ for j=1:nvar
         y1 = y1 + height;
     end
 
-    dyn_saveas(fhandle,[DynareModel.fname '_shock_decomposition_' endo_names(i_var(j),:)],DynareOptions);
+    dyn_saveas(fhandle,[DynareModel.fname,'_shock_decomposition_',deblank(endo_names(i_var(j),:))],DynareOptions);
     hold off
 end

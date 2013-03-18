@@ -148,7 +148,7 @@ else
     [fout, nBlockPerCPU, totCPU] = masterParallel(options_.parallel, fblck, nblck,NamFileInput,'random_walk_metropolis_hastings_core', localVars, globalVars, options_.parallel_info);
     for j=1:totCPU,
         offset = sum(nBlockPerCPU(1:j-1))+fblck-1;
-        record.LastLogLiK(offset+1:sum(nBlockPerCPU(1:j)))=fout(j).record.LastLogLiK(offset+1:sum(nBlockPerCPU(1:j)));
+        record.LastLogPost(offset+1:sum(nBlockPerCPU(1:j)))=fout(j).record.LastLogPost(offset+1:sum(nBlockPerCPU(1:j)));
         record.LastParameters(offset+1:sum(nBlockPerCPU(1:j)),:)=fout(j).record.LastParameters(offset+1:sum(nBlockPerCPU(1:j)),:);
         record.AcceptationRates(offset+1:sum(nBlockPerCPU(1:j)))=fout(j).record.AcceptationRates(offset+1:sum(nBlockPerCPU(1:j)));
         record.Seeds(offset+1:sum(nBlockPerCPU(1:j)))=fout(j).record.Seeds(offset+1:sum(nBlockPerCPU(1:j)));

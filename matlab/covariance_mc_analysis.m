@@ -48,16 +48,16 @@ if isfield(oo_,[ TYPE 'TheoreticalMoments'])
     if isfield(temporary_structure,'dsge')
         eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge;'])
         if isfield(temporary_structure,'covariance')
-            eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge.covariance.mean;'])
+            eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Mean;'])
             if isfield(temporary_structure,var1)
-                eval(['temporary_structure_1 = oo_.' TYPE 'TheoreticalMoments.dsge.covariance.mean.' var1 ';'])
+                eval(['temporary_structure_1 = oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Mean.' var1 ';'])
                 if isfield(temporary_structure_1,var2)
                     % Nothing to do (the covariance matrix is symmetric!).
                     return
                 end
             else
                 if isfield(temporary_structure,var2)
-                    eval(['temporary_structure_2 = oo_.' TYPE 'TheoreticalMoments.dsge.covariance.mean.' var2 ';'])
+                    eval(['temporary_structure_2 = oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Mean.' var2 ';'])
                     if isfield(temporary_structure_2,var1)
                         % Nothing to do (the covariance matrix is symmetric!).
                         return
@@ -80,19 +80,19 @@ name = [var1 '.' var2];
 if ~isconst(tmp)
     [p_mean, p_median, p_var, hpd_interval, p_deciles, density] = ...
         posterior_moments(tmp,1,mh_conf_sig);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.mean.' name ' = p_mean;']);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.median.' name ' = p_median;']);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.variance.' name ' = p_var;']);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.hpdinf.' name ' = hpd_interval(1);']);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.hpdsup.' name ' = hpd_interval(2);']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Mean.' name ' = p_mean;']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Median.' name ' = p_median;']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Variance.' name ' = p_var;']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.HPDinf.' name ' = hpd_interval(1);']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.HPDsup.' name ' = hpd_interval(2);']);
     eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.deciles.' name ' = p_deciles;']);
     eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.density.' name ' = density;']);
 else
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.mean.' name ' = NaN;']);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.median.' name ' = NaN;']);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.variance.' name ' = NaN;']);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.hpdinf.' name ' = NaN;']);
-    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.hpdsup.' name ' = NaN;']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Mean.' name ' = NaN;']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Median.' name ' = NaN;']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.Variance.' name ' = NaN;']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.HPDinf.' name ' = NaN;']);
+    eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.HPDsup.' name ' = NaN;']);
     eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.deciles.' name ' = NaN;']);
     eval(['oo_.' TYPE 'TheoreticalMoments.dsge.covariance.density.' name ' = NaN;']);
 end

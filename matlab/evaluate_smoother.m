@@ -131,7 +131,7 @@ clear('priordens')
 oo.Smoother.SteadyState = ys;
 oo.Smoother.TrendCoeffs = trend_coeff;
 if options_.filter_covariance
-    oo.Smoother.variance = P;
+    oo.Smoother.Variance = P;
 end
 i_endo = bayestopt_.smoother_saved_var_list;
 if options_.nk ~= 0

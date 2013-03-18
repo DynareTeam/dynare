@@ -229,7 +229,7 @@ for b = fblck:nblck,
             jsux = 0;
             if j == nruns(b) % I record the last draw...
                 record.LastParameters(b,:) = x2(end,:);
-                record.LastLogLiK(b) = logpo2(end);
+                record.LastLogPost(b) = logpo2(end);
             end
             % size of next file in chain b
             InitSizeArray(b) = min(nruns(b)-j,MAX_nruns);

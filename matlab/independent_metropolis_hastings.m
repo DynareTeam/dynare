@@ -1,4 +1,4 @@
-function independent_metropolis_hastings(TargetFun,ProposalFun,xparam1,vv,mh_bounds,varargin)
+function record=independent_metropolis_hastings(TargetFun,ProposalFun,xparam1,vv,mh_bounds,varargin)
 
 % Independent Metropolis-Hastings algorithm. 
 % 
@@ -11,7 +11,7 @@ function independent_metropolis_hastings(TargetFun,ProposalFun,xparam1,vv,mh_bou
 %   o varargin              list of argument following mh_bounds
 %  
 % OUTPUTS 
-%   None  
+%   o record     [struct]   structure describing the iterations
 %
 % ALGORITHM 
 %   Metropolis-Hastings.       
@@ -103,7 +103,7 @@ else
     [fout, nBlockPerCPU, totCPU] = masterParallel(options_.parallel, fblck, nblck,NamFileInput,'independent_metropolis_hastings_core', localVars, globalVars, options_.parallel_info);
     for j=1:totCPU,
         offset = sum(nBlockPerCPU(1:j-1))+fblck-1;
-        record.LastLogLiK(offset+1:sum(nBlockPerCPU(1:j)))=fout(j).record.LastLogLiK(offset+1:sum(nBlockPerCPU(1:j)));
+        record.LastLogPost(offset+1:sum(nBlockPerCPU(1:j)))=fout(j).record.LastLogPost(offset+1:sum(nBlockPerCPU(1:j)));
         record.LastParameters(offset+1:sum(nBlockPerCPU(1:j)),:)=fout(j).record.LastParameters(offset+1:sum(nBlockPerCPU(1:j)),:);
         record.AcceptationRates(offset+1:sum(nBlockPerCPU(1:j)))=fout(j).record.AcceptationRates(offset+1:sum(nBlockPerCPU(1:j)));
         record.Seeds(offset+1:sum(nBlockPerCPU(1:j)))=fout(j).record.Seeds(offset+1:sum(nBlockPerCPU(1:j)));

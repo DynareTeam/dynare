@@ -146,7 +146,7 @@ dynare_graph_close;
 
 
 % saving results
-save_results(yf_mean,'oo_.forecast.mean.',var_list);
+save_results(yf_mean,'oo_.forecast.Mean.',var_list);
 save_results(yf1(:,:,k1(1)),'oo_.forecast.HPDinf.',var_list);
 save_results(yf1(:,:,k1(2)),'oo_.forecast.HPDsup.',var_list);
 save_results(yf2(:,:,k2(1)),'oo_.forecast.HPDTotalinf.',var_list);

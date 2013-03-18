@@ -74,7 +74,7 @@ elseif rplottype == 1
     for j = 1:size(y,1)
         figure ;
         plot(ix(i),y(j,i)) ;
-        title(['Plot of ' s1(:,j)]) ;
+        title(['Plot of ' s1(j,:)],'Interpreter','none') ;
         xlabel('Periods') ;
     end
 elseif rplottype == 2
@@ -87,8 +87,8 @@ elseif rplottype == 2
         hold on ;
         plot(ix(i),oo_.steady_state(j)*ones(1,size(i,1)),'w:') ;
         xlabel('Periods') ;
-        ylabel([s1(:,j)]) ;
-        title(['Plot of ' s1(:,j)]) ;
+        ylabel([s1(j,:)],'Interpreter','none') ;
+        title(['Plot of ' s1(j,:)],'Interpreter','none') ;
     end
 end
 

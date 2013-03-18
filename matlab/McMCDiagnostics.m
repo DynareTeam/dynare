@@ -130,7 +130,7 @@ clear pmet temp moyenne CSUP CINF csup cinf n linea iter tmp;
 pages = floor(npar/3);
 k = 0;  
 for i = 1:pages
-    h=dyn_figure(options_,'Name','MCMC univariate diagnostic (Brooks and Gelman,1998)');
+    h=dyn_figure(options_,'Name','MCMC univariate convergence diagnostic (Brooks and Gelman,1998)');
     boxplot = 1;
     for j = 1:3 % Loop over parameters
         k = k+1;
@@ -193,7 +193,7 @@ if reste
         nr = 2;
         nc = 3;
     end
-    h = dyn_figure(options_,'Name','MCMC univariate diagnostic (Brooks and Gelman, 1998)');
+    h = dyn_figure(options_,'Name','MCMC univariate convergence diagnostic (Brooks and Gelman, 1998)');
     boxplot = 1;
     for j = 1:reste
         k = k+1;
@@ -308,7 +308,7 @@ for iter  = Origin:StepSize:NumberOfDraws
 end
 MDIAG(:,[2 4 6],:) = MDIAG(:,[2 4 6],:)/nblck;  
 
-h = dyn_figure(options_,'Name','Multivariate diagnostic');
+h = dyn_figure(options_,'Name','Multivariate convergence diagnostic');
 boxplot = 1;
 for crit = 1:3
     if crit == 1

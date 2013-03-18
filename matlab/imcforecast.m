@@ -203,7 +203,7 @@ forecasts.controled_variables = constrained_vars;
 forecasts.instruments = options_cond_fcst.controlled_varexo;
 
 for i = 1:EndoSize
-    eval(['forecasts.cond.mean.' deblank(M_.endo_names(oo_.dr.order_var(i),:)) ' = mFORCS1(i,:)'';']);
+    eval(['forecasts.cond.Mean.' deblank(M_.endo_names(oo_.dr.order_var(i),:)) ' = mFORCS1(i,:)'';']);
     tmp = sort(squeeze(FORCS1(i,:,:))');
     eval(['forecasts.cond.ci.' deblank(M_.endo_names(oo_.dr.order_var(i),:)) ...
           ' = [tmp(t1,:)'' ,tmp(t2,:)'' ]'';']);
@@ -227,7 +227,7 @@ end
 mFORCS2 = mean(FORCS2,3);
 
 for i = 1:EndoSize
-    eval(['forecasts.uncond.mean.' deblank(M_.endo_names(oo_.dr.order_var(i),:)) ' = mFORCS2(i,:)'';']);
+    eval(['forecasts.uncond.Mean.' deblank(M_.endo_names(oo_.dr.order_var(i),:)) ' = mFORCS2(i,:)'';']);
     tmp = sort(squeeze(FORCS2(i,:,:))');
     eval(['forecasts.uncond.ci.' deblank(M_.endo_names(oo_.dr.order_var(i),:)) ...
           ' = [tmp(t1,:)'' ,tmp(t2,:)'' ]'';']);

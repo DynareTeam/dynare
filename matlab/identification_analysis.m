@@ -131,6 +131,7 @@ if info(1)==0,
             options_.irf = 0;
             options_.noprint = 1;
             options_.order = 1;
+            options_.SpectralDensity.trigger = 0;
             options_.periods = data_info.info.ntobs+100;
             if options_.kalman_algo > 2,
                 options_.kalman_algo = 1;

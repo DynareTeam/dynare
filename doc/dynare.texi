@@ -3161,7 +3161,7 @@ period(s). The periods must be strictly positive. Conditional variances are give
 decomposition provides the decomposition of the effects of shocks upon
 impact. The results are stored in
 @code{oo_.conditional_variance_decomposition}
-(@pxref{oo_.conditional_variance_decomposition}).
+(@pxref{oo_.conditional_variance_decomposition}). The variance decomposition is only conducted, if theoretical moments are requested, i.e. using the @code{periods=0}-option. Currently, variance decompositions are only implemented for @code{order=1}. In case of @code{order=2}, Dynare will thus not display the variance decomposition based on a second order approximation, but on a first order approximation. 
 
 @item pruning
 Discard higher order terms when iteratively computing simulations of
@@ -4230,7 +4230,7 @@ period 1, the conditional variance decomposition provides the
 decomposition of the effects of shocks upon impact. The results are
 stored in
 @code{oo_.PosteriorTheoreticalMoments.dsge.ConditionalVarianceDecomposition},
-but currently there is not output. Note that this option requires the
+but currently there is no output. Note that this option requires the
 option @code{moments_varendo} to be specified.
 
 @item filtered_vars
@@ -4461,6 +4461,9 @@ Median of the posterior distribution
 @item Std
 Standard deviation of the posterior distribution
 
+@item Variance
+Variance of the posterior distribution
+
 @item deciles
 Deciles of the distribution.
 
@@ -4649,6 +4652,21 @@ oo_.posterior_mean.shocks_std.ex
 oo_.posterior_hpdsup.measurement_errors_corr.gdp_conso
 @end example
 
+@defvr {MATLAB/Octave variable} oo_.MC_record.Seeds
+Variable set by the @code{estimation} command. Stores seeds used in MCMC chains
+@end defvr
+
+@defvr {MATLAB/Octave variable} oo_.MC_record.AcceptationRates
+Variable set by the @code{estimation} command. Stores acceptation rates of the MCMC chains
+@end defvr
+
+@defvr {MATLAB/Octave variable} oo_.MC_record.LastParameters
+Variable set by the @code{estimation} command. Stores parameter vector of final MCMC chain draw
+@end defvr
+
+@defvr {MATLAB/Octave variable} oo_.MC_record.LastLogPost
+Variable set by the @code{estimation} command. Stores log-posterior of final MCMC chain draw
+@end defvr
 
 @deffn Command model_comparison @var{FILENAME}[(@var{DOUBLE})]@dots{};
 @deffnx Command model_comparison (marginal_density = laplace | modifiedharmonicmean) @var{FILENAME}[(@var{DOUBLE})]@dots{};
@@ -5316,7 +5334,7 @@ The discussion of the methodologies and their application is described in
 
 With respect to the previous version of the toolbox, in order to work
 properly, the GSA toolbox no longer requires that the Dynare
-estimation environment is setup.
+estimation environment is set up.
 
 Sensitivity analysis results are saved locally in @code{<mod_file>/GSA},
 where @code{<mod_file>.mod} is the name of the DYNARE model file.

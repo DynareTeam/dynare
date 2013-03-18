@@ -44,7 +44,7 @@ if isfield(oo_, [ TYPE 'TheoreticalMoments'])
     if isfield(temporary_structure,'dsge')
         eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge;'])
         if isfield(temporary_structure,'VarianceDecomposition')
-            eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.mean;'])
+            eval(['temporary_structure = oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.Mean;'])
             if isfield(temporary_structure,name)
                 % Nothing to do.
                 return
@@ -82,10 +82,10 @@ else
     [p_mean, p_median, p_var, hpd_interval, p_deciles, density] = ...
         posterior_moments(tmp,1,mh_conf_sig);
 end
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.mean.' name ' = p_mean;']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.median.' name ' = p_median;']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.variance.' name ' = p_var;']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.hpdinf.' name ' = hpd_interval(1);']);
-eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.hpdsup.' name ' = hpd_interval(2);']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.Mean.' name ' = p_mean;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.Median.' name ' = p_median;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.Variance.' name ' = p_var;']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.HPDinf.' name ' = hpd_interval(1);']);
+eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.HPDsup.' name ' = hpd_interval(2);']);
 eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.deciles.' name ' = p_deciles;']);
 eval(['oo_.' TYPE 'TheoreticalMoments.dsge.VarianceDecomposition.density.' name ' = density;']);

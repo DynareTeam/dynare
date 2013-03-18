@@ -1,4 +1,4 @@
-function adaptive_metropolis_hastings(TargetFun,ProposalFun,xparam1,vv,mh_bounds,varargin)
+function record=adaptive_metropolis_hastings(TargetFun,ProposalFun,xparam1,vv,mh_bounds,varargin)
 %function adaptive_metropolis_hastings(TargetFun,ProposalFun,xparam1,vv,mh_bounds,varargin)
 % Random walk Metropolis-Hastings algorithm. 
 % 
@@ -11,7 +11,7 @@ function adaptive_metropolis_hastings(TargetFun,ProposalFun,xparam1,vv,mh_bounds
 %   o varargin              list of argument following mh_bounds
 %  
 % OUTPUTS 
-%   None  
+%   o record     [struct]   structure describing the iterations
 %
 % ALGORITHM 
 %   Metropolis-Hastings.       

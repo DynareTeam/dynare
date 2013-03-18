@@ -760,8 +760,12 @@ if analytic_derivation
 else
     lnprior = priordens(xparam1,BayesInfo.pshape,BayesInfo.p6,BayesInfo.p7,BayesInfo.p3,BayesInfo.p4);
 end
-
-fval    = (likelihood-lnprior);
+if DynareOptions.endogenous_prior==1
+  [lnpriormom]  = endogenous_prior(Y,Pstar,BayesInfo);
+  fval    = (likelihood-lnprior-lnpriormom);
+else
+  fval    = (likelihood-lnprior);
+end
 
 if isnan(fval)
     info = 47;

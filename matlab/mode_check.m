@@ -91,7 +91,7 @@ for plt = 1:nbplt,
         NAMES = [];
         TeXNAMES = [];
     end
-    hh = dyn_figure(DynareOptions,'Name','Check plots');
+    hh = dyn_figure(DynareOptions,'Name','Mode check plots');
     for k=1:min(nstar,length(x)-(plt-1)*nstar)
         subplot(nr,nc,k)
         kk = (plt-1)*nstar+k;
