@@ -85,10 +85,11 @@ elseif rplottype == 2
         subplot(nl,nc,j) ;
         plot(ix(i),y(j,i)) ;
         hold on ;
-        plot(ix(i),oo_.steady_state(j)*ones(1,size(i,1)),'w:') ;
+        plot(ix(i),oo_.steady_state(strmatch(s1(j,:),M_.endo_names,'exact'))*ones(1,size(i,1)),'r:') ;
         xlabel('Periods') ;
         ylabel([s1(j,:)],'Interpreter','none') ;
         title(['Plot of ' s1(j,:)],'Interpreter','none') ;
+        axis tight;
     end
 end
 

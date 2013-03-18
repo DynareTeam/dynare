@@ -15,7 +15,7 @@ function [dLIK,dlik,a,Pstar] = kalman_filter_d(Y, start, last, a, Pinf, Pstar, k
 %    R           [double]      mm*rr matrix relating the structural innovations to the state vector.
 %    Q           [double]      rr*rr covariance matrix of the structural innovations.
 %    H           [double]      pp*pp covariance matrix of the measurement errors (if H is equal to zero (scalar) there is no measurement error). 
-%    Z           [double]      pp*mm matrix, selection matrix or pp linear independant combinations of the state vector.
+%    Z           [double]      pp*mm matrix, selection matrix or pp linear independent combinations of the state vector.
 %    mm          [integer]     scalar, number of state variables.
 %    pp          [integer]     scalar, number of observed variables.
 %    rr          [integer]     scalar, number of structural innovations.    
