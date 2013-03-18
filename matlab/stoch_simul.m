@@ -122,7 +122,7 @@ end
 if options_.periods > 0 && ~PI_PCL_solver
     if options_.periods <= options_.drop
         disp(['STOCH_SIMUL error: The horizon of simulation is shorter' ...
-              ' than the number of observations to be DROPed'])
+              ' than the number of observations to be dropped'])
         options_ =options_old;
         return
     end
@@ -142,9 +142,6 @@ if options_.nomoments == 0
     elseif options_.periods == 0
         % There is no code for theoretical moments at 3rd order
         if options_.order <= 2
-        if options_.order == 2
-            warning('You have requested a second order approximation, but variance decompositions currently only allow for first order. Displaying decompositions at order=1 instead.')
-        end
             disp_th_moments(oo_.dr,var_list);
         end
     else

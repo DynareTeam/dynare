@@ -1,4 +1,4 @@
-function [lnpriormom] = endogenous_prior(data,Pstar,BayesInfo)
+function [lnpriormom] = endogenous_prior(data,Pstar,BayesInfo,H)
 % Computes the endogenous log prior addition to the initial prior
 %
 % INPUTS
@@ -82,8 +82,7 @@ mf=BayesInfo.mf1;
 II=eye(size(Pstar,2));
 Z=II(mf,:);
 % This is Ftheta, variance of model variables, given param vector theta:
-Ftheta=diag(Z*Pstar(:,mf));  % +H;
-
+Ftheta=diag(Z*Pstar(:,mf)+H);
 % below commented out line is for Del Negro Schorfheide style priors:
 %     lnpriormom=-.5*n*TT*log(2*pi)-.5*TT*log(det(sigma))-.5*TT*trace(inv(sigma)*(gamyy-2*phi'*gamxy+phi'*gamxx*phi));
 lnpriormom=.5*n*log(Tsamp/(2*pi))-.5*log(det(Shat))-.5*Tsamp*(Fhat-Ftheta)'/Shat*(Fhat-Ftheta);

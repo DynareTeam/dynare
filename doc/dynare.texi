@@ -3161,7 +3161,7 @@ period(s). The periods must be strictly positive. Conditional variances are give
 decomposition provides the decomposition of the effects of shocks upon
 impact. The results are stored in
 @code{oo_.conditional_variance_decomposition}
-(@pxref{oo_.conditional_variance_decomposition}). The variance decomposition is only conducted, if theoretical moments are requested, i.e. using the @code{periods=0}-option. Currently, variance decompositions are only implemented for @code{order=1}. In case of @code{order=2}, Dynare will thus not display the variance decomposition based on a second order approximation, but on a first order approximation. 
+(@pxref{oo_.conditional_variance_decomposition}). The variance decomposition is only conducted, if theoretical moments are requested, i.e. using the @code{periods=0}-option. In case of @code{order=2}, Dynare provides a second-order accurate approximation to the true second moments based on the linear terms of the second-order solution (see @cite{Kim, Kim, Schaumburg and Sims (2008)}).  
 
 @item pruning
 Discard higher order terms when iteratively computing simulations of
@@ -3292,7 +3292,7 @@ in declaration order.
 @defvr {MATLAB/Octave variable} oo_.var
 After a run of @code{stoch_simul}, contains the variance-covariance of
 the endogenous variables. Contains theoretical variance if the
-@code{periods} option is not present, and empirical variance
+@code{periods} option is not present (or an approximation thereof for @code{order=2}), and empirical variance
 otherwise. The variables are arranged in declaration order.
 @end defvr
 
@@ -3303,7 +3303,7 @@ autocorrelation matrices of the endogenous variables. The element
 number of the matrix in the cell array corresponds to the order of
 autocorrelation. The option @code{ar} specifies the number of
 autocorrelation matrices available. Contains theoretical
-autocorrelations if the @code{periods} option is not present, and
+autocorrelations if the @code{periods} option is not present (or an approximation thereof for @code{order=2}), and
 empirical autocorrelations otherwise.
 
 The element @code{oo_.autocorr@{i@}(k,l)} is equal to the correlation
@@ -3337,6 +3337,8 @@ Variance decomposition.
 If a second order approximation has been requested, contains the
 vector of the mean correction terms.
 @end table
+
+In case of @code{order=2}, the theoretical second moments are a second order accurate approximation of the true second moments, see @code{conditional_variance_decomposition}. 
 
 @end defvr
 

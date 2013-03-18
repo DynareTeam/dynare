@@ -51,7 +51,11 @@ oo_.mean = m;
 oo_.var = oo_.gamma_y{1};
 
 if ~options_.noprint %options_.nomoments == 0
-    title='THEORETICAL MOMENTS';
+    if options_.order == 2
+        title='APROXIMATED THEORETICAL MOMENTS';
+    else
+        title='THEORETICAL MOMENTS';
+    end
     if options_.hp_filter
         title = [title ' (HP filter, lambda = ' num2str(options_.hp_filter) ')'];
     end
@@ -62,7 +66,7 @@ if ~options_.noprint %options_.nomoments == 0
     if M_.exo_nbr > 1 && size(stationary_vars, 1) > 0
         disp(' ')
         if options_.order == 2
-            title='VARIANCE DECOMPOSITION (in percent), based on first order approximation';            
+            title='APPROXIMATED VARIANCE DECOMPOSITION (in percent)';            
         else
             title='VARIANCE DECOMPOSITION (in percent)';
         end
@@ -97,7 +101,11 @@ if options_.nocorr == 0 && size(stationary_vars, 1) > 0
     corr = oo_.gamma_y{1}(i1,i1)./(sd(i1)*sd(i1)');
     if ~options_.noprint,
         disp(' ')
-        title='MATRIX OF CORRELATIONS';
+        if options_.order == 2
+            title='APPROXIMATED MATRIX OF CORRELATIONS';            
+        else
+            title='MATRIX OF CORRELATIONS';
+        end
         if options_.hp_filter
             title = [title ' (HP filter, lambda = ' num2str(options_.hp_filter) ')'];
         end
@@ -115,7 +123,11 @@ if options_.ar > 0 && size(stationary_vars, 1) > 0
     end
     if ~options_.noprint,      
         disp(' ')    
-        title='COEFFICIENTS OF AUTOCORRELATION';      
+        if options_.order == 2
+            title='APPROXIMATED COEFFICIENTS OF AUTOCORRELATION';            
+        else
+            title='COEFFICIENTS OF AUTOCORRELATION';
+        end
         if options_.hp_filter        
             title = [title ' (HP filter, lambda = ' num2str(options_.hp_filter) ')'];      
         end      

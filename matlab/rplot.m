@@ -58,7 +58,7 @@ if rplottype == 0
     for j = 1:size(y,1)
         t = [t s1(j,:) ' '] ;
     end
-    figure ;
+    figure('Name',['Simulated Trajectory']) ;
     plot(ix(i),y(:,i)) ;
     title (t,'Interpreter','none') ;
     xlabel('Periods') ;
@@ -72,13 +72,13 @@ if rplottype == 0
     end
 elseif rplottype == 1
     for j = 1:size(y,1)
-        figure ;
+        figure('Name',['Simulated Trajectory']) ;
         plot(ix(i),y(j,i)) ;
         title(['Plot of ' s1(j,:)],'Interpreter','none') ;
         xlabel('Periods') ;
     end
 elseif rplottype == 2
-    figure ;
+    figure('Name',['Simulated Trajectory']) ;
     nl = max(1,fix(size(y,1)/4)) ;
     nc = ceil(size(y,1)/nl) ;
     for j = 1:size(y,1)
@@ -96,6 +96,7 @@ end
 % 02/28/01 MJ replaced bseastr by MATLAB's strmatch
 % 06/19/01 MJ added 'exact' to strmatch calls
 % 06/25/03 MJ correction when options_.smpl ~= 0
+% 03/18/13 JP bugfix for rplottype>0; added figure names
 
 
 
