@@ -256,22 +256,36 @@ if fload==0,
         M_.params(estim_params_.param_vals(:,1)) = lpmat(j,:)';
         %try stoch_simul([]);
         try
-            [Tt,Rr,SteadyState,infox{j},M_,options_,oo_] = dynare_resolve(M_,options_,oo_,'restrict');
-            if infox{j}(1)==0 && ~exist('T'),
+            [Tt,Rr,SteadyState,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_,'restrict');
+            infox(j,1)=info(1);
+            if infox(j,1)==0 && ~exist('T'),
                 dr_=oo_.dr;
-                T=zeros(size(dr_.ghx,1),size(dr_.ghx,2)+size(dr_.ghu,2),Nsam);
+                if prepSA,
+                    try
+                        T=zeros(size(dr_.ghx,1),size(dr_.ghx,2)+size(dr_.ghu,2),Nsam);
+                    catch ME
+                        if strcmp('MATLAB:nomem',ME.identifier),
+                            prepSA=0;
+                            disp('The model is too large for storing state space matrices ...')
+                            disp('for mapping reduced form or for identification')
+                        end
+                        T=[];
+                    end
+                else
+                    T=[];
+                end
                 egg=zeros(length(dr_.eigval),Nsam);
             end
-            if infox{j}(1),
+            if infox(j,1),
 %                 disp('no solution'),
                 if isfield(oo_.dr,'ghx'),
                     oo_.dr=rmfield(oo_.dr,'ghx');
                 end
-                if (infox{j}(1)<3 || infox{j}(1)>5) && isfield(oo_.dr,'eigval'),
+                if (infox(j,1)<3 || infox(j,1)>5) && isfield(oo_.dr,'eigval'),
                     oo_.dr=rmfield(oo_.dr,'eigval');
                 end
             end
-        catch
+        catch ME
             if isfield(oo_.dr,'eigval'),
                 oo_.dr=rmfield(oo_.dr,'eigval');
             end
@@ -323,8 +337,10 @@ if fload==0,
         dyn_waitbar(j/Nsam,h,['MC iteration ',int2str(j),'/',int2str(Nsam)])
     end
     dyn_waitbar_close(h);
-    if prepSA,
+    if prepSA && jstab,
         T=T(:,:,1:jstab);
+    else
+        T=[];
     end
     istable=istable(find(istable));  % stable params
     iunstable=iunstable(find(iunstable));   % unstable params
@@ -374,22 +390,22 @@ if fload==0,
         if ~prepSA
             save([OutputDirectoryName '/' fname_ '_prior.mat'], ...
                 'bkpprior','lpmat','lpmat0','iunstable','istable','iindeterm','iwrong', ...
-                'egg','yys','nspred','nboth','nfwrd')
+                'egg','yys','nspred','nboth','nfwrd','infox')
         else
             save([OutputDirectoryName '/' fname_ '_prior.mat'], ...
                 'bkpprior','lpmat','lpmat0','iunstable','istable','iindeterm','iwrong', ...
-                'egg','yys','T','nspred','nboth','nfwrd')
+                'egg','yys','T','nspred','nboth','nfwrd','infox')
         end
 
     else
         if ~prepSA
             save([OutputDirectoryName '/' fname_ '_mc.mat'], ...
                 'lpmat','lpmat0','iunstable','istable','iindeterm','iwrong', ...
-                'egg','yys','nspred','nboth','nfwrd')
+                'egg','yys','nspred','nboth','nfwrd','infox')
         else
             save([OutputDirectoryName '/' fname_ '_mc.mat'], ...
                 'lpmat','lpmat0','iunstable','istable','iindeterm','iwrong', ...
-                'egg','yys','T','nspred','nboth','nfwrd')
+                'egg','yys','T','nspred','nboth','nfwrd','infox')
         end
     end
 else
@@ -398,7 +414,7 @@ else
     else
         filetoload=[OutputDirectoryName '/' fname_ '_mc.mat'];
     end
-    load(filetoload,'lpmat','lpmat0','iunstable','istable','iindeterm','iwrong','egg','yys','nspred','nboth','nfwrd')
+    load(filetoload,'lpmat','lpmat0','iunstable','istable','iindeterm','iwrong','egg','yys','nspred','nboth','nfwrd','infox')
     Nsam = size(lpmat,1);
     if pprior==0,
         eval(['load ' options_.mode_file '.mat;']);
@@ -467,14 +483,46 @@ delete([OutputDirectoryName,'/',fname_,'_',aunstname,'_corr_*.*']);
 delete([OutputDirectoryName,'/',fname_,'_',aindname,'_corr_*.*']);
 
 if length(iunstable)>0 && length(iunstable)<Nsam,
-    fprintf(['%4.1f%% of the prior support is stable.\n'],length(istable)/Nsam*100)
-    fprintf(['%4.1f%% of the prior support is unstable.\n'],(length(iunstable)-length(iwrong)-length(iindeterm) )/Nsam*100)
+    fprintf(['%4.1f%% of the prior support gives unique saddle-path solution.\n'],length(istable)/Nsam*100)
+    fprintf(['%4.1f%% of the prior support gives explosive dynamics.\n'],(length(iunstable)-length(iwrong)-length(iindeterm) )/Nsam*100)
     if ~isempty(iindeterm),
         fprintf(['%4.1f%% of the prior support gives indeterminacy.'],length(iindeterm)/Nsam*100)
     end
     if ~isempty(iwrong),
         disp(' ');
         disp(['For ',num2str(length(iwrong)/Nsam*100,'%1.3f'),'\% of the prior support dynare could not find a solution.'])
+        disp(' ');
+        if any(infox==1),
+            disp(['    For ',num2str(length(find(infox==1))/Nsam*100,'%1.3f'),'\% The model doesn''t determine the current variables uniquely.'])
+        end
+        if any(infox==2),
+            disp(['    For ',num2str(length(find(infox==2))/Nsam*100,'%1.3f'),'\% MJDGGES returned an error code.'])
+        end
+        if any(infox==6),
+            disp(['    For ',num2str(length(find(infox==6))/Nsam*100,'%1.3f'),'\% The jacobian evaluated at the deterministic steady state is complex.'])
+        end
+        if any(infox==19),
+            disp(['    For ',num2str(length(find(infox==19))/Nsam*100,'%1.3f'),'\% The steadystate routine thrown an exception (inconsistent deep parameters).'])
+        end
+        if any(infox==20),
+            disp(['    For ',num2str(length(find(infox==20))/Nsam*100,'%1.3f'),'\% Cannot find the steady state.'])
+        end
+        if any(infox==21),
+            disp(['    For ',num2str(length(find(infox==21))/Nsam*100,'%1.3f'),'\% The steady state is complex.'])
+        end
+        if any(infox==22),
+            disp(['    For ',num2str(length(find(infox==22))/Nsam*100,'%1.3f'),'\% The steady has NaNs.'])
+        end
+        if any(infox==23),
+            disp(['    For ',num2str(length(find(infox==23))/Nsam*100,'%1.3f'),'\% M_.params has been updated in the steadystate routine and has complex valued scalars.'])
+        end
+        if any(infox==24),
+            disp(['    For ',num2str(length(find(infox==24))/Nsam*100,'%1.3f'),'\% M_.params has been updated in the steadystate routine and has some NaNs.'])
+        end
+        if any(infox==30),
+            disp(['    For ',num2str(length(find(infox==30))/Nsam*100,'%1.3f'),'\% Ergodic variance can''t be computed.'])
+        end
+
     end
     disp(' ');
     % Blanchard Kahn
@@ -561,7 +609,7 @@ if length(iunstable)>0 && length(iunstable)<Nsam,
     end
 else
     if length(iunstable)==0,
-        disp('All parameter values in the specified ranges are stable!')
+        disp('All parameter values in the specified ranges give unique saddle-path solution!')
         x0=0.5.*(bayestopt_.ub(1:nshock)-bayestopt_.lb(1:nshock))+bayestopt_.lb(1:nshock);
         x0 = [x0; lpmat(istable(1),:)'];
     else

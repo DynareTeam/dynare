@@ -54,7 +54,11 @@ if opt_gsa.load_ident_files==0,
   mss = yys(bayestopt_.mfys,:);
   mss = teff(mss(:,istable),Nsam,istable);
   yys = teff(yys(oo_.dr.order_var,istable),Nsam,istable);
-  [vdec, cc, ac] = mc_moments(T, lpmatx, oo_.dr);
+  if exist('T'),
+      [vdec, cc, ac] = mc_moments(T, lpmatx, oo_.dr);
+  else
+      return,
+  end
 
 
   if opt_gsa.morris==2,

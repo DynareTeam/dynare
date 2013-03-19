@@ -202,7 +202,7 @@ if ~loadSA,
         clear stock_filter;
     end
     for j=1:nruns,
-        lnprior(j,1) = priordens(x(j,:)',bayestopt_.pshape,bayestopt_.p1,bayestopt_.p2,bayestopt_.p3,bayestopt_.p4);
+        lnprior(j,1) = priordens(x(j,:)',bayestopt_.pshape,bayestopt_.p6,bayestopt_.p7,bayestopt_.p3,bayestopt_.p4);
     end
     likelihood=logpo2(:)-lnprior(:);
     disp('... done!')
