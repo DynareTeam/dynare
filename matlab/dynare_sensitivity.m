@@ -128,7 +128,7 @@ options_gsa = set_default_option(options_gsa,'Nsam',2048);
 options_gsa = set_default_option(options_gsa,'load_redform',0);
 options_gsa = set_default_option(options_gsa,'load_rmse',0);
 options_gsa = set_default_option(options_gsa,'load_stab',0);
-options_gsa = set_default_option(options_gsa,'alpha2_stab',0.3);
+options_gsa = set_default_option(options_gsa,'alpha2_stab',0);
 options_gsa = set_default_option(options_gsa,'ksstat',0.1);
 options_gsa = set_default_option(options_gsa,'pvalue_ks',0.001);
 options_gsa = set_default_option(options_gsa,'pvalue_corr',0.001);
@@ -218,6 +218,11 @@ end
 
 if options_gsa.stab && ~options_gsa.ppost,
     x0 = stab_map_(OutputDirectoryName,options_gsa);
+    if isempty(x0),
+        disp(' ')
+        disp('Sensitivity computations stopped: no parameter set provided a unique solution')
+        return
+    end
 end
 
 % reduced form

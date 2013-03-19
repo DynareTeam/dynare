@@ -73,6 +73,11 @@ if ~exist('T')
     else
         load([dirname,'/',M_.fname,'_mc'],'T');
     end
+    if ~exist('T'),
+        disp('The model is too large!')
+        disp('Reduced form mapping stopped!')
+        return
+    end
 end
 if isempty(dir(adir))
     mkdir(adir)

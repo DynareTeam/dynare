@@ -127,6 +127,7 @@ options_.analytic_derivation=1;
 options_ = set_default_option(options_,'datafile','');
 options_.mode_compute = 0;
 options_.plot_priors = 0;
+options_.smoother=1;
 [dataset_,xparam1, M_, options_, oo_, estim_params_,bayestopt_]=dynare_estimation_init(M_.endo_names,fname_,1, M_, options_, oo_, estim_params_, bayestopt_);
 options_ident.analytic_derivation_mode = options_.analytic_derivation_mode;
 if isempty(dataset_),
@@ -156,7 +157,7 @@ end
 % results = prior_sampler(0,M_,bayestopt_,options_,oo_);
 
 if prior_exist
-    if (~isnan(bayestopt_.pshape))
+    if any(bayestopt_.pshape > 0)
         if options_ident.prior_range
             prior_draw(1,1);
         else
@@ -233,9 +234,9 @@ if iload <=0,
 %             clear xparam1
 %         end
         params = set_prior(estim_params_,M_,options_)';
-        if isnan(bayestopt_.pshape)
-        parameters = 'ML_Starting_value';
-        disp('Testing ML Starting value')
+        if all(bayestopt_.pshape == 0)
+            parameters = 'ML_Starting_value';
+            disp('Testing ML Starting value')
         else
         switch parameters
             case 'posterior_mode'
@@ -275,10 +276,57 @@ if iload <=0,
         disp('----------- ')
         disp('Parameter error:')
         disp(['The model does not solve for ', parameters, ' with error code info = ', int2str(info(1))]),
-        disp('Identification stopped ')
+        disp(' ')
+        if info(1)==1,
+        disp('info==1 %! The model doesn''t determine the current variables uniquely.')
+        elseif info(1)==2,
+        disp('info==2 %! MJDGGES returned an error code.')
+        elseif info(1)==3,
+        disp('info==3 %! Blanchard & Kahn conditions are not satisfied: no stable equilibrium. ')
+        elseif info(1)==4,
+        disp('info==4 %! Blanchard & Kahn conditions are not satisfied: indeterminacy. ')
+        elseif info(1)==5,
+        disp('info==5 %! Blanchard & Kahn conditions are not satisfied: indeterminacy due to rank failure. ')
+        elseif info(1)==6,
+        disp('info==6 %! The jacobian evaluated at the deterministic steady state is complex.')
+        elseif info(1)==19,
+        disp('info==19 %! The steadystate routine thrown an exception (inconsistent deep parameters). ')
+        elseif info(1)==20,
+        disp('info==20 %! Cannot find the steady state, info(2) contains the sum of square residuals (of the static equations). ')
+        elseif info(1)==21,
+        disp('info==21 %! The steady state is complex, info(2) contains the sum of square of imaginary parts of the steady state.')
+        elseif info(1)==22,
+        disp('info==22 %! The steady has NaNs. ')
+        elseif info(1)==23,
+        disp('info==23 %! M_.params has been updated in the steadystate routine and has complex valued scalars. ')
+        elseif info(1)==24,
+        disp('info==24 %! M_.params has been updated in the steadystate routine and has some NaNs. ')
+        elseif info(1)==30,
+        disp('info==30 %! Ergodic variance can''t be computed. ')
+        end
         disp('----------- ')
         disp(' ')
-        return,
+        if any(bayestopt_.pshape)
+            disp('Try sampling up to 50 parameter sets from the prior.')
+            kk=0;
+            while kk<50 && info(1),
+                kk=kk+1;
+                params = prior_draw();
+                [idehess_point, idemoments_point, idemodel_point, idelre_point, derivatives_info_point, info] = ...
+                    identification_analysis(params,indx,indexo,options_ident,dataset_, prior_exist, name_tex,1);
+            end
+        end
+        if info(1)
+            disp(' ')
+            disp('----------- ')
+            disp('Identification stopped:')
+            if any(bayestopt_.pshape)
+                disp('The model did not solve for any of 50 attempts of random samples from the prior')
+            end
+            disp('----------- ')
+            disp(' ')
+            return,           
+        end
     else
     idehess_point.params=params;
 %     siH = idemodel_point.siH;
