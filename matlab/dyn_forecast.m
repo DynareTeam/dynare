@@ -87,8 +87,10 @@ switch task
                 i_var_obs = [ i_var_obs; tmp];
                 trend_coeffs = [trend_coeffs; oo_.Smoother.TrendCoeffs(i)];
             end
-        end         
-        trend = trend_coeffs*(gend+(1-M_.maximum_lag:horizon));
+        end
+        if ~isempty(trend_coeffs) 
+          trend = trend_coeffs*(gend+(1-M_.maximum_lag:horizon)); 
+        end
     end
     global bayestopt_
     if isfield(bayestopt_,'mean_varobs')

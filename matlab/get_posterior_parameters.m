@@ -12,7 +12,7 @@ function xparam = get_posterior_parameters(type)
 % SPECIAL REQUIREMENTS
 %   None.
 
-% Copyright (C) 2006-2009 Dynare Team
+% Copyright (C) 2006-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -49,7 +49,7 @@ for i=1:nvx
 end
 
 for i=1:nvn
-    k1 = estim_params_.var_endo(i,1);
+    k1 = estim_params_.nvn_observable_correspondence(i,1);
     name1 = deblank(options_.varobs(k1,:));
     xparam(m) = eval(['oo_.posterior_' type '.measurement_errors_std.' name1]);
     m = m+1;
@@ -67,8 +67,8 @@ for i=1:ncx
 end
 
 for i=1:ncn
-    k1 = estim_params_.corrn(i,1);
-    k2 = estim_params_.corrn(i,2);
+    k1 = estim_params_.corrn_observable_correspondence(i,1);
+    k2 = estim_params_.corrn_observable_correspondence(i,2);
     name1 = deblank(options_.varobs(k1,:));
     name2 = deblank(options_.varobs(k2,:));
     xparam(m) = eval(['oo_.posterior_' type '.measurement_errors_corr.' name1 '_' name2]);

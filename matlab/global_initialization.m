@@ -422,6 +422,7 @@ oo_.exo_det_simul = [];
 M_.params = [];
 M_.endo_histval = [];
 M_.Correlation_matrix = [];
+M_.Correlation_matrix_ME = [];
 
 % homotopy
 options_.homotopy_mode = 0;

@@ -15,7 +15,7 @@ function oo_ = GetPosteriorParametersStatistics(estim_params_, M_, options_, bay
 % SPECIAL REQUIREMENTS
 %   None.
 
-% Copyright (C) 2006-2012 Dynare Team
+% Copyright (C) 2006-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -163,7 +163,7 @@ end
 if nvn
     type = 'measurement_errors_std';
     if TeX
-        fid = TeXBegin(OutputDirectoryName,M_.fname,3,'standard deviation of measurement errors')
+        fid = TeXBegin(OutputDirectoryName,M_.fname,3,'standard deviation of measurement errors');
     end
     disp(' ')
     disp('standard deviation of measurement errors')
@@ -174,17 +174,17 @@ if nvn
             Draws = GetAllPosteriorDraws(ip,FirstMhFile,FirstLine,TotalNumberOfMhFiles,NumberOfDraws);
             [post_mean, post_median, post_var, hpd_interval, post_deciles, density] = ...
                 posterior_moments(Draws,1,options_.mh_conf_sig);
-            name = deblank(options_.varobs(estim_params_.var_endo(i,1),:));
+            name = deblank(options_.varobs(estim_params_.nvn_observable_correspondence(i,1),:));
             oo_ = Filloo(oo_,name,type,post_mean,hpd_interval,post_median,post_var,post_deciles,density);
         else
             try
-                name = deblank(options_.varobs(estim_params_.var_endo(i,1),:));
+                name = deblank(options_.varobs(estim_params_.nvn_observable_correspondence(i,1),:));
                 [post_mean,hpd_interval,post_var] = Extractoo(oo_,name,type);
             catch
                 Draws = GetAllPosteriorDraws(ip,FirstMhFile,FirstLine,TotalNumberOfMhFiles,NumberOfDraws);
                 [post_mean, post_median, post_var, hpd_interval, post_deciles, density] = ...
                     posterior_moments(Draws,1,options_.mh_conf_sig);
-                name = deblank(options_.varobs(estim_params_.var_endo(i,1),:));
+                name = deblank(options_.varobs(estim_params_.nvn_observable_correspondence(i,1),:));
                 oo_ = Filloo(oo_,name,type,post_mean,hpd_interval,post_median,post_var,post_deciles,density);
             end
         end

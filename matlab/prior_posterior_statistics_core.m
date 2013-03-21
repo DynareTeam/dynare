@@ -140,7 +140,7 @@ if run_smoother
   end
 end
 if nvn
-  stock_error = NaN(endo_nbr,gend,MAX_nerro);
+  stock_error = NaN(size(varobs,1),gend,MAX_nerro);
 end
 if naK
     stock_filter_step_ahead =NaN(length(options_.filter_step_ahead),endo_nbr,gend+max(options_.filter_step_ahead),MAX_naK);

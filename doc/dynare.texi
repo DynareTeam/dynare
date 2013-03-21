@@ -2158,7 +2158,7 @@ Specifies the correlation of two variables.
 In an estimation context, it is also possible to specify variances and
 covariances on endogenous variables: in that case, these values are
 interpreted as the calibration of the measurement errors on these
-variables.
+variables. This requires the @code{var_obs}-command to be specified before the @code{shocks}-block.
 
 Here is an example:
 
@@ -3747,14 +3747,14 @@ alternatives:
 
 @item stderr @var{VARIABLE_NAME}
 Indicates that the standard error of the exogenous variable
-@var{VARIABLE_NAME}, or of the observation error associated with
+@var{VARIABLE_NAME}, or of the observation error/measurement errors associated with
 endogenous observed variable @var{VARIABLE_NAME}, is to be estimated
 
 @item corr @var{VARIABLE_NAME1}, @var{VARIABLE_NAME2}
 Indicates that the correlation between the exogenous variables
 @var{VARIABLE_NAME1} and @var{VARIABLE_NAME2}, or the correlation of
-the observation errors associated with endogenous observed variables
-@var{VARIABLE_NAME1} and @var{VARIABLE_NAME2}, is to be estimated
+the observation errors/measurement errors associated with endogenous observed variables
+@var{VARIABLE_NAME1} and @var{VARIABLE_NAME2}, is to be estimated. Note that correlations set by previous @code{shocks}-blocks or @code{estimation}-commands are kept at their value set prior to estimation if they are not estimated again subsequently. Thus, the treatment is the same as in the case of deep parameters set during model calibration and not estimated.
 
 @item @var{PARAMETER_NAME}
 The name of a model parameter to be estimated

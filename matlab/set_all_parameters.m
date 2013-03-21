@@ -71,9 +71,8 @@ offset = nvx;
 
 % setting measument error variance
 if nvn
-    var_endo = estim_params.var_endo;
     for i=1:nvn
-        k = var_endo(i,1);
+        k = estim_params.nvn_observable_correspondence(i,1);
         H(k,k) = xparam1(i+offset)^2;
     end
 end
@@ -83,7 +82,7 @@ offset = nvx+nvn;
 
 % setting shocks covariances
 if ~isempty(M.Correlation_matrix)
-    Sigma_e = diag(sqrt(diag(Sigma_e)))*M.Correlation_matrix*diag(sqrt(diag(Sigma_e)));
+    Sigma_e = diag(sqrt(diag(Sigma_e)))*M.Correlation_matrix*diag(sqrt(diag(Sigma_e))); % use of old correlation matrix is correct due to the diagonal structure and later only using the hence correctly updated diagonal entries of Sigma_e
 end
 if ncx
     corrx = estim_params.corrx;
@@ -100,11 +99,16 @@ end
 % update offset
 offset = nvx+nvn+ncx;
 % setting measurement error covariances
+if ~isempty(M.Correlation_matrix_ME)
+    H = diag(sqrt(diag(H)))*M.Correlation_matrix_ME*diag(sqrt(diag(H)));
+end
 if ncn
-    corrn = estim_params.corrn;
+    corrn_observable_correspondence = estim_params.corrn_observable_correspondence;
     for i=1:ncn
-        k1 = corr(i,1);
-        k2 = corr(i,2);
+        k1 = corrn_observable_correspondence(i,1);
+        k2 = corrn_observable_correspondence(i,2);
+        M.Correlation_matrix_ME(k1,k2) = xparam1(i+offset);
+        M.Correlation_matrix_ME(k2,k1) = M.Correlation_matrix_ME(k1,k2);
         H(k1,k2) = xparam1(i+offset)*sqrt(H(k1,k1)*H(k2,k2));
         H(k2,k1) = H(k1,k2);
     end
@@ -122,6 +126,6 @@ end
 if nvx || ncx
     M.Sigma_e = Sigma_e;
 end
-if nvn
+if nvn || ncn
     M.H = H;
 end

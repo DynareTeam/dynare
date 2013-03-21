@@ -40,7 +40,7 @@ function [nam,texnam] = get_the_name(k,TeX,M_,estim_params_,options_)
 %! @end deftypefn
 %@eod:
 
-% Copyright (C) 2004-2011 Dynare Team
+% Copyright (C) 2004-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -73,11 +73,11 @@ if k <= nvx
         texnam = ['$ SE_{' tname '} $'];
     end
 elseif  k <= (nvx+nvn)
-    vname = deblank(options_.varobs(estim_params_.var_endo(k-estim_params_.nvx,1),:));
+    vname = deblank(options_.varobs(estim_params_.nvn_observable_correspondence(k-estim_params_.nvx,1),:));
     nam=['SE_EOBS_',vname];
     if TeX
         tname  = deblank(M_.endo_names_tex(estim_params_.var_endo(k-estim_params_.nvx,1),:));
-        texnam = ['$ SE_{' tname '} $'];
+        texnam = ['$ EOBS SE_{' tname '} $'];
     end
 elseif  k <= (nvx+nvn+ncx)
     jj = k - (nvx+nvn);
@@ -97,7 +97,7 @@ elseif  k <= (nvx+nvn+ncx+ncn)
     nam=['CC_EOBS_' vname];
     if TeX
         tname  = [deblank(M_.endo_names_tex(k1,:)) ',' deblank(M_.endo_names_tex(k2,:))];
-        texnam =['$ CC_{' tname '} $'];
+        texnam =['$ EOBS CC_{' tname '} $'];
     end
 else
     jj = k - (nvx+nvn+ncx+ncn);

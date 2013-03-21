@@ -13,7 +13,7 @@ function w=row_header_width(M_,estim_params_,bayestopt_)
 % SPECIAL REQUIREMENTS
 %   None.
 
-% Copyright (C) 2006-2009 Dynare Team
+% Copyright (C) 2006-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -64,7 +64,7 @@ if ncx
     end
 end
 if ncn
-    for i=1:nvn
+    for i=1:ncn
         k1 = estim_params_.corrn(i,1);
         k2 = estim_params_.corrn(i,2);
         w = max(w,length(deblank(M_.endo_names(k1,:)))...

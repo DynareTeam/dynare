@@ -77,6 +77,24 @@ if ~isequal(estim_params_.ncx,nnz(tril(M_.Sigma_e,-1)))
     end
 end
 
+M_.H_is_diagonal = 1;
+if estim_params_.ncn || ~isequal(nnz(M_.H),length(M_.H))
+    M_.H_is_diagonal = 0;
+end
+
+% Set the correlation matrix of measurement errors if necessary.
+if ~isequal(estim_params_.ncn,nnz(tril(M_.H,-1)))
+    M_.Correlation_matrix_ME = diag(1./sqrt(diag(M_.H)))*M_.H*diag(1./sqrt(diag(M_.H)));
+    % Remove NaNs appearing because of variances calibrated to zero.
+    if any(isnan(M_.Correlation_matrix_ME))
+        zero_variance_idx = find(~diag(M_.H));
+        for i=1:length(zero_variance_idx)
+            M_.Correlation_matrix_ME(zero_variance_idx(i),:) = 0;
+            M_.Correlation_matrix_ME(:,zero_variance_idx(i)) = 0;
+        end
+    end
+end
+
 data = dataset_.data;
 rawdata = dataset_.rawdata;
 data_index = dataset_.missing.aindex;
@@ -554,7 +572,7 @@ if any(bayestopt_.pshape > 0) && ~options_.mh_posterior_mode_estimation
         disp(tit1)
         ip = nvx+1;
         for i=1:nvn
-            name = deblank(options_.varobs(estim_params_.var_endo(i,1),:));
+            name = deblank(options_.varobs(estim_params_.nvn_observable_correspondence(i,1),:));
             disp(sprintf('%-*s %7.3f %8.4f %7.4f %7.4f %4s %6.4f', ...
                          header_width,name,bayestopt_.p1(ip), ...
                          xparam1(ip),stdh(ip),tstath(ip), ...
@@ -653,7 +671,7 @@ elseif ~any(bayestopt_.pshape > 0) && ~options_.mh_posterior_mode_estimation
         disp(tit1)
         ip = nvx+1;
         for i=1:nvn
-            name = deblank(options_.varobs(estim_params_.var_endo(i,1),:));
+            name = deblank(options_.varobs(estim_params_.nvn_observable_correspondence(i,1),:));
             disp(sprintf('%-*s %8.4f %7.4f %7.4f',header_width,name,xparam1(ip),stdh(ip),tstath(ip)))
             eval(['oo_.mle_mode.measurement_errors_std.' name ' = xparam1(ip);']);
             eval(['oo_.mle_std.measurement_errors_std.' name ' = stdh(ip);']);
@@ -799,7 +817,7 @@ if any(bayestopt_.pshape > 0) && options_.TeX %% Bayesian estimation (posterior 
         fprintf(fidTeX,'\\hline \\hline \\endlastfoot \n');
         ip = nvx+1;
         for i=1:nvn
-            idx = strmatch(options_.varobs(estim_params_.var_endo(i,1),:),M_.endo_names);
+            idx = strmatch(options_.varobs(estim_params_.nvn_observable_correspondence(i,1),:),M_.endo_names);
             fprintf(fidTeX,'$%s$ & %4s & %7.3f & %6.4f & %8.4f & %7.4f \\\\ \n',...
                     deblank(M_.endo_names_tex(idx,:)), ...
                     deblank(pnames(bayestopt_.pshape(ip)+1,:)), ...
@@ -1100,7 +1118,8 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                 hh = dyn_figure(options_,'Name','Smoothed observation errors');
                 NAMES = [];
                 if options_.TeX, TeXNAMES = []; end
-                for i=1:min(nstar,number_of_plots_to_draw-(nbplt-1)*nstar)
+                nstar0=min(nstar,number_of_plots_to_draw-(nbplt-1)*nstar);
+                for i=1:nstar0
                     k = (plt-1)*nstar+i;
                     subplot(nr,nc,i);
                     plot([1 gend],[0 0],'-r','linewidth',.5)
@@ -1131,7 +1150,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                 dyn_saveas(hh,[M_.fname '_SmoothedObservationErrors' int2str(plt)],options_);
                 if options_.TeX
                     fprintf(fidTeX,'\\begin{figure}[H]\n');
-                    for jj = 1:nstar
+                    for jj = 1:nstar0
                         fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(jj,:)),deblank(TeXNAMES(jj,:)));
                     end
                     fprintf(fidTeX,'\\centering \n');
@@ -1168,7 +1187,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
         for i=1:nstar0,
             k = (plt-1)*nstar+i;
             subplot(nr,nc,i);
-            plot(1:gend,yf(k,:),'--r','linewidth',1)
+            plot(1:gend,yf(k,:),'-r','linewidth',1)
             hold on
             plot(1:gend,rawdata(:,k),'--k','linewidth',1)
             hold off

@@ -16,7 +16,7 @@ function oo_ = PlotPosteriorDistributions(estim_params_, M_, options_, bayestopt
 % SPECIAL REQUIREMENTS
 %    none
 
-% Copyright (C) 2005-2012 Dynare Team
+% Copyright (C) 2005-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -89,7 +89,7 @@ for i=1:npar
             eval(['pmod = oo_.posterior_mode.shocks_std.' name ';'])
         end
     elseif i <= nvx+nvn
-        name = deblank(options_.varobs(estim_params_.var_endo(i-nvx,1),:));
+        name = deblank(options_.varobs(estim_params_.nvn_observable_correspondence(i-nvx,1),:));
         eval(['x1 = oo_.posterior_density.measurement_errors_std.' name '(:,1);'])
         eval(['f1 = oo_.posterior_density.measurement_errors_std.' name '(:,2);'])    
         eval(['oo_.prior_density.mearsurement_errors_std.' name '(:,1) = x2;'])

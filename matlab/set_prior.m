@@ -18,7 +18,7 @@ function [xparam1, estim_params_, bayestopt_, lb, ub, M_]=set_prior(estim_params
 % SPECIAL REQUIREMENTS
 %    None
 
-% Copyright (C) 2003-2011 Dynare Team
+% Copyright (C) 2003-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -41,11 +41,11 @@ ncx = size(estim_params_.corrx,1);
 ncn = size(estim_params_.corrn,1);
 np = size(estim_params_.param_vals,1);
 
-estim_params_.nvx = nvx;
-estim_params_.nvn = nvn;
-estim_params_.ncx = ncx;
-estim_params_.ncn = ncn;
-estim_params_.np = np;
+estim_params_.nvx = nvx; %exogenous shock variances
+estim_params_.nvn = nvn; %endogenous variances, i.e. measurement error
+estim_params_.ncx = ncx; %exogenous shock correlations
+estim_params_.ncn = ncn; % correlation between endogenous variables, i.e. measurement error.
+estim_params_.np = np;   % other parameters of the model
 
 xparam1 = [];
 ub = [];
@@ -74,6 +74,7 @@ if nvx
     bayestopt_.name = cellstr(M_.exo_names(estim_params_.var_exo(:,1),:));
 end
 if nvn
+    estim_params_.nvn_observable_correspondence=NaN(nvn,1); % stores number of corresponding observable
     if isequal(M_.H,0)
         nvarobs = size(options_.varobs,1);
         M_.H = zeros(nvarobs,nvarobs);
@@ -83,7 +84,7 @@ if nvn
         if isempty(obsi_)
             error(['The variable ' deblank(M_.endo_names(estim_params_.var_endo(i,1),:)) ' has to be declared as observable since you assume a measurement error on it.'])
         end
-        estim_params_.var_endo(i,1) = obsi_;
+        estim_params_.nvn_observable_correspondence(i,1)=obsi_;
     end
     xparam1 = [xparam1; estim_params_.var_endo(:,2)];
     ub = [ub; estim_params_.var_endo(:,4)]; 
@@ -94,7 +95,7 @@ if nvn
     bayestopt_.p3 = [ bayestopt_.p3; estim_params_.var_endo(:,8)];
     bayestopt_.p4 = [ bayestopt_.p4; estim_params_.var_endo(:,9)];
     bayestopt_.jscale = [ bayestopt_.jscale; estim_params_.var_endo(:,10)];
-    bayestopt_.name = [ bayestopt_.name; cellstr(options_.varobs(estim_params_.var_endo(:,1),:))];
+    bayestopt_.name = [ bayestopt_.name; cellstr(options_.varobs(estim_params_.nvn_observable_correspondence,:))];
 end
 if ncx
     xparam1 = [xparam1; estim_params_.corrx(:,3)];
@@ -111,6 +112,7 @@ if ncx
                         repmat(', ',ncx,1) , deblank(M_.exo_names(estim_params_.corrx(:,2),:))])];
 end
 if ncn
+    estim_params_.corrn_observable_correspondence=NaN(ncn,2);
     if isequal(M_.H,0)
         nvarobs = size(options_.varobs,1);
         M_.H = zeros(nvarobs,nvarobs);
@@ -125,8 +127,15 @@ if ncn
     bayestopt_.p4 = [ bayestopt_.p4; estim_params_.corrn(:,10)];
     bayestopt_.jscale = [ bayestopt_.jscale; estim_params_.corrn(:,11)];
     bayestopt_.name = [bayestopt_.name; cellstr([repmat('corr ',ncn,1) ...
-                        deblank(M_.exo_names(estim_params_.corrn(:,1),:)) ...
-                        repmat(', ',ncn,1) , deblank(M_.exo_names(estim_params_.corrn(:,2),:))])];
+                        deblank(M_.endo_names(estim_params_.corrn(:,1),:)) ...
+                        repmat(', ',ncn,1) , deblank(M_.endo_names(estim_params_.corrn(:,2),:))])];
+    for i=1:ncn
+        k1 = estim_params_.corrn(i,1);
+        k2 = estim_params_.corrn(i,2);
+        obsi1 = strmatch(deblank(M_.endo_names(k1,:)),deblank(options_.varobs),'exact'); %find correspondence to varobs to construct H in set_all_paramters
+        obsi2 = strmatch(deblank(M_.endo_names(k2,:)),deblank(options_.varobs),'exact');
+        estim_params_.corrn_observable_correspondence(i,:)=[obsi1,obsi2]; %save correspondence
+    end
 end
 if np
     xparam1 = [xparam1; estim_params_.param_vals(:,2)];
