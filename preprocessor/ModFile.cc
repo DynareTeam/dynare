@@ -107,6 +107,7 @@ ModFile::addStatementAtFront(Statement *st)
 void
 ModFile::checkPass()
 {
+  dynamic_model.print_trend_vars();
   for (vector<Statement *>::iterator it = statements.begin();
        it != statements.end(); it++)
     (*it)->checkPass(mod_file_struct, warnings);
@@ -374,8 +375,8 @@ ModFile::computingPass(bool no_tmp_terms)
   // Mod file may have no equation (for example in a standalone BVAR estimation)
   if (dynamic_model.equation_number() > 0)
     {
-      if (nonstationary_variables)
-        trend_dynamic_model.runTrendTest(global_eval_context);
+      /*if (nonstationary_variables)
+        trend_dynamic_model.runTrendTest(global_eval_context);*/
 
       // Compute static model and its derivatives
       dynamic_model.toStatic(static_model);

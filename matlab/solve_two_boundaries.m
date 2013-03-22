@@ -74,69 +74,11 @@ g1=spalloc( Blck_size*periods, Jacobian_Size, nze*periods);
 reduced = 0;
 while ~(cvg==1 || iter>maxit_),
     [r, y, g1, g2, g3, b]=feval(fname, y, x, params, steady_state, periods, 0, y_kmin, Blck_size);
-    %     fjac = zeros(Blck_size, Blck_size*(y_kmin_l+1+y_kmax_l));
-    %     disp(['Blck_size=' int2str(Blck_size) ' size(y_index)=' int2str(size(y_index,2))]);
-    %     dh = max(abs(y(y_kmin+1-y_kmin_l:y_kmin+1+y_kmax_l, y_index)),options_.gstep*ones(y_kmin_l+1+y_kmax_l, Blck_size))*eps^(1/3);
-    %     fvec = r;
-    %     %for i = y_kmin+1-y_kmin_l:y_kmin+1+y_kmax_l
-    %     i = y_kmin+1;
-    %       i
-    %       for j = 1:Blck_size
-    %             ydh = y ;
-    %           ydh(i, y_index(j)) = ydh(i, y_index(j)) + dh(i, j)  ;
-    %           if(j==11 && i==2)
-    %               disp(['y(i,y_index(11)=' int2str(y_index(11)) ')= ' num2str(y(i,y_index(11))) ' ydh(i, y_index(j))=' num2str(ydh(i, y_index(j))) ' dh(i,j)= ' num2str(dh(i,j))]);
-    %           end;
-    %           [t, y1, g11, g21, g31, b1]=feval(fname, ydh, x, params, periods, 0, y_kmin, Blck_size);
-    %           fjac(:,j+(i-(y_kmin+1-y_kmin_l))*Blck_size) = (t(:, 1+y_kmin) - fvec(:, 1+y_kmin))./dh(i, j) ;
-    %           if(j==11 && i==2)
-    %                disp(['fjac(:,' int2str(j+(i-(y_kmin+1-y_kmin_l))*Blck_size) ')=']);
-    %                disp([num2str(fjac(:,j+(i-(y_kmin+1-y_kmin_l))*Blck_size))]);
-    %           end;
-    %       end;
-    % %    end
-    %     %diff = g1(1:Blck_size, 1:Blck_size*(y_kmin_l+1+y_kmax_l)) -fjac;
-    %     diff = g1(1:Blck_size, y_kmin_l*Blck_size+1:(y_kmin_l+1)*Blck_size) -fjac(1:Blck_size, y_kmin_l*Blck_size+1:(y_kmin_l+1)*Blck_size);
-    %     disp(diff);
-    %     [c_max, i_c_max] = max(abs(diff));
-    %     [l_c_max, i_r_max] = max(c_max);
-    %     disp(['maximum element row=' int2str(i_c_max(i_r_max)) ' and column=' int2str(i_r_max) ' value = ' num2str(l_c_max)]);
-    %     equation = i_c_max(i_r_max);
-    %     variable = i_r_max;
-    %     variable
-    %     disp(['equation ' int2str(equation) ' and variable ' int2str(y_index(mod(variable, Blck_size))) ' ' M_.endo_names(y_index(mod(variable, Blck_size)), :)]);
-    %     disp(['g1(' int2str(equation) ', ' int2str(variable) ')=' num2str(g1(equation, y_kmin_l*Blck_size+variable),'%3.10f') ' fjac(' int2str(equation) ', ' int2str(variable) ')=' num2str(fjac(equation, y_kmin_l*Blck_size+variable), '%3.10f')]);
-    %     return;
-
-
-
-    %     for i=1:periods;
-    %       disp([sprintf('%5.14f ',[T9025(i) T1149(i) T11905(i)])]);
-    %     end;
-    %     return;
-    %residual = r(:,y_kmin+1:y_kmin+1+y_kmax_l);
-    %num2str(residual,' %1.6f')
-    %jac_ = g1(1:(y_kmin)*Blck_size, 1:(y_kmin+1+y_kmax_l)*Blck_size);
-    %jac_
-    
+    preconditioner = 2;
     g1a=g1(:, y_kmin*Blck_size+1:(periods+y_kmin)*Blck_size);
     term1 = g1(:, 1:y_kmin_l*Blck_size)*reshape(y(1+y_kmin-y_kmin_l:y_kmin,y_index)',1,y_kmin_l*Blck_size)';
     term2 = g1(:, (periods+y_kmin_l)*Blck_size+1:(periods+y_kmin_l+y_kmax_l)*Blck_size)*reshape(y(periods+y_kmin+1:periods+y_kmin+y_kmax_l,y_index)',1,y_kmax_l*Blck_size)';
     b = b - term1 - term2;
-    
-    %      fid = fopen(['result' num2str(iter)],'w');
-    %      fg1a = full(g1a);
-    %      fprintf(fid,'%d\n',size(fg1a,1));
-    %      fprintf(fid,'%d\n',size(fg1a,2));
-    %      fprintf(fid,'%5.14f\n',fg1a);
-    %      fprintf(fid,'%d\n',size(b,1));
-    %      fprintf(fid,'%5.14f\n',b);
-    %      fclose(fid);
-    %      return;
-    %ipconfigb_ = b(1:(1+y_kmin)*Blck_size);
-    %b_ 
-    
-    
     [max_res, max_indx]=max(max(abs(r')));
     if(~isreal(r))
         max_res = (-max_res^2)^0.5;
@@ -255,7 +197,33 @@ while ~(cvg==1 || iter>maxit_),
         elseif(stack_solve_algo==2),
             flag1=1;
             while(flag1>0)
-                [L1, U1]=luinc(g1a,luinc_tol);
+                if preconditioner == 2
+                    [L1, U1]=luinc(g1a,luinc_tol);
+                elseif preconditioner == 3
+                    Size = Blck_size;
+                     gss1 =  g1a(Size + 1: 2*Size,Size + 1: 2*Size) + g1a(Size + 1: 2*Size,2*Size+1: 3*Size);
+                     [L1, U1]=lu(gss1);
+                     L(1:Size,1:Size) = L1;
+                     U(1:Size,1:Size) = U1;
+                     gss2 = g1a(Size + 1: 2*Size,1: Size) + g1a(Size + 1: 2*Size,Size+1: 2*Size) + g1a(Size + 1: 2*Size,2*Size+1: 3*Size);
+                     [L2, U2]=lu(gss2);
+                     L(Size+1:(periods-1)*Size,Size+1:(periods-1)*Size) = kron(eye(periods-2), L2);
+                     U(Size+1:(periods-1)*Size,Size+1:(periods-1)*Size) = kron(eye(periods-2), U2);
+                     gss2 = g1a(Size + 1: 2*Size,1: Size) + g1a(Size + 1: 2*Size,Size+1: 2*Size);
+                     [L3, U3]=lu(gss2);
+                     L((periods-1)*Size+1:periods*Size,(periods-1)*Size+1:periods*Size) = L3;
+                     U((periods-1)*Size+1:periods*Size,(periods-1)*Size+1:periods*Size) = U3;
+                     L1 = L;
+                     U1 = U;
+                elseif preconditioner == 4
+                    Size = Blck_size;
+                    gss1 =  g1a(1: 3*Size, 1: 3*Size);
+                    [L, U] = lu(gss1);
+                    L1 = kron(eye(ceil(periods/3)),L);
+                    U1 = kron(eye(ceil(periods/3)),U);
+                    L1 = L1(1:periods * Size, 1:periods * Size);
+                    U1 = U1(1:periods * Size, 1:periods * Size);
+                end;
                 [za,flag1] = gmres(g1a,b,Blck_size,1e-6,Blck_size*periods,L1,U1);
                 if (flag1>0 || reduced)
                     if(flag1==1)
@@ -276,8 +244,25 @@ while ~(cvg==1 || iter>maxit_),
         elseif(stack_solve_algo==3),
             flag1=1;
             while(flag1>0)
-                [L1, U1]=luinc(g1a,luinc_tol);
-                [za,flag1] = bicgstab(g1a,b,1e-7,Blck_size*periods,L1,U1);
+                if (preconditioner == 3)
+                    Size = Blck_size;
+                    gss0 = g1a(Size + 1: 2*Size,1: Size) + g1a(Size + 1: 2*Size,Size+1: 2*Size) + g1a(Size + 1: 2*Size,2*Size+1: 3*Size);
+                    [L1, U1]=lu(gss0);
+                    P1 = eye(size(gss0));
+                    Q1 = eye(size(gss0));
+                    L = kron(eye(periods),L1);
+                    U = kron(eye(periods),U1);
+                    P = kron(eye(periods),P1);
+                    Q = kron(eye(periods),Q1);
+                    [za,flag1] = bicgstab1(g1a,b,1e-7,Blck_size*periods,L,U, P, Q);
+                else
+                    Size = Blck_size;
+                    gss0 = g1a(Size + 1: 2*Size,1: Size) + g1a(Size + 1: 2*Size,Size+1: 2*Size) + g1a(Size + 1: 2*Size,2*Size+1: 3*Size);
+                    [L1, U1]=lu(gss0);
+                    L1 = kron(eye(periods),L1);
+                    U1 = kron(eye(periods),U1);
+                    [za,flag1] = bicgstab(g1a,b,1e-7,Blck_size*periods,L1,U1);
+                end;
                 if (flag1>0 || reduced)
                     if(flag1==1)
                         disp(['Error in simul: No convergence inside BICGSTAB after ' num2str(periods*10,'%6d') ' iterations, in block' num2str(Block_Size,'%3d')]);

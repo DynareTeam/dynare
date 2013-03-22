@@ -176,6 +176,64 @@ ExprNode::writeExternalFunctionOutput(ostream &output, ExprNodeOutputType output
 }
 
 void
+ExprNode::print_deflator()
+{
+  
+}
+
+
+void
+VariableNode::print_deflator()
+{
+  cout << datatree.symbol_table.getName(symb_id);
+}
+
+
+void
+UnaryOpNode::print_deflator()
+{
+  arg->print_deflator();
+}
+
+void
+BinaryOpNode::print_deflator()
+{
+  arg1->print_deflator();
+  arg2->print_deflator();
+}
+
+
+void
+TrinaryOpNode::print_deflator()
+{
+  arg1->print_deflator();
+  arg2->print_deflator();
+  arg3->print_deflator();
+}
+
+
+void
+ExternalFunctionNode::print_deflator()
+{
+  
+}
+
+
+void
+FirstDerivExternalFunctionNode::print_deflator()
+{
+  
+}
+
+
+void
+SecondDerivExternalFunctionNode::print_deflator()
+{
+  
+}
+
+
+void
 ExprNode::compileExternalFunctionOutput(ostream &CompileCode, unsigned int &instruction_number,
                                         bool lhs_rhs, const temporary_terms_t &temporary_terms,
                                         const map_idx_t &map_idx, bool dynamic, bool steady_dynamic,
@@ -295,6 +353,12 @@ NumConstNode::collectTemporary_terms(const temporary_terms_t &temporary_terms, t
   temporary_terms_t::const_iterator it = temporary_terms.find(const_cast<NumConstNode *>(this));
   if (it != temporary_terms.end())
     temporary_terms_inuse.insert(idx);
+}
+
+void
+NumConstNode::print_deflator()
+{
+
 }
 
 void

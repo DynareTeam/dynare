@@ -1232,7 +1232,7 @@ public:
     CompileCode.write(reinterpret_cast<char *>(&row), sizeof(row));
     CompileCode.write(reinterpret_cast<char *>(&col), sizeof(col));
     CompileCode.write(reinterpret_cast<char *>(&function_type), sizeof(function_type));
-    int size = func_name.size();
+    size_t size = func_name.size();
     CompileCode.write(reinterpret_cast<char *>(&size), sizeof(int));
     const char *name = func_name.c_str();
     CompileCode.write(reinterpret_cast<const char *>(name), func_name.size());
@@ -1607,7 +1607,7 @@ class CodeLoad
 private:
   uint8_t *code;
   unsigned int nb_blocks;
-  vector<unsigned int> begin_block;
+  vector<size_t> begin_block;
 public:
 
   inline unsigned int
@@ -1616,7 +1616,7 @@ public:
     return nb_blocks;
   };
 
-  unsigned int inline
+  size_t inline
   get_begin_block(int block)
   {
     return begin_block[block];

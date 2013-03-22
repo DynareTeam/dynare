@@ -230,6 +230,7 @@ public:
   virtual int getDerivID(int symb_id, int lag) const throw (UnknownDerivIDException);
   virtual int getDynJacobianCol(int deriv_id) const throw (UnknownDerivIDException);
   virtual void addAllParamDerivId(set<int> &deriv_id_set);
+  void print_trend_vars();
 
   //! Returns true indicating that this is a dynamic model
   virtual bool

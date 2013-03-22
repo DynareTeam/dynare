@@ -41,7 +41,7 @@ typedef ptrdiff_t blas_int;
 typedef int blas_int;
 #endif
 
-#if defined(MATLAB_MEX_FILE) && defined(_WIN32)
+#if defined(MATLAB_MEX_FILE) && defined(_WIN32) && !defined(_MSC_VER)
 # define FORTRAN_WRAPPER(x) x
 #else
 # define FORTRAN_WRAPPER(x) x ## _

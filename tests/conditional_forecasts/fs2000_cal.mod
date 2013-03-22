@@ -13,6 +13,7 @@ rho = 0.7;
 psi = 0.787;
 del = 0.02;
 
+//model(block, bytecode);
 model;
 dA = exp(gam+e_a);
 log(m) = (1-rho)*log(mst) + rho*log(m(-1))+e_m;
@@ -56,19 +57,39 @@ steady;
 
 check;
 
-stoch_simul(irf=0);
+//stoch_simul(irf=0);
 
 conditional_forecast_paths;
+var gp_obs;
+periods 1 2:5;
+//values  0.05;
+//values  0.98 1.00797;
+values  0.98 0.99;
+//expectation perfect_foresight;
 var gy_obs;
 periods  1  2  3:5;
-values   0.01 -0.02 0;
-var gp_obs;
-periods 1:5;
-values  0.05;
+//values   0.01 -0.02 0;
+//values   0.85 0.85 0.95;
+values   0.95 0.95 0.99;
+//expectation perfect_foresight;
 end;
 
-conditional_forecast(parameter_set=calibration, controlled_varexo=(e_a,e_m));
+options_.stack_solve_algo = 0;
+options_.maxit_ = 50;
 
-if ~(exist('OCTAVE_VERSION') && octave_ver_less_than('3.4.0'))
-plot_conditional_forecast(periods=10) gy_obs gp_obs;
-end
+conditional_forecast(parameter_set=calibration, controlled_varexo=(e_m,e_a), simulation_type = deterministic);
+
+/*shocks;
+var e_a;
+periods 1 2 3 4 5;
+values -0.0109 -0.0122 -0.0137 -0.0154 -0.0173;
+var e_m;
+periods 1 2 3 4 5;
+values -0.1242 -0.0386 -0.0392 -0.0398 -0.0405;
+end;
+simul(periods=40);*/
+rplot gy_obs;
+rplot gp_obs;
+//if ~(exist('OCTAVE_VERSION') && octave_ver_less_than('3.4.0'))
+//plot_conditional_forecast(periods=10) gy_obs gp_obs;
+//end

@@ -27,6 +27,7 @@
 #define BYTE_CODE
 #include "CodeInterpreter.hh"
 #include "SparseMatrix.hh"
+#include "Evaluate.hh"
 #ifdef LINBCG
 # include "linbcg.hh"
 #endif
@@ -40,50 +41,29 @@
 
 using namespace std;
 
-#define pow_ pow
 
-class Interpreter : public SparseMatrix
+class Interpreter : public dynSparseMatrix
 {
 private:
-  unsigned int EQN_dvar1, EQN_dvar2, EQN_dvar3;
-  int EQN_lag1, EQN_lag2, EQN_lag3;
-  mxArray *GlobalTemporaryTerms;
 protected:
-  double pow1(double a, double b);
-  double divide(double a, double b);
-  double log1(double a);
-  double log10_1(double a);
-  void compute_block_time(int Per_u_, bool evaluate, int block_num, int size, bool steady_state);
-  void evaluate_a_block(const int size, const int type, string bin_basename, bool steady_state, int block_num,
-                        const bool is_linear = false, const int symbol_table_endo_nbr = 0, const int Block_List_Max_Lag = 0, const int Block_List_Max_Lead = 0, const int u_count_int = 0, int block = -1);
-  int simulate_a_block(const int size, const int type, string file_name, string bin_basename, bool Gaussian_Elimination, bool steady_state, bool print_it, int block_num,
-                       const bool is_linear = false, const int symbol_table_endo_nbr = 0, const int Block_List_Max_Lag = 0, const int Block_List_Max_Lead = 0, const int u_count_int = 0);
-  void print_a_block(const int size, const int type, string bin_basename, bool steady_state, int block_num,
-                     const bool is_linear, const int symbol_table_endo_nbr, const int Block_List_Max_Lag,
-                     const int Block_List_Max_Lead, const int u_count_int, int block);
-  void SingularDisplay(int Per_u_, bool evaluate, int Block_Count, int size, bool steady_state, it_code_type begining);
-  vector<Block_contain_type> Block_Contain;
-  code_liste_type code_liste;
-  it_code_type it_code;
-  int Block_Count, Per_u_, Per_y_;
-  int it_, maxit_, size_of_direction;
-  double solve_tolf;
-  bool GaussSeidel;
-  map<pair<pair<int, int>, int>, int> IM_i;
-  int equation, derivative_equation, derivative_variable;
-  string filename;
-  int minimal_solving_periods;
-  int stack_solve_algo, solve_algo;
-  bool global_temporary_terms;
-  bool print, print_error;
+  void evaluate_a_block();
+  int simulate_a_block();
+  void print_a_block();
 public:
   ~Interpreter();
   Interpreter(double *params_arg, double *y_arg, double *ya_arg, double *x_arg, double *steady_y_arg, double *steady_x_arg,
-              double *direction_arg, int y_size_arg, int nb_row_x_arg,
-              int nb_row_xd_arg, int periods_arg, int y_kmin_arg, int y_kmax_arg, int maxit_arg_, double solve_tolf_arg, int size_o_direction_arg,
-              double slowc_arg, int y_decal_arg, double markowitz_c_arg, string &filename_arg, int minimal_solving_periods_arg, int stack_solve_algo_arg, int solve_algo_arg,
-              bool global_temporary_terms_arg, bool print_arg, bool print_error_arg, mxArray *GlobalTemporaryTerms_arg);
-  bool compute_blocks(string file_name, string bin_basename, bool steady_state, bool evaluate, int block, int &nb_blocks, bool print_it);
+              double *direction_arg, size_t y_size_arg,
+              size_t nb_row_x_arg, size_t nb_row_xd_arg, int periods_arg, int y_kmin_arg, int y_kmax_arg,
+              int maxit_arg_, double solve_tolf_arg, size_t size_of_direction_arg, double slowc_arg, int y_decal_arg, double markowitz_c_arg,
+              string &filename_arg, int minimal_solving_periods_arg, int stack_solve_algo_arg, int solve_algo_arg,
+              bool global_temporary_terms_arg, bool print_arg, bool print_error_arg, mxArray *GlobalTemporaryTerms_arg,
+              bool steady_state_arg, bool print_it_arg
+#ifdef CUDA
+              , const int CUDA_device, cublasHandle_t cublas_handle_arg, cusparseHandle_t cusparse_handle_arg, cusparseMatDescr_t descr_arg
+#endif
+              );
+  bool compute_blocks(string file_name, string bin_basename, bool evaluate, int block, int &nb_blocks);
+
   inline mxArray *
   get_jacob(int block_num)
   {

@@ -1,6 +1,6 @@
 noinst_PROGRAMS = bytecode
 
-bytecode_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/../../sources/bytecode -I$(top_srcdir)/../../../preprocessor
+bytecode_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/../../sources -I$(top_srcdir)/../../sources/bytecode -I$(top_srcdir)/../../../preprocessor
 
 TOPDIR = $(top_srcdir)/../../sources/bytecode
 
@@ -9,8 +9,10 @@ nodist_bytecode_SOURCES = \
 	$(TOPDIR)/Interpreter.cc \
 	$(TOPDIR)/Mem_Mngr.cc \
 	$(TOPDIR)/SparseMatrix.cc \
+	$(TOPDIR)/Evaluate.cc \
 	$(TOPDIR)/Interpreter.hh \
 	$(TOPDIR)/Mem_Mngr.hh \
 	$(TOPDIR)/SparseMatrix.hh \
+	$(TOPDIR)/Evaluate.hh \
 	$(TOPDIR)/ErrorHandling.hh
 

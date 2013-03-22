@@ -26,10 +26,13 @@
 #endif
 #include "block_kalman_filter.h"
 using namespace std;
-//#define BLAS
-#define DIRECT
+#define BLAS
+//#define CUBLAS
 
-
+#ifdef CUBLAS
+  #include <cuda_runtime.h>
+  #include <cublas_v2.h>
+#endif
 void
 mexDisp(mxArray* P)
 {
@@ -157,7 +160,7 @@ BlockKalmanFilter::BlockKalmanFilter(int nlhs, mxArray *plhs[], int nrhs, const 
   if (missing_observations)
     {
       if (! mxIsCell (prhs[0]))
-        DYN_MEX_FUNC_ERR_MSG_TXT("the first input argument of block_missing_observations_kalman_filter must be a Call Array.");
+        DYN_MEX_FUNC_ERR_MSG_TXT("the first input argument of block_missing_observations_kalman_filter must be a Cell Array.");
       pdata_index = prhs[0];
       if (! mxIsDouble (prhs[1]))
         DYN_MEX_FUNC_ERR_MSG_TXT("the second input argument of block_missing_observations_kalman_filter must be a scalar.");
@@ -234,14 +237,13 @@ BlockKalmanFilter::BlockKalmanFilter(int nlhs, mxArray *plhs[], int nrhs, const 
   *a = mxGetPr(pa);
   tmp_a = (double*)mxMalloc(n * sizeof(double));
   dF = 0.0;                                            // det(F).
-  p_tmp = mxCreateDoubleMatrix(n, n_state, mxREAL);
-  *tmp = mxGetPr(p_tmp);
+  
   p_tmp1 = mxCreateDoubleMatrix(n, n_shocks, mxREAL);
   tmp1 = mxGetPr(p_tmp1);
   t = 0;                                               // Initialization of the time index.
   plik  = mxCreateDoubleMatrix(smpl, 1, mxREAL);
   lik = mxGetPr(plik);
-  Inf =  mxGetInf();                                   
+  Inf =  mxGetInf();
   LIK  = 0.0;                                          // Default value of the log likelihood.
   notsteady   = true;                                 // Steady state flag.
   F_singular  = true;
@@ -287,6 +289,22 @@ BlockKalmanFilter::BlockKalmanFilter(int nlhs, mxArray *plhs[], int nrhs, const 
   iw = (lapack_int*)mxMalloc(pp * sizeof(lapack_int));
   ipiv = (lapack_int*)mxMalloc(pp * sizeof(lapack_int));
   info = 0;
+#ifdef BLAS || CUBLAS
+  p_tmp = mxCreateDoubleMatrix(n, n, mxREAL);
+  *tmp = mxGetPr(p_tmp);
+  p_P_t_t1 = mxCreateDoubleMatrix(n, n, mxREAL);
+  *P_t_t1 = mxGetPr(p_P_t_t1);
+  pK = mxCreateDoubleMatrix(n, n, mxREAL);
+  *K = mxGetPr(pK);
+  p_K_P = mxCreateDoubleMatrix(n, n, mxREAL);
+  *K_P = mxGetPr(p_K_P);
+  oldK  = (double*)mxMalloc(n * n * sizeof(double));
+  *P_mf = (double*)mxMalloc(n * n * sizeof(double));
+  for (int i = 0; i < n  * n; i++)
+    oldK[i] = Inf;
+#else
+  p_tmp = mxCreateDoubleMatrix(n, n_state, mxREAL);
+  *tmp = mxGetPr(p_tmp);
   p_P_t_t1 = mxCreateDoubleMatrix(n_state, n_state, mxREAL);
   *P_t_t1 = mxGetPr(p_P_t_t1);
   pK = mxCreateDoubleMatrix(n, pp, mxREAL);
@@ -297,6 +315,7 @@ BlockKalmanFilter::BlockKalmanFilter(int nlhs, mxArray *plhs[], int nrhs, const 
   *P_mf = (double*)mxMalloc(n * pp * sizeof(double));
   for (int i = 0; i < n  * pp; i++)
     oldK[i] = Inf;
+#endif
 }
 
 void 
@@ -424,17 +443,17 @@ BlockKalmanFilter::block_kalman_filter(int nlhs, mxArray *plhs[], double *P_mf, 
         }
       
      
-      /* Computes the norm of iF */ 
-      double anorm = dlange("1", &size_d_index, &size_d_index, iF, &size_d_index, w); 
+      /* Computes the norm of iF */
+      double anorm = dlange("1", &size_d_index, &size_d_index, iF, &size_d_index, w);
       //mexPrintf("anorm = %f\n",anorm);
 
-      /* Modifies F in place with a LU decomposition */ 
-      dgetrf(&size_d_index, &size_d_index, iF, &size_d_index, ipiv, &info); 
-      if (info != 0) fprintf(stderr, "dgetrf failure with error %d\n", (int) info); 
+      /* Modifies F in place with a LU decomposition */
+      dgetrf(&size_d_index, &size_d_index, iF, &size_d_index, ipiv, &info);
+      if (info != 0) mexPrintf("dgetrf failure with error %d\n", (int) info);
  
-      /* Computes the reciprocal norm */ 
-      dgecon("1", &size_d_index, iF, &size_d_index, &anorm, &rcond, w, iw, &info); 
-      if (info != 0) fprintf(stderr, "dgecon failure with error %d\n", (int) info); 
+      /* Computes the reciprocal norm */
+      dgecon("1", &size_d_index, iF, &size_d_index, &anorm, &rcond, w, iw, &info);
+      if (info != 0) mexPrintf("dgecon failure with error %d\n", (int) info);
       
       if (rcond < kalman_tol)
         if (not_all_abs_F_bellow_crit(F, size_d_index * size_d_index, kalman_tol))   //~all(abs(F(:))<kalman_tol)
@@ -506,7 +525,7 @@ BlockKalmanFilter::block_kalman_filter(int nlhs, mxArray *plhs[], double *P_mf, 
           //iF     = inv(F);
           //int lwork = 4/*2*/* pp;
           dgetri(&size_d_index, iF, &size_d_index, ipiv, w, &lw, &info);
-          if (info != 0) fprintf(stderr, "dgetri failure with error %d\n", (int) info); 
+          if (info != 0) mexPrintf("dgetri failure with error %d\n", (int) info);
 
           //lik(t) = log(dF)+transpose(v)*iF*v;
 #ifdef USE_OMP
@@ -628,14 +647,126 @@ BlockKalmanFilter::block_kalman_filter(int nlhs, mxArray *plhs[], double *P_mf, 
           double one  = 1.0;
           double zero = 0.0;
           memcpy(P, QQ, n * n *sizeof(double));
-          dsymm("R", "U", &n, &n,
-                &one, P_t_t1, &n,
-                T, &n, &zero,
-                tmp, &n);
-          dgemm("N", "T", &n, &n,
-                &n, &one, tmp, &n,
-                T, &n, &one,
-                P, &n);
+          blas_int n_b = n;
+          /*mexPrintf("sizeof(n_b)=%d, n_b=%d, sizeof(n)=%d, n=%d\n",sizeof(n_b),n_b,sizeof(n),n);
+          mexEvalString("drawnow;");*/
+          dsymm("R", "U", &n_b, &n_b,
+                &one, P_t_t1, &n_b,
+                T, &n_b, &zero,
+                tmp, &n_b);
+          dgemm("N", "T", &n_b, &n_b,
+                &n_b, &one, tmp, &n_b,
+                T, &n_b, &one,
+                P, &n_b);
+#else
+#ifdef CUBLAS
+         for (int i = 0; i < n; i++)
+            for (int j = i; j < n; j++)
+              {
+                double res = 0.0;
+                //int j_pp = j * pp;
+                for (int k = 0; k < size_d_index; k++)
+                  res += K[i + k * n] * P_mf[k + j * size_d_index];
+                K_P[i * n + j] = K_P[j * n + i] = res;
+              }
+          //#pragma omp parallel for shared(P, K_P, P_t_t1)
+          for (int i = size_d_index; i < n; i++)
+            for (int j = i; j < n; j++)
+              {
+                unsigned int k = i * n + j;
+                P_t_t1[j * n + i] = P_t_t1[k] = P[k] - K_P[k];
+              }
+          mexPrintf("CudaBLAS\n");
+          mexEvalString("drawnow;");
+          double one  = 1.0;
+          double zero = 0.0;
+          cublasStatus_t status;
+          cublasHandle_t handle;
+          status = cublasCreate(&handle);
+          if (status != CUBLAS_STATUS_SUCCESS)
+            {
+              mexPrintf("!!!! CUBLAS initialization error\n");
+              return false;
+            }
+          /*int device;
+          cudaGetDevice(&device);*/
+          int n2 = n * n;
+          double* d_A = 0;
+          double* d_B = 0;
+          double* d_C = 0;
+          double* d_D = 0;
+          // Allocate device memory for the matrices
+          if (cudaMalloc((void**)&d_A, n2 * sizeof(double)) != cudaSuccess)
+            {
+              mexPrintf("!!!! device memory allocation error (allocate A)\n");
+              return false;
+            }
+          if (cudaMalloc((void**)&d_B, n2 * sizeof(d_B[0])) != cudaSuccess)
+            {
+              mexPrintf("!!!! device memory allocation error (allocate B)\n");
+              return false;
+            }
+          if (cudaMalloc((void**)&d_C, n2 * sizeof(d_C[0])) != cudaSuccess)
+            {
+              mexPrintf("!!!! device memory allocation error (allocate C)\n");
+              return false;
+            }
+          if (cudaMalloc((void**)&d_D, n2 * sizeof(d_D[0])) != cudaSuccess)
+            {
+              mexPrintf("!!!! device memory allocation error (allocate D)\n");
+              return false;
+            }
+          // Initialize the device matrices with the host matrices
+          status = cublasSetVector(n2, sizeof(P_t_t1[0]), P_t_t1, 1, d_A, 1);
+          if (status != CUBLAS_STATUS_SUCCESS)
+            {
+              mexPrintf("!!!! device access error (write A)\n");
+              return false;
+            }
+          status = cublasSetVector(n2, sizeof(T[0]), T, 1, d_B, 1);
+          if (status != CUBLAS_STATUS_SUCCESS)
+            {
+              mexPrintf("!!!! device access error (write B)\n");
+              return false;
+            }
+          status = cublasSetVector(n2, sizeof(tmp[0]), tmp, 1, d_C, 1);
+          if (status != CUBLAS_STATUS_SUCCESS)
+            {
+              mexPrintf("!!!! device access error (write C)\n");
+              return false;
+           }
+          mexPrintf("just before calling\n");
+          mexEvalString("drawnow;");
+          status = cublasSetVector(n2, sizeof(QQ[0]), QQ, 1, d_D, 1);
+          if (status != CUBLAS_STATUS_SUCCESS)
+            {
+              mexPrintf("!!!! device access error (write D)\n");
+              return false;
+           }
+
+          // Performs operation using plain C code
+
+          cublasDsymm(handle, CUBLAS_SIDE_RIGHT, CUBLAS_FILL_MODE_UPPER, n, n,
+                &one, d_A, n,
+                d_B, n, &zero,
+                d_C, n);
+          /*dgemm("N", "T", &n_b, &n_b,
+                &n_b, &one, tmp, &n_b,
+                T, &n_b, &one,
+                P, &n_b);*/
+          cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_T, n, n,
+                n, &one, d_C, n,
+                d_B, n, &one,
+                d_D, n);
+          //double_symm(n, &one, h_A, h_B, &zero, h_C);
+
+          status = cublasGetVector(n2, sizeof(P[0]), d_D, 1, P, 1);
+          if (status != CUBLAS_STATUS_SUCCESS)
+            {
+              mexPrintf("!!!! device access error (read P)\n");
+              return false;
+            }
+
 #else
 #ifdef USE_OMP
 #pragma omp parallel for shared(K_P) num_threads(atoi(getenv("DYNARE_NUM_THREADS")))
@@ -717,7 +848,7 @@ BlockKalmanFilter::block_kalman_filter(int nlhs, mxArray *plhs[], double *P_mf, 
                 P[i + j * n] = P[j + i * n];
             }
 #endif
-          
+#endif
           if (t >= no_more_missing_observations)
             {
               double max_abs = 0.0;

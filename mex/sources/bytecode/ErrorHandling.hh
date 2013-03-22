@@ -23,24 +23,138 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <map>
+#define BYTE_CODE
 #include "CodeInterpreter.hh"
 #ifdef DEBUG_EX
-# include <math>
+# include <math.h>
 # include "mex_interface.hh"
 #endif
+
+#ifdef OCTAVE_MEX_FILE
+# define CHAR_LENGTH 1
+#else
+# define CHAR_LENGTH 2
+#endif
+
+#ifdef _MSC_VER
+#include <limits>
+#define M_E 2.71828182845904523536
+#define M_LOG2E 1.44269504088896340736
+#define M_LOG10E 0.434294481903251827651
+#define M_LN2 0.693147180559945309417
+#define M_LN10 2.30258509299404568402
+#define M_PI 3.14159265358979323846
+#define M_PI_2 1.57079632679489661923
+#define M_PI_4 0.785398163397448309616
+#define M_1_PI 0.318309886183790671538
+#define M_2_PI 0.636619772367581343076
+#define M_1_SQRTPI 0.564189583547756286948
+#define M_2_SQRTPI 1.12837916709551257390
+#define M_SQRT2 1.41421356237309504880
+#define M_SQRT_2 0.707106781186547524401
+#define NAN numeric_limits<double>::quiet_NaN()
+
+#define isnan(x) _isnan(x)
+#define isinf(x) (!_finite(x))
+#define fpu_error(x) (isinf(x) || isnan(x))
+
+
+class MSVCpp_missings
+{
+  public:
+  inline double
+  asinh(double x) const
+    {
+      if(x==0.0)
+        return 0.0;
+      double ax = abs(x);
+      return log(x+ax*sqrt(1.+1./(ax*ax)));
+    }
+
+  inline double
+  acosh(double x) const
+    {
+      if(x==0.0)
+        return 0.0;
+      double ax = abs(x);
+      return log(x+ax*sqrt(1.-1./(ax*ax)));
+    }
+
+  inline double
+  atanh(double x) const
+    {
+      return log((1+x)/(1-x))/2;
+    }
+
+  inline double
+  erf(double x) const
+    {
+      const double a1 = -1.26551223,   a2 = 1.00002368,
+                   a3 =  0.37409196,   a4 = 0.09678418,
+                   a5 = -0.18628806,   a6 = 0.27886807,
+                   a7 = -1.13520398,   a8 = 1.48851587,
+                   a9 = -0.82215223,  a10 = 0.17087277;
+     double v = 1;
+     double z = abs(x);
+     if (z <= 0)
+       return v;
+     double t = 1 / (1 + 0.5 * z);
+     v = t*exp((-z*z) +a1+t*(a2+t*(a3+t*(a4+t*(a5+t*(a6+t*(a7+t*(a8+t*(a9+t*a10)))))))));
+     if (x < 0)
+       v = 2 - v;
+     return 1 - v;
+    }
+
+  inline double
+  nearbyint(double x) const
+    {
+      return floor(x + 0.5);
+    }
+
+  inline double
+  fmax(double x, double y) const
+    {
+      if (x > y)
+        return x;
+      else
+        return y;
+   }
+
+  inline double
+  fmin(double x, double y) const
+    {
+      if (x < y)
+        return x;
+      else
+        return y;
+    }
+
+};
+#endif
+
+
 //#define DEBUG
 using namespace std;
 
 const int NO_ERROR_ON_EXIT = 0;
 const int ERROR_ON_EXIT = 1;
 
+
 typedef vector<pair<Tags, void * > > code_liste_type;
 typedef code_liste_type::const_iterator it_code_type;
+
 
 class GeneralExceptionHandling
 {
   string ErrorMsg;
 public:
+#ifdef _MSC_VER_
+  ~GeneralExceptionHandling()
+  {
+    FreeLibrary(hinstLib);
+  };
+#endif
   GeneralExceptionHandling(string ErrorMsg_arg) : ErrorMsg(ErrorMsg_arg)
   {
   };
@@ -121,6 +235,16 @@ public:
   };
 };
 
+class UserExceptionHandling : public GeneralExceptionHandling
+{
+  double value;
+public:
+  UserExceptionHandling() : GeneralExceptionHandling("Fatal error in bytecode:")
+  {
+    completeErrorMsg(" User break\n");
+  };
+};
+
 class FatalExceptionHandling : public GeneralExceptionHandling
 {
 public:
@@ -133,16 +257,40 @@ public:
   };
 };
 
-class ErrorMsg
+struct s_plan
 {
+  string var, exo;
+  int var_num, exo_num;
+  vector<pair<int, double> > per_value;
+};
+
+#ifdef MATLAB_MEX_FILE
+extern "C" bool utIsInterruptPending();
+#else
+#include <octave/oct.h>
+#include <octave/unwind-prot.h>
+#endif
+
+#ifdef _MSC_VER
+class ErrorMsg : public MSVCpp_missings
+#else
+class ErrorMsg
+#endif
+{
+private:
+  bool is_load_variable_list;
+
 public:
+  double *y, *ya;
+  int y_size;
   double *T;
-  int nb_row_xd, nb_row_x, y_size;
+  int nb_row_xd, nb_row_x;
   int y_kmin, y_kmax, periods;
   double *x, *params;
-  double *u, *y, *ya;
+  double *u;
   double *steady_y, *steady_x;
-  double *g2, *g1, *r;
+  double *g2, *g1, *r, *res;
+  vector<s_plan> splan, spfplan;
   vector<mxArray *> jacobian_block, jacobian_other_endo_block, jacobian_exo_block, jacobian_det_exo_block;
   map<unsigned int, double> TEF;
   map<pair<unsigned int, unsigned int>, double > TEFD;
@@ -150,11 +298,12 @@ public:
 
   ExpressionType EQN_type;
   it_code_type it_code_expr;
-  unsigned int nb_endo, nb_exo, nb_param;
+  /*unsigned int*/size_t nb_endo, nb_exo, nb_param;
   char *P_endo_names, *P_exo_names, *P_param_names;
-  unsigned int endo_name_length, exo_name_length, param_name_length;
+  size_t/*unsigned int*/ endo_name_length, exo_name_length, param_name_length;
   unsigned int EQN_equation, EQN_block, EQN_block_number;
   unsigned int EQN_dvar1, EQN_dvar2, EQN_dvar3;
+  vector<pair<string, pair<SymbolType, unsigned int> > > Variable_list;
 
   inline
   ErrorMsg()
@@ -169,6 +318,7 @@ public:
     nb_param = mxGetM(mxGetFieldByNumber(M_, 0, mxGetFieldNumber(M_, "param_names")));
     param_name_length = mxGetN(mxGetFieldByNumber(M_, 0, mxGetFieldNumber(M_, "param_names")));
     P_param_names = (char *) mxGetPr(mxGetFieldByNumber(M_, 0, mxGetFieldNumber(M_, "param_names")));
+    is_load_variable_list = false;
   }
 
   inline string
@@ -184,9 +334,9 @@ public:
         else
           {
             if (str[i] == '$')
-              pos1 = temp.length();
+              pos1 = int(temp.length());
             else
-              pos2 = temp.length();
+              pos2 = int(temp.length());
             if (pos1 >= 0 && pos2 >= 0)
               {
                 tmp_n.erase(pos1, pos2-pos1+1);
@@ -197,6 +347,50 @@ public:
       }
     temp += "\n" + tmp_n;
     return temp;
+  }
+
+  inline void
+  load_variable_list()
+  {
+    ostringstream res;
+    for (unsigned int variable_num = 0; variable_num < (unsigned int)nb_endo; variable_num++)
+      {
+        for (unsigned int i = 0; i < endo_name_length; i++)
+          if (P_endo_names[CHAR_LENGTH*(variable_num+i*nb_endo)] != ' ')
+            res << P_endo_names[CHAR_LENGTH*(variable_num+i*nb_endo)];
+        Variable_list.push_back(make_pair(res.str(), make_pair(eEndogenous, variable_num)));
+      }
+    for (unsigned int variable_num = 0; variable_num < (unsigned int)nb_exo; variable_num++)
+      {
+        for (unsigned int i = 0; i < exo_name_length; i++)
+          if (P_exo_names[CHAR_LENGTH*(variable_num+i*nb_exo)] != ' ')
+            res << P_exo_names[CHAR_LENGTH*(variable_num+i*nb_exo)];
+        Variable_list.push_back(make_pair(res.str(), make_pair(eExogenous, variable_num)));
+      }
+  }
+
+  inline int
+  get_ID(const string variable_name, SymbolType *variable_type)
+  {
+    if (!is_load_variable_list)
+      {
+        load_variable_list();
+        is_load_variable_list = true;
+      }
+    size_t n = Variable_list.size();
+    int i = 0;
+    bool notfound = true;
+    while (notfound && i < n)
+      {
+        if (variable_name == Variable_list[i].first)
+          {
+            notfound = false;
+            *variable_type = Variable_list[i].second.first;
+            return Variable_list[i].second.second;
+          }
+        i++;
+      }
+    return(-1);
   }
 
   inline string
@@ -293,7 +487,6 @@ public:
           break;
         default:
           return ("???");
-          break;
         }
     else
       switch (EQN_type)
@@ -342,7 +535,6 @@ public:
           break;
         default:
           return ("???");
-          break;
         }
     it_code_type it_code_ret;
     Error_loc << endl << add_underscore_to_fpe("      " + print_expression(it_code_expr, evaluate, size, block_num, steady_state, Per_u_, it_, it_code_ret, true));
@@ -378,6 +570,12 @@ public:
 
     while (go_on)
       {
+#ifdef OCTAVE_MEX_FILE
+        OCTAVE_QUIT;
+#else
+	      if ( utIsInterruptPending() )
+		      throw UserExceptionHandling();
+#endif
         switch (it_code->first)
           {
           case FNUMEXPR:
@@ -441,7 +639,9 @@ public:
               case eParameter:
                 var = ((FLDV_ *) it_code->second)->get_pos();
 #ifdef DEBUG
-                mexPrintf("FLDV_ Param var=%d", var);
+                mexPrintf("FLDV_ Param var=%d\n", var);
+                mexPrintf("get_variable(eParameter, var)=%s\n",get_variable(eParameter, var).c_str());
+                mexEvalString("drawnow;");
 #endif
                 Stack.push(get_variable(eParameter, var));
                 if (compute)
@@ -451,7 +651,10 @@ public:
                 var = ((FLDV_ *) it_code->second)->get_pos();
                 lag = ((FLDV_ *) it_code->second)->get_lead_lag();
 #ifdef DEBUG
-                mexPrintf("FLDV_ endo var=%d, lag=%d", var, lag);
+                mexPrintf("FLDV_ endo var=%d, lag=%d\n", var, lag);
+                mexPrintf("get_variable(eEndogenous, var)=%s, compute=%d\n",get_variable(eEndogenous, var).c_str(), compute);
+                mexPrintf("it_=%d, lag=%d, y_size=%d, var=%d, y=%x\n", it_, lag, y_size, var, y);
+                mexEvalString("drawnow;");
 #endif
                 tmp_out.str("");
                 if (lag > 0)
@@ -1250,7 +1453,7 @@ public:
                   Stack.pop();
                   if (compute)
                     {
-                      int derivOrder = nearbyint(Stackf.top());
+                      int derivOrder = int(nearbyint(Stackf.top()));
                       Stackf.pop();
                       if (fabs(v1f) < NEAR_ZERO && v2f > 0
                           && derivOrder > v2f
@@ -1570,7 +1773,11 @@ public:
                       }
                     tmp_out.str("");
                     tmp_out << function_name << "(";
+#ifndef _MSC_VER
                     string ss[nb_input_arguments];
+#else
+                    vector<string> ss(nb_input_arguments);
+#endif
                     for (unsigned int i = 0; i < nb_input_arguments; i++)
                       {
                         ss[nb_input_arguments-i-1] = Stack.top();
@@ -1624,7 +1831,11 @@ public:
                     tmp_out.str("");
                     tmp_out << function_name << "(";
                     tmp_out << arg_func_name.c_str() << ", " << fc->get_row() << ", {";
+#ifndef _MSC_VER
                     string ss[nb_add_input_arguments];
+#else
+                    vector<string> ss(nb_input_arguments);
+#endif
                     for (unsigned int i = 0; i < nb_add_input_arguments; i++)
                       {
                         ss[nb_add_input_arguments-i-1] = Stack.top();
@@ -1655,7 +1866,11 @@ public:
                       }
                     tmp_out.str("");
                     tmp_out << function_name << "(";
+#ifndef _MSC_VER
                     string ss[nb_input_arguments];
+#else
+                    vector<string> ss(nb_input_arguments);
+#endif
                     for (unsigned int i = 0; i < nb_input_arguments; i++)
                       {
                         ss[nb_input_arguments-i-1] = Stack.top();
@@ -1708,7 +1923,11 @@ public:
                     tmp_out.str("");
                     tmp_out << function_name << "(";
                     tmp_out << arg_func_name.c_str() << ", " << fc->get_row() << ", " << fc->get_col() << ", {";
+#ifndef _MSC_VER
                     string ss[nb_add_input_arguments];
+#else
+                    vector<string> ss(nb_input_arguments);
+#endif
                     for (unsigned int i = 0; i < nb_add_input_arguments; i++)
                       {
                         ss[nb_add_input_arguments-i-1] = Stack.top();
@@ -1739,7 +1958,11 @@ public:
                       }
                     tmp_out.str("");
                     tmp_out << function_name << "(";
+#ifndef _MSC_VER
                     string ss[nb_input_arguments];
+#else
+                    vector<string> ss(nb_input_arguments);
+#endif
                     for (unsigned int i = 0; i < nb_input_arguments; i++)
                       {
                         ss[nb_input_arguments-i-1] = Stack.top();
@@ -1965,7 +2188,7 @@ public:
         it_code++;
       }
 #ifdef DEBUG
-    mexPrintf("print_expression end\n"); mexEvalString("drawnow;");
+    mexPrintf("print_expression end tmp_out.str().c_str()=%s\n", tmp_out.str().c_str()); mexEvalString("drawnow;");
 #endif
     it_code_ret = it_code;
     return (tmp_out.str());

@@ -3716,6 +3716,19 @@ DynamicModel::testTrendDerivativesEqualToZero(const eval_context_t &eval_context
 }
 
 void
+DynamicModel::print_trend_vars()
+{
+  for (trend_symbols_map_t::const_iterator it = nonstationary_symbols_map.begin();
+       it != nonstationary_symbols_map.end(); it++)
+       {
+         cout << "it->first:" << symbol_table.getName(it->first) << " ";
+         it->second->print_deflator();
+         cout << endl;
+       }
+    
+}
+
+void
 DynamicModel::writeParamsDerivativesFile(const string &basename) const
 {
   if (!residuals_params_derivatives.size()
