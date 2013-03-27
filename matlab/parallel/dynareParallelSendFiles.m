@@ -42,11 +42,21 @@ end
 for indPC=1:length(Parallel),
     if Parallel(indPC).Local==0,
         if ~ispc || strcmpi('unix',Parallel(indPC).OperatingSystem), %isunix || (~matlab_ver_less_than('7.4') && ismac),
+            if ~isempty(Parallel(indPC).Port),
+                ssh_token = ['-p ',Parallel(indPC).Port];
+            else
+                ssh_token = '';
+            end
+            if ~isempty(Parallel(indPC).Port),
+                scp_token = ['-P ',Parallel(indPC).Port];
+            else
+                scp_token = '';
+            end
             for jfil=1:size(NamFileInput,1),
                 if ~isempty(NamFileInput{jfil,1})
-                    [NonServeL NonServeR]=system(['ssh ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' mkdir -p ',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1}]);
+                    [NonServeL NonServeR]=system(['ssh ',ssh_token,' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' mkdir -p ',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1}]);
                 end
-                [NonServeL NonServeR]=system(['scp ',NamFileInput{jfil,1},NamFileInput{jfil,2},' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,':',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1}]);
+                [NonServeL NonServeR]=system(['scp ',scp_token,' ',NamFileInput{jfil,1},NamFileInput{jfil,2},' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,':',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1}]);
             end
         else
             for jfil=1:size(NamFileInput,1)

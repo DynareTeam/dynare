@@ -31,14 +31,19 @@ dirlist=[];
 for indPC=1:length(Parallel),
     if ~ispc || strcmpi('unix',Parallel(indPC).OperatingSystem), %isunix || (~matlab_ver_less_than('7.4') && ismac),
         if Parallel(indPC).Local==0,
+            if ~isempty(Parallel(indPC).Port),
+                ssh_token = ['-p ',Parallel(indPC).Port];
+            else
+                ssh_token = '';
+            end
             if exist('OCTAVE_VERSION') % Patch for peculiar behaviour of ssh-ls under Linux.
                 % It is necessary to capture the ls warning message.
                 % To do it under the ssh protocol it is necessary to redirect the ls message in a text file.
                 % The file is 'OctaveStandardOutputMessage.txt' and it is
                 % saved in the Model directory.
-                [check, ax]=system(['ssh ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' ls ',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',filename, ' 2> OctaveStandardOutputMessage.txt']);
+                [check, ax]=system(['ssh ',ssh_token,' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' ls ',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',filename, ' 2> OctaveStandardOutputMessage.txt']);
             else
-                [check, ax]=system(['ssh ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' ls ',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',filename]);
+                [check, ax]=system(['ssh ',ssh_token,' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' ls ',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',filename]);
             end
             if check ~= 0 || ~isempty(strfind(ax,'No such file or directory'));
                 ax=[];
@@ -62,7 +67,7 @@ for indPC=1:length(Parallel),
             end
 
         end
-        dirlist = [dirlist, ax];
+        dirlist = char(dirlist, ax);
     else
         if exist('OCTAVE_VERSION'),     % Patch for peculiar behaviour of ls under Windows.
             if Parallel(indPC).Local==0,
@@ -87,6 +92,6 @@ for indPC=1:length(Parallel),
                 ax=ls(filename);
             end
         end
-        dirlist = [dirlist; ax];
+        dirlist = char(dirlist, ax);
     end
 end

@@ -31,6 +31,10 @@ function [ErrorCode] = AnalyseComputationalEnvironment(DataInput, DataInputAdd)
 %   field RemoteTmpFolder (the temporary directory created/destroyed on remote
 %   computer) is used.
 
+if ispc, 
+    [tempo, MasterName]=system('hostname');
+    MasterName=deblank(MasterName);
+end
 
 RemoteTmpFolder=DataInputAdd.RemoteTmpFolder;
 dynareParallelMkDir(RemoteTmpFolder,DataInput);
@@ -295,8 +299,13 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
             
             si2=[];
             de2=[];
+            if ~isempty(DataInput(Node).Port),
+                ssh_token = ['-p ',DataInput(Node).Port];
+            else
+                ssh_token = '';
+            end
             
-            [si2 de2]=system(['ssh ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' ls ',DataInput(Node).RemoteDirectory,'/',RemoteTmpFolder,'/']);
+            [si2 de2]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' ls ',DataInput(Node).RemoteDirectory,'/',RemoteTmpFolder,'/']);
             
             if (si2)
                 disp ('Remote Directory does not exist or is not reachable!');
@@ -332,7 +341,7 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
             
             si2=[];
             de2=[];
-            [s12 de2]=system(['dir \\',DataInput(Node).ComputerName,'\',DataInput(Node).RemoteDrive,'$\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder]);
+            [si2 de2]=system(['dir \\',DataInput(Node).ComputerName,'\',DataInput(Node).RemoteDrive,'$\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder]);
             
             if (si2)
                 disp ('Remote Directory does not exist or it is not reachable!');
@@ -416,18 +425,32 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
         % machine when the user is .UserName with password .Password and
         % the path is MatlabOctavePath.
         
-        if Environment
-            if strfind([DataInput(Node).MatlabOctavePath], 'octave') % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
-                system(['ssh ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' "cd ',DataInput(Node).RemoteDirectory,'/',RemoteTmpFolder,  '; ', DataInput(Node).MatlabOctavePath, ' Tracing.m;" &']);
+        if Environment,
+            if ~isempty(DataInput(Node).Port),
+                ssh_token = ['-p ',DataInput(Node).Port];
             else
-                system(['ssh ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' "cd ',DataInput(Node).RemoteDirectory,'/',RemoteTmpFolder,  '; ', DataInput(Node).MatlabOctavePath, ' -nosplash -nodesktop -minimize -r Tracing;" &']);
+                ssh_token = '';
+            end
+            if strfind([DataInput(Node).MatlabOctavePath], 'octave') % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
+                system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' "cd ',DataInput(Node).RemoteDirectory,'/',RemoteTmpFolder,  '; ', DataInput(Node).MatlabOctavePath, ' Tracing.m;" &']);
+            else
+                system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' "cd ',DataInput(Node).RemoteDirectory,'/',RemoteTmpFolder,  '; ', DataInput(Node).MatlabOctavePath, ' -nosplash -nodesktop -minimize -r Tracing;" &']);
             end
         else
-            if  strfind([DataInput(Node).MatlabOctavePath], 'octave') % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
-                [NonServeS NenServeD]=system(['start /B psexec \\',DataInput(Node).ComputerName,' -e -u ',DataInput(Node).UserName,' -p ',DataInput(Node).Password,' -W ',DataInput(Node).RemoteDrive,':\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder ' -low   ',DataInput(Node).MatlabOctavePath,' Tracing.m']);
-            else
-                [NonServeS NenServeD]=system(['start /B psexec \\',DataInput(Node).ComputerName,' -e -u ',DataInput(Node).UserName,' -p ',DataInput(Node).Password,' -W ',DataInput(Node).RemoteDrive,':\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder ' -low   ',DataInput(Node).MatlabOctavePath,' -nosplash -nodesktop -minimize -r Tracing']);
+            if ~strcmp(DataInput(Node).ComputerName,MasterName), % run on remote machine
+                if  strfind([DataInput(Node).MatlabOctavePath], 'octave') % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
+                    [NonServeS NenServeD]=system(['start /B psexec \\',DataInput(Node).ComputerName,' -e -u ',DataInput(Node).UserName,' -p ',DataInput(Node).Password,' -W ',DataInput(Node).RemoteDrive,':\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder ' -low   ',DataInput(Node).MatlabOctavePath,' Tracing.m']);
+                else
+                    [NonServeS NenServeD]=system(['start /B psexec \\',DataInput(Node).ComputerName,' -e -u ',DataInput(Node).UserName,' -p ',DataInput(Node).Password,' -W ',DataInput(Node).RemoteDrive,':\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder ' -low   ',DataInput(Node).MatlabOctavePath,' -nosplash -nodesktop -minimize -r Tracing']);
+                end
+            else % run on local machine via the network: user and passwd cannot be used!
+                if  strfind([DataInput(Node).MatlabOctavePath], 'octave') % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
+                    [NonServeS NenServeD]=system(['start /B psexec \\',DataInput(Node).ComputerName,' -e ',' -W ',DataInput(Node).RemoteDrive,':\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder ' -low   ',DataInput(Node).MatlabOctavePath,' Tracing.m']);
+                else
+                    [NonServeS NenServeD]=system(['start /B psexec \\',DataInput(Node).ComputerName,' -e ',' -W ',DataInput(Node).RemoteDrive,':\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder ' -low   ',DataInput(Node).MatlabOctavePath,' -nosplash -nodesktop -minimize -r Tracing']);
+                end
             end
+                
         end
         
         % Timer da fissare, nei valori di attesa!
@@ -568,10 +591,15 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
         end
     else
         if Environment,
-            if OStargetUnix,
-                [si0 de0]=system(['ssh ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' grep processor /proc/cpuinfo']);
+            if ~isempty(DataInput(Node).Port),
+                ssh_token = ['-p ',DataInput(Node).Port];
             else
-                [si0 de0]=system(['ssh ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' psinfo']);
+                ssh_token = '';
+            end
+            if OStargetUnix,
+                [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' grep processor /proc/cpuinfo']);
+            else
+                [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' psinfo']);
             end
         else
             [si0 de0]=system(['psinfo \\',DataInput(Node).ComputerName,' -u ',DataInput(Node).UserName,' -p ',DataInput(Node).Password]);

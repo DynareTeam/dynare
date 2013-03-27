@@ -36,6 +36,16 @@ NamFileInput0=NamFileInput;
 for indPC=1:length(Parallel),
     if Parallel(indPC).Local==0,
         if ~ispc || strcmpi('unix',Parallel(indPC).OperatingSystem), %isunix || (~matlab_ver_less_than('7.4') && ismac),
+            if ~isempty(Parallel(indPC).Port),
+                ssh_token = ['-p ',Parallel(indPC).Port];
+            else
+                ssh_token = '';
+            end
+            if ~isempty(Parallel(indPC).Port),
+                scp_token = ['-P ',Parallel(indPC).Port];
+            else
+                scp_token = '';
+            end
             if ischar(NamFileInput0),
                 for j=1:size(NamFileInput0,1),
                     NamFile(j,:)={['./'],deblank(NamFileInput0(j,:))};
@@ -51,13 +61,13 @@ for indPC=1:length(Parallel),
                     
                     if isempty (FindAst)
 
-                        [NonServeL NonServeR]= system(['scp ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,':',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1},NamFileInput{jfil,2},' ',NamFileInput{jfil,1}]);
+                        [NonServeL NonServeR]= system(['scp ',scp_token,' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,':',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1},NamFileInput{jfil,2},' ',NamFileInput{jfil,1}]);
 
                     else
 
                         filenameTemp=NamFileInput{jfil,2};
                         
-                        [NotUsed FlI]=system(['ssh ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' ls ',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',filenameTemp, ' 2> OctaveStandardOutputMessage.txt']);
+                        [NotUsed FlI]=system(['ssh ',ssh_token,' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' ls ',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',filenameTemp, ' 2> OctaveStandardOutputMessage.txt']);
                         
                         if isempty (FlI)
                             return
@@ -71,13 +81,13 @@ for indPC=1:length(Parallel),
                         for i=1: NumFileToCopy
                             Ni=num2str(i);
                             filenameTemp(1,AstPos)=Ni;
-                            [NonServeL NonServeR]= system(['scp ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,':',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1},filenameTemp,' ',NamFileInput{jfil,1}]);
+                            [NonServeL NonServeR]= system(['scp ',scp_token,' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,':',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1},filenameTemp,' ',NamFileInput{jfil,1}]);
                         end
                     end
 
                 else
 
-                    [NonServeL NonServeR]= system(['scp ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,':',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1},NamFileInput{jfil,2},' ',NamFileInput{jfil,1}]);
+                    [NonServeL NonServeR]= system(['scp ',scp_token,' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,':',Parallel(indPC).RemoteDirectory,'/',PRCDir,'/',NamFileInput{jfil,1},NamFileInput{jfil,2},' ',NamFileInput{jfil,1}]);
                 end
 
             end

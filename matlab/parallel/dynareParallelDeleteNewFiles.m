@@ -1,4 +1,4 @@
-function dynareParallelDeleteNewFiles(PRCDir,Parallel,PRCDirSnapshot)
+function dynareParallelDeleteNewFiles(PRCDir,Parallel,PRCDirSnapshot,varargin)
 % PARALLEL CONTEXT
 % In a parallel context, this is a specialized function able to ...
 %
@@ -55,11 +55,17 @@ for indPC=1:length(Parallel),
                 sT(1)='.';
                 SlashNumberAndPosition=findstr(sT,fS);
                 fileaddress={sT(1:SlashNumberAndPosition(end)),sT(SlashNumberAndPosition(end)+1:end)};
+                exception_flag=0;
+                for indexc=1:length(varargin)
+                    exception_flag=exception_flag+(~isempty(strfind(fileaddress{2},varargin{indexc})));
+                end
+                if exception_flag==0,
                 dynareParallelDelete(fileaddress{2},[PRCDir,fS,fileaddress{1}],Parallel(indPC));
 
                 disp('New file deleted in remote -->');
                 disp(fileaddress{2});
                 disp('<--');
+                end
 
             end
         else

@@ -289,24 +289,42 @@ if options_gsa.rmse,
                options_.filtered_vars=0;               
            end
 %             dynare_MC([],OutputDirectoryName,data,rawdata,data_info);
-            prior_posterior_statistics('gsa',dataset_);
-            if options_.bayesian_irf
-                PosteriorIRF('gsa');
+        if options_gsa.pprior
+            TmpDirectoryName = ([M_.dname filesep 'gsa' filesep 'prior']);
+        else
+            TmpDirectoryName = ([M_.dname filesep 'gsa' filesep 'mc']);
+        end
+        if exist(TmpDirectoryName,'dir');
+            mydelete([M_.fname '_filter_step_ahead*.mat'],[TmpDirectoryName filesep]);
+            mydelete([M_.fname '_inno*.mat'],[TmpDirectoryName filesep]);
+            mydelete([M_.fname '_smooth*.mat'],[TmpDirectoryName filesep]);
+            mydelete([M_.fname '_update*.mat'],[TmpDirectoryName filesep]);
+            filparam = dir([TmpDirectoryName filesep M_.fname '_param*.mat']);
+            for j=1:length(filparam),
+                if isempty(strmatch([M_.fname '_param_irf'],filparam(j).name))
+                    delete([TmpDirectoryName filesep filparam(j).name]);
+                end
             end
-            options_gsa.load_rmse=0;
-            %   else
-            %     if options_gsa.load_rmse==0,
-            %       disp('You already saved a MC filter/smoother analysis ')
-            %       disp('Do you want to overwrite ?')
-            %       pause;
-            %       if options_gsa.pprior
-            %         delete([OutputDirectoryName,'/',fname_,'_prior_*.mat'])
-            %       else
-            %         delete([OutputDirectoryName,'/',fname_,'_mc_*.mat'])
-            %       end
-            %       dynare_MC([],OutputDirectoryName);
-            %       options_gsa.load_rmse=0;
-            %     end    
+            
+        end
+        prior_posterior_statistics('gsa',dataset_);
+        if options_.bayesian_irf
+            PosteriorIRF('gsa');
+        end
+        options_gsa.load_rmse=0;
+        %   else
+        %     if options_gsa.load_rmse==0,
+        %       disp('You already saved a MC filter/smoother analysis ')
+        %       disp('Do you want to overwrite ?')
+        %       pause;
+        %       if options_gsa.pprior
+        %         delete([OutputDirectoryName,'/',fname_,'_prior_*.mat'])
+        %       else
+        %         delete([OutputDirectoryName,'/',fname_,'_mc_*.mat'])
+        %       end
+        %       dynare_MC([],OutputDirectoryName);
+        %       options_gsa.load_rmse=0;
+        %     end
             
         end
     end
