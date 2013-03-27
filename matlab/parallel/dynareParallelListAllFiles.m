@@ -37,9 +37,14 @@ if (~ispc || strcmpi('unix',Parallel.OperatingSystem))
    
     fileList={};
     currentPath=[];
+    if ~isempty(Parallel.Port),
+        ssh_token = ['-p ',Parallel.Port];
+    else
+        ssh_token = '';
+    end
 
      % Get the data for the current remote directory.
-    [Flag fL]=system(['ssh ',Parallel.UserName,'@',Parallel.ComputerName,' ls ',Parallel.RemoteDirectory,'/',PRCDir, ' -R -p -1']);
+    [Flag fL]=system(['ssh ',ssh_token,' ',' ',Parallel.UserName,'@',Parallel.ComputerName,' ls ',Parallel.RemoteDirectory,'/',PRCDir, ' -R -p -1']);
 
     % Format the return value fL.
     

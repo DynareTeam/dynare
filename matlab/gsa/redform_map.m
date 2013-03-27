@@ -141,9 +141,6 @@ for j=1:size(anamendo,1)
                         if ~options_.nograph,
                             hf=dyn_figure(options_); hist(y0,30), title([namendo,' vs. ', namexo])
                             dyn_saveas(hf,[xdir,'/', namendo,'_vs_', namexo],options_);
-                            if ~options_.nodisplay
-                                close(hf);
-                            end
                         end
                         %             if ~isempty(iy),
                         %               si(:,js) = redform_private(x0(iy,:), y0(iy), pshape, pd, iload, pnames, namendo, namexo, xdir, options_gsa_);
@@ -198,9 +195,6 @@ for j=1:size(anamendo,1)
                     title([logflag,' ',namendo,' vs. ',namexo],'interpreter','none')
                     if iplo==9,
                         dyn_saveas(hfig,[dirname,'/',M_.fname,'_redform_', namendo,'_vs_shocks_',logflag,num2str(ifig)],options_);
-                        if ~options_.nodisplay
-                            close(hfig);
-                        end
                     end
                 end
                 
@@ -209,9 +203,6 @@ for j=1:size(anamendo,1)
     end
     if iplo<9 && iplo>0 && ifig && ~options_.nograph,
         dyn_saveas(hfig,[dirname,'/',M_.fname,'_redform_', namendo,'_vs_shocks_',logflag,num2str(ifig)],options_);
-        if ~options_.nodisplay
-            close(hfig);
-        end
     end
     ifig=0;
     iplo=0;
@@ -252,9 +243,6 @@ for j=1:size(anamendo,1)
                         if ~options_.nograph,
                             hf=dyn_figure(options_); hist(y0,30), title([namendo,' vs. ', namlagendo])
                             dyn_saveas(hf,[xdir,'/', namendo,'_vs_', namlagendo],options_);
-                            if ~options_.nodisplay
-                                close(hf);
-                            end
                         end
                         if ~isempty(iy) && ~isempty(iyc),
                             delete([xdir, '/*cut*.*'])
@@ -305,9 +293,6 @@ for j=1:size(anamendo,1)
                     title([logflag,' ',namendo,' vs. ',namlagendo,'(-1)'],'interpreter','none')
                     if iplo==9,
                         dyn_saveas(hfig,[dirname,'/',M_.fname,'_redform_', namendo,'_vs_lags_',logflag,num2str(ifig)],options_);
-                        if ~options_.nodisplay
-                            close(hfig);
-                        end
                     end
                 end
                 
@@ -316,9 +301,6 @@ for j=1:size(anamendo,1)
     end
     if iplo<9 && iplo>0 && ifig && ~options_.nograph,
         dyn_saveas(hfig,[dirname,'/',M_.fname,'_redform_', namendo,'_vs_lags_',logflag,num2str(ifig)],options_);
-        if ~options_.nodisplay
-            close(hfig);
-        end
     end
 end
 
@@ -378,9 +360,6 @@ if iload==0,
     if ~options_.nograph,
         hfig=dyn_figure(options_); hist(y0,30), title([namy,' vs. ', namx])
         dyn_saveas(hfig,[xdir,'/', namy,'_vs_', namx],options_);
-        if ~options_.nodisplay
-            close(hfig);
-        end
     end
     %   gsa_ = gsa_sdp_dyn(y0, x0, -2, [],[],[],1,fname, pnames);
     nrun=length(y0);
@@ -396,7 +375,9 @@ if iload==0,
     gsa_.x0=x00(1:nfit,:);
     if ~options_.nograph,
         hfig=gsa_sdp_plot(gsa_,fname,pnames,iii(1:min(12,np)));
-        close(hfig);
+        if options_.nodisplay
+            close(hfig);
+        end
     end
     gsa_.x0=x0(1:nfit,:);
     %   copyfile([fname,'_est.mat'],[fname,'.mat'])
@@ -405,9 +386,6 @@ if iload==0,
         plot(y0(1:nfit),[gsa_.fit y0(1:nfit)],'.'),
         title([namy,' vs. ', namx,' fit'])
         dyn_saveas(hfig,[xdir,'/', namy,'_vs_', namx,'_fit'],options_);
-        if ~options_.nodisplay
-            close(hfig);
-        end
         if nfit<nrun,
             npred=[nfit+1:nrun];
             yf = ss_anova_fcast(x0(npred,:), gsa_);
@@ -415,9 +393,6 @@ if iload==0,
             plot(y0(npred),[yf y0(npred)],'.'),
             title([namy,' vs. ', namx,' pred'])
             dyn_saveas(hfig,[xdir,'/', namy,'_vs_', namx,'_pred'],options_);
-            if ~options_.nodisplay
-                close(hfig);
-            end
         end
         
     end
@@ -430,9 +405,6 @@ else
         plot(y0,[yf y0],'.'),
         title([namy,' vs. ', namx,' pred'])
         dyn_saveas(hfig,[xdir,'/', namy,'_vs_', namx,'_pred'],options_);
-        if ~options_.nodisplay
-            close(hfig);
-        end
     end
 end
 % si = gsa_.multivariate.si;

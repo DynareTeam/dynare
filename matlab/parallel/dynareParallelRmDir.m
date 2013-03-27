@@ -36,13 +36,13 @@ if nargin ==0,
 end
 
 % security check of remote folder delete
-ok(1)=isempty(strfind(Parallel_info.RemoteTmpFolder,'..'));
-tmp1=strfind(Parallel_info.RemoteTmpFolder,'2');
+ok(1)=isempty(strfind(PRCDir,'..'));
+tmp1=strfind(PRCDir,'2');
 ok(2)=tmp1(1)==1;
-ok(3)=~isempty(strfind(Parallel_info.RemoteTmpFolder,'-'));
-ok(4)=~isempty(strfind(Parallel_info.RemoteTmpFolder,'h'));
-ok(5)=~isempty(strfind(Parallel_info.RemoteTmpFolder,'m'));
-ok(6)=~isempty(strfind(Parallel_info.RemoteTmpFolder,'s'));
+ok(3)=~isempty(strfind(PRCDir,'-'));
+ok(4)=~isempty(strfind(PRCDir,'h'));
+ok(5)=~isempty(strfind(PRCDir,'m'));
+ok(6)=~isempty(strfind(PRCDir,'s'));
 ok(7)=~isempty(PRCDir);
 
 if sum(ok)<7,
@@ -55,8 +55,13 @@ for indPC=1:length(Parallel),
         error('The remote folder path structure does not comply the security standards!'),
     end
     while (1)
-        if ~ispc || strcmpi('unix',Parallel(indPC).OperatingSystem)
-            [stat NonServe] = system(['ssh ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' rm -fr ',Parallel(indPC).RemoteDirectory,'/',PRCDir,]);
+        if ~ispc || strcmpi('unix',Parallel(indPC).OperatingSystem),
+            if ~isempty(Parallel(indPC).Port),
+                ssh_token = ['-p ',Parallel(indPC).Port];
+            else
+                ssh_token = '';
+            end
+            [stat NonServe] = system(['ssh ',ssh_token,' ',Parallel(indPC).UserName,'@',Parallel(indPC).ComputerName,' rm -fr ',Parallel(indPC).RemoteDirectory,'/',PRCDir,]);
             break;
         else
             if exist('OCTAVE_VERSION'), % Patch for peculiar behaviour of rmdir under Windows.

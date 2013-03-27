@@ -39,7 +39,7 @@ end
 s=warning('off');
 
 if partial==1
-    save('slaveParallel_break','partial')
+    save('slaveParallel_break.mat','partial')
     for indPC=1:length(Parallel),
         if (Parallel(indPC).Local==0),
             dynareParallelSendFiles('slaveParallel_break.mat',TmpFolder,Parallel(indPC));
@@ -63,12 +63,14 @@ for indPC=1:length(Parallel),
     if (Parallel(indPC).Local==0),
         dynareParallelDelete( 'slaveParallel_input*.mat',TmpFolder,Parallel(indPC));
     end
-    %else
+    
+   
     delete( 'slaveParallel_input*.mat');
+    delete( 'slaveJob*.mat');
     pause(1)
     delete(['slaveParallel_*.log']);
-    %end
     delete ConcurrentCommand1.bat;
+    
 end
 
 while(1)
@@ -76,7 +78,6 @@ while(1)
         for indPC=1:length(Parallel),
             if (Parallel(indPC).Local==0),
                 dynareParallelRmDir(TmpFolder,Parallel(indPC)),
-                
             end
         end
         break

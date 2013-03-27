@@ -91,9 +91,6 @@ for j=1:size(anamendo,1),
         title([namendo,' vs. ',namexo],'interpreter','none')
         if iplo==9,
           dyn_saveas(hh,[dirname,'/',M_.fname,'_', namendo,'_vs_shock_',num2str(ifig)],options_);  
-          if ~options_.nodisplay
-            close(hh);
-          end
         end
 
       end
@@ -101,9 +98,6 @@ for j=1:size(anamendo,1),
   end
   if iplo<9 && iplo>0 && ifig,
     dyn_saveas(hh,[dirname,'/',M_.fname,'_', namendo,'_vs_shocks_',num2str(ifig)],options_);
-    if ~options_.nodisplay
-      close(hh);
-    end
   end
 
   iplo=0;
@@ -138,9 +132,6 @@ for j=1:size(anamendo,1),
         title([namendo,' vs. ',namlagendo,'(-1)'],'interpreter','none')
         if iplo==9,
           dyn_saveas(hh,[dirname,'/',M_.fname,'_', namendo,'_vs_lags_',num2str(ifig)],options_);  
-          if ~options_.nodisplay
-            close(hh);
-          end
         end
       end
     end
