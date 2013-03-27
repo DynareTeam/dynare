@@ -4609,7 +4609,8 @@ where @var{THEORETICAL_MOMENT} is one of the following:
 Variance-covariance of endogenous variables
 
 @item correlation
-Autocorrelation of endogenous variables
+Auto- and cross-correlation of endogenous variables. Fields are vectors with correlations from 1 up to order @code{options_.ar}
+
 
 @item VarianceDecomposition
 Decomposition of variance@footnote{When the shocks are correlated, it
