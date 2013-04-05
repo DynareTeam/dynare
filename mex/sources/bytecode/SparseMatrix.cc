@@ -1945,8 +1945,8 @@ SparseMatrix::Solve_Matlab_LU_UMFPack(mxArray *A_m, mxArray *b_m, int Size, doub
 void
 SparseMatrix::Solve_Matlab_GMRES(mxArray *A_m, mxArray *b_m, int Size, double slowc, int block, bool is_two_boundaries, int it_, bool steady_state, mxArray *x0_m)
 {
-#ifdef OCTAVE_MEX_FILE
   ostringstream tmp;
+#ifdef OCTAVE_MEX_FILE
   if (steady_state)
     tmp << " GMRES method is not implemented in Octave. You cannot use solve_algo=7, change solve_algo.\n";
   else
@@ -1954,15 +1954,27 @@ SparseMatrix::Solve_Matlab_GMRES(mxArray *A_m, mxArray *b_m, int Size, double sl
   throw FatalExceptionHandling(tmp.str());
 #endif
   int n = mxGetM(A_m);
-  const char *field_names[] = {"droptol"};
+  /*const char *field_names[] = {"droptol"};
   mwSize dims[1] = { 1 };
   mxArray *Setup = mxCreateStructArray(1, dims, 1, field_names);
-  mxSetFieldByNumber(Setup, 0, 0, mxCreateDoubleScalar(lu_inc_tol));
+  mxSetFieldByNumber(Setup, 0, 0, mxCreateDoubleScalar(lu_inc_tol));*/
+  
+  const char *field_names[] = {"type","droptol"};
+  mwSize dims[1] = { 1 };
+  mxArray *Setup = mxCreateStructArray(1, dims, 2, field_names);
+  mxSetFieldByNumber(Setup, 0, 1, mxCreateDoubleScalar(lu_inc_tol));
+  mxSetFieldByNumber(Setup, 0, 0, mxCreateString("ilutp"));
+  
   mxArray *lhs0[2];
   mxArray *rhs0[2];
   rhs0[0] = A_m;
   rhs0[1] = Setup;
-  mexCallMATLAB(2, lhs0, 2, rhs0, "ilu");
+
+  if (mexCallMATLAB(2, lhs0, 2, rhs0, "ilu"))
+    {
+      tmp << " In GMRES, the incomplet LU decomposition (ilu) ahs failed.\n";
+      throw FatalExceptionHandling(tmp.str());
+    }
   mxArray *L1 = lhs0[0];
   mxArray *U1 = lhs0[1];
   /*[za,flag1] = gmres(g1a,b,Blck_size,1e-6,Blck_size*periods,L1,U1);*/
@@ -2035,17 +2047,30 @@ SparseMatrix::Solve_Matlab_GMRES(mxArray *A_m, mxArray *b_m, int Size, double sl
 void
 SparseMatrix::Solve_Matlab_BiCGStab(mxArray *A_m, mxArray *b_m, int Size, double slowc, int block, bool is_two_boundaries, int it_, mxArray *x0_m, bool steady_state)
 {
+  ostringstream tmp;
   unsigned int n = mxGetM(A_m);
   /*[L1, U1]=luinc(g1a,luinc_tol);*/
-  const char *field_names[] = {"droptol"};
+  /*const char *field_names[] = {"droptol"};
   mwSize dims[1] = { 1 };
   mxArray *Setup = mxCreateStructArray(1, dims, 1, field_names);
-  mxSetFieldByNumber(Setup, 0, 0, mxCreateDoubleScalar(lu_inc_tol));
+  mxSetFieldByNumber(Setup, 0, 0, mxCreateDoubleScalar(lu_inc_tol));*/
+  
+  const char *field_names[] = {"type","droptol"};
+  mwSize dims[1] = { 1 };
+  mxArray *Setup = mxCreateStructArray(1, dims, 2, field_names);
+  mxSetFieldByNumber(Setup, 0, 1, mxCreateDoubleScalar(lu_inc_tol));
+  mxSetFieldByNumber(Setup, 0, 0, mxCreateString("ilutp"));
+  
   mxArray *lhs0[2];
   mxArray *rhs0[2];
   rhs0[0] = A_m;
   rhs0[1] = Setup;
-  mexCallMATLAB(2, lhs0, 2, rhs0, "ilu");
+  
+  if (mexCallMATLAB(2, lhs0, 2, rhs0, "ilu"))
+    {
+      tmp << " In GMRES, the incomplet LU decomposition (ilu) ahs failed.\n";
+      throw FatalExceptionHandling(tmp.str());
+    }
   mxArray *L1 = lhs0[0];
   mxArray *U1 = lhs0[1];
   double flags = 2;
