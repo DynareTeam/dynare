@@ -1,4 +1,4 @@
-function [nCPU]= GiveCPUnumber (ComputerInformations)
+function [nCPU]= GiveCPUnumber (ComputerInformations, Environment)
 % PARALLEL CONTEXT
 % In a parallel context this function return the CPUs or cores numer avaiable
 % on the computer used for run parallel code.
@@ -33,13 +33,13 @@ function [nCPU]= GiveCPUnumber (ComputerInformations)
 
 nCPU='';
 
-Enviroment=-1;
-
+if nargin < 2,
 % Determine a specific operating system or software version when necessary
 % for different command (sintax, name, ...).
-Enviroment=~ispc; %isunix || (~matlab_ver_less_than('7.4') && ismac);
+Environment=~ispc; %isunix || (~matlab_ver_less_than('7.4') && ismac);
+end
 
-switch Enviroment
+switch Environment
   case 0          %WINDOWS OPERATING SYSTEM
     
     OffSet=27;

@@ -45,6 +45,7 @@ end
 
 global options_
 
+isHybridMatlabOctave = false;
 for j=1:length(options_.parallel),
     if isempty(options_.parallel(j).MatlabOctavePath),
         if exist('OCTAVE_VERSION')
@@ -57,6 +58,13 @@ for j=1:length(options_.parallel),
         dynareroot = strrep(which('dynare'),'dynare.m','');
         options_.parallel(j).DynarePath=dynareroot;
     end
+    isHybridMatlabOctave = isHybridMatlabOctave || any(regexpi([options_.parallel(j).MatlabOctavePath], 'octave'));
+end
+isHybridMatlabOctave = isHybridMatlabOctave && ~exist('OCTAVE_VERSION');
+options_.parallel_info.isHybridMatlabOctave = isHybridMatlabOctave;
+if isHybridMatlabOctave,
+    % Reset dynare random generator and seed.
+    set_dynare_seed('default');
 end
 
 

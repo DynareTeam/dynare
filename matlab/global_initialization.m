@@ -392,6 +392,7 @@ options_.mh_autocorrelation_function_size = 30;
 options_.plot_priors = 1;
 options_.cova_compute = 1;
 options_.parallel = 0;
+options_.parallel_info.isHybridMatlabOctave = false;
 options_.parallel_info.leaveSlaveOpen = 0;
 options_.parallel_info.RemoteTmpFolder = '';
 options_.number_of_grid_points_for_kde = 2^9;

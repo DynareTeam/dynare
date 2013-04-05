@@ -189,13 +189,13 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
         end
         
         if (si1)
-            disp(['It is impossibile to be connected to the computer with name "',DataInput(Node).ComputerName,'" using the network!']);
+            disp(['It is impossibile to ping to the computer with name "',DataInput(Node).ComputerName,'" using the network!']);
             disp(' ');
             disp('ErrorCode 3.');
             ErrorCode=3;
             disp(' ');
             disp(' ');
-            return;
+%             return;
         else
             disp('Check on ComputerName Variable ..... Ok!');
             disp(' ');
@@ -609,13 +609,13 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
     
     RealCPUnbr='';
 %    keyboard;
-    RealCPUnbr=GiveCPUnumber(de0);
+    RealCPUnbr=GiveCPUnumber(de0,Environment);
     
     % Questo controllo penso che si possa MIGLIORARE!!!!!
     if  isempty (RealCPUnbr) && Environment==0,
         [si0 de0]=system(['psinfo \\',DataInput(Node).ComputerName]);
     end        
-    RealCPUnbr=GiveCPUnumber(de0);
+    RealCPUnbr=GiveCPUnumber(de0,Environment);
 
     if  isempty (RealCPUnbr)
         % An error occurred when we try to know the Cpu/Cores
