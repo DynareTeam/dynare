@@ -47,6 +47,12 @@ for indPC=1:length(Parallel),
             end
             if check ~= 0 || ~isempty(strfind(ax,'No such file or directory'));
                 ax=[];
+            else
+                indax=regexp(ax,'\n');
+                colax=indax(1);
+                rowax=length(indax);
+                ax=reshape(ax',[colax rowax])';
+                ax=ax(:,1:end-1);
             end
         else
 
@@ -67,7 +73,6 @@ for indPC=1:length(Parallel),
             end
 
         end
-        dirlist = char(dirlist, ax);
     else
         if exist('OCTAVE_VERSION'),     % Patch for peculiar behaviour of ls under Windows.
             if Parallel(indPC).Local==0,
@@ -92,6 +97,10 @@ for indPC=1:length(Parallel),
                 ax=ls(filename);
             end
         end
+    end
+    if isempty(dirlist),
+        dirlist=ax;
+    elseif ~isempty(ax),
         dirlist = char(dirlist, ax);
     end
 end

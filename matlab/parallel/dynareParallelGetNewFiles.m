@@ -47,6 +47,7 @@ for indPC=1:length(Parallel),
         end
 
         if ~isempty(NewFilesFromSlaves)
+            pause(1);
 
             for i=1:length(NewFilesFromSlaves)
                 SlashNumberAndPosition=[];

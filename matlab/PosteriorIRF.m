@@ -457,6 +457,8 @@ if ~exist('OCTAVE_VERSION')
             [fout] = masterParallel(options_.parallel, 1, M_.exo_nbr,NamFileInput,'PosteriorIRF_core2', localVars, globalVars, options_.parallel_info);
         end
     end
+else
+    [fout] = PosteriorIRF_core2(localVars,1,M_.exo_nbr,0);
 end
 % END parallel code!
 
