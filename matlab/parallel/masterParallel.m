@@ -752,7 +752,7 @@ for j=1:totCPU,
     indPC=min(find(nCPU>=j));
     load([fname,'_output_',int2str(j),'.mat'],'fOutputVar');
     delete([fname,'_output_',int2str(j),'.mat']);
-    if isfield(fOutputVar,'OutputFileName'),
+    if isfield(fOutputVar,'OutputFileName') && Parallel(indPC).Local==0,
         %   Check if input files have been updated!
         OutputFileName=fOutputVar.OutputFileName;        
         tmp0='';
