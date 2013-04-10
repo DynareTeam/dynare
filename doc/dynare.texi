@@ -4261,7 +4261,7 @@ option @code{moments_varendo} to be specified.
 @item filtered_vars
 @vindex oo_.FilteredVariables
 @anchor{filtered_vars} Triggers the computation of the posterior
-distribution of filtered endogenous variables and shocks. Results are
+distribution of filtered endogenous variables/one-step ahead forecasts, i.e. @math{E_{t}{y_{t+1}}}. Results are
 stored in @code{oo_.FilteredVariables} (see below for a description of
 this variable)
 
@@ -4271,12 +4271,10 @@ this variable)
 @vindex oo_.SmoothedMeasurementErrors
 @vindex oo_.UpdatedVariables
 @anchor{smoother} Triggers the computation of the posterior distribution
-of smoothered endogenous variables and shocks. Results are stored in
+of smoothered endogenous variables and shocks, i.e. the expected value of variables and shocks given the information available in all observations up to the @emph{final} date (@math{E_{T}{y_t}}). Results are stored in
 @code{oo_.SmoothedVariables}, @code{oo_.SmoothedShocks} and
 @code{oo_.SmoothedMeasurementErrors}.  Also triggers the computation of
-@code{oo_.UpdatedVariables}, which contains the estimation of the
-expected value of variables given the information available at the
-@emph{current} date.  See below for a description of all these
+@code{oo_.UpdatedVariables}, which contains the estimation of the expected value of variables given the information available at the @emph{current} date (@math{E_{t}{y_t}}).  See below for a description of all these
 variables.
 
 @item forecast = @var{INTEGER}
