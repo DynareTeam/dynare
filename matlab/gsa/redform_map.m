@@ -134,7 +134,7 @@ for j=1:size(anamendo,1)
                     else
                         iy=find( (y0>threshold(1)) & (y0<threshold(2)));
                         iyc=find( (y0<=threshold(1)) | (y0>=threshold(2)));
-                        xdir = [xdir0,'_cut'];
+                        xdir = [xdir0,'_threshold'];
                         if isempty(dir(xdir))
                             mkdir(xdir)
                         end
@@ -148,21 +148,21 @@ for j=1:size(anamendo,1)
                         si(:,js) = NaN(np,1);
                         %             end
                         if ~isempty(iy) && ~isempty(iyc)
-                            delete([xdir, '/*cut*.*'])
-                            [proba, dproba] = stab_map_1(x0, iy, iyc, 'cut',0);
+                            delete([xdir, '/*threshold*.*'])
+                            [proba, dproba] = stab_map_1(x0, iy, iyc, 'threshold',0);
                             %             indsmirnov = find(dproba>ksstat);
                             indsmirnov = find(proba<pvalue_ks);
                             for jp=1:length(indsmirnov),
                                 disp([M_.param_names(estim_params_.param_vals(indsmirnov(jp),1),:),'   d-stat = ', num2str(dproba(indsmirnov(jp)),'%1.3f'),'   p-value = ', num2str(proba(indsmirnov(jp)),'%1.3f')])
                             end
                             disp(' ');
-                            stab_map_1(x0, iy, iyc, 'cut',1,indsmirnov,xdir);
-                            stab_map_2(x0(iy,:),alpha2,pvalue_corr,'cut',xdir)
-                            stab_map_2(x0(iyc,:),alpha2,pvalue_corr,'trim',xdir)
+                            stab_map_1(x0, iy, iyc, 'threshold',1,indsmirnov,xdir);
+                            stab_map_2(x0(iy,:),alpha2,pvalue_corr,'inside_threshold',xdir)
+                            stab_map_2(x0(iyc,:),alpha2,pvalue_corr,'outside_threshold',xdir)
                             lpmat=x0(iy,:);
                             lpmat0=xx0(iy,:);
                             istable=[1:length(iy)];
-                            save([xdir,filesep,'threshold.mat'],'lpmat','lpmat0','istable')
+                            save([xdir,filesep,'threshold.mat'],'lpmat','lpmat0','istable','y0','x0','xx0','iy','iyc')
                             clear lpmat lpmat0 istable
                         end
                     end
@@ -233,7 +233,7 @@ for j=1:size(anamendo,1)
                     else
                         iy=find( (y0>threshold(1)) & (y0<threshold(2)));
                         iyc=find( (y0<=threshold(1)) | (y0>=threshold(2)));
-                        xdir = [xdir0,'_cut'];
+                        xdir = [xdir0,'_threshold'];
                         if isempty(dir(xdir))
                             mkdir(xdir)
                         end
@@ -245,21 +245,21 @@ for j=1:size(anamendo,1)
                             dyn_saveas(hf,[xdir,'/', namendo,'_vs_', namlagendo],options_);
                         end
                         if ~isempty(iy) && ~isempty(iyc),
-                            delete([xdir, '/*cut*.*'])
-                            [proba, dproba] = stab_map_1(x0, iy, iyc, 'cut',0);
+                            delete([xdir, '/*threshold*.*'])
+                            [proba, dproba] = stab_map_1(x0, iy, iyc, 'threshold',0);
                             %           indsmirnov = find(dproba>ksstat);
                             indsmirnov = find(proba<pvalue_ks);
                             for jp=1:length(indsmirnov),
                                 disp([M_.param_names(estim_params_.param_vals(indsmirnov(jp),1),:),'   d-stat = ', num2str(dproba(indsmirnov(jp)),'%1.3f'),'   p-value = ', num2str(proba(indsmirnov(jp)),'%1.3f')])
                             end
                             disp(' ');
-                            stab_map_1(x0, iy, iyc, 'cut',1,indsmirnov,xdir);
-                            stab_map_2(x0(iy,:),alpha2,pvalue_corr,'cut',xdir)
-                            stab_map_2(x0(iyc,:),alpha2,pvalue_corr,'trim',xdir)
+                            stab_map_1(x0, iy, iyc, 'threshold',1,indsmirnov,xdir);
+                            stab_map_2(x0(iy,:),alpha2,pvalue_corr,'inside_threshold',xdir)
+                            stab_map_2(x0(iyc,:),alpha2,pvalue_corr,'outside_threshold',xdir)
                             lpmat=x0(iy,:);
                             lpmat0=xx0(iy,:);
                             istable=[1:length(iy)];
-                            save([xdir,filesep,'threshold.mat'],'lpmat','lpmat0','istable')
+                            save([xdir,filesep,'threshold.mat'],'lpmat','lpmat0','istable','y0','x0','xx0','iy','iyc')
                             clear lpmat lpmat0 istable
                             
                         end
