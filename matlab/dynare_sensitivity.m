@@ -233,8 +233,32 @@ if options_gsa.identification,
     map_ident_(OutputDirectoryName,options_gsa);
 end
 
-if options_gsa.redform && ~isempty(options_gsa.namendo) ...
-        && ~options_gsa.ppost,
+if options_gsa.redform && ~isempty(options_gsa.namendo),% ...
+    %         && ~options_gsa.ppost,
+    if options_gsa.ppost,
+        filnam = dir([M_.dname filesep 'metropolis' filesep '*param_irf*.mat']);
+        lpmat=[];
+        for j=1:length(filnam),
+            load ([M_.dname filesep 'metropolis' filesep M_.fname '_param_irf' int2str(j) '.mat'])
+            lpmat=[lpmat; stock];
+        end
+        clear stock
+        nshock = estim_params_.nvx;
+        nshock = nshock + estim_params_.nvn;
+        nshock = nshock + estim_params_.ncx;
+        nshock = nshock + estim_params_.ncn;
+        
+        lpmat0=lpmat(:,1:nshock);
+        lpmat=lpmat(:,nshock+1:end);
+        istable=(1:size(lpmat,1));
+        iunstable=[];
+        iwrong=[];
+        iindeterm=[];
+        save([OutputDirectoryName filesep M_.fname '_mc.mat'],'lpmat','lpmat0','istable','iunstable','iwrong','iindeterm')
+        options_gsa.load_stab=1;
+        
+        x0 = stab_map_(OutputDirectoryName,options_gsa);
+    end
     if strmatch(':',options_gsa.namendo,'exact'),
         options_gsa.namendo=M_.endo_names;
     end
