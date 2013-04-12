@@ -81,7 +81,7 @@ if number_of_trials
   if kitagawa_resampling
     u = (transpose(1:number_of_trials)-1+noise(:))/number_of_trials;  
   else 
-    u = fliplr(cumprod(noise.^(1./(number_of_trials:-1:1))));
+    u = fliplr(cumprod(noise(1:number_of_trials).^(1./(number_of_trials:-1:1))));
   end
   j=1;
   for i=1:number_of_trials

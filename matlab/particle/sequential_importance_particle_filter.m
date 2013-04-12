@@ -1,6 +1,8 @@
 function [LIK,lik] = sequential_importance_particle_filter(ReducedForm,Y,start,DynareOptions)
 % Evaluates the likelihood of a nonlinear model with a particle filter (optionally with resampling).
-
+% Standard Sequential Monte Carlo approach with 
+%    - the usual proposal (the state transition distribution)
+%    - options on resampling: none, adaptive or systematic 
 %@info:
 %! @deftypefn {Function File} {@var{y}, @var{y_} =} sequential_importance_particle_filter (@var{ReducedForm},@var{Y}, @var{start}, @var{DynareOptions})
 %! @anchor{particle/sequential_importance_particle_filter}
@@ -171,8 +173,3 @@ for t=1:sample_size
 end
 
 LIK = -sum(lik(start:end));
-
-
-
-function n = neff(w)
-    n = dot(w,w);
