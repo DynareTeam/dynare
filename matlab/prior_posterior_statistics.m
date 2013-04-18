@@ -94,8 +94,12 @@ elseif strcmpi(type,'gsa')
         DirectoryName = CheckPath(['gsa',filesep,'mc'],M_.dname);
         load([ RootDirectoryName filesep  M_.fname '_mc.mat'],'lpmat0','lpmat','istable')
     end
-    x=[lpmat0(istable,:) lpmat(istable,:)];
-    clear lpmat istable
+    if ~isempty(lpmat0),
+        x=[lpmat0(istable,:) lpmat(istable,:)];
+    else
+        x=lpmat(istable,:);
+    end
+    clear lpmat lpmat0 istable
     NumberOfDraws=size(x,1);
     B=NumberOfDraws; 
 elseif strcmpi(type,'prior')

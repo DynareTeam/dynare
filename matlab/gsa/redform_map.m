@@ -87,7 +87,13 @@ adir0=pwd;
 
 nspred=size(T,2)-M_.exo_nbr;
 x0=lpmat(istable,:);
-xx0=lpmat0(istable,:);
+if isempty(lpmat0),
+    xx0=[];
+    nshocks=0;
+else
+    xx0=lpmat0(istable,:);
+    nshocks=size(xx0,2);
+end
 [kn, np]=size(x0);
 offset = length(bayestopt_.pshape)-np;
 if options_gsa_.prior_range,
@@ -99,7 +105,8 @@ else
 end
 
 nsok = length(find(M_.lead_lag_incidence(M_.maximum_lag,:)));
-clear lpmat lpmat0
+lpmat=[];
+lpmat0=[];
 js=0;
 for j=1:size(anamendo,1)
     namendo=deblank(anamendo(j,:));
@@ -147,7 +154,7 @@ for j=1:size(anamendo,1)
                         %             else
                         si(:,js) = NaN(np,1);
                         %             end
-                        if ~isempty(iy) && ~isempty(iyc)
+                        if length(iy)>size(x0,2) && length(iyc)>size(x0,2)
                             delete([xdir, '/*threshold*.*'])
                             [proba, dproba] = stab_map_1(x0, iy, iyc, 'threshold',0);
                             %             indsmirnov = find(dproba>ksstat);
@@ -156,14 +163,16 @@ for j=1:size(anamendo,1)
                                 disp([M_.param_names(estim_params_.param_vals(indsmirnov(jp),1),:),'   d-stat = ', num2str(dproba(indsmirnov(jp)),'%1.3f'),'   p-value = ', num2str(proba(indsmirnov(jp)),'%1.3f')])
                             end
                             disp(' ');
-                            stab_map_1(x0, iy, iyc, 'threshold',1,indsmirnov,xdir);
+                            stab_map_1(x0, iy, iyc, 'threshold',pvalue_ks,indsmirnov,xdir);
                             stab_map_2(x0(iy,:),alpha2,pvalue_corr,'inside_threshold',xdir)
                             stab_map_2(x0(iyc,:),alpha2,pvalue_corr,'outside_threshold',xdir)
                             lpmat=x0(iy,:);
-                            lpmat0=xx0(iy,:);
+                            if nshocks,
+                                lpmat0=xx0(iy,:);
+                            end
                             istable=[1:length(iy)];
                             save([xdir,filesep,'threshold.mat'],'lpmat','lpmat0','istable','y0','x0','xx0','iy','iyc')
-                            clear lpmat lpmat0 istable
+                            lpmat=[]; lpmat0=[]; istable=[];
                         end
                     end
                 else
@@ -244,7 +253,7 @@ for j=1:size(anamendo,1)
                             hf=dyn_figure(options_); hist(y0,30), title([namendo,' vs. ', namlagendo])
                             dyn_saveas(hf,[xdir,'/', namendo,'_vs_', namlagendo],options_);
                         end
-                        if ~isempty(iy) && ~isempty(iyc),
+                        if length(iy)>size(x0,2) && length(iyc)>size(x0,2),
                             delete([xdir, '/*threshold*.*'])
                             [proba, dproba] = stab_map_1(x0, iy, iyc, 'threshold',0);
                             %           indsmirnov = find(dproba>ksstat);
@@ -253,14 +262,16 @@ for j=1:size(anamendo,1)
                                 disp([M_.param_names(estim_params_.param_vals(indsmirnov(jp),1),:),'   d-stat = ', num2str(dproba(indsmirnov(jp)),'%1.3f'),'   p-value = ', num2str(proba(indsmirnov(jp)),'%1.3f')])
                             end
                             disp(' ');
-                            stab_map_1(x0, iy, iyc, 'threshold',1,indsmirnov,xdir);
+                            stab_map_1(x0, iy, iyc, 'threshold',pvalue_ks,indsmirnov,xdir);
                             stab_map_2(x0(iy,:),alpha2,pvalue_corr,'inside_threshold',xdir)
                             stab_map_2(x0(iyc,:),alpha2,pvalue_corr,'outside_threshold',xdir)
                             lpmat=x0(iy,:);
-                            lpmat0=xx0(iy,:);
+                            if nshocks,
+                                lpmat0=xx0(iy,:);
+                            end
                             istable=[1:length(iy)];
                             save([xdir,filesep,'threshold.mat'],'lpmat','lpmat0','istable','y0','x0','xx0','iy','iyc')
-                            clear lpmat lpmat0 istable
+                            lpmat=[]; lpmat0=[]; istable=[];
                             
                         end
                     end
