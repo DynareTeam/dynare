@@ -1,4 +1,4 @@
-function c = dat_fil_(data_file);
+function list_of_exported_variables_ = dat_fil_(dat_fil_to_load_);
 % Written by Marco Ratto
 % Joint Research Centre, The European Commission,
 % (http://eemc.jrc.ec.europa.eu/),
@@ -25,14 +25,14 @@ function c = dat_fil_(data_file);
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 try
-  eval(data_file);
+  eval(dat_fil_to_load_);
 catch
-  load(data_file);
+  load(dat_fil_to_load_);
 end
-clear data_file;
+clear dat_fil_to_load_;
 
-a=who;
+list_of_local_variables_=who;
 
-for j=1:length(a)
-  eval(['c.',a{j},'=',a{j},';']);
+for j=1:length(list_of_local_variables_),
+  eval(['list_of_exported_variables_.',list_of_local_variables_{j},'=',list_of_local_variables_{j},';']);
 end

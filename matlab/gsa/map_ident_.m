@@ -836,7 +836,12 @@ else,  % main effects analysis
   
   imap=[1:npT];
 
-  x0=[lpmat0(istable,:), lpmat(istable,:)];
+  if isempty(lpmat0),
+      x0=lpmat(istable,:);
+  else
+      
+      x0=[lpmat0(istable,:), lpmat(istable,:)];
+  end
   nrun=length(istable);
   nest=min(250,nrun);
   nfit=min(1000,nrun);
