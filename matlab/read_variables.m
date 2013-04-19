@@ -106,23 +106,20 @@ switch (extension)
         end
     case '.csv'
         [freq,init,data,varlist] = load_csv_file_data(fullname);
-        disp('size(data)');
-        size(data)
-%         for i=1:length(varlist)
-%             if isnan(varlist)
-%                 varlist(1,i) = ' ';
-%             end
-%         end
         %var_names_01 = deblank(var_names_01);
-        
         for dyn_i_01=1:var_size_01
-            iv = strmatch(deblank(var_names_01(dyn_i_01,:)),varlist,'exact') + 1;
-            dyn_tmp_01 = [data(2:end,iv)]';
-            if length(dyn_tmp_01) > dyn_size_01 && dyn_size_01 > 0
+            iv = strmatch(strtrim(var_names_01(dyn_i_01,:)),varlist,'exact');
+            if ~isempty(iv)
+                dyn_tmp_01 = [data(2:end,iv)]';
+                if length(dyn_tmp_01) > dyn_size_01 && dyn_size_01 > 0
+                    cd(old_pwd)
+                    error('data size is too large')
+                end
+                dyn_data_01(:,dyn_i_01) = dyn_tmp_01;
+            else
                 cd(old_pwd)
-                error('data size is too large')
+                error([strtrim(var_names_01(dyn_i_01,:)) ' not found in ' fullname])
             end
-            dyn_data_01(:,dyn_i_01) = dyn_tmp_01;
         end
     otherwise
         cd(old_pwd)

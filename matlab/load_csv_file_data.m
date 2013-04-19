@@ -189,11 +189,7 @@ for linea = 1+withnames:ndx
     linee = char(transpose(bfile(b(linea):c(linea))));
     [B,C] = get_cells_id(linee,',');
     for i=first:length(B)
-        if isequal(B(i),C(i))
-            data(linea,i-withtime) = NaN;
-        else
-            data(linea,i-withtime) = str2double(linee(B(i):C(i)));
-        end
+        data(linea,i-withtime) = str2double(linee(B(i):C(i)));
     end
 end
 
