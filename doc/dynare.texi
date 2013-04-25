@@ -3234,11 +3234,11 @@ period(s). The periods must be strictly positive. Conditional variances are give
 decomposition provides the decomposition of the effects of shocks upon
 impact. The results are stored in
 @code{oo_.conditional_variance_decomposition}
-(@pxref{oo_.conditional_variance_decomposition}). The variance decomposition is only conducted, if theoretical moments are requested, i.e. using the @code{periods=0}-option. In case of @code{order=2}, Dynare provides a second-order accurate approximation to the true second moments based on the linear terms of the second-order solution (see @cite{Kim, Kim, Schaumburg and Sims (2008)}).  
+(@pxref{oo_.conditional_variance_decomposition}). The variance decomposition is only conducted, if theoretical moments are requested, i.e. using the @code{periods=0}-option. In case of @code{order=2}, Dynare provides a second-order accurate approximation to the true second moments based on the linear terms of the second-order solution (see @cite{Kim, Kim, Schaumburg and Sims (2008)}). 
 
 @item pruning
-Discard higher order terms when iteratively computing simulations of
-the solution, as in @cite{Kim, Kim, Schaumburg and Sims (2008)}.
+Discard higher order terms when iteratively computing simulations of 
+the solution. At second order, Dynare uses the algorithm of @cite{Kim, Kim, Schaumburg and Sims (2008)}, while at third order its generalization by @cite{Andreasen, Fernández-Villaverde and Rubio-Ramírez (2013)} is used.
 
 @item partial_information
 @anchor{partial_information}
@@ -7724,6 +7724,9 @@ internals --test particle/local_state_iteration
 @item
 Aguiar, Mark and Gopinath, Gita (2004): ``Emerging Market Business
 Cycles: The Cycle is the Trend,'' @i{NBER Working Paper}, 10734
+
+@item
+Andreasen, Martin M., Fernández-Villaverde, Jesús and Juan Rubio-Ramírez (2013): ``The Pruned State-Space System for Non-Linear DSGE Models: Theory and Empirical Applications,'' @i{NBER Working Paper}, 18983
 
 @item
 Backus, David K., Patrick J. Kehoe, and Finn E. Kydland (1992):

@@ -39,7 +39,7 @@ switch(order)
     dr.g_1 = g_1;
     dr.g_2 = g_2;
   case 3
-    if options.pruning
+    if options.pruning 
         [err, g_0, g_1, g_2, g_3, derivs] = k_order_perturbation(dr, ...
                                                           M,options);
         dr.ghx = derivs.gy;
@@ -67,7 +67,7 @@ switch(order)
     error('order > 3 isn''t implemented')
 end
 
-if options.pruning
+if options.pruning 
     return
 end
 
