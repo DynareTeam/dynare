@@ -52,7 +52,7 @@ if ~noprint
         error(['One of the eigenvalues is close to 0/0 (the absolute ' ...
                'value of numerator and denominator is smaller than 1e-6)'])
       case 8
-        if ~isempty(info(2))
+        if size(info,2)>=2
           global M_;
             disp_string=deblank(M_.param_names(info(2),:));
           for ii=1:length(info)-2
