@@ -354,7 +354,7 @@ if options_gsa.rmse,
     end
     clear a;
 %     filt_mc_(OutputDirectoryName,data_info);
-    filt_mc_(OutputDirectoryName,options_gsa);
+    filt_mc_(OutputDirectoryName,options_gsa,dataset_);
 end
 options_.opt_gsa = options_gsa;
 
