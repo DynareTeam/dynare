@@ -1,4 +1,4 @@
-function [rmse_MC, ixx] = filt_mc_(OutDir,options_gsa_)
+function [rmse_MC, ixx] = filt_mc_(OutDir,options_gsa_,dataset_)
 % function [rmse_MC, ixx] = filt_mc_(OutDir)
 % inputs (from opt_gsa structure)
 % vvarvecm = options_gsa_.var_rmse;
@@ -114,20 +114,24 @@ end
 if ~loadSA,
     if exist('xparam1','var')
         M_ = set_all_parameters(xparam1,estim_params_,M_);
-        steady_(M_,options_,oo_);
-        ys_mode=oo_.steady_state;
+        ys_mode=steady_(M_,options_,oo_);
     end
     if exist('xparam1_mean','var')
         M_ = set_all_parameters(xparam1_mean,estim_params_,M_);
-        steady_(M_,options_,oo_);
-        ys_mean=oo_.steady_state;
+        ys_mean=steady_(M_,options_,oo_);
     end
     %   eval(options_.datafile)
-    obs = dat_fil_(options_.datafile);
+    Y = dataset_.data;
+    gend = dataset_.info.ntobs;
+    data_index = dataset_.missing.aindex;
+    missing_value = dataset_.missing.state;
+    for jx=1:gend, data_indx(jx,data_index{jx})=true; end
     %stock_gend=data_info.gend;
     %stock_data = data_info.data;
     load([DirectoryName '/' M_.fname '_data.mat']);    
     filfilt = dir([DirectoryName filesep M_.fname '_filter_step_ahead*.mat']);
+    filsmooth = dir([DirectoryName filesep M_.fname '_smooth*.mat']);
+    filupdate = dir([DirectoryName filesep M_.fname '_update*.mat']);
     filparam = dir([DirectoryName filesep M_.fname '_param*.mat']);
     x=[];
     logpo2=[];
@@ -151,54 +155,51 @@ if ~loadSA,
         nobs=options_.nobs;
         for i=1:size(vvarvecm,1),
             vj=deblank(vvarvecm(i,:));
-            eval(['vobs =obs.',vj,'(fobs:fobs-1+nobs);'])
-            if options_.prefilter == 1
-                %eval([vj,'=',vj,'-bayestopt_.mean_varobs(i);'])
-                %eval([vj,'=',vj,'-mean(',vj,',1);'])
-                vobs = vobs-mean(vobs,1);
-            end
             
-            jxj = strmatch(vj,lgy_(dr_.order_var,:),'exact');
-            js = strmatch(vj,lgy_,'exact');
+            jxj(i) = strmatch(vj,lgy_(dr_.order_var,:),'exact');
+            js(i) = strmatch(vj,lgy_,'exact');
+            yss(i,:,:)=repmat(sto_ys(:,js(i))',[nobs,1]);
+        end
             if exist('xparam1','var')
-                %       if isfield(oo_,'FilteredVariables')
-                %       eval(['rmse_mode(i) = sqrt(mean((vobs(istart:end)-oo_.steady_state(js)-oo_.FilteredVariables.',vj,'(istart:end-1)).^2));'])
-                %       else
-                [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1,stock_gend,stock_data,{},0);
-                y0 = squeeze(aK(1,jxj,:)) + ...
-                    kron(ys_mode(js,:),ones(size(aK,3),1));
-                %       y0 = ahat(jxj,:)' + ...
-                %         kron(ys_mode(js,:),ones(size(ahat,2),1));
-                rmse_mode(i) = sqrt(mean((vobs(istart:end)-y0(istart:end-1)).^2));
-                %       end
+                [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value);
+                y0 = transpose( squeeze(aK(1,jxj,1:gend)));% + kron(ys_mode(js),ones(1,gend)));
+                yobs = transpose( ahat(jxj,:));% + kron(ys_mode(js),ones(1,gend)));
+                rmse_mode = sqrt(mean((yobs(istart:end,:)-y0(istart:end,:)).^2));
+                r2_mode = 1-sum((yobs(istart:end,:)-y0(istart:end,:)).^2)./sum(yobs(istart:end,:).^2);
             end
-            y0=zeros(nobs+1,nruns);
+            y0=yss*0;
             nbb=0;
             for j=1:length(filfilt),
                 load([DirectoryName filesep M_.fname '_filter_step_ahead',num2str(j),'.mat']);
                 nb = size(stock,4);
-                %         y0(:,nbb+1:nbb+nb)=squeeze(stock(1,js,:,:)) + ...
-                %           kron(sto_ys(nbb+1:nbb+nb,js)',ones(size(stock,3),1));
-                y0(:,nbb+1:nbb+nb)=squeeze(stock(1,js,1:nobs+1,:)) + ...
-                    kron(sto_ys(nbb+1:nbb+nb,js)',ones(nobs+1,1));
-                %y0(:,:,size(y0,3):size(y0,3)+size(stock,3))=stock;
+                y0(:,:,nbb+1:nbb+nb)=y0(:,:,nbb+1:nbb+nb)+squeeze(stock(1,js,1:nobs,:));
+                nbb=nbb+nb;
+                clear stock;
+            end
+            yobs=-yss;
+            nbb=0;
+            for j=1:length(filupdate),
+                load([DirectoryName filesep M_.fname '_update',num2str(j),'.mat']);
+                nb = size(stock,3);
+                yobs(:,:,nbb+1:nbb+nb)=yobs(:,:,nbb+1:nbb+nb)+squeeze(stock(js,1:nobs,:));
                 nbb=nbb+nb;
                 clear stock;
             end
             y0M=mean(y0,2);
+            rmse_MC=zeros(nruns,length(js));
+            r2_MC=zeros(nruns,length(js));
             for j=1:nruns,
-                rmse_MC(j,i) = sqrt(mean((vobs(istart:end)-y0(istart:end-1,j)).^2));
+                rmse_MC(j,:) = sqrt(mean((yobs(:,istart:end,j)'-y0(:,istart:end,j)').^2));
+                r2_MC(j,:) = 1-mean((yobs(:,istart:end,j)'-y0(:,istart:end,j)').^2)./mean((yobs(:,istart:end,j)').^2);
             end
             if exist('xparam1_mean','var')
                 %eval(['rmse_pmean(i) = sqrt(mean((',vj,'(fobs-1+istart:fobs-1+nobs)-y0M(istart:end-1)).^2));'])
-                [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1_mean,stock_gend,stock_data,{},0);
-                y0 = squeeze(aK(1,jxj,:)) + ...
-                    kron(ys_mean(js,:),ones(size(aK,3),1));
-                %       y0 = ahat(jxj,:)' + ...
-                %         kron(ys_mean(js,:),ones(size(ahat,2),1));
-                rmse_pmean(i) = sqrt(mean((vobs(istart:end)-y0(istart:end-1)).^2));
+                [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1_mean,gend,Y,data_index,missing_value);
+                y0 = transpose( squeeze(aK(1,jxj,1:gend)));% + kron(ys_mean(js),ones(1,gend)));
+                yobs = transpose( ahat(jxj,:));% + kron(ys_mean(js),ones(1,gend)));
+                rmse_pmean = sqrt(mean((yobs(istart:end,:)-y0(istart:end,:)).^2));
+                r2_pmean = 1-mean((yobs(istart:end,:)-y0(istart:end,:)).^2)./mean(yobs(istart:end,:).^2);
             end
-        end
         clear stock_filter;
     end
     for j=1:nruns,
@@ -208,17 +209,17 @@ if ~loadSA,
     disp('... done!')
     
     if options_.opt_gsa.ppost
-        save([OutDir,filesep,fnamtmp,'.mat'], 'x', 'logpo2', 'likelihood', 'rmse_MC', 'rmse_mode','rmse_pmean')
+        save([OutDir,filesep,fnamtmp,'.mat'], 'x', 'logpo2', 'likelihood', 'rmse_MC', 'rmse_mode','rmse_pmean', 'r2_MC', 'r2_mode','r2_pmean')
     else
         if options_.opt_gsa.lik_only
             save([OutDir,filesep,fnamtmp, '.mat'], 'x', 'logpo2','likelihood', '-append')
         else
-            save([OutDir,filesep,fnamtmp, '.mat'], 'x', 'logpo2','likelihood', 'rmse_MC','-append')
+            save([OutDir,filesep,fnamtmp, '.mat'], 'x', 'logpo2','likelihood', 'rmse_MC', 'r2_MC','-append')
             if exist('xparam1_mean','var')
-                save([OutDir,filesep,fnamtmp, '.mat'], 'rmse_pmean','-append')
+                save([OutDir,filesep,fnamtmp, '.mat'], 'rmse_pmean', 'r2_pmean','-append')
             end
             if exist('xparam1','var')
-                save([OutDir,filesep,fnamtmp,'.mat'], 'rmse_mode','-append')
+                save([OutDir,filesep,fnamtmp,'.mat'], 'rmse_mode', 'r2_mode','-append')
             end
         end
     end
@@ -226,7 +227,7 @@ else
     if options_.opt_gsa.lik_only && options_.opt_gsa.ppost==0
         load([OutDir,filesep,fnamtmp, '.mat'],'x','logpo2','likelihood');
     else
-        load([OutDir,filesep,fnamtmp, '.mat'],'x','logpo2','likelihood','rmse_MC','rmse_mode','rmse_pmean');
+        load([OutDir,filesep,fnamtmp, '.mat'],'x','logpo2','likelihood','rmse_MC','rmse_mode','rmse_pmean', 'r2_MC', 'r2_mode','r2_pmean');
     end
     lnprior=logpo2(:)-likelihood(:);
     nruns=size(x,1);
@@ -260,16 +261,20 @@ else
         if options_.opt_gsa.ppost,
             %nfilt0(i)=length(find(rmse_MC(:,i)<rmse_pmean(i)));
             rmse_txt=rmse_pmean;
+            r2_txt=r2_pmean;
         else
             if options_.opt_gsa.pprior || ~exist('rmse_pmean'),
                 if exist('rmse_mode'),
                     rmse_txt=rmse_mode;
+                    r2_txt=r2_mode;
                 else
                     rmse_txt=NaN(1,size(rmse_MC,2));
+                    r2_txt=NaN(1,size(r2_MC,2));
                 end
             else
                 %nfilt0(i)=length(find(rmse_MC(:,i)<rmse_pmean(i)));
                 rmse_txt=rmse_pmean;
+                r2_txt=r2_pmean;
             end
         end
         for j=1:npar+nshock,
@@ -427,6 +432,38 @@ else
         %         max(logpo2(ixx(nfilt+1:end,j)))])])
     end
     
+    %%%%% R2 table
+    
+    disp(' ')
+    disp('R2 over the MC sample:')
+    disp('            min yr R2      max yr R2')
+    for j=1:size(vvarvecm,1),
+        disp([vvarvecm(j,:), sprintf('%15.5g',[(min(r2_MC(:,j))) [(max(r2_MC(:,j)))]])])
+    end
+    r2_MC=r2_MC(:,ivar);
+    
+    disp(' ')
+    disp(['Sample filtered the ',num2str(pfilt*100),'% best R2''s for each observed series ...' ])
+    
+    disp(' ')
+    disp(' ')
+    disp('R2 ranges after filtering:')
+    if options_.opt_gsa.ppost==0 && options_.opt_gsa.pprior,
+        disp(['             best ',num2str(pfilt*100),'% filtered             remaining 90%'])
+        disp(['             min            max            min            max            posterior mode'])
+    else
+        disp(['             best  filtered             remaining '])
+        disp(['             min            max            min            max            posterior mean'])
+    end
+    for j=1:size(vvarvecm,1),
+        disp([vvarvecm(j,:), sprintf('%15.5g',[min(r2_MC(ixx(1:nfilt0(j),j),j)) ...
+            max(r2_MC(ixx(1:nfilt0(j),j),j))  ...
+            min(r2_MC(ixx(nfilt0(j)+1:end,j),j)) ...
+            max(r2_MC(ixx(nfilt0(j)+1:end,j),j)) ...
+            r2_txt(j)])])
+    end
+    
+    %%%%  R2 table
     SP=zeros(npar+nshock,size(vvarvecm,1));
     for j=1:size(vvarvecm,1),
         ns=find(PP(:,j)<alpha);
