@@ -58,7 +58,7 @@ if rplottype == 0
     for j = 1:size(y,1)
         t = [t s1(j,:) ' '] ;
     end
-    figure('Name',['Simulated Trajectory']) ;
+    hh=dyn_figure(options_,'Name',['Simulated Trajectory']);
     plot(ix(i),y(:,i)) ;
     title (t,'Interpreter','none') ;
     xlabel('Periods') ;
@@ -72,13 +72,13 @@ if rplottype == 0
     end
 elseif rplottype == 1
     for j = 1:size(y,1)
-        figure('Name',['Simulated Trajectory']) ;
+        hh=dyn_figure(options_,'Name',['Simulated Trajectory']);
         plot(ix(i),y(j,i)) ;
         title(['Plot of ' s1(j,:)],'Interpreter','none') ;
         xlabel('Periods') ;
     end
 elseif rplottype == 2
-    figure('Name',['Simulated Trajectory']) ;
+    hh=dyn_figure(options_,'Name',['Simulated Trajectory']);
     nl = max(1,fix(size(y,1)/4)) ;
     nc = ceil(size(y,1)/nl) ;
     for j = 1:size(y,1)
@@ -92,6 +92,16 @@ elseif rplottype == 2
         axis tight;
     end
 end
+% create subdirectory <fname>/graphs if it doesn't exist
+if ~exist(M_.fname, 'dir')
+    mkdir('.',M_.fname);
+end
+if ~exist([M_.fname filesep 'graphs'])
+    mkdir(M_.fname,'graphs');
+end
+
+dyn_saveas(hh,[M_.fname, filesep, 'graphs', filesep, 'SimulatedTrajectory_' deblank(s1(1,:))],options_)
+
 
 % 02/28/01 MJ replaced bseastr by MATLAB's strmatch
 % 06/19/01 MJ added 'exact' to strmatch calls

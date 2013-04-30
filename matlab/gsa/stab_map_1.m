@@ -1,4 +1,4 @@
-function [proba, dproba] = stab_map_1(lpmat, ibehaviour, inonbehaviour, aname, iplot, ipar, dirname, pcrit)
+function [proba, dproba] = stab_map_1(lpmat, ibehaviour, inonbehaviour, aname, iplot, ipar, dirname, pcrit, atitle)
 %function [proba, dproba] = stab_map_1(lpmat, ibehaviour, inonbehaviour, aname, iplot, ipar, dirname, pcrit)
 %
 % lpmat =  Monte Carlo matrix
@@ -48,7 +48,10 @@ if nargin<5,
 end
 fname_ = M_.fname;
 if nargin<7,
-  dirname='';;
+  dirname='';
+end
+if nargin<9,
+  atitle=aname;
 end
 
 nshock = estim_params_.nvx;
@@ -82,21 +85,21 @@ if iplot && ~options_.nograph
   ftit=bayestopt_.name(ipar+nshock*(1-ishock));
   
 for i=1:ceil(nparplot/12),
-  hh=dyn_figure(options_,'name',aname);
+  hh=dyn_figure(options_,'name',atitle);
   for j=1+12*(i-1):min(nparplot,12*i),
     subplot(3,4,j-12*(i-1))
     if ~isempty(ibehaviour),
       h=cumplot(lpmat(ibehaviour,j));
-      set(h,'color',[0 0 0], 'linestyle',':')
+      set(h,'color',[0 0 1], 'linestyle',':','LineWidth',1.5)
     end
     hold on,
     if ~isempty(inonbehaviour),
       h=cumplot(lpmat(inonbehaviour,j));
-      set(h,'color',[0 0 0])
+      set(h,'color',[0 0 0],'LineWidth',1.5)
     end
 %     title([ftit{j},'. D-stat ', num2str(dproba(ipar(j)),2)],'interpreter','none')
     title([ftit{j},'. p-value ', num2str(proba(ipar(j)),2)],'interpreter','none')
   end
-  dyn_saveas(hh,[dirname,'/',fname_,'_',aname,'_SA_',int2str(i)],options_);
+  dyn_saveas(hh,[dirname,filesep,fname_,'_',aname,'_SA_',int2str(i)],options_);
 end
 end

@@ -59,7 +59,7 @@ if ncx
         k1 = estim_params_.corrx(i,1);
         k2 = estim_params_.corrx(i,2);
         w = max(w,length(deblank(M_.exo_names(k1,:)))...
-                +length(deblank(M_.exo_names(k2,:))))
+                +length(deblank(M_.exo_names(k2,:))));
 
     end
 end

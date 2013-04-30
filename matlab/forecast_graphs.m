@@ -67,7 +67,7 @@ for j= 1:nvar
         dyn_saveas(hh,[ fname '/graphs/forcst' int2str(n_fig)],options_);
         
         n_fig =n_fig+1;
-        eval(['hh=dyn_figure(options_,''Name'',''Forecast (' int2str(n_fig) ')'');']);
+        eval(['hh=dyn_figure(options_,''Name'',''Forecasts (' int2str(n_fig) ')'');']);
         m = 1;
     end
     subplot(nr,nc,m);
@@ -86,6 +86,7 @@ for j= 1:nvar
     hold on
     plot([NaN(obs,1); hpdsup.(vn)]);
     title(vn,'Interpreter','none');
+    xlim([1 obs+length(hpdsup.(vn))])
     hold off
     m = m + 1;
 end

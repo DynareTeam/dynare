@@ -16,7 +16,7 @@ function i = name2index(options_, M_, estim_params_, type, name1, name2 )
 % SPECIAL REQUIREMENTS
 %   none
 
-% Copyright (C) 2008-2010 Dynare Team
+% Copyright (C) 2008-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -64,7 +64,7 @@ if strcmpi(type,'StructuralShock')
     else% Covariance matrix off-diagonal term
         offset = nvx+nvn;
         try 
-            list_of_structural_shocks = [ M_.exo_names(estim_params_.corrx(:,1),:) , M_.exo_names(estim_params_.corrx(:,2),:) ];
+            list_of_structural_shocks = { M_.exo_names(estim_params_.corrx(:,1),:) , M_.exo_names(estim_params_.corrx(:,2),:) };
             k1 = strmatch(name1,list_of_structural_shocks(:,1),'exact');
             k2 = strmatch(name2,list_of_structural_shocks(:,2),'exact');
             i = offset+intersect(k1,k2);
@@ -75,7 +75,7 @@ if strcmpi(type,'StructuralShock')
             end
             if isempty(i)
                 if isempty(i)
-                    disp(['The correlation between' name1 ' and ' name2 ' is not an estimated parameter!'])
+                    disp(['The correlation between ' name1 ' and ' name2 ' is not an estimated parameter!'])
                     return
                 end
             end
@@ -95,7 +95,7 @@ if strcmpi(type,'MeasurementError')
     else% Covariance matrix off-diagonal term
         offset = nvx+nvn+ncx;
         try
-            list_of_measurement_errors = [ M_.endo_names(estim_params_.corrn(:,1),:) , M_.endo_names(estim_params_.corrn(:,2),:) ];
+            list_of_measurement_errors = { M_.endo_names(estim_params_.corrn(:,1),:) , M_.endo_names(estim_params_.corrn(:,2),:) };
             k1 = strmatch(name1,list_of_measurement_errors(:,1),'exact');
             k2 = strmatch(name2,list_of_measurement_errors(:,2),'exact');
             i = offset+intersect(k1,k2);

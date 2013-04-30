@@ -180,7 +180,7 @@ if ~isequal(DynareOptions.mode_compute,1) && any(xparam1<BayesInfo.lb)
     k = find(xparam1<BayesInfo.lb);
     fval = objective_function_penalty_base+sum((BayesInfo.lb(k)-xparam1(k)).^2);
     exit_flag = 0;
-    info = 41;
+    info = [41 k'];
     if analytic_derivation,
         DLIK=ones(length(xparam1),1);
     end
@@ -192,7 +192,7 @@ if ~isequal(DynareOptions.mode_compute,1) && any(xparam1>BayesInfo.ub)
     k = find(xparam1>BayesInfo.ub);
     fval = objective_function_penalty_base+sum((xparam1(k)-BayesInfo.ub(k)).^2);
     exit_flag = 0;
-    info = 42;
+    info = [42 k'];
     if analytic_derivation,
         DLIK=ones(length(xparam1),1);
     end

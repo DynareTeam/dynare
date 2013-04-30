@@ -119,7 +119,7 @@ for b = fblck:nblck,
         set_dynare_seed(options_.DynareRandomStreams.seed+b);
     end
     if (options_.load_mh_file~=0)  && (fline(b)>1) && OpenOldFile(b)
-        load(['./' MhDirectoryName '/' ModelName '_mh' int2str(NewFile(b)) ...
+        load([pwd filesep MhDirectoryName filesep ModelName '_mh' int2str(NewFile(b)) ...
               '_blck' int2str(b) '.mat'])
         x2 = [x2;zeros(InitSizeArray(b)-fline(b)+1,npar)];
         logpo2 = [logpo2;zeros(InitSizeArray(b)-fline(b)+1,1)];

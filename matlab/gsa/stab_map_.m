@@ -388,31 +388,31 @@ if fload==0,
     bkpprior.p4=bayestopt_.p4;
     if pprior,
         if ~prepSA
-            save([OutputDirectoryName '/' fname_ '_prior.mat'], ...
+            save([OutputDirectoryName filesep fname_ '_prior.mat'], ...
                 'bkpprior','lpmat','lpmat0','iunstable','istable','iindeterm','iwrong', ...
                 'egg','yys','nspred','nboth','nfwrd','infox')
         else
-            save([OutputDirectoryName '/' fname_ '_prior.mat'], ...
+            save([OutputDirectoryName filesep fname_ '_prior.mat'], ...
                 'bkpprior','lpmat','lpmat0','iunstable','istable','iindeterm','iwrong', ...
                 'egg','yys','T','nspred','nboth','nfwrd','infox')
         end
 
     else
         if ~prepSA
-            save([OutputDirectoryName '/' fname_ '_mc.mat'], ...
+            save([OutputDirectoryName filesep fname_ '_mc.mat'], ...
                 'lpmat','lpmat0','iunstable','istable','iindeterm','iwrong', ...
                 'egg','yys','nspred','nboth','nfwrd','infox')
         else
-            save([OutputDirectoryName '/' fname_ '_mc.mat'], ...
+            save([OutputDirectoryName filesep fname_ '_mc.mat'], ...
                 'lpmat','lpmat0','iunstable','istable','iindeterm','iwrong', ...
                 'egg','yys','T','nspred','nboth','nfwrd','infox')
         end
     end
 else
     if pprior,
-        filetoload=[OutputDirectoryName '/' fname_ '_prior.mat'];
+        filetoload=[OutputDirectoryName filesep fname_ '_prior.mat'];
     else
-        filetoload=[OutputDirectoryName '/' fname_ '_mc.mat'];
+        filetoload=[OutputDirectoryName filesep fname_ '_mc.mat'];
     end
     load(filetoload,'lpmat','lpmat0','iunstable','istable','iindeterm','iwrong','egg','yys','nspred','nboth','nfwrd','infox')
     Nsam = size(lpmat,1);
@@ -461,26 +461,36 @@ else
 end
 
 if pprior
-    aname='prior_stab';
-    auname='prior_unacceptable';
-    aunstname='prior_unstable';
-    aindname='prior_indeterm';
-    awrongname='prior_wrong';
-    asname='prior_stable';
+    % univariate
+    aname='prior_stab'; atitle='Prior StabMap: Parameter driving non-existence of unique stable solution (Unacceptable)';
+    aindetname=[aname, '_indet']; aindettitle='Prior StabMap: Parameter driving indeterminacy';
+    aunstablename=[aname, '_unst'];  aunstabletitle='Prior StabMap: Parameter driving explosiveness of solution';
+    awronguniname=[aname, '_wrong']; awrongunititle='Prior StabMap: Parameter driving inability to find solution';
+    % bivariate
+    auname='prior_unacceptable'; autitle='Prior Unacceptable';
+    aunstname='prior_unstable'; aunsttitle='Prior Unstable';
+    aindname='prior_indeterm'; aindtitle='Prior Indeterminacy';
+    awrongname='prior_wrong'; awrongtitle='Prior No Solution Found';
+    asname='prior_stable'; astitle='Prior Stable';
 else
-    aname='mc_stab';
-    auname='mc_unacceptable';
-    aunstname='mc_unstable';
-    aindname='mc_indeterm';
-    awrongname='mc_wrong';
-    asname='mc_stable';
+    % univariate
+    aname='mc_stab'; atitle='Posterior StabMap: Parameter driving non-existence of unique stable solution (Unacceptable)';
+    aindetname=[aname, '_indet']; aindettitle='Posterior StabMap: Parameter driving indeterminacy';
+    aunstablename=[aname, '_unst'];  aunstabletitle='Posterior StabMap: Parameter driving explosiveness of solution';
+    awronguniname=[aname, '_wrong']; awrongunititle='Posterior StabMap: Parameter driving inability to find solution';
+    % bivariate
+    auname='mc_unacceptable'; autitle='Posterior Unacceptable';
+    aunstname='mc_unstable'; aunsttitle='Posterior Unstable';
+    aindname='mc_indeterm';  aindtitle='Posterior Indeterminacy';
+    awrongname='mc_wrong'; awrongtitle='Posterior No Solution Found';
+    asname='mc_stable'; astitle='Posterior Stable';
 end
-delete([OutputDirectoryName,'/',fname_,'_',aname,'_*.*']);
-%delete([OutputDirectoryName,'/',fname_,'_',aname,'_SA_*.*']);
-delete([OutputDirectoryName,'/',fname_,'_',asname,'_corr_*.*']);
-delete([OutputDirectoryName,'/',fname_,'_',auname,'_corr_*.*']);
-delete([OutputDirectoryName,'/',fname_,'_',aunstname,'_corr_*.*']);
-delete([OutputDirectoryName,'/',fname_,'_',aindname,'_corr_*.*']);
+delete([OutputDirectoryName,filesep,fname_,'_',aname,'_*.*']);
+%delete([OutputDirectoryName,filesep,fname_,'_',aname,'_SA_*.*']);
+delete([OutputDirectoryName,filesep,fname_,'_',asname,'_corr_*.*']);
+delete([OutputDirectoryName,filesep,fname_,'_',auname,'_corr_*.*']);
+delete([OutputDirectoryName,filesep,fname_,'_',aunstname,'_corr_*.*']);
+delete([OutputDirectoryName,filesep,fname_,'_',aindname,'_corr_*.*']);
 
 if length(iunstable)>0 && length(iunstable)<Nsam,
     fprintf(['%4.1f%% of the prior support gives unique saddle-path solution.\n'],length(istable)/Nsam*100)
@@ -535,11 +545,11 @@ if length(iunstable)>0 && length(iunstable)<Nsam,
     end
     disp(' ');
     if ~isempty(indstab)
-        stab_map_1(lpmat, istable, iunstable, aname, 1, indstab, OutputDirectoryName);
+        stab_map_1(lpmat, istable, iunstable, aname, 1, indstab, OutputDirectoryName,[],atitle);
     end
     ixun=iunstable(find(~ismember(iunstable,[iindeterm,iwrong])));
     if ~isempty(iindeterm),
-        [proba, dproba] = stab_map_1(lpmat, [1:Nsam], iindeterm, [aname, '_indet'],0);
+        [proba, dproba] = stab_map_1(lpmat, [1:Nsam], iindeterm, aindetname ,0);
 %         indindet=find(dproba>ksstat);
         indindet=find(proba<pvalue_ks);
         disp('Smirnov statistics in driving indeterminacy')
@@ -548,12 +558,12 @@ if length(iunstable)>0 && length(iunstable)<Nsam,
         end
         disp(' ');
         if ~isempty(indindet)
-            stab_map_1(lpmat, [1:Nsam], iindeterm, [aname, '_indet'], 1, indindet, OutputDirectoryName);
+            stab_map_1(lpmat, [1:Nsam], iindeterm, aindetname, 1, indindet, OutputDirectoryName,[],aindettitle);
         end
     end
 
     if ~isempty(ixun),
-        [proba, dproba] = stab_map_1(lpmat, [1:Nsam], ixun, [aname, '_unst'],0);
+        [proba, dproba] = stab_map_1(lpmat, [1:Nsam], ixun, aunstablename,0);
 %         indunst=find(dproba>ksstat);
         indunst=find(proba<pvalue_ks);
         disp('Smirnov statistics in driving instability')
@@ -562,12 +572,12 @@ if length(iunstable)>0 && length(iunstable)<Nsam,
         end
         disp(' ');
         if ~isempty(indunst)
-            stab_map_1(lpmat, [1:Nsam], ixun, [aname, '_unst'], 1, indunst, OutputDirectoryName);
+            stab_map_1(lpmat, [1:Nsam], ixun, aunstablename, 1, indunst, OutputDirectoryName,[],aunstabletitle);
         end
     end
 
     if ~isempty(iwrong),
-        [proba, dproba] = stab_map_1(lpmat, [1:Nsam], iwrong, [aname, '_wrong'],0);
+        [proba, dproba] = stab_map_1(lpmat, [1:Nsam], iwrong, awronguniname,0);
 %         indwrong=find(dproba>ksstat);
         indwrong=find(proba<pvalue_ks);
         disp('Smirnov statistics in driving no solution')
@@ -576,7 +586,7 @@ if length(iunstable)>0 && length(iunstable)<Nsam,
         end
         disp(' ');
         if ~isempty(indwrong)
-            stab_map_1(lpmat, [1:Nsam], iwrong, [aname, '_wrong'], 1, indwrong, OutputDirectoryName);
+            stab_map_1(lpmat, [1:Nsam], iwrong, awronguniname, 1, indwrong, OutputDirectoryName,[],awrongunititle);
         end
     end
 
@@ -586,18 +596,18 @@ if length(iunstable)>0 && length(iunstable)<Nsam,
     c0=corrcoef(lpmat(istable,:));
     c00=tril(c0,-1);
 
-    stab_map_2(lpmat(istable,:),alpha2, pvalue_corr, asname, OutputDirectoryName,xparam1);
+    stab_map_2(lpmat(istable,:),alpha2, pvalue_corr, asname, OutputDirectoryName,xparam1,astitle);
     if length(iunstable)>10,
-        stab_map_2(lpmat(iunstable,:),alpha2, pvalue_corr, auname, OutputDirectoryName,xparam1);
+        stab_map_2(lpmat(iunstable,:),alpha2, pvalue_corr, auname, OutputDirectoryName,xparam1,autitle);
     end
     if length(iindeterm)>10,
-        stab_map_2(lpmat(iindeterm,:),alpha2, pvalue_corr, aindname, OutputDirectoryName,xparam1);
+        stab_map_2(lpmat(iindeterm,:),alpha2, pvalue_corr, aindname, OutputDirectoryName,xparam1,aindtitle);
     end
     if length(ixun)>10,
-        stab_map_2(lpmat(ixun,:),alpha2, pvalue_corr, aunstname, OutputDirectoryName,xparam1);
+        stab_map_2(lpmat(ixun,:),alpha2, pvalue_corr, aunstname, OutputDirectoryName,xparam1,aunsttitle);
     end
     if length(iwrong)>10,
-        stab_map_2(lpmat(iwrong,:),alpha2, pvalue_corr, awrongname, OutputDirectoryName,xparam1);
+        stab_map_2(lpmat(iwrong,:),alpha2, pvalue_corr, awrongname, OutputDirectoryName,xparam1,awrongtitle);
     end
 
     x0=0.5.*(bayestopt_.ub(1:nshock)-bayestopt_.lb(1:nshock))+bayestopt_.lb(1:nshock);

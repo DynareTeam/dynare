@@ -121,6 +121,15 @@ n_varobs = size(options_.varobs,1);
 % Set priors over the estimated parameters.
 if ~isempty(estim_params_)
     [xparam1,estim_params_,bayestopt_,lb,ub,M_] = set_prior(estim_params_,M_,options_);
+    
+    if ~isempty(options_.mode_file) && ~options_.mh_posterior_mode_estimation
+        junk=length(xparam1);
+        load(options_.mode_file,'xparam1');
+        if length(xparam1) ~= junk
+            error([ 'ESTIMATION: the posterior mode file ' options_.mode_file ' has been generated using another specification. Please delete it and recompute the posterior mode.'])
+        end
+    end
+
     if any(bayestopt_.pshape > 0)
         % Plot prior densities.
         if ~options_.nograph && options_.plot_priors
@@ -145,7 +154,7 @@ if ~isempty(estim_params_)
         for ii=2:size(outside_bound_vars,1)
             disp_string=[disp_string,', ',outside_bound_vars{ii,:}];
         end
-        error(['Initial value(s) of ', disp_string ,' are outside parameter bounds. Potentially, you should set prior_trunc=0.'])
+        error(['Initial value(s) of ', disp_string ,' are outside parameter bounds. Potentially, you should set prior_trunc=0. If you used the mode_file-option, check whether your mode-file is consistent with the priors.'])
     end
     lb = bounds(:,1);
     ub = bounds(:,2);

@@ -1127,6 +1127,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                     plot(1:gend,measurement_error(index(k),:),'-k','linewidth',1)
                     hold off
                     name = deblank(options_.varobs(index(k),:));
+                    xlim([1 gend])
                     if isempty(NAMES)
                         NAMES = name;
                     else

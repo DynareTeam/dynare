@@ -267,13 +267,13 @@ if options_gsa.redform && ~isempty(options_gsa.namendo),% ...
         x0 = stab_map_(OutputDirectoryName,options_gsa);
     end
     if strmatch(':',options_gsa.namendo,'exact'),
-        options_gsa.namendo=M_.endo_names;
+        options_gsa.namendo=M_.endo_names(1:M_.orig_endo_nbr,:);
     end
     if strmatch(':',options_gsa.namexo,'exact'),
         options_gsa.namexo=M_.exo_names;
     end
     if strmatch(':',options_gsa.namlagendo,'exact'),
-        options_gsa.namlagendo=M_.endo_names;
+        options_gsa.namlagendo=M_.endo_names(1:M_.orig_endo_nbr,:);
     end
 %     options_.opt_gsa = options_gsa;
     if options_gsa.morris==1,

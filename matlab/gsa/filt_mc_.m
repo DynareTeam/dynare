@@ -74,11 +74,11 @@ end
 for j=1:length(a),
     if strmatch([fname_,tmp],a(j).name),
         disp(a(j).name)
-        delete([OutDir,'/',a(j).name])
+        delete([OutDir,filesep,a(j).name])
     end,
     if strmatch([fname_,tmp1],a(j).name),
         disp(a(j).name)
-        delete([OutDir,'/',a(j).name])
+        delete([OutDir,filesep,a(j).name])
     end,
 end
 disp('done !')
@@ -128,7 +128,7 @@ if ~loadSA,
     for jx=1:gend, data_indx(jx,data_index{jx})=true; end
     %stock_gend=data_info.gend;
     %stock_data = data_info.data;
-    load([DirectoryName '/' M_.fname '_data.mat']);    
+    load([DirectoryName filesep M_.fname '_data.mat']);    
     filfilt = dir([DirectoryName filesep M_.fname '_filter_step_ahead*.mat']);
     filsmooth = dir([DirectoryName filesep M_.fname '_smooth*.mat']);
     filupdate = dir([DirectoryName filesep M_.fname '_update*.mat']);
@@ -137,7 +137,7 @@ if ~loadSA,
     logpo2=[];
     sto_ys=[];
     for j=1:length(filparam),
-        %load([DirectoryName '/' M_.fname '_param',int2str(j),'.mat']);
+        %load([DirectoryName filesep M_.fname '_param',int2str(j),'.mat']);
         if isempty(strmatch([M_.fname '_param_irf'],filparam(j).name))
             load([DirectoryName filesep filparam(j).name]);
             x=[x; stock];
@@ -294,9 +294,18 @@ else
     if ~options_.nograph,
     ifig=0;
     for i=1:size(vvarvecm,1),
+        if options_.opt_gsa.ppost
+            temp_name='RMSE Posterior: Log Prior';
+        else
+            if options_.opt_gsa.pprior
+                temp_name='RMSE Prior: Log Prior';
+            else
+                temp_name='RMSE MC: Log Prior';
+            end
+        end
         if mod(i,9)==1,
             ifig=ifig+1;
-            hh=dyn_figure(options_,'name',['Prior ',int2str(ifig)]);
+            hh=dyn_figure(options_,'name',[temp_name,' ',int2str(ifig)]);
         end
         subplot(3,3,i-9*(ifig-1))
         h=cumplot(lnprior(ixx(1:nfilt0(i),i)));
@@ -307,21 +316,30 @@ else
         title(vvarvecm(i,:),'interpreter','none')
         if mod(i,9)==0 || i==size(vvarvecm,1)
             if options_.opt_gsa.ppost
-                dyn_saveas(hh,[OutDir '/' fname_ '_rmse_post_lnprior',int2str(ifig)],options_);
+                dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnprior',int2str(ifig)],options_);
             else
                 if options_.opt_gsa.pprior
-                    dyn_saveas(hh,[OutDir '/' fname_ '_rmse_prior_lnprior',int2str(ifig) ],options_);
+                    dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnprior',int2str(ifig) ],options_);
                 else
-                    dyn_saveas(hh,[OutDir '/' fname_ '_rmse_mc_lnprior',int2str(ifig) ],options_);
+                    dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnprior',int2str(ifig) ],options_);
                 end
             end
         end
     end
     ifig=0;
     for i=1:size(vvarvecm,1),
+        if options_.opt_gsa.ppost
+            temp_name='RMSE Posterior: Log Likelihood';
+        else
+            if options_.opt_gsa.pprior
+                temp_name='RMSE Prior: Log Likelihood';
+            else
+                temp_name='RMSE MC: Log Likelihood';
+            end
+        end
         if mod(i,9)==1,
             ifig=ifig+1;
-            hh = dyn_figure(options_,'Name',['Likelihood ',int2str(ifig)]);
+            hh = dyn_figure(options_,'Name',[temp_name,' ',int2str(ifig)]);
         end
         subplot(3,3,i-9*(ifig-1))
         h=cumplot(likelihood(ixx(1:nfilt0(i),i)));
@@ -335,21 +353,30 @@ else
         end
         if mod(i,9)==0 || i==size(vvarvecm,1)
             if options_.opt_gsa.ppost
-                dyn_saveas(hh,[OutDir '/' fname_ '_rmse_post_lnlik',int2str(ifig) ],options_);
+                dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnlik',int2str(ifig) ],options_);
             else
                 if options_.opt_gsa.pprior
-                    dyn_saveas(hh,[OutDir '/' fname_ '_rmse_prior_lnlik',int2str(ifig)],options_);
+                    dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnlik',int2str(ifig)],options_);
                 else
-                    dyn_saveas(hh,[OutDir '/' fname_ '_rmse_mc_lnlik',int2str(ifig) ],options_);
+                    dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnlik',int2str(ifig) ],options_);
                 end
             end
         end
     end
     ifig=0;
     for i=1:size(vvarvecm,1),
+        if options_.opt_gsa.ppost
+            temp_name='RMSE Posterior: Log Posterior';
+        else
+            if options_.opt_gsa.pprior
+                temp_name='RMSE Prior: Log Posterior';
+            else
+                temp_name='RMSE MC: Log Posterior';
+            end
+        end
         if mod(i,9)==1,
             ifig=ifig+1;
-            hh = dyn_figure(options_,'Name',['Posterior ',int2str(ifig)]);
+            hh = dyn_figure(options_,'Name',[temp_name,' ',int2str(ifig)]);
         end
         subplot(3,3,i-9*(ifig-1))
         h=cumplot(logpo2(ixx(1:nfilt0(i),i)));
@@ -363,12 +390,12 @@ else
         end
         if mod(i,9)==0 || i==size(vvarvecm,1)
             if options_.opt_gsa.ppost
-                dyn_saveas(hh,[OutDir '/' fname_ '_rmse_post_lnpost',int2str(ifig) ],options_);
+                dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnpost',int2str(ifig) ],options_);
             else
                 if options_.opt_gsa.pprior
-                    dyn_saveas(hh,[OutDir '/' fname_ '_rmse_prior_lnpost',int2str(ifig)],options_);
+                    dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnpost',int2str(ifig)],options_);
                 else
-                    dyn_saveas(hh,[OutDir '/' fname_ '_rmse_mc_lnpost',int2str(ifig)],options_);
+                    dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnpost',int2str(ifig)],options_);
                 end
             end
         end
@@ -503,7 +530,16 @@ else
     if ~options_.nograph
     a00=jet(size(vvarvecm,1));
     for ix=1:ceil(length(nsnam)/5),
-        hh = dyn_figure(options_);
+        if options_.opt_gsa.ppost
+            temp_name='RMSE Posterior Tradeoffs: Log Posterior';
+        else
+            if options_.opt_gsa.pprior
+                temp_name='RMSE Prior Tradeoffs: Log Posterior';
+            else
+                temp_name='RMSE MC Tradeoffs: Log Posterior';
+            end
+        end        
+        hh = dyn_figure(options_,'name',[temp_name,' ',int2str(ix)]);
         for j=1+5*(ix-1):min(size(snam2,1),5*ix),
             subplot(2,3,j-5*(ix-1))
             %h0=cumplot(x(:,nsnam(j)+nshock));
@@ -543,12 +579,12 @@ else
         %h0=legend({'base',vnam{np}}',0);
         %set(findobj(get(h0,'children'),'type','text'),'interpreter','none')
         if options_.opt_gsa.ppost
-            dyn_saveas(hh,[ OutDir '/' fname_ '_rmse_post_' int2str(ix)],options_);
+            dyn_saveas(hh,[ OutDir filesep fname_ '_rmse_post_' int2str(ix)],options_);
         else
             if options_.opt_gsa.pprior
-                dyn_saveas(hh,[OutDir '/' fname_ '_rmse_prior_' int2str(ix) ],options_);
+                dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_' int2str(ix) ],options_);
             else
-                dyn_saveas(hh,[OutDir '/' fname_ '_rmse_mc_' int2str(ix)],options_);
+                dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_' int2str(ix)],options_);
             end
         end
     end

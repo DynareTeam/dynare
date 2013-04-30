@@ -17,7 +17,7 @@ function trace_plot(options_,M_,estim_params_,type,blck,name1,name2)
 %        
 % SPECIAL REQUIREMENTS
 
-% Copyright (C) 2003-2011 Dynare Team
+% Copyright (C) 2003-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -50,8 +50,8 @@ DirectoryName = CheckPath('metropolis',M_.dname);
 try
     load([DirectoryName '/' M_.fname '_mh_history.mat']); 
 catch
-    disp(['trace_plot:: I can''t find ' M_.fname '_results.mat !'])
-    disp(['trace_plot:: Did you run a metropolis?'])
+    disp(['Trace_plot:: I can''t find ' M_.fname '_results.mat !'])
+    disp(['Trace_plot:: Did you run a metropolis?'])
     return
 end
 
@@ -84,18 +84,17 @@ elseif strcmpi(type,'MeasurementError')
 end
 
 if nargin<7
-    FigureName = ['trace plot for ' TYPE name1];
+    FigureName = ['Trace plot for ' TYPE name1];
 else
-    FigureName = ['trace plot for ' TYPE name1 ' and ' name2];
+    FigureName = ['Trace plot for ' TYPE name1 ' and ' name2];
 end
 
 if options_.mh_nblck>1
-    FigureName = [ FigureName , ' (block number' int2str(blck)  ').']; 
+    FigureName = [ FigureName , ' (block number ' int2str(blck)  ').']; 
 end
 
-
-figure('Name',FigureName)
-plot(1:TotalNumberOfMhDraws,PosteriorDraws,'Color',[.8 .8 .8]);
+hh=dyn_figure(options_,'Name',FigureName);
+plot(1:TotalNumberOfMhDraws,PosteriorDraws,'Color',[.7 .7 .7]);
 
 
 % Compute the moving average of the posterior draws:
@@ -113,3 +112,14 @@ hold on
 plot(1:TotalNumberOfMhDraws,MovingAverage,'-k','linewidth',2)
 hold off
 axis tight
+legend({'MCMC draw';[num2str(N) ' period moving average']},'Location','NorthWest')
+% create subdirectory <fname>/graphs if it doesn't exist
+if ~exist(M_.fname, 'dir')
+    mkdir('.',M_.fname);
+end
+if ~exist([M_.fname filesep 'graphs'])
+    mkdir(M_.fname,'graphs');
+end
+plot_name=get_the_name(column,0,M_,estim_params_,options_);
+dyn_saveas(hh,[M_.fname, filesep, 'graphs', filesep, 'TracePlot_' plot_name],options_)
+

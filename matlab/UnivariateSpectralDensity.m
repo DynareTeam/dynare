@@ -1,11 +1,11 @@
 function [omega,f] = UnivariateSpectralDensity(dr,var_list)
 % This function computes the theoretical spectral density of each
 % endogenous variable declared in var_list. Results are stored in 
-% oo_ and may be plotted.
+% oo_ and may be plotted. Plots are saved into the graphs-folder.
 % 
 % Adapted from th_autocovariances.m.  
 
-% Copyright (C) 2006-2012 Dynare Team
+% Copyright (C) 2006-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -167,12 +167,20 @@ else
 end
 
 if pltinfo
+    if ~exist(M_.fname, 'dir')
+        mkdir('.',M_.fname);
+    end
+    if ~exist([M_.fname '/graphs'])
+        mkdir(M_.fname,'graphs');
+    end
+
     for i= 1:nvar
-        figure('Name',['Spectral Density of ' deblank(M_.endo_names(ivar(i),:)) '.'])
+        hh = dyn_figure(options_,'Name',['Spectral Density of ' deblank(M_.endo_names(ivar(i),:)) '.']);
         plot(omega,f(i,:),'-k','linewidth',2)
         xlabel('0 \leq \omega \leq \pi')
         ylabel('f(\omega)')
         box on
-        axis tight
+        axis tight        
+        dyn_saveas(hh,[M_.fname ,filesep,'graphs', filesep, 'SpectralDensity_' deblank(M_.endo_names(ivar(i),:))],options_)
     end
 end

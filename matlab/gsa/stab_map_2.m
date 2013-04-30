@@ -1,4 +1,4 @@
-function stab_map_2(x,alpha2, pvalue, fnam, dirname,xparam1)
+function stab_map_2(x,alpha2, pvalue, fnam, dirname,xparam1,figtitle)
 % function stab_map_2(x, alpha2, pvalue, fnam, dirname,xparam1)
 %
 % Written by Marco Ratto
@@ -40,6 +40,9 @@ if nargin<5,
 end
 if nargin<6,
   xparam1=[];
+end
+if nargin<7,
+  figtitle=fnam;
 end
 
 ys_ = oo_.dr.ys;
@@ -86,7 +89,7 @@ for j=1:npar,
                     
                 if mod(j2,12)==1,
                     ifig=ifig+1;
-                    hh=dyn_figure(options_,'name',['Correlations in the ',fnam,' sample ', num2str(ifig)]);
+                    hh=dyn_figure(options_,'name',['Correlations in the ',figtitle,' sample ', num2str(ifig)]);
                 end
                 subplot(3,4,j2-(ifig-1)*12)
                 %             bar(c0(i2,j)),
@@ -109,7 +112,7 @@ for j=1:npar,
                 end
                 title(['cc = ',num2str(c0(i2(jx),j))])
                 if (mod(j2,12)==0) && j2>0,
-                    dyn_saveas(hh,[dirname,'/',fig_nam_,int2str(ifig)],options_);
+                    dyn_saveas(hh,[dirname,filesep,fig_nam_,int2str(ifig)],options_);
                 end
                 end
             end
@@ -117,7 +120,7 @@ for j=1:npar,
         end
     end
     if ~options_.nograph && (j==(npar)) && j2>0 && (mod(j2,12)~=0),
-        dyn_saveas(hh,[dirname,'/',fig_nam_,int2str(ifig)],options_);
+        dyn_saveas(hh,[dirname,filesep,fig_nam_,int2str(ifig)],options_);
     end
     
 end
