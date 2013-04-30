@@ -31,6 +31,7 @@ lgy_ = M_.endo_names;
 x0=[];
 
 options_gsa = set_default_option(options_gsa,'datafile',[]);
+options_gsa = set_default_option(options_gsa,'rmse',0);
 if isfield(options_gsa,'nograph'),
     options_.nograph=options_gsa.nograph;
 end
@@ -46,7 +47,14 @@ end
 
 options_.order = 1;
 
-if ~isempty(options_gsa.datafile) || isempty(bayestopt_),
+if ~isempty(options_gsa.datafile) || isempty(bayestopt_) || options_gsa.rmse,
+    if isempty(options_gsa.datafile) && options_gsa.rmse,
+        disp('The data file and all relevant estimation options ')
+        disp('[first_obs, nobs, presample, prefilter, loglinear, lik_init, kalman_algo, ...]')
+        disp('must be specified for RMSE analysis!');
+        error('Sensitivity anaysis error!');
+    end
+    
     options_.datafile = options_gsa.datafile;
     if isfield(options_gsa,'first_obs'),
         options_.first_obs=options_gsa.first_obs;
@@ -142,7 +150,6 @@ options_gsa = set_default_option(options_gsa,'namendo',[]);
 options_gsa = set_default_option(options_gsa,'namlagendo',[]);
 options_gsa = set_default_option(options_gsa,'namexo',[]);
 % RMSE mapping
-options_gsa = set_default_option(options_gsa,'rmse',0);
 options_gsa = set_default_option(options_gsa,'lik_only',0);
 options_gsa = set_default_option(options_gsa,'var_rmse',options_.varobs);
 options_gsa = set_default_option(options_gsa,'pfilt_rmse',0.1);
