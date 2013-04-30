@@ -214,5 +214,6 @@ disp('Press ENTER to continue'); pause(5);
 //  prefilter=1,mh_jscale=0.5,mh_replic=0, mode_compute=0, mh_drop=0.6);
 
 dynare_sensitivity(nodisplay, graph_format=fig,stab=0, // no need for stability analysis since the posterior sample is surely OK
+datafile=data_ca1,first_obs=8,nobs=79,prefilter=1,
 rmse=1,ppost=1);
 

@@ -236,7 +236,7 @@ while norm(gg)>gtol && check==0 && jit<nit
                 end
                 H = igg;
             end
-        else
+        elseif analytic_derivation,
             [fvalx,gg,hh]=feval(func0,xparam1,DynareDataset,DynareOptions,Model,EstimatedParameters,BayesInfo,DynareResults);
             hhg=hh;
             H = inv(hh);
