@@ -21,7 +21,7 @@ function [dr,info] = stochastic_solvers(dr,task,M_,options_,oo_)
 %                                         indeterminacy.
 %                                 info=5: BK rank condition not satisfied.
 %                                 info=6: The jacobian matrix evaluated at the steady state is complex.        
-%  
+%                                 info=9: k_order_pert was unable to compute the solution    
 % ALGORITHM
 %   ...
 %    
@@ -62,7 +62,7 @@ if options_.k_order_solver;
                                              options_,oo_);
     else
         dr = set_state_space(dr,M_,options_);
-        [dr,info] = k_order_pert(dr,M_,options_,oo_);
+        [dr,info] = k_order_pert(dr,M_,options_);
     end
     return;
 end

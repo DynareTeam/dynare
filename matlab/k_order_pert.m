@@ -1,7 +1,7 @@
-function [dr,info] = k_order_pert(dr,M,options,oo)
+function [dr,info] = k_order_pert(dr,M,options)
 % Compute decision rules using the k-order DLL from Dynare++
 
-% Copyright (C) 2009-2012 Dynare Team
+% Copyright (C) 2009-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -30,11 +30,17 @@ nspred = M.nspred;
 switch(order)
   case 1
     [err, g_1] = k_order_perturbation(dr,M,options);
-    mexErrCheck('k_order_perturbation', err);
+    if err
+      info(1)=9;
+      return;
+    end
     dr.g_1 = g_1;
   case 2
     [err, g_0, g_1, g_2] = k_order_perturbation(dr,M,options);
-    mexErrCheck('k_order_perturbation', err);
+    if err
+      info(1)=9;
+      return;
+    end
     dr.g_0 = g_0;
     dr.g_1 = g_1;
     dr.g_2 = g_2;
@@ -42,6 +48,10 @@ switch(order)
     if options.pruning 
         [err, g_0, g_1, g_2, g_3, derivs] = k_order_perturbation(dr, ...
                                                           M,options);
+        if err
+          info(1)=9;
+          return;
+        end
         dr.ghx = derivs.gy;
         dr.ghu = derivs.gu;
         dr.ghxx = unfold2(derivs.gyy,nspred);
@@ -57,8 +67,11 @@ switch(order)
     else
         [err, g_0, g_1, g_2, g_3] = k_order_perturbation(dr, ...
                                                          M,options);
+        if err
+          info(1)=9;
+          return;
+        end
     end
-    mexErrCheck('k_order_perturbation', err);
     dr.g_0 = g_0;
     dr.g_1 = g_1;
     dr.g_2 = g_2;

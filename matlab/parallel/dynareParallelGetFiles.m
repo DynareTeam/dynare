@@ -48,7 +48,7 @@ for indPC=1:length(Parallel),
             end
             if ischar(NamFileInput0),
                 for j=1:size(NamFileInput0,1),
-                    NamFile(j,:)={pwd filesep,deblank(NamFileInput0(j,:))};
+                    NamFile(j,:)={['./'],deblank(NamFileInput0(j,:))};
                 end
                 NamFileInput = NamFile;
             end
