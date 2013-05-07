@@ -3554,7 +3554,7 @@ declaration order. Conversely, k-th declared variable is numbered
 Finally, the state variables of the model are the purely backward variables
 and the mixed variables. They are orderer in DR-order when they appear in
 decision rules elements. There are @code{M_.nspred = M_.npred + M_.nboth} such
-variables. Similarly, one has @code{M_.nfwrd = M_.nfwrd + M_.nboth},
+variables. Similarly, one has @code{M_.nsfwrd = M_.nfwrd + M_.nboth},
 and @code{M_.ndynamic = M_.nfwrd+M_.nboth+M_.npred}.
 
 @node First order approximation
