@@ -64,7 +64,7 @@ bayestopt_.name = {};
 if nvx
     xparam1 = estim_params_.var_exo(:,2);
     ub = estim_params_.var_exo(:,4); 
-    lb = estim_params_.var_exo(:,3); 
+    lb = max(estim_params_.var_exo(:,3),0);
     bayestopt_.pshape =  estim_params_.var_exo(:,5);
     bayestopt_.p1 =  estim_params_.var_exo(:,6);
     bayestopt_.p2 =  estim_params_.var_exo(:,7);
@@ -88,7 +88,7 @@ if nvn
     end
     xparam1 = [xparam1; estim_params_.var_endo(:,2)];
     ub = [ub; estim_params_.var_endo(:,4)]; 
-    lb = [lb; estim_params_.var_endo(:,3)]; 
+    lb = [lb; max(estim_params_.var_endo(:,3),0)]; 
     bayestopt_.pshape = [ bayestopt_.pshape; estim_params_.var_endo(:,5)];
     bayestopt_.p1 = [ bayestopt_.p1; estim_params_.var_endo(:,6)];
     bayestopt_.p2 = [ bayestopt_.p2; estim_params_.var_endo(:,7)];
