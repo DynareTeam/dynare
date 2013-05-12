@@ -927,9 +927,12 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
     bayestopt_.lb = bounds(:,1);
     bayestopt_.ub = bounds(:,2);
     if any(xparam1 < bounds(:,1)) || any(xparam1 > bounds(:,2))
-        find(xparam1 < bounds(:,1))
-        find(xparam1 > bounds(:,2))
-        error('Mode values are outside prior bounds. Reduce prior_trunc.')
+        outside_bound_vars=bayestopt_.name([find(xparam1 < bounds(:,1)); find(xparam1 > bounds(:,2))],:);
+        disp_string=[outside_bound_vars{1,:}];
+        for ii=2:size(outside_bound_vars,1)
+            disp_string=[disp_string,', ',outside_bound_vars{ii,:}];
+        end
+        error(['Mode value(s) of ', disp_string ,' are outside parameter bounds. Potentially, you should set prior_trunc=0.'])
     end
     % runs MCMC
     if options_.mh_replic
