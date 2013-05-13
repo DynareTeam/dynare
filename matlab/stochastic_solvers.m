@@ -271,5 +271,8 @@ if options_.loglinear == 1
     dr.ghx = repmat(1./dr.ys(k1),1,size(dr.ghx,2)).*dr.ghx.* ...
              repmat(dr.ys(k1(klag(:,1)))',size(dr.ghx,1),1);
     dr.ghu = repmat(1./dr.ys(k1),1,size(dr.ghu,2)).*dr.ghu;
+    if options_.order>1
+       error('Loglinear options currently only works at order 1') 
+    end
 end
 
