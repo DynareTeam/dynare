@@ -47,7 +47,7 @@ if options_.order == 3
     options_.k_order_solver = 1;
 end
 
-if ~options_.k_order_solver
+if ~options_.k_order_solver || (options_.k_order_solver && options_.pruning) %if k_order_pert is not used or if we do not use Dynare++ with k_order_pert
     if iorder==1
         y_(:,1) = y_(:,1)-dr.ys;
     end
