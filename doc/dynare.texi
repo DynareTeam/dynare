@@ -3123,8 +3123,7 @@ The @code{stoch_simul} command with a first order approximation can benefit from
 Order of autocorrelation coefficients to compute and to print. Default: @code{5}.
 
 @item drop = @var{INTEGER}
-Number of points dropped at the beginning of simulation before
-computing the summary statistics. Default: @code{100}.
+Number of points (burnin) dropped at the beginning of simulation before computing the summary statistics. Note that this option does not affect the simulated series stored in @var{oo_.endo_simul} and the workspace. Here, no periods are dropped. Default: @code{100}.
 
 @item hp_filter = @var{DOUBLE}
 Uses HP filter with @math{\lambda} = @var{DOUBLE} before computing
