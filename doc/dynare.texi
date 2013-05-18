@@ -4424,10 +4424,32 @@ files (not yet implemented)
 
 @item kalman_algo = @var{INTEGER}
 @anchor{kalman_algo}
-@dots{}
+
+@table @code
+
+@item 0
+Automatically use the Multivariate Kalman Filter for stationary models and the Multivariate Diffuse Kalman Filter for non-stationary models
+
+@item 1
+Use the Multivariate Kalman Filter
+
+@item 2
+Use the Univariate Kalman Filter
+
+@item 3
+Use the Multivariate Diffuse Kalman Filter
+
+@item 4
+Use the Univariate Diffuse Kalman Filter
+
+@end table
+@noindent
+Default value is @code{0}.
+
 
 @item kalman_tol = @var{DOUBLE}
-@dots{}
+@anchor{kalman_tol} Numerical tolerance for determining the singularity of the covariance matrix of the prediction errors during the Kalman filter (minimum allowed reciprocal of the matrix condition number). Default value is @code{1e-10}
+
 
 @item filter_covariance
 @anchor{filter_covariance} Saves the series of one step ahead error of
