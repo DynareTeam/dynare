@@ -607,6 +607,34 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
         if options_.smoother || ~isempty(options_.filter_step_ahead) || options_.forecast
             prior_posterior_statistics('posterior',dataset_);
         end
+        if ~isempty(options_.posterior_function)
+            if ~options_.moments_varendo
+                fprintf('\nExecution of Posterior Functions requires the moments_varendo option. I skip the computation.\n')           
+            else
+                posterior_function_error=0;
+                [directory,basename,extension] = fileparts(options_.posterior_function);
+                if isempty(extension)
+                    extension = '.m';
+                end
+                fullname = [basename extension];
+                if ~strcmp(extension,'.m') %if not m-file
+                    fprintf('\nThe Posterior Function is not an m-file. I skip the computation.\n')
+                    posterior_function_error=1;
+                elseif ~exist(fullname,'file') %if m-file, but does not exist
+                    fprintf(['\nThe Posterior Function ', fullname ,' was not found. I skip the computation. Check the spelling.\n']);
+                    posterior_function_error=1;
+                end
+                if ~posterior_function_error
+                    try
+                        oo_.Posterior_function=execute_posterior_function(str2func(options_.posterior_function),M_,options_,oo_,dataset_,estim_params_,bayestopt_,'posterior');
+                    catch err
+                        fprintf('\nPosterior Function lead to an error. Execution cancelled.\n')
+                        disp(err.message)
+                        fprintf('\n')
+                    end
+                end
+            end
+        end
         xparam = get_posterior_parameters('mean');
         M_ = set_all_parameters(xparam,estim_params_,M_);
     end

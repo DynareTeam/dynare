@@ -338,6 +338,7 @@ options_.Harvey_scale_factor = 10;
 options_.MaxNumberOfBytes = 1e6;
 options_.MaximumNumberOfMegaBytes = 111;
 options_.PosteriorSampleSize = 1000;
+options_.posterior_function = '';
 options_.analytic_derivation = 0;
 options_.analytic_derivation_mode = 0;
 options_.bayesian_irf = 0;
