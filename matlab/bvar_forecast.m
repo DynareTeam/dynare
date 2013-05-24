@@ -114,17 +114,18 @@ sims_with_shocks_sort = sort(sims_with_shocks, 3);
 sims_with_shocks_down_conf = sims_with_shocks_sort(:, :, sort_idx(1));
 sims_with_shocks_up_conf = sims_with_shocks_sort(:, :, sort_idx(2));
 
-dynare_graph_init(sprintf('BVAR forecasts (nlags = %d)', nlags), ny, {'b-' 'g-' 'g-' 'r-' 'r-'});
+OutputDirectoryName = CheckPath('graphs',M_.fname);
+
+dyn_graph=dynare_graph_init(sprintf('BVAR forecasts (nlags = %d)', nlags), ny, {'b-' 'g-' 'g-' 'r-' 'r-'});
 
 for i = 1:ny
-    dynare_graph([ sims_no_shock_median(:, i) ...
+    dyn_graph=dynare_graph(dyn_graph,[ sims_no_shock_median(:, i) ...
                    sims_no_shock_up_conf(:, i) sims_no_shock_down_conf(:, i) ...
                    sims_with_shocks_up_conf(:, i) sims_with_shocks_down_conf(:, i) ], ...
                  options_.varobs(i, :));
 end
 
-dynare_graph_close;
-
+dyn_saveas(dyn_graph.fh,[OutputDirectoryName '/' M_.fname '_BVAR_forecast_',num2str(nlags)],options_)
 
 % Compute RMSE
 

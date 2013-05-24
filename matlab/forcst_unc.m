@@ -15,7 +15,7 @@ function forcst_unc(y0,var_list)
 % SPECIAL REQUIREMENTS
 %   None.
 
-% Copyright (C) 2006-2011 Dynare Team
+% Copyright (C) 2006-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -129,20 +129,21 @@ yf3_1 = yf3'-[zeros(maximum_lag,n); yf3_intv];
 yf3_2 = yf3'+[zeros(maximum_lag,n); yf3_intv];
 
 % graphs
+OutputDirectoryName = CheckPath('graphs',M_.fname);
 
-dynare_graph_init('Forecasts type I',n,{'b-' 'g-' 'g-' 'r-' 'r-'});
+dyn_graph=dynare_graph_init('Forecasts type I',n,{'b-' 'g-' 'g-' 'r-' 'r-'});
 for i=1:n
-    dynare_graph([yf_mean(:,i) squeeze(yf1(:,i,k1)) squeeze(yf2(:,i,k2))],...
+    dynare_graph(dyn_graph,[yf_mean(:,i) squeeze(yf1(:,i,k1)) squeeze(yf2(:,i,k2))],...
                  var_list(i,:));
 end
-dynare_graph_close;
+dyn_saveas(dyn_graph.fh,[OutputDirectoryName '/' M_.fname '_forecast_param_uncert_',num2str(nlags)],options_)
 
-dynare_graph_init('Forecasts type II',n,{'b-' 'k-' 'k-' 'r-' 'r-'});
+dyn_graph=dynare_graph_init('Forecasts type II',n,{'b-' 'k-' 'k-' 'r-' 'r-'});
 for i=1:n
-    dynare_graph([yf_mean(:,i) yf3_1(:,i) yf3_2(:,i) squeeze(yf2(:,i,k2))],...
+    dynare_graph(dyn_graph,[yf_mean(:,i) yf3_1(:,i) yf3_2(:,i) squeeze(yf2(:,i,k2))],...
                  var_list(i,:));
 end
-dynare_graph_close;
+dyn_saveas(dyn_graph.fh,[OutputDirectoryName '/' M_.fname '_forecast_param_shock_uncert_',num2str(nlags)],options_)
 
 
 % saving results

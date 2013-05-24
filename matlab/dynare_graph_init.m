@@ -1,4 +1,4 @@
-function dynare_graph_init(figure_name,nplot,line_types,line_width)
+function dyn_graph=dynare_graph_init(figure_name,nplot,line_types,line_width)
 % function dynare_graph_init(figure_name,colors) 
 % initializes set of graphs
 %
@@ -7,12 +7,12 @@ function dynare_graph_init(figure_name,nplot,line_types,line_width)
 %   colors: line colors
 %
 % OUTPUTS
-%   none
+%   dyn_graph: structure with figure information
 %
 % SPECIAL REQUIREMENT
 %   none
 
-% Copyright (C) 2006-2009 Dynare Team
+% Copyright (C) 2006-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -29,9 +29,9 @@ function dynare_graph_init(figure_name,nplot,line_types,line_width)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global dyn_graph options_
+global options_
 
-dyn_graph.fh = figure('Name',figure_name);
+dyn_graph.fh = dyn_figure(options_,'Name',figure_name);
 dyn_graph.figure_name = figure_name;
 if nargin > 2
     dyn_graph.line_types = line_types;

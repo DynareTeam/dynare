@@ -1,4 +1,4 @@
-function dynare_graph(y,tit,x)
+function dyn_graph=dynare_graph(dyn_graph,y,tit,x)
 % function dynare_graph(y,tit,x) 
 % graphs
 %
@@ -7,12 +7,12 @@ function dynare_graph(y,tit,x)
 %   colors: line colors
 %
 % OUTPUT
-%   none
+%   dyn_graph: structure with figure information
 %
 % SPECIAL REQUIREMENT
 %   none
 
-% Copyright (C) 2006-2009 Dynare Team
+% Copyright (C) 2006-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -29,9 +29,7 @@ function dynare_graph(y,tit,x)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global dyn_graph
-
-if nargin < 3
+if nargin < 4
     x = (1:size(y,1))';
 end
 nplot = dyn_graph.plot_nbr + 1; 
