@@ -85,6 +85,9 @@ if TeX
 end
 
 ll = DynareOptions.mode_check_neighbourhood_size;
+if isinf(ll),
+    DynareOptions.mode_check_symmetric_plots = 0;
+end
 
 for plt = 1:nbplt,
     if TeX
@@ -108,12 +111,14 @@ for plt = 1:nbplt,
         xx = x;
         l1 = max(BayesInfo.lb(kk),(1-ll)*x(kk)); m1 = 0;
         l2 = min(BayesInfo.ub(kk),(1+ll)*x(kk));
-        if l2<(1+ll)*x(kk)
-            l1 = x(kk) - (l2-x(kk));
-            m1 = 1;
-        end
-        if ~m1 && (l1>(1-ll)*x(kk)) && (x(kk)+(x(kk)-l1)<BayesInfo.ub(kk))
-            l2 = x(kk) + (x(kk)-l1);
+        if DynareOptions.mode_check_symmetric_plots,
+            if l2<(1+ll)*x(kk)
+                l1 = x(kk) - (l2-x(kk));
+                m1 = 1;
+            end
+            if ~m1 && (l1>(1-ll)*x(kk)) && (x(kk)+(x(kk)-l1)<BayesInfo.ub(kk))
+                l2 = x(kk) + (x(kk)-l1);
+            end
         end
         z1 = l1:((x(kk)-l1)/10):x(kk);
         z2 = x(kk):((l2-x(kk))/10):l2;
