@@ -38,16 +38,18 @@ if nargin==1 || isempty(periods) % Set default number of periods.
     eval(['periods = length(forecasts.cond.Mean.' Variables(1,:) ');']);
 end
 
+forecasts.graph.OutputDirectoryName = CheckPath('graphs',forecasts.graph.fname);
+
 for i=1:size(Variables,1)
     eval(['ci1 = forecasts.cond.ci.' Variables(i,:) ';'])
     eval(['m1 = forecasts.cond.Mean.' Variables(i,:) ';'])
     eval(['ci2 = forecasts.uncond.ci.' Variables(i,:) ';'])
     eval(['m2 = forecasts.uncond.Mean.' Variables(i,:) ';'])
-    build_figure(Variables(i,:),ci1(:,1:periods),ci2(:,1:periods),m1(1:periods),m2(1:periods),options_);
+    build_figure(Variables(i,:),ci1(:,1:periods),ci2(:,1:periods),m1(1:periods),m2(1:periods),options_,forecasts.graph);
 end
 
-function build_figure(name,cci1,cci2,mm1,mm2,options_)
-hh = dyn_figure(options_,'Name',['Conditional forecast: ' name '.']);
+function build_figure(name,cci1,cci2,mm1,mm2,options_,graphoptions)
+hh = dyn_figure(options_,'Name',['Conditional forecast (' graphoptions.title ,'): ' name '.']);
 H = length(mm1);
 h1 = area(1:H,cci1(2,1:H));
 set(h1,'BaseValue',min([min(cci1(1,:)),min(cci2(1,:))]))
@@ -62,3 +64,4 @@ plot(1:H,cci2(1,:),'--k','linewidth',1)
 plot(1:H,cci2(2,:),'--k','linewidth',1)
 axis tight
 hold off
+dyn_saveas(hh,[graphoptions.OutputDirectoryName '/Conditional_forecast_',strrep(deblank(graphoptions.title),' ','_'),'_',deblank(name)],options_)
