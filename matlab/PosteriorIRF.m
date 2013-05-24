@@ -55,6 +55,10 @@ for i=1:nvar
         IndxVariables = [IndxVariables,idx];
     end
 end
+
+% Get index of shocks for requested IRFs
+irf_shocks_indx = getIrfShocksIndx();
+    
 % Set various parameters & Check or create directories
 nvx  = estim_params_.nvx;
 nvn  = estim_params_.nvn;
@@ -290,7 +294,7 @@ kdx = 0;
 
 for file = 1:NumberOfIRFfiles_dsge
     load([MhDirectoryName filesep M_.fname '_IRF_DSGEs' int2str(file) '.mat']);
-    for i = 1:M_.exo_nbr
+    for i = irf_shocks_indx
         for j = 1:nvar
             for k = 1:size(STOCK_IRF_DSGE,1)
                 kk = k+kdx;
@@ -305,7 +309,7 @@ end
 
 clear STOCK_IRF_DSGE;
 
-for i = 1:M_.exo_nbr
+for i = irf_shocks_indx
     for j = 1:nvar
         name = [deblank(M_.endo_names(IndxVariables(j),:)) '_' deblank(tit(i,:))];
         eval(['oo_.PosteriorIRF.dsge.Mean.' name ' = MeanIRF(:,j,i);']);
@@ -329,7 +333,7 @@ if MAX_nirfs_dsgevar
     kdx = 0;
     for file = 1:NumberOfIRFfiles_dsgevar
         load([MhDirectoryName filesep M_.fname '_IRF_BVARDSGEs' int2str(file) '.mat']);
-        for i = 1:M_.exo_nbr
+        for i = irf_shocks_indx
             for j = 1:nvar
                 for k = 1:size(STOCK_IRF_BVARDSGE,1)
                     kk = k+kdx;
@@ -342,7 +346,7 @@ if MAX_nirfs_dsgevar
         kdx = kdx + size(STOCK_IRF_BVARDSGE,1);
     end
     clear STOCK_IRF_BVARDSGE; 
-    for i = 1:M_.exo_nbr
+    for i = irf_shocks_indx
         for j = 1:nvar
             name = [deblank(M_.endo_names(IndxVariables(j),:)) '_' deblank(tit(i,:))];
             eval(['oo_.PosteriorIRF.bvardsge.Mean.' name ' = MeanIRFdsgevar(:,j,i);']);
@@ -395,7 +399,7 @@ if options_.TeX
     fprintf(fidTeX,' \n');
     titTeX(M_.exo_names_orig_ord,:) = M_.exo_names_tex;
     
-    for i=1:M_.exo_nbr
+    for i=irf_shocks_indx
         NAMES = [];
         TEXNAMES = [];
         
