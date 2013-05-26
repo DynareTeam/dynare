@@ -147,6 +147,7 @@ if estimated_model
 else
     InitState(:,1) = zeros(M_.endo_nbr,1);
     trend = repmat(oo_.steady_state(oo_.dr.order_var),1,options_cond_fcst.periods+1);
+    graph_title='Calibration';
 end
 
 if isempty(options_.qz_criterium)
