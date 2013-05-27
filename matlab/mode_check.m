@@ -109,8 +109,8 @@ for plt = 1:nbplt,
             end
         end
         xx = x;
-        l1 = max(BayesInfo.lb(kk),(1-ll)*x(kk)); m1 = 0;
-        l2 = min(BayesInfo.ub(kk),(1+ll)*x(kk));
+        l1 = max(BayesInfo.lb(kk),(1-sign(x(kk))*ll)*x(kk)); m1 = 0;
+        l2 = min(BayesInfo.ub(kk),(1+sign(x(kk))*ll)*x(kk));
         if DynareOptions.mode_check_symmetric_plots,
             if l2<(1+ll)*x(kk)
                 l1 = x(kk) - (l2-x(kk));
