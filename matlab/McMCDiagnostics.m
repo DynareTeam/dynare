@@ -16,7 +16,7 @@ function McMCDiagnostics(options_, estim_params_, M_)
 % PARALLEL CONTEXT
 % See the comment in random_walk_metropolis_hastings.m funtion.
 
-% Copyright (C) 2005-2012 Dynare Team
+% Copyright (C) 2005-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -52,6 +52,10 @@ MAX_nruns = ceil(options_.MaxNumberOfBytes/(npar+2)/8);
 load([MhDirectoryName '/'  M_.fname '_mh_history.mat'])
 
 NumberOfMcFilesPerBlock = size(dir([MhDirectoryName ,filesep, M_.fname '_mh*_blck1.mat']),1);
+
+% check if all previous files are there for block 1
+check_presence_consecutive_MC_files(MhDirectoryName,M_.fname,1)
+
 for blck = 2:nblck
     tmp = size(dir([MhDirectoryName ,filesep, M_.fname '_mh*_blck' int2str(blck) '.mat']),1);
     if tmp~=NumberOfMcFilesPerBlock
@@ -59,6 +63,8 @@ for blck = 2:nblck
         disp(['                  the number of mh files in chain 1 is ' int2str(mcfiles) '!'])
         error('The number of mh files has to be constant across chains!')
     end
+    % check if all previous files are there for block blck
+    check_presence_consecutive_MC_files(MhDirectoryName,M_.fname,blck)
 end
 
 PastDraws = sum(record.MhDraws,1);
@@ -359,3 +365,15 @@ if TeX
     fprintf(fidTeX,'% End Of TeX file.');
     fclose(fidTeX);
 end
+
+function check_presence_consecutive_MC_files(MhDirectoryName,fname,blck)
+% check if all previous files are there
+files=ls([MhDirectoryName ,filesep, fname '_mh*_blck' int2str(blck) '.mat']); %list files
+right_string=files(:,length([fname '_mh'])+1:end); %cut off left part of filename
+k = cell2mat(strfind(cellstr(right_string),['_blck' int2str(blck) '.mat'])); %find index of position after number
+file_numbers=str2num(right_string(:,1:k-1)); %get file number
+if sum(sort(file_numbers)-(min(file_numbers):max(file_numbers))')~=0
+    error(['There are MH draw files missing within chain ', int2str(blck)]) 
+end
+
+
