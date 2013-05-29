@@ -4561,6 +4561,12 @@ missing observations.
 Use endogenous priors as in @cite{Christiano, Trabandt and Walentin
 (2011)}.
 
+@item posterior_function = @var{FILENAME}
+Name of the file doing computations on the posterior draws. The function must have the following header 
+@code{output_cell =FILENAME(xparam1,M_,options_,oo_,dataset_,estim_params_,bayestopt_)
+}. It allows read-only access to all Dynare structures. The only output argument allowed is a 1 by n cell array, which allows for storing any type of output/computations.
+Dynare stores the results of the computations for all draws in a ndraws by n cell array @code{oo_.Posterior_function}. Requires the @code{moments_varendo} option to be set.  
+
 @end table
 
 @customhead{Note}
@@ -4822,6 +4828,10 @@ Variable set by the @code{estimation} command. Stores parameter vector of final 
 
 @defvr {MATLAB/Octave variable} oo_.MC_record.LastLogPost
 Variable set by the @code{estimation} command. Stores log-posterior of final MCMC chain draw
+@end defvr
+
+@defvr {MATLAB/Octave variable} oo_.posterior_function
+Variable set by the @code{posterior_function} option of the @code{estimation} command. Stores the computations of the posterior function.
 @end defvr
 
 @deffn Command model_comparison @var{FILENAME}[(@var{DOUBLE})]@dots{};
