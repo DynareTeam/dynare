@@ -98,6 +98,13 @@ if nargin>8 && initialize==1
     return
 end
 
+if isfield(Parallel_info,'local_files')
+    if isempty(NamFileInput),
+        NamFileInput=Parallel_info.local_files;
+    else
+        NamFileInput=[NamFileInput;Parallel_info.local_files];
+    end
+end
 
 % Deactivate some 'Parallel/Warning' message in Octave!
 % Comment the line 'warning('off');' in order to view the warning message
@@ -358,7 +365,7 @@ for j=1:totCPU,
                     dynareParallelSendFiles([remoteFile,'.m'],PRCDir,Parallel(indPC));
                     delete([remoteFile,'.m']);
                 else
-                    if ~strcmp(Parallel(indPC).ComputerName,MasterName),  % 0.3 Run on a remote machine!
+                    if ~strcmpi(Parallel(indPC).ComputerName,MasterName),  % 0.3 Run on a remote machine!
                         % Hybrid computing Matlab(Master)-> Octave(Slaves) and Vice Versa!
                         if  regexpi([Parallel(indPC).MatlabOctavePath], 'octave')
                             command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W ',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\ -a ',int2str(Parallel(indPC).CPUnbr(j-nCPU0)), ...
@@ -431,7 +438,7 @@ for j=1:totCPU,
                         dynareParallelSendFiles([remoteFile,'.m'],PRCDir,Parallel(indPC));
                         delete([remoteFile,'.m']);
                     else
-                        if ~strcmp(Parallel(indPC).ComputerName,MasterName), % 1.3 Run on a remote machine.
+                        if ~strcmpi(Parallel(indPC).ComputerName,MasterName), % 1.3 Run on a remote machine.
                             % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
                             if  regexpi([Parallel(indPC).MatlabOctavePath], 'octave')
                                 command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W ',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\ -a ',int2str(Parallel(indPC).CPUnbr(j-nCPU0)), ...
@@ -571,7 +578,7 @@ idCPU = NaN(1,totCPU);
 if (options_.console_mode == 1) ||  exist('OCTAVE_VERSION')
     
     if ~exist('OCTAVE_VERSION')
-        if strcmp([Parallel(indPC).MatlabOctavePath], 'octave')
+        if strcmpi([Parallel(indPC).MatlabOctavePath], 'octave')
             RjInformation='Hybrid Computing Is Active: Remote jobs are computed by Octave!';
             fprintf([RjInformation,'\n\n']);
         end
