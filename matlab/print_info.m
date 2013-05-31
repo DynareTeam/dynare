@@ -99,6 +99,8 @@ if ~noprint
         error('Prior density is not a number (NaN)');
       case 48 %DsgeLikelihood_hh / dsge_likelihood
         error('Prior density is a complex number');
+      case 49
+        error('The model violates one (many) endogenous prior restriction(s)')
       case 51
         error('You are estimating a DSGE-VAR model, but the value of the dsge prior weight is too low!')
       case 52 %DsgeVarLikelihood

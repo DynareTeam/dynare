@@ -557,6 +557,7 @@ options_.risky_steadystate = 0;
 
 % endogenous prior
 options_.endogenous_prior = 0;
+options_.endogenous_prior_restrictions.irf={};
 
 % use GPU
 options_.gpu = 0;

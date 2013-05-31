@@ -267,6 +267,19 @@ elseif info(1) == 3 || info(1) == 4 || info(1)==6 || info(1) == 20 || info(1) ==
     return
 end
 
+% check endogenous prior restrictions
+info=endogenous_prior_restrictions(T,R,Model,DynareOptions,DynareResults);
+if info(1),
+    fval = objective_function_penalty_base+info(2);
+    info = info(1);
+    exit_flag = 0;
+    if analytic_derivation,
+        DLIK=ones(length(xparam1),1);
+    end
+    return
+end
+%
+
 % Define a vector of indices for the observed variables. Is this really usefull?...
 BayesInfo.mf = BayesInfo.mf1;
 
