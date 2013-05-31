@@ -666,14 +666,14 @@ if (kalman_algo==2) || (kalman_algo==4)
     % resetting measurement error covariance matrix when necessary                                                           %
     if ~correlated_errors_have_been_checked
         if isequal(H,0)
-            H = zeros(pp,1);
+            H1 = zeros(pp,1);
             mmm = mm;
             if analytic_derivation,
                 DH = zeros(pp,length(xparam1));
             end
         else
             if all(all(abs(H-diag(diag(H)))<1e-14))% ie, the covariance matrix is diagonal...
-                H = diag(H);
+                H1 = diag(H);
                 mmm = mm;
                 clear tmp
                 if analytic_derivation,
@@ -689,7 +689,7 @@ if (kalman_algo==2) || (kalman_algo==4)
                 R = blkdiag(R,eye(pp));
                 Pstar = blkdiag(Pstar,H);
                 Pinf  = blckdiag(Pinf,zeros(pp));
-                H = zeros(pp,1);
+                H1 = zeros(pp,1);
                 mmm   = mm+pp;
             end
         end
@@ -703,7 +703,7 @@ if (kalman_algo==2) || (kalman_algo==4)
                                        DynareOptions.kalman_tol, ...
                                        DynareOptions.riccati_tol, ...
                                        DynareOptions.presample, ...
-                                       T,Q,R,H,Z,mmm,pp,rr,Zflag,diffuse_periods,analytic_deriv_info{:});
+                                       T,Q,R,H1,Z,mmm,pp,rr,Zflag,diffuse_periods,analytic_deriv_info{:});
     if analytic_derivation,
         LIK1=LIK;
         LIK=LIK1{1};
