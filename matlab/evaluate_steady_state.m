@@ -72,7 +72,16 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
             fh_static = str2func([M.fname '_static']);
             [fvec,jacob] = fh_static(ys_init,exo_ss, ...
                                      params);
-            if max(abs(fvec)) > 1e-12
+
+            ii = find(~isfinite(fvec));
+            if ~isempty(ii)
+                ys=fvec;
+                check=1;
+                disp(['STEADY:  numerical initial values or parameters incompatible with the following' ...
+                      ' equations'])
+                disp(ii')
+                disp('Check whether your model in truly linear')
+            elseif isempty(ii) && max(abs(fvec)) > 1e-12
                 ys = ys_init-jacob\fvec;
             else
                 ys = ys_init;
@@ -94,6 +103,9 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
             resid = evaluate_static_model(ys_init,exo_ss,params,M,options);
         end
         info(2) = resid'*resid ;
+        if isnan(info(2))
+            info(1)=22;
+        end
         return
     end
 
