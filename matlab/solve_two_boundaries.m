@@ -68,6 +68,11 @@ g3 = [];
 Blck_size=size(y_index,2);
 correcting_factor=0.01;
 ilu_setup.droptol=1e-10;
+ilu_setup.type = 'ilutp';
+%ilu_setup.milu = 'col';
+ilu_setup.milu = 'off';
+ilu_setup.thresh = 1;
+ilu_setup.udiag = 0;
 max_resa=1e100;
 Jacobian_Size=Blck_size*(y_kmin+y_kmax_l +periods);
 g1=spalloc( Blck_size*periods, Jacobian_Size, nze*periods);
@@ -244,7 +249,10 @@ while ~(cvg==1 || iter>maxit_),
         elseif(stack_solve_algo==3),
             flag1=1;
             while(flag1>0)
-                if (preconditioner == 3)
+                if preconditioner == 2
+                    [L1, U1]=ilu(g1a,ilu_setup);
+                    [za,flag1] = bicgstab(g1a,b,1e-7,Blck_size*periods,L1,U1);
+                elseif (preconditioner == 3)
                     Size = Blck_size;
                     gss0 = g1a(Size + 1: 2*Size,1: Size) + g1a(Size + 1: 2*Size,Size+1: 2*Size) + g1a(Size + 1: 2*Size,2*Size+1: 3*Size);
                     [L1, U1]=lu(gss0);

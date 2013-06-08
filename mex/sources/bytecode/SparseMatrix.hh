@@ -108,7 +108,7 @@ public:
   typedef int64_t SuiteSparse_long;
   #endif
   dynSparseMatrix();
-  dynSparseMatrix(const int y_size_arg, const int y_kmin_arg, const int y_kmax_arg, const bool print_it_arg, const bool steady_state_arg, const int periods_arg, const int minimal_solving_periods_arg
+  dynSparseMatrix(const int y_size_arg, const int y_kmin_arg, const int y_kmax_arg, const bool print_it_arg, const bool steady_state_arg, const int periods_arg, const int minimal_solving_periods_arg, const double slowc_arg
 #ifdef CUDA
                ,const int CUDA_device_arg, cublasHandle_t cublas_handle_arg, cusparseHandle_t cusparse_handle_arg, cusparseMatDescr_t descr_arg
 #endif
@@ -141,6 +141,7 @@ private:
   bool Solve_ByteCode_Sparse_GaussianElimination(int Size, int blck, int it_);
   void Solve_Matlab_Relaxation(mxArray *A_m, mxArray *b_m, unsigned int Size, double slowc_l, bool is_two_boundaries, int  it_);
   void Solve_Matlab_LU_UMFPack(mxArray *A_m, mxArray *b_m, int Size, double slowc_l, bool is_two_boundaries, int it_);
+  void Print_UMFPack(SuiteSparse_long *Ap, SuiteSparse_long *Ai, double *Ax, int n);
   void Solve_LU_UMFPack(mxArray *A_m, mxArray *b_m, int Size, double slowc_l, bool is_two_boundaries, int  it_);
   void Solve_LU_UMFPack(SuiteSparse_long *Ap, SuiteSparse_long *Ai, double *Ax, double *b, int n, int Size, double slowc_l, bool is_two_boundaries, int  it_);
   void End_Matlab_LU_UMFPack();
@@ -157,7 +158,7 @@ private:
   bool Simulate_One_Boundary(int blck, int y_size, int y_kmin, int y_kmax, int Size, bool cvg);
   bool solve_linear(const int block_num, const int y_size, const int y_kmin, const int y_kmax, const int size, const int iter);
   void solve_non_linear(const int block_num, const int y_size, const int y_kmin, const int y_kmax, const int size);
-  string preconditioner_print_out(string s, int preconditioner);
+  string preconditioner_print_out(string s, int preconditioner, bool ss);
   bool compare(int *save_op, int *save_opa, int *save_opaa, int beg_t, int periods, long int nop4,  int Size
 #ifdef PROFILER
                , long int *ndiv, long int *nsub
@@ -237,7 +238,7 @@ protected:
   int u_count_alloc, u_count_alloc_save;
   vector<double *> jac;
   double *jcb;
-  double slowc, slowc_save, prev_slowc_save, markowitz_c;
+  double slowc_save, prev_slowc_save, markowitz_c;
   int y_decal;
   int *index_equa;
   int u_count, tbreak_g;

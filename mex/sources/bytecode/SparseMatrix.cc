@@ -183,12 +183,12 @@ dynSparseMatrix::dynSparseMatrix()
 }
 
 dynSparseMatrix::dynSparseMatrix(const int y_size_arg, const int y_kmin_arg, const int y_kmax_arg, const bool print_it_arg, const bool steady_state_arg, const int periods_arg,
-                           const int minimal_solving_periods_arg
+                           const int minimal_solving_periods_arg, const double slowc_arg
 #ifdef CUDA
                            , const int CUDA_device_arg, cublasHandle_t cublas_handle_arg, cusparseHandle_t cusparse_handle_arg, cusparseMatDescr_t descr_arg
 #endif
                            ):
-  Evaluate(y_size_arg, y_kmin_arg, y_kmax_arg, print_it_arg, steady_state_arg, periods_arg, minimal_solving_periods_arg)
+  Evaluate(y_size_arg, y_kmin_arg, y_kmax_arg, print_it_arg, steady_state_arg, periods_arg, minimal_solving_periods_arg, slowc_arg)
 {
   pivotva = NULL;
   g_save_op = NULL;
@@ -3198,6 +3198,15 @@ dynSparseMatrix::End_Solver()
 }
 
 void
+dynSparseMatrix::Print_UMFPack(SuiteSparse_long *Ap, SuiteSparse_long *Ai, double *Ax, int n)
+{
+  int k = 0;
+  for (int i = 0; i < n; i++)
+      for (int j = Ap[i]; j < Ap[i+1]; j++)
+        mexPrintf("(%d, %d)    %f\n", Ai[j]+1, i+1, Ax[k++]);
+}
+
+void
 dynSparseMatrix::Solve_LU_UMFPack(SuiteSparse_long *Ap, SuiteSparse_long *Ai, double *Ax, double *b, int n, int Size, double slowc_l, bool is_two_boundaries, int  it_)
 {
   SuiteSparse_long status, sys = 0;
@@ -3702,15 +3711,18 @@ dynSparseMatrix::Solve_CUDA_BiCGStab(int *Ap, int *Ai, double *Ax, int *Ap_tild,
       mxSetFieldByNumber(Setup, 0, droptol, mxCreateDoubleScalar(lu_inc_tol));
       mxSetFieldByNumber(Setup, 0, milu, mxCreateString("off"));
       mxSetFieldByNumber(Setup, 0, udiag, mxCreateDoubleScalar(0));
-      mxSetFieldByNumber(Setup, 0, thresh, mxCreateDoubleScalar(0));
+      mxSetFieldByNumber(Setup, 0, thresh, mxCreateDoubleScalar(1));
       //mxSetFieldByNumber(Setup, 0, thresh, mxCreateDoubleScalar(1));
       mxArray *lhs0[2];
       mxArray *rhs0[2];
       rhs0[0] = A_m;
       rhs0[1] = Setup;
-      mexCallMATLAB(2, lhs0, 2, rhs0, "ilu");
-      L1 = lhs0[0];
-      U1 = lhs0[1];
+      ostringstream tmp;
+      if (mexCallMATLAB(2, lhs0, 2, rhs0, "ilu"))
+        {
+          tmp << " In BiCGStab, the incomplet LU decomposition (ilu) ahs failed.\n";
+          throw FatalExceptionHandling(tmp.str());
+        }
       mxDestroyArray(Setup);
 
 
@@ -4221,7 +4233,6 @@ dynSparseMatrix::Solve_CUDA_BiCGStab(int *Ap, int *Ai, double *Ax, int *Ap_tild,
       if (preconditioner == 3)
         {
           double *p_tild;
-          mexPrintf("n=%d\n",n);
 
           cudaChk(cudaMemcpy(tmp_vect_host, p, n*sizeof(double), cudaMemcpyDeviceToHost), "  in Solve_Cuda_BiCGStab, cudaMemcpy tmp_vect_host = p has failed\n");
           /*mexPrintf("p\n");
@@ -4716,22 +4727,24 @@ dynSparseMatrix::Solve_Matlab_BiCGStab(mxArray *A_m, mxArray *b_m, int Size, dou
       mwSize dims[1] = {(mwSize)1 };
       mxArray *Setup = mxCreateStructArray(1, dims, 5, field_names);
       mxSetFieldByNumber(Setup, 0, type, mxCreateString("ilutp"));
-      //mxSetFieldByNumber(Setup, 0, type, mxCreateString("nofill"));
       mxSetFieldByNumber(Setup, 0, droptol, mxCreateDoubleScalar(lu_inc_tol));
       mxSetFieldByNumber(Setup, 0, milu, mxCreateString("off"));
       mxSetFieldByNumber(Setup, 0, udiag, mxCreateDoubleScalar(0));
-      mxSetFieldByNumber(Setup, 0, thresh, mxCreateDoubleScalar(0));
-      //mxSetFieldByNumber(Setup, 0, thresh, mxCreateDoubleScalar(1));
+      mxSetFieldByNumber(Setup, 0, thresh, mxCreateDoubleScalar(1));
       mxArray *lhs0[2];
       mxArray *rhs0[2];
       rhs0[0] = A_m;
       rhs0[1] = Setup;
-      mexCallMATLAB(2, lhs0, 2, rhs0, "ilu");
+      if (mexCallMATLAB(2, lhs0, 2, rhs0, "ilu"))
+        {
+          ostringstream tmp;
+          tmp  << " In BiCGStab, the incomplet LU decomposition (ilu) ahs failed.\n";
+          throw FatalExceptionHandling(tmp.str());
+        }
       L1 = lhs0[0];
       U1 = lhs0[1];
       mxDestroyArray(Setup);
     }
-
   double flags = 2;
   mxArray *z;
   if (steady_state)  /*Octave BicStab algorihtm involves a 0 division in case of a preconditionner equal to the LU decomposition of A matrix*/
@@ -6068,6 +6081,7 @@ dynSparseMatrix::Simulate_One_Boundary(int block_num, int y_size, int y_kmin, in
   mxArray *b_m = NULL, *A_m = NULL, *x0_m = NULL;
   SuiteSparse_long *Ap = NULL, *Ai = NULL;
   double *Ax = NULL, *b = NULL;
+  int preconditioner = 1;
 
 
   try_at_iteration = 0;
@@ -6138,10 +6152,12 @@ dynSparseMatrix::Simulate_One_Boundary(int block_num, int y_size, int y_kmin, in
               mexPrintf("MODEL STEADY STATE: Sparse LU\n");
               break;
             case 7:
-              mexPrintf("MODEL STEADY STATE: (method=GMRES)\n");
+                mexPrintf(preconditioner_print_out("MODEL STEADY STATE: (method=GMRES)\n", preconditioner, true).c_str());
+                //mexPrintf("MODEL STEADY STATE: (method=GMRES)\n");
               break;
             case 8:
-              mexPrintf("MODEL STEADY STATE: (method=BiCGStab)\n");
+              mexPrintf(preconditioner_print_out("MODEL STEADY STATE: (method=BiCGStab)\n", preconditioner, true).c_str());
+              //mexPrintf("MODEL STEADY STATE: (method=BiCGStab)\n");
               break;
             default:
               mexPrintf("MODEL STEADY STATE: (method=Unknown - %d - )\n", stack_solve_algo);
@@ -6224,7 +6240,7 @@ dynSparseMatrix::Simulate_One_Boundary(int block_num, int y_size, int y_kmin, in
       else if ((solve_algo == 7 && steady_state) || (stack_solve_algo == 2 && !steady_state))
         Solve_Matlab_GMRES(A_m, b_m, size, slowc, block_num, false, it_, x0_m);
       else if ((solve_algo == 8 && steady_state) || (stack_solve_algo == 3 && !steady_state))
-        Solve_Matlab_BiCGStab(A_m, b_m, size, slowc, block_num, false, it_, x0_m, 1);
+        Solve_Matlab_BiCGStab(A_m, b_m, size, slowc, block_num, false, it_, x0_m, preconditioner);
       else if ((solve_algo == 6 && steady_state) || ((stack_solve_algo == 0 || stack_solve_algo == 1 || stack_solve_algo == 4) && !steady_state))
         Solve_LU_UMFPack(Ap, Ai, Ax, b, size, size, slowc, true, 0);
     }
@@ -6339,20 +6355,26 @@ dynSparseMatrix::Simulate_Newton_One_Boundary(const bool forward)
 }
 
 string
-dynSparseMatrix::preconditioner_print_out(string s, int preconditioner)
+dynSparseMatrix::preconditioner_print_out(string s, int preconditioner, bool ss)
 {
   int n = s.length();
   string tmp = ", preconditioner=";
   switch(preconditioner)
     {
     case 0:
-      tmp.append("Jacobi on dynamic jacobian");
+      if (ss)
+        tmp.append("Jacobi on static jacobian");
+      else
+        tmp.append("Jacobi on dynamic jacobian");
       break;
     case 1:
-      tmp.append("incomplet lu0 on dynamic jacobian");
+      if (ss)
+        tmp.append("incomplet lutp on static jacobian");
+      else 
+        tmp.append("incomplet lu0 on dynamic jacobian");
       break;
     case 2:
-      tmp.append("incomplet lut on dynamic jacobian");
+      tmp.append("incomplet lutp on dynamic jacobian");
       break;
     case 3:
       tmp.append("lu on static jacobian");
@@ -6526,10 +6548,10 @@ dynSparseMatrix::Simulate_Newton_Two_Boundaries(int blck, int y_size, int y_kmin
               mexPrintf("MODEL SIMULATION: (method=Relaxation)\n");
               break;
             case 2:
-              mexPrintf(preconditioner_print_out("MODEL SIMULATION: (method=GMRES)\n", preconditioner).c_str());
+              mexPrintf(preconditioner_print_out("MODEL SIMULATION: (method=GMRES)\n", preconditioner, false).c_str());
               break;
             case 3:
-              mexPrintf(preconditioner_print_out("MODEL SIMULATION: (method=BiCGStab)\n", preconditioner).c_str());
+              mexPrintf(preconditioner_print_out("MODEL SIMULATION: (method=BiCGStab)\n", preconditioner, false).c_str());
               break;
             case 4:
               mexPrintf("MODEL SIMULATION: (method=Sparse LU & optimal path length)\n");
@@ -6538,7 +6560,7 @@ dynSparseMatrix::Simulate_Newton_Two_Boundaries(int blck, int y_size, int y_kmin
               mexPrintf("MODEL SIMULATION: (method=ByteCode own solver)\n");
               break;
             case 7:
-              mexPrintf(preconditioner_print_out("MODEL SIMULATION: (method=GPU BiCGStab)\n", preconditioner).c_str());
+              mexPrintf(preconditioner_print_out("MODEL SIMULATION: (method=GPU BiCGStab)\n", preconditioner, false).c_str());
               break;
             default:
               mexPrintf("MODEL SIMULATION: (method=Unknown - %d - )\n", stack_solve_algo);

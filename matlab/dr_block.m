@@ -301,7 +301,7 @@ for i = 1:Size;
         if maximum_lead > 0 && n_fwrd > 0
             data(i).eigval = - jacob(1 , n_pred + n - n_fwrd + 1 : n_pred + n) / jacob(1 , n_pred + n + 1 : n_pred + n + n_fwrd) ;
             data(i).rank = sum(abs(data(i).eigval) > 0);
-            full_rank = (abs(jacob(1,n_pred+n+1: n_pred_n+n_fwrd)) > 1e-9);
+            full_rank = (abs(jacob(1,n_pred+n+1: n_pred+n+n_fwrd)) > 1e-9);
         else
             data(i).eigval = [];
             data(i).rank = 0;
