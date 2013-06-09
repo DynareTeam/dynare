@@ -56,6 +56,9 @@ if dataset_.info.nvobs-size(rawdata,2)
            'variables doesn''t match the number of variables in the database.'])
 end
 
+if size(rawdata,1)~=dataset_.info.ntobs
+   fprintf('Restricting the sample to observations %d to %d. Using in total %d observations. \n',first,dataset_.info.ntobs,dataset_.info.ntobs-first+1)
+end
 rawdata = rawdata(first:(first+dataset_.info.ntobs-1),:);
 
 % Take the log (or anything else) of the variables if needed

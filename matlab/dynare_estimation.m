@@ -39,7 +39,7 @@ var_list = check_list_of_variables(options_, M_, var_list);
 options_.varlist = var_list;
 
 if isfield(options_,'nobs')
-    nobs = options_.nobs;
+    nobs = sort(options_.nobs); 
 else
     nobs = [];
 end
@@ -86,7 +86,8 @@ if nnobs > 1 && horizon > 0
     mh_replic = options_.mh_replic;
     rawdata = read_variables(options_.datafile,options_.varobs,[],options_.xls_sheet,options_.xls_range);
     gend = options_.nobs;
-    rawdata = rawdata(options_.first_obs:options_.first_obs+gend-1,:);
+    data_plot_end_point=min(options_.first_obs+gend-1+horizon,size(rawdata,1)); %compute last observation that can be plotted
+    rawdata = rawdata(options_.first_obs:data_plot_end_point,:);
     % Take the log of the variables if needed
     if options_.loglinear && ~options_.logdata   % and if the data are not in logs, then...
         rawdata = log(rawdata);
@@ -115,34 +116,32 @@ if nnobs > 1 && horizon > 0
 
     IdObs    = zeros(n_varobs,1);
     for j=1:n_varobs
-        for i=1:nvar
-            iobs = strmatch(options_.varobs(j,:),var_list,'exact');
-        end
+        iobs = strmatch(options_.varobs(j,:),var_list,'exact');
         if ~isempty(iobs)
             IdObs(j,1) = iobs;
         end
     end
 
-    k = 3+min(nobs(end)-nobs(1)+horizon, ...
+    time_offset=min(3,gend-1); %for observables, plot 3 previous periods unless data is shorter
+    k = time_offset+min(nobs(end)-nobs(1)+horizon, ...
               size(rawdata,1)-nobs(1));
     data2 = rawdata(end-k+1:end,:);
     [nbplt,nr,nc,lr,lc,nstar] = pltorg(nvar);
     m = 1;
+    plot_index=0;
+    OutputDirectoryName = CheckPath('graphs',M_.fname);
     for i = 1:size(var_list,1)
         if mod(i,nstar) == 1
-            hfig = dyn_figure(options_,'Name','Out of sample forecasts');
+            plot_index=plot_index+1;
+            hfig = dyn_figure(options_,'Name',['Out of sample forecasts (',num2str(plot_index),')']);
             m = 1;
         end
         subplot(nr,nc,m)
         hold on
         if any(i==IdObs)
             k2 = find(i==IdObs);
-            if options_.loglinear == 1
-                plot(1:k,exp(data2(end-k+1:end,k2))','-k','linewidth',2);
-            else
-                plot(1:k,data2(end-k+1:end,k2)','-k','linewidth',2);
-            end
             offsetx = 3;
+            plot(nobs(1)-offsetx+1:nobs(1)-offsetx+k,data2(end-k+1:end,k2)','-k','linewidth',2);
         else
             offsetx = 0;
         end
@@ -176,7 +175,8 @@ if nnobs > 1 && horizon > 0
                       'oo_recursive_{' int2str(nobs(j))  '}.forecast.HPDsup.' ...
                       vname ';']);
             end
-            x = offsetx+nobs(j)-nobs(1)+(1:horizon);
+            x = nobs(1)+nobs(j)-nobs(1)+(1:horizon);
+
             y = eval(['oo_.RecursiveForecast.Mean.' vname '(j,:)']);
             y1 = eval(['oo_.RecursiveForecast.HPDinf.' vname '(j,:)']);
             y2 = eval(['oo_.RecursiveForecast.HPDsup.' vname '(j,:)']);
@@ -194,15 +194,13 @@ if nnobs > 1 && horizon > 0
                 plot(x,y4,'--r','linewidth',1.5)
             end
         end
-        %    set(gca,'XTick',offsetx+[1 10 20 30 40 50 60 70 80 90]);
-        %    set(gca,'XTickLabel',{'1';'10';'20';'30';'40';'50';'60';'70';'80';'90'});
-        %   xlim([1 options_.forecast+10]);
-        if any(k==IdObs)
-            plot([offsetx+1 offsetx+1],ylim,'-c')
-        end
         box on
         title(vname,'Interpreter','none')
         hold off
+        xlim([nobs(1)-offsetx nobs(end)+horizon])
         m = m + 1;
+        if mod(i+1,nstar) == 1 || i ==size(var_list,1)
+            dyn_saveas(hfig,[M_.fname,filesep,'graphs',filesep M_.fname '_RecursiveForecasts_' int2str(plot_index)],options_);
+        end
     end
 end

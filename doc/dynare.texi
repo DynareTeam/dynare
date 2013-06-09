@@ -4183,7 +4183,7 @@ the file
 @anchor{nobs1}
 Runs a recursive estimation and forecast for samples of size ranging
 of @var{INTEGER1} to @var{INTEGER2}. Option @code{forecast} must
-also be specified
+also be specified. The forecasts are stored in the @code{RecursiveForecast} field of the results structure. @xref{RecursiveForecast}
 
 @item first_obs = @var{INTEGER}
 @anchor{first_obs}
@@ -4938,6 +4938,33 @@ Variable set by the @code{estimation} command. Stores parameter vector of final 
 
 @defvr {MATLAB/Octave variable} oo_.MC_record.LastLogPost
 Variable set by the @code{estimation} command. Stores log-posterior of final MCMC chain draw
+@end defvr
+
+@defvr {MATLAB/Octave variable} oo_.RecursiveForecast
+@anchor{RecursiveForecast}
+Variable set by the @code{forecast} option of the @code{estimation} command when used with the nobs = [@var{INTEGER1}:@var{INTEGER2}] option (@xref{nobs1,,nobs}). 
+
+Fields are of the form:
+@example
+@code{oo_.RecursiveForecast.@var{FORECAST_OBJECT}.@var{VARIABLE_NAME}}
+@end example
+where @var{FORECAST_OBJECT} is one of the following@footnote{See @ref{forecast} for more information}:
+
+@table @code
+
+@item Mean
+Mean of the posterior forecast distribution
+
+@item HPDinf/HPDsup
+Upper/lower bound of the 90\% HPD interval taking into account only parameter uncertainty
+
+@item HPDTotalinf/HPDTotalsup
+Upper/lower bound of the 90\% HPD interval taking into account both parameter and future shock uncertainty
+
+@end table
+
+@var{VARIABLE_NAME} contains a matrix of the following size: number of time periods for which forecasts are requested using the nobs = [@var{INTEGER1}:@var{INTEGER2}] option times the number of forecast horizons requested by the @code{forecast} option. I.e., the row indicates the period at which the forecast is performed and the column the respective k-step ahead forecast. The starting periods are sorted in ascending order, not in declaration order.
+
 @end defvr
 
 @deffn Command model_comparison @var{FILENAME}[(@var{DOUBLE})]@dots{};
