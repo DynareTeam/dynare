@@ -39,7 +39,7 @@ Interpreter::Interpreter(double *params_arg, double *y_arg, double *ya_arg, doub
                          , const int CUDA_device_arg, cublasHandle_t cublas_handle_arg, cusparseHandle_t cusparse_handle_arg, cusparseMatDescr_t descr_arg
 #endif
                          )
-                         : dynSparseMatrix(y_size_arg, y_kmin_arg, y_kmax_arg, print_it_arg, steady_state_arg, periods_arg, minimal_solving_periods_arg
+                         : dynSparseMatrix(y_size_arg, y_kmin_arg, y_kmax_arg, print_it_arg, steady_state_arg, periods_arg, minimal_solving_periods_arg, slowc_arg
 #ifdef CUDA
                                         , CUDA_device_arg, cublas_handle_arg, cusparse_handle_arg, descr_arg
 #endif

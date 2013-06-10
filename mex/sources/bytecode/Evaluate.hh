@@ -82,8 +82,9 @@ protected:
   bool Gaussian_Elimination, is_linear;
 public:
   bool steady_state;
+  double slowc;
   Evaluate();
-  Evaluate(const int y_size_arg, const int y_kmin_arg, const int y_kmax_arg, const bool print_it_arg, const bool steady_state_arg, const int periods_arg, const int minimal_solving_periods_arg);
+  Evaluate(const int y_size_arg, const int y_kmin_arg, const int y_kmax_arg, const bool print_it_arg, const bool steady_state_arg, const int periods_arg, const int minimal_solving_periods_arg, const double slowc);
   //typedef  void (Interpreter::*InterfpreterMemFn)(const int block_num, const int size, const bool steady_state, int it);
   void set_block(const int size_arg, const int type_arg, string file_name_arg, string bin_base_name_arg, const int block_num_arg,
           const bool is_linear_arg, const int symbol_table_endo_nbr_arg, const int Block_List_Max_Lag_arg, const int Block_List_Max_Lead_arg, const int u_count_int_arg, const int block_arg);

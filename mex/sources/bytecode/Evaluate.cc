@@ -19,7 +19,7 @@ Evaluate::Evaluate()
   block = -1;
 }
 
-Evaluate::Evaluate(const int y_size_arg, const int y_kmin_arg, const int y_kmax_arg, const bool print_it_arg, const bool steady_state_arg, const int periods_arg, const int minimal_solving_periods_arg):
+Evaluate::Evaluate(const int y_size_arg, const int y_kmin_arg, const int y_kmax_arg, const bool print_it_arg, const bool steady_state_arg, const int periods_arg, const int minimal_solving_periods_arg, const double slowc_arg):
 print_it(print_it_arg),  minimal_solving_periods(minimal_solving_periods_arg)
 {
   symbol_table_endo_nbr = 0;
@@ -32,6 +32,7 @@ print_it(print_it_arg),  minimal_solving_periods(minimal_solving_periods_arg)
   y_kmax  = y_kmax_arg;
   periods = periods_arg;
   steady_state = steady_state_arg;
+  slowc = slowc_arg;
 }
 
 double
@@ -1504,11 +1505,30 @@ Evaluate::solve_simple_one_periods()
 {
   bool cvg = false;
   int iter = 0;
+  double ya ;
+  double slowc_save = slowc;
+  res1 = 0;
   while (!(cvg || (iter > maxit_)))
     {
       it_code = start_code;
       Per_y_ = it_*y_size;
+      ya = y[Block_Contain[0].Variable + Per_y_];
       compute_block_time(0, false, false);
+      if (!finite(res1))
+        {
+          res1 = NAN;
+          while ((isinf(res1) || isnan(res1)) && (slowc > 1e-9) )
+            {
+              it_code = start_code;
+              compute_block_time(0, false, false);
+              if (!finite(res1))
+                {
+                  slowc /= 1.5;
+                  mexPrintf("Reducing the path length in Newton step slowc=%f\n", slowc);
+                  y[Block_Contain[0].Variable + Per_y_] = ya - slowc * divide(r[0], g1[0]);
+                }
+            }
+        }
       double rr;
       rr = r[0];
       cvg = (fabs(rr) < solve_tolf);
@@ -1517,7 +1537,7 @@ Evaluate::solve_simple_one_periods()
         continue;
       try
         {
-          y[Block_Contain[0].Variable + Per_y_] += -divide(rr, g1[0]);
+          y[Block_Contain[0].Variable + Per_y_] += - slowc * divide(rr, g1[0]);
         }
       catch (FloatingPointExceptionHandling &fpeh)
         {
@@ -1526,6 +1546,7 @@ Evaluate::solve_simple_one_periods()
         }
       iter++;
     }
+  slowc = slowc_save;
   if (!cvg)
     {
       ostringstream tmp;

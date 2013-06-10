@@ -59,6 +59,7 @@
 #define isinf(x) (!_finite(x))
 #define fpu_error(x) (isinf(x) || isnan(x))
 
+#define finite(x) _finite(x)
 
 class MSVCpp_missings
 {
