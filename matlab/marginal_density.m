@@ -62,7 +62,7 @@ fprintf(' Done!\n');
 save([M_.fname '_mean.mat'],'xparam1','hh','SIGMA');
 
 disp(' ');
-disp('MH: I''m computing the posterior log marginale density (modified harmonic mean)... ');
+disp('MH: I''m computing the posterior log marginal density (modified harmonic mean)... ');
 detSIGMA = det(SIGMA);
 invSIGMA = inv(SIGMA);
 marginal = zeros(9,2);

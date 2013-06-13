@@ -4,22 +4,22 @@ function [fOutVar,nBlockPerCPU, totCPU] = masterParallel(Parallel,fBlock,nBlock,
 % computing.
 % It is the top-level function called on the master computer when parallelizing a task.
 
-% This function have two main computational startegy for manage the matlab worker (slave process).
+% This function has two main computational strategiues for managing the matlab worker (slave process).
 % 0 Simple Close/Open Stategy:
-% In this case the new matlab istances (slave process) are open when
+% In this case the new Matlab instances (slave process) are open when
 % necessary and then closed. This can happen many times during the
 % simulation of a model.
 
 % 1 Always Open Strategy:
 % In this case we have a more sophisticated management of slave processes,
 % which are no longer closed at the end of each job. The slave processes
-% waits for a new job (if exist). If a slave do not receives a new job after a
+% wait for a new job (if it exists). If a slave does not receive a new job after a
 % fixed time it is destroyed. This solution removes the computational
-% time necessary to Open/Close new matlab istances.
+% time necessary to Open/Close new Matlab instances.
 
 % The first (point 0) is the default Strategy
 % i.e.(Parallel_info.leaveSlaveOpen=0). This value can be changed by the
-% user in xxx.mod file or it is changed by the programmer if it necessary to
+% user in xxx.mod file or it is changed by the programmer if it is necessary to
 % reduce the overall computational time. See for example the
 % prior_posterior_statistics.m.
 
@@ -30,7 +30,7 @@ function [fOutVar,nBlockPerCPU, totCPU] = masterParallel(Parallel,fBlock,nBlock,
 %  o fBlock [int]               index number of the first thread
 %                               (between 1 and nBlock)
 %  o nBlock [int]               index number of the last thread
-%  o NamFileInput [cell array]  containins the list of input files to be
+%  o NamFileInput [cell array]  contains the list of input files to be
 %                               copied in the working directory of remote slaves
 %                               2 columns, as many lines as there are files
 %                               - first column contains directory paths
@@ -49,8 +49,8 @@ function [fOutVar,nBlockPerCPU, totCPU] = masterParallel(Parallel,fBlock,nBlock,
 %                              struct per thread
 %  o nBlockPerCPU [int vector] for each CPU used, indicates the number of
 %                              threads run on that CPU
-%  o totCPU [int]              total number of CPU used (can be lower than
-%                              the number of CPU declared in "Parallel", if
+%  o totCPU [int]              total number of CPUs used (can be lower than
+%                              the number of CPUs declared in "Parallel", if
 %                              the number of required threads is lower)
 
 % Copyright (C) 2009-2013 Dynare Team
@@ -106,8 +106,8 @@ if isfield(Parallel_info,'local_files')
     end
 end
 
-% Deactivate some 'Parallel/Warning' message in Octave!
-% Comment the line 'warning('off');' in order to view the warning message
+% Deactivate some 'Parallel/Warning' messages in Octave!
+% Comment the line 'warning('off');' in order to view the warning messages
 % in Octave!
 
 if exist('OCTAVE_VERSION'),

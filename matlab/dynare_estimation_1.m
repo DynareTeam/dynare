@@ -572,7 +572,7 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
         if options_.cova_compute
             oo_.MC_record=feval(options_.posterior_sampling_method,objective_function,options_.proposal_distribution,xparam1,invhess,bounds,dataset_,options_,M_,estim_params_,bayestopt_,oo_);
         else
-            error('I Cannot start the MCMC because the hessian of the posterior kernel at the mode was not computed.')
+            error('I Cannot start the MCMC because the Hessian of the posterior kernel at the mode was not computed.')
         end
         options_.analytic_derivation = ana_deriv;
     end

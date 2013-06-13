@@ -62,9 +62,9 @@ elseif TotalNumberOfMhFiles == 2 && FirstMhFile > 1
     record.KeepedDraws.Distribution = [MAX_nruns-FirstLine+1 ; record.MhDraws(end,3)];  
 end
 save([DirectoryName '/' M_.fname '_mh_history.mat'],'record');
-fprintf('MH: Total number of Mh draws: %d.\n',TotalNumberOfMhDraws);
-fprintf('MH: Total number of generated Mh files: %d.\n',TotalNumberOfMhFiles);
+fprintf('MH: Total number of MH draws: %d.\n',TotalNumberOfMhDraws);
+fprintf('MH: Total number of generated MH files: %d.\n',TotalNumberOfMhFiles);
 fprintf('MH: I''ll use mh-files %d to %d.\n',FirstMhFile,TotalNumberOfMhFiles);
-fprintf('MH: In mh-file number %d i''ll start at line %d.\n',FirstMhFile,FirstLine);
+fprintf('MH: In MH-file number %d I''ll start at line %d.\n',FirstMhFile,FirstLine);
 fprintf('MH: Finally I keep %d draws.\n',TotalNumberOfMhDraws-FirstDraw);
 disp(' ');
