@@ -45,7 +45,7 @@ end
 
 A = dynSeries();
 A.freq = B.freq;
-[A.name, IBC, junk] = unique([B.name; C.name], 'last');
+[A.name, IBC, junk] = unique([B.name C.name], 'last');
 tex = [B.tex; C.tex];
 A.tex = tex(IBC); 
 A.vobs=length(IBC);

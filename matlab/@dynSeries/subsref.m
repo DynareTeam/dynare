@@ -145,6 +145,9 @@ switch S(1).type
         error('dynSeries::subsref: I have no idea of what you are trying to do!')
     end
   case '{}'
+    if ischar(S(1).subs{1})
+        S(1).subs = strtrim(mat2cell(S(1).subs{1}, ones(1, size(S(1).subs{1},1)), size(S(1).subs{1},2)));
+    end
     if iscellofchar(S(1).subs)
         B = extract(A,S(1).subs{:});
     elseif isequal(length(S(1).subs),1) && all(isint(S(1).subs{1}))
