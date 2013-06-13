@@ -67,10 +67,10 @@ switch a.freq
     c.time(1) = a.time(1) + b - 1;
   case {4,12,52}
     c = a;
-    n1 = b;
-    n2 = floor(n1/a.freq);
-    n3 = mod(n1,a.freq);
-    c.time(2) = c.time(2)+n3-1;
+    n1 = b + a.time(2);
+    n2 = floor((n1 - 1)/a.freq);
+    n3 = mod(n1 - 1,a.freq) + 1;
+    c.time(2) = n3;
     c.time(1) = c.time(1)+n2;
   otherwise
     error('dynDate::plus: Unknown frequency!')
