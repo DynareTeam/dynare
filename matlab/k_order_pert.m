@@ -30,6 +30,10 @@ nspred = M.nspred;
 if order>1 && options.loglinear 
    error('The loglinear-option currently only works at order 1') 
 end
+if M.maximum_endo_lead == 0 && order>1
+  error(['2nd and 3rd order approximation not implemented for purely ' ...
+       'backward models'])
+end
 
 switch(order)
   case 1
