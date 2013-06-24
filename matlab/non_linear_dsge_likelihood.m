@@ -234,6 +234,10 @@ np    = size(T,1);
 mf    = BayesInfo.mf;
 Y     = transpose(DynareDataset.rawdata);
 
+if DynareOptions.presample~=0
+   error('Non-linear estimation does not support the use of a pre-sample. Please adjust the observation (nobs) accordingly.') 
+end
+
 %------------------------------------------------------------------------------
 % 3. Initial condition of the Kalman filter
 %------------------------------------------------------------------------------
