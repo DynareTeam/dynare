@@ -4261,7 +4261,7 @@ the data. Default: @code{0}, @i{i.e.} no prefiltering
 @item presample = @var{INTEGER}
 @anchor{presample}
 The number of observations to be skipped before evaluating the
-likelihood. Default: @code{0}
+likelihood. In case of linear estimation (@var{order=1}), the skipped time periods are used as a training sample to initialize the Kalman filter. Default: @code{0}
 
 @item loglinear
 @anchor{loglinear}
