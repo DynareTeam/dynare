@@ -565,6 +565,11 @@ options_.risky_steadystate = 0;
 options_.endogenous_prior = 0;
 options_.endogenous_prior_restrictions.irf={};
 
+% OSR Optimal Simple Rules
+options_.osr.tolf=1e-7;
+options_.osr.maxit=1000;
+options_.osr.verbose=2;
+
 % use GPU
 options_.gpu = 0;
 

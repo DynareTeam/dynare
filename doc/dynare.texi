@@ -5521,12 +5521,22 @@ The parameters to be optimized must be listed with @code{osr_params}.
 
 The quadratic objectives must be listed with @code{optim_weights}.
 
-This problem is solved using a numerical optimizer.
+This problem is solved using the numerical optimizer @code{csminwel} of Chris Sims.
 
 @optionshead
 
-This command accept the same options than @code{stoch_simul}
-(@pxref{Computing the stochastic solution}).
+This command accepts the same options as @code{stoch_simul}
+(@pxref{Computing the stochastic solution}) plus 
+
+@table @code
+
+@item maxit =  = @var{INTEGER}
+Determines the maximum number of iterations used in the non-linear solver. Default: @code{1000}
+
+@item tolf =  = @var{DOUBLE}
+Convergence criterion for termination based on the function value. Iteration will 
+cease when it proves impossible to improve the function value by more than tolf. Default: @code{1e-7}
+@end table
 
 The value of the objective is stored in the variable
 @code{oo_.osr.objective_function}, which is described below.
