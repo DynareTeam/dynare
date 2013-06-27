@@ -4635,7 +4635,7 @@ When @code{diffused_filter} is used the @code{lik_init} option of
 @code{estimation} has no effect.
 
 When there are nonstationary variables in a model, there is no unique
-deterministic steady state. The user must supply a MATLAB/Octave
+deterministic steady state. When not using the @code{linear} option in the model declaration, the user must supply a MATLAB/Octave
 function that computes the steady state values of the stationary
 variables in the model and returns dummy values for the nonstationary
 ones. The function should be called with the name of the @file{.mod}
