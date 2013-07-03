@@ -41,8 +41,8 @@ for j=1:nvar
     end
     fhandle = dyn_figure(DynareOptions,'Name',['Shock decomposition: ',endo_names(i_var(j),:)]);
     ax=axes('Position',[0.1 0.1 0.6 0.8]);
-    axis(ax,[xmin xmax ymin ymax]);
     plot(ax,x(2:end),z1(end,:),'k-','LineWidth',2)
+    axis(ax,[xmin xmax ymin ymax]);
     hold on;
     for i=1:gend
         i_1 = i-1;
