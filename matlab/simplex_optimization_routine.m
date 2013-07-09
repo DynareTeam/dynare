@@ -1,4 +1,4 @@
-Xfunction [x,fval,exitflag] = simplex_optimization_routine(objective_function,x,options,varargin)
+function [x,fval,exitflag] = simplex_optimization_routine(objective_function,x,options,varargin)
 % Nelder-Mead like optimization routine.
 % By default, we use standard values for the reflection, the expansion, the contraction and the shrink coefficients (alpha = 1, chi = 2, psi = 1 / 2 and σ = 1 / 2).
 % See http://en.wikipedia.org/wiki/Nelder-Mead_method
@@ -9,7 +9,7 @@ Xfunction [x,fval,exitflag] = simplex_optimization_routine(objective_function,x,
 % amelioration is possible.
 %
 % INPUTS
-% objective_function     [string]       Name of the iobjective function to be minimized.
+% objective_function     [string]       Name of the objective function to be minimized.
 % x                      [double]       n*1 vector, starting guess of the optimization routine.
 % options                [structure]
 %
@@ -17,7 +17,7 @@ Xfunction [x,fval,exitflag] = simplex_optimization_routine(objective_function,x,
 %
 %
 
-% Copyright (C) 2010-2012 Dynare Team
+% Copyright (C) 2010-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -178,7 +178,7 @@ initial_point = x;
 if ~nopenalty
     error('simplex_optimization_routine:: Initial condition is wrong!')
 else
-    [v,fv,delta] = simplex_initialization(objective_function,initial_point,initial_score,delta,1,varargin{:});
+    [v,fv,delta] = simplex_initialization(objective_function,initial_point,initial_score,delta,zero_delta,1,varargin{:});
     func_count = number_of_variables + 1;
     iter_count = 1;
     if verbose
@@ -420,7 +420,7 @@ while (func_count < max_func_calls) && (iter_count < max_iterations) && (simplex
             % Compute the size of the simplex
             delta = delta*1.05;
             % Compute the new initial simplex.
-            [v,fv,delta] = simplex_initialization(objective_function,best_point,best_point_score,delta,1,varargin{:});
+            [v,fv,delta] = simplex_initialization(objective_function,best_point,best_point_score,delta,zero_delta,1,varargin{:});
             if verbose
                 disp(['(Re)Start with a lager simplex around the based on the best current '])
                 disp(['values for the control variables. '])
@@ -441,7 +441,7 @@ while (func_count < max_func_calls) && (iter_count < max_iterations) && (simplex
         end
     end
     if ((func_count==max_func_calls) || (iter_count==max_iterations) || (iter_no_improvement_break==max_no_improvement_break) || convergence || tooslow)
-        [v,fv,delta] = simplex_initialization(objective_function,best_point,best_point_score,DELTA,1,varargin{:});
+        [v,fv,delta] = simplex_initialization(objective_function,best_point,best_point_score,DELTA,zero_delta,1,varargin{:});
         if func_count==max_func_calls
             if verbose
                 disp(['MAXIMUM NUMBER OF OBJECTIVE FUNCTION CALLS EXCEEDED (' int2str(max_func_calls) ')!'])
@@ -468,7 +468,7 @@ while (func_count < max_func_calls) && (iter_count < max_iterations) && (simplex
             % Compute the size of the simplex
             delta = delta*1.05;
             % Compute the new initial simplex.
-            [v,fv,delta] = simplex_initialization(objective_function,best_point,best_point_score,delta,1,varargin{:});
+            [v,fv,delta] = simplex_initialization(objective_function,best_point,best_point_score,delta,zero_delta,1,varargin{:});
             if verbose
                 disp(['(Re)Start with a lager simplex around the based on the best current '])
                 disp(['values for the control variables. '])
@@ -511,7 +511,7 @@ end
 
 
 
-function [v,fv,delta] = simplex_initialization(objective_function,point,point_score,delta,check_delta,varargin)
+function [v,fv,delta] = simplex_initialization(objective_function,point,point_score,delta,zero_delta,check_delta,varargin)
     n = length(point);
     v  = zeros(n,n+1);
     v(:,1) = point;
