@@ -37,6 +37,29 @@ if options_.order > 1
         disp(' ')
         disp('Estimation using a non linear filter!')
         disp(' ')
+        if ismember(options_.mode_compute,[1,3,4]) %gradient-based optimizers
+            warning('You are using a gradient-based mode-finder. Particle filtering introduces discontinuities in the objective function w.r.t the parameters. Thus, should use a non-gradient based optimizer (e.g. mode_compute=8 or 9)!')
+            fprintf('\nPlease choose a mode-finder:\n')
+            fprintf('\t 1 - Continue using gradient-based method (not recommended)\n')
+            fprintf('\t 6 - Monte Carlo based algorithm\n')
+            fprintf('\t 8 - Nelder-Mead simplex based optimization routine\n')
+            fprintf('\t 9 - CMA-ES (Covariance Matrix Adaptation Evolution Strategy) algorithm\n')
+            reply = input('Please enter your choice: ', 's');
+            try 
+                mode_finder=str2double(reply(1,1));
+                invalid_choice_dummy=0;
+            catch err_menu
+                invalid_choice_dummy=1;
+            end
+            if ~invalid_choice_dummy && ismember(mode_finder,[6,8,9])
+                options_.mode_compute=mode_finder;
+            elseif ~invalid_choice_dummy && mode_finder==1
+                % keep mode finder, i.e. do nothing
+            else
+                fprintf('\n Invalid choice, continue using Nelder-Mead simplex based optimization routine.\n') 
+                options_.mode_compute=8;
+            end
+        end
     elseif options_.particle.status && options_.order>2
         error(['Non linear filter are not implemented with order ' int2str(options_.order) ' approximation of the model!'])
     elseif ~options_.particle.status && options_.order==2
