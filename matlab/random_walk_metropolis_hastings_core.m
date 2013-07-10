@@ -73,7 +73,7 @@ end
 %%
 % % Unpack Global Variables, they are already in global space when running
 % % single computation
-% 
+% % 
 try                                                 % would be catched in single computation ('no such fieldname')
     globalVars = fieldnames(myinputs.global);       % packed by masterParallel2      
     for j=1:length(globalVars),
@@ -87,11 +87,10 @@ try                                                 % would be catched in single
         evalin('base',[fieldname '=value;'])
         
     end
-    
-    
-    
+ 
     Parallel=myinputs.Parallel;
-    % initialize persistent variables in priordens()  % whoiam==0
+    % initialize persistent variables in priordens()  % whoiam==0 from
+    % masterparallel 2
     priordens(myinputs.xparam1,bayestopt_.pshape,bayestopt_.p6,bayestopt_.p7, ...
         bayestopt_.p3,bayestopt_.p4,1);
     
