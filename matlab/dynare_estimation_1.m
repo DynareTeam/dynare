@@ -80,6 +80,12 @@ end
 
 [dataset_,xparam1, M_, options_, oo_, estim_params_,bayestopt_] = dynare_estimation_init(var_list_, dname, [], M_, options_, oo_, estim_params_, bayestopt_);
 
+% save values from calibrated model as potential starting values
+if ~any(isnan(M_.params))
+    xparam1_calib=get_all_parameters(estim_params_,M_);
+end
+
+
 % Set sigma_e_is_diagonal flag (needed if the shocks block is not declared in the mod file).
 M_.sigma_e_is_diagonal = 1;
 if estim_params_.ncx || ~isequal(nnz(M_.Sigma_e),length(M_.Sigma_e))
@@ -187,9 +193,39 @@ if options_.dsge_var
     end
 end
 
+%% perform initial estimation checks;
+if options_.nointeractive || ~exist('xparam1_calib') %not interactive or no calibrated model present
+    oo_ = initial_estimation_checks(objective_function,xparam1,dataset_,M_,estim_params_,options_,bayestopt_,oo_);
+else
+    try
+        oo_ = initial_estimation_checks(objective_function,xparam1,dataset_,M_,estim_params_,options_,bayestopt_,oo_);
+    catch initial_estimation_checks_fail % if check fails, ask if calibration should be tried
+        fprintf('%s\n\n',initial_estimation_checks_fail.message);
+        choice=[];
+        while isempty(choice)
+            choice = input('Do you want to try the values from calibration for the structural parameters? [Y/N]: ','s');
+            if ~strmatch(choice,['Y';'y';'N';'n'],'exact')
+                fprintf('\nThis is an invalid choice (you have to choose between Y or N).\n')
+                choice = [];
+            end
+        end
+        if strmatch(choice,['Y';'y'],'exact') % calibration should be tested
+            try
+                xparam1_temp=xparam1;
+                xparam1_temp(nvx+nvn+ncx+ncn+1:end)=xparam1_calib(nvx+nvn+ncx+ncn+1:end); % reset all parameters except for standard deviations and correlations
+                oo_ = initial_estimation_checks(objective_function,xparam1_temp,dataset_,M_,estim_params_,options_,bayestopt_,oo_);
+                xparam1=xparam1_temp; %reset xparam1 if successful
+            catch initial_estimation_checks_fail_calib
+                fprintf('\nThe calibrated values also led to an error in computing the likelihood:\n')
+                rethrow(initial_estimation_checks_fail_calib);
+            end
+        else
+            rethrow(initial_estimation_checks_fail)
+        end
+    end
+end
 
-oo_ = initial_estimation_checks(objective_function,xparam1,dataset_,M_,estim_params_,options_,bayestopt_,oo_);
-
+%% run smoother on calibrated model
 if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.mh_posterior_mode_estimation==0
     if options_.smoother == 1
         [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp] = DsgeSmoother(xparam1,gend,data,data_index,missing_value);
