@@ -64,9 +64,41 @@ function myoutput = random_walk_metropolis_hastings_core(myinputs,fblck,nblck,wh
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
+    
 if nargin<4,
     whoiam=0;
 end
+
+
+%%
+% % Unpack Global Variables, they are already in global space when running
+% % single computation
+% % 
+try                                                 % would be catched in single computation ('no such fieldname')
+    globalVars = fieldnames(myinputs.global);       % packed by masterParallel2      
+    for j=1:length(globalVars),
+        eval(['global ',globalVars{j},';'])
+        fieldname=globalVars{j};
+        value=myinputs.global.(fieldname);
+        eval([fieldname '=value;'])
+        
+        evalin('base',['global ', globalVars{j},';']) % put also into base workspace
+        assignin('base','value',value);
+        evalin('base',[fieldname '=value;'])
+        
+    end
+ 
+    Parallel=myinputs.Parallel;
+    % initialize persistent variables in priordens()  % whoiam==0 from
+    % masterparallel 2
+    priordens(myinputs.xparam1,bayestopt_.pshape,bayestopt_.p6,bayestopt_.p7, ...
+        bayestopt_.p3,bayestopt_.p4,1);
+    
+catch err
+display(err)    
+end
+
+%%
 
 % reshape 'myinputs' for local computation.
 % In order to avoid confusion in the name space, the instruction struct2local(myinputs) is replaced by:
@@ -95,6 +127,7 @@ M_ = myinputs.M_;
 oo_ = myinputs.oo_;
 varargin=myinputs.varargin;
 
+
 % Necessary only for remote computing!
 if whoiam
     Parallel=myinputs.Parallel;
@@ -120,7 +153,6 @@ end
 proposal_covariance_Cholesky_decomposition = d*diag(bayestopt_.jscale);
 
 jloop=0;
-
 JSUM = 0;
 for b = fblck:nblck,
     jloop=jloop+1;
@@ -136,10 +168,12 @@ for b = fblck:nblck,
         % this set the state 
         set_dynare_random_generator_state(record.Seeds(b).Unifor, ...
                                           record.Seeds(b).Normal);
-    catch
+    catch err 
+        display(err.message)
         % if the state set by master is incompatible with the slave, we
         % only reseed 
-        set_dynare_seed(options_.DynareRandomStreams.seed+b);
+
+    set_dynare_seed(options_.DynareRandomStreams.seed+b);
     end
     if (options_.load_mh_file~=0) && (fline(b)>1) && OpenOldFile(b)
         load([pwd filesep MhDirectoryName filesep ModelName '_mh' int2str(NewFile(b)) ...
@@ -163,17 +197,19 @@ for b = fblck:nblck,
     irun = fline(b);
     j = 1;
     while j <= nruns(b)
-        par = feval(ProposalFun, ix2(b,:), proposal_covariance_Cholesky_decomposition, n);
-        if all( par(:) > mh_bounds(:,1) ) && all( par(:) < mh_bounds(:,2) )
-            try
-                logpost = - feval(TargetFun, par(:),dataset_,options_,M_,estim_params_,bayestopt_,oo_);
-            catch
-                logpost = -inf;
-            end
+        par = feval(ProposalFun, ix2(b,:), proposal_covariance_Cholesky_decomposition, n);   
+        if all( par(:) > mh_bounds(:,1) ) && all( par(:) < mh_bounds(:,2) )    %%%% always within bounds
+             try
+                logpost = - feval(TargetFun, par(:),dataset_,options_,M_,estim_params_,bayestopt_,oo_); % always -inf
+             catch err   
+                 display(err.message)
+                 logpost = -inf;
+             end
         else
             logpost = -inf;
         end
-        if (logpost > -inf) && (log(rand) < logpost-ilogpo2(b))
+        display(logpost )   
+        if (logpost > -inf) && (log(rand) < logpost-ilogpo2(b)) % never
             x2(irun,:) = par;
             ix2(b,:) = par;
             logpo2(irun) = logpost;
@@ -220,30 +256,52 @@ for b = fblck:nblck,
             dyn_waitbar(prtfrc,hh,[ 'MH (' int2str(b) '/' int2str(options_.mh_nblck) ') ' sprintf('acceptation rate %4.3f', isux/j)]);
         end
         if (irun == InitSizeArray(b)) || (j == nruns(b)) % Now I save the simulations
-            save([MhDirectoryName '/' ModelName '_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'],'x2','logpo2');
-            fidlog = fopen([MhDirectoryName '/metropolis.log'],'a');
-            fprintf(fidlog,['\n']);
-            fprintf(fidlog,['%% Mh' int2str(NewFile(b)) 'Blck' int2str(b) ' (' datestr(now,0) ')\n']);
-            fprintf(fidlog,' \n');
-            fprintf(fidlog,['  Number of simulations.: ' int2str(length(logpo2)) '\n']);
-            fprintf(fidlog,['  Acceptation rate......: ' num2str(jsux/length(logpo2)) '\n']);
-            fprintf(fidlog,['  Posterior mean........:\n']);
+%             save([MhDirectoryName '/' ModelName '_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'],'x2','logpo2');
+%             fidlog = fopen([MhDirectoryName '/metropolis.log'],'a');
+%             fprintf(fidlog,['\n']);
+%             fprintf(fidlog,['%% Mh' int2str(NewFile(b)) 'Blck' int2str(b) ' (' datestr(now,0) ')\n']);
+%             fprintf(fidlog,' \n');
+%             fprintf(fidlog,['  Number of simulations.: ' int2str(length(logpo2)) '\n']);
+%             fprintf(fidlog,['  Acceptation rate......: ' num2str(jsux/length(logpo2)) '\n']);
+%             fprintf(fidlog,['  Posterior mean........:\n']);
+%             for i=1:length(x2(1,:))
+%                 fprintf(fidlog,['    params:' int2str(i) ': ' num2str(mean(x2(:,i))) '\n']);
+%             end
+%             fprintf(fidlog,['    log2po:' num2str(mean(logpo2)) '\n']);
+%             fprintf(fidlog,['  Minimum value.........:\n']);
+%             for i=1:length(x2(1,:))
+%                 fprintf(fidlog,['    params:' int2str(i) ': ' num2str(min(x2(:,i))) '\n']);
+%             end
+%             fprintf(fidlog,['    log2po:' num2str(min(logpo2)) '\n']);
+%             fprintf(fidlog,['  Maximum value.........:\n']);
+%             for i=1:length(x2(1,:))
+%                 fprintf(fidlog,['    params:' int2str(i) ': ' num2str(max(x2(:,i))) '\n']);
+%             end
+%             fprintf(fidlog,['    log2po:' num2str(max(logpo2)) '\n']);
+%             fprintf(fidlog,' \n');
+%             fclose(fidlog);
+              
+            fprintf(['\n']);
+            fprintf(['%% Mh' int2str(NewFile(b)) 'Blck' int2str(b) ' (' datestr(now,0) ')\n']);
+            fprintf(' \n');
+            fprintf(['  Number of simulations.: ' int2str(length(logpo2)) '\n']);
+            fprintf(['  Acceptation rate......: ' num2str(jsux/length(logpo2)) '\n']);
+            fprintf(['  Posterior mean........:\n']);
             for i=1:length(x2(1,:))
-                fprintf(fidlog,['    params:' int2str(i) ': ' num2str(mean(x2(:,i))) '\n']);
+                fprintf(['    params:' int2str(i) ': ' num2str(mean(x2(:,i))) '\n']);
             end
-            fprintf(fidlog,['    log2po:' num2str(mean(logpo2)) '\n']);
-            fprintf(fidlog,['  Minimum value.........:\n']);
+            fprintf(['    log2po:' num2str(mean(logpo2)) '\n']);
+            fprintf(['  Minimum value.........:\n']);
             for i=1:length(x2(1,:))
-                fprintf(fidlog,['    params:' int2str(i) ': ' num2str(min(x2(:,i))) '\n']);
+                fprintf(['    params:' int2str(i) ': ' num2str(min(x2(:,i))) '\n']);
             end
-            fprintf(fidlog,['    log2po:' num2str(min(logpo2)) '\n']);
-            fprintf(fidlog,['  Maximum value.........:\n']);
+            fprintf(['    log2po:' num2str(min(logpo2)) '\n']);
+            fprintf(['  Maximum value.........:\n']);
             for i=1:length(x2(1,:))
-                fprintf(fidlog,['    params:' int2str(i) ': ' num2str(max(x2(:,i))) '\n']);
+                fprintf(['    params:' int2str(i) ': ' num2str(max(x2(:,i))) '\n']);
             end
-            fprintf(fidlog,['    log2po:' num2str(max(logpo2)) '\n']);
-            fprintf(fidlog,' \n');
-            fclose(fidlog);
+            fprintf(['    log2po:' num2str(max(logpo2)) '\n']);
+            fprintf(' \n');
             jsux = 0;
             if j == nruns(b) % I record the last draw...
                 record.LastParameters(b,:) = x2(end,:);
@@ -283,3 +341,6 @@ myoutput.record = record;
 myoutput.irun = irun;
 myoutput.NewFile = NewFile;
 myoutput.OutputFileName = OutputFileName;
+
+display(record)
+

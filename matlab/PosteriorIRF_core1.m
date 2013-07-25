@@ -39,6 +39,30 @@ function myoutput=PosteriorIRF_core1(myinputs,fpar,B,whoiam, ThisMatlab)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
+%%
+% % Unpack Global Variables, they are already in global space when running
+% % single computation
+% % 
+try                                                 % would be catched in single computation ('no such fieldname')
+    globalVars = fieldnames(myinputs.global);       % packed by masterParallel2      
+    for j=1:length(globalVars),
+        eval(['global ',globalVars{j},';'])
+        fieldname=globalVars{j};
+        value=myinputs.global.(fieldname);
+        eval([fieldname '=value;'])
+        
+        evalin('base',['global ', globalVars{j},';']) % put also into base workspace
+        assignin('base','value',value);
+        evalin('base',[fieldname '=value;'])
+        
+    end
+ 
+    Parallel=myinputs.Parallel;
+catch err
+display(err)    
+end
+
+%%
 
 global options_ estim_params_ oo_ M_ bayestopt_ dataset_
 

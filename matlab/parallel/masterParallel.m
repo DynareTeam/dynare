@@ -75,6 +75,9 @@ function [fOutVar,nBlockPerCPU, totCPU] = masterParallel(Parallel,fBlock,nBlock,
 % This directory is named using current data and time,
 % is used only one time and then deleted.
 
+dbstop in masterparallel at 109
+
+
 persistent PRCDir
 % PRCDir = Present Remote Computational Directory!
 
@@ -85,6 +88,8 @@ isHybridMatlabOctave = Parallel_info.isHybridMatlabOctave;
 for j=1:length(Parallel),
     islocal=islocal*Parallel(j).Local;
 end
+
+
 if nargin>8 && initialize==1
     if islocal == 0,
         PRCDir=CreateTimeString();
@@ -96,6 +101,13 @@ if nargin>8 && initialize==1
         mydelete(['slaveParallel_input*.mat']);
     end
     return
+    
+else 
+    global options_ 
+    if options_.Cluster_settings > 0
+        [fOutVar,nBlockPerCPU, totCPU] = masterParallel2(Parallel,fBlock,nBlock,NamFileInput,fname,fInputVar,fGlobalVar,Parallel_info);  
+        return
+    end
 end
 
 if isfield(Parallel_info,'local_files')
@@ -175,6 +187,7 @@ end
 % to run on each CPU.
 
 [nCPU, totCPU, nBlockPerCPU, totSlaves] = distributeJobs(Parallel, fBlock, nBlock);
+
 for j=1:totSlaves,
     PRCDirSnapshot{j}={};
 end
@@ -321,7 +334,7 @@ for j=1:totCPU,
         case 0
             
             if Parallel(indPC).Local == 1,                                  % 0.1 Run on the local machine (localhost).
-                
+               [int2str(offset+1) ',' int2str(sum(nBlockPerCPU(1:j))) ',' int2str(j) ',' int2str(indPC)] 
                 if ~ispc || strcmpi('unix',Parallel(indPC).OperatingSystem), % Hybrid computing Windows <-> Unix!
                     if regexpi([Parallel(indPC).MatlabOctavePath], 'octave') % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
                         command1=[Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7''); addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')" &'];
@@ -336,6 +349,7 @@ for j=1:totCPU,
                     end
                 end
             else                                                            % 0.2 Parallel(indPC).Local==0: Run using network on remote machine or also on local machine.
+                [int2str(offset+1) ',' int2str(sum(nBlockPerCPU(1:j))) ',' int2str(j) ',' int2str(indPC)]
                 if j==nCPU0+1,
                     dynareParallelSendFiles([fname,'_input.mat'],PRCDir,Parallel(indPC));
                     dynareParallelSendFiles(NamFileInput,PRCDir,Parallel(indPC));
