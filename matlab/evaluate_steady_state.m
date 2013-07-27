@@ -86,7 +86,21 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
             else
                 ys = ys_init;
             end
-
+            if options.debug
+                if any(any(isinf(jacob) | isnan(jacob)))
+                    [infrow,infcol]=find(isinf(jacob) | isnan(jacob));
+                    fprintf('\nSTEADY:  The Jacobian contains Inf or NaN. The problem arises from: \n\n')
+                    for ii=1:length(infrow)
+                        if infcol(ii)<=M.orig_endo_nbr
+                            fprintf('STEADY:  Derivative of Equation %d with respect to Variable %s  (initial value of %s: %g) \n',infrow(ii),deblank(M.endo_names(infcol(ii),:)),deblank(M.endo_names(infcol(ii),:)),ys_init(infcol(ii)))
+                        else %auxiliary vars
+                            orig_var_index=M.aux_vars(1,infcol(ii)-M.orig_endo_nbr).orig_index;
+                            fprintf('STEADY:  Derivative of Equation %d with respect to Variable %s  (initial value of %s: %g) \n',infrow(ii),deblank(M.endo_names(orig_var_index,:)),deblank(M.endo_names(orig_var_index,:)),ys_init(infcol(ii)))            
+                        end
+                    end
+                    disp('STEADY: Check whether your model in truly linear\n')
+                end            
+            end
         end
     else
         % block or bytecode
