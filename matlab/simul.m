@@ -79,6 +79,22 @@ end
 
 options_.scalv= 1 ;
 
+if options_.debug
+    model_static = str2func([M_.fname,'_static']);
+    for ii=1:size(oo_.exo_simul,1)
+        [residual(:,ii)] = model_static(oo_.steady_state, oo_.exo_simul(ii,:),M_.params);
+    end
+    problematic_periods=find(any(isinf(residual)) | any(isnan(residual)))-M_.maximum_endo_lag;
+    if ~isempty(problematic_periods) 
+        period_string=num2str(problematic_periods(1));
+        for ii=2:length(problematic_periods)
+            period_string=[period_string, ', ', num2str(problematic_periods(ii))];
+        end
+        fprintf('\n\nWARNING: Value for the exogenous variable(s) in period(s) %s inconsistent with the static model.\n',period_string);   
+        fprintf('WARNING: Check for division by 0.\n')
+    end
+end
+
 if(options_.block)
     if(options_.bytecode)
         [info, oo_.endo_simul] = bytecode('dynamic');
