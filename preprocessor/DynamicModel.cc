@@ -1506,6 +1506,28 @@ DynamicModel::writeDynamicMFile(const string &dynamic_basename) const
                     << "%" << endl
                     << "% Status : Computes dynamic model for Dynare" << endl
                     << "%" << endl
+                    << "% Inputs :" << endl
+                    << "%   y         [#dynamic variables by 1] double    vector of endogenous variables in the order stored" << endl
+                    << "%                                                 in M_.lead_lag_incidence; see the Manual" << endl
+                    << "%   x         [M_.exo_nbr by nperiods] double     matrix of exogenous variables (in declaration order)" << endl
+                    << "%                                                 for all simulation periods" << endl
+                    << "%   params    [M_.param_nbr by 1] double          vector of parameter values in declaration order" << endl
+                    << "%   it_       scalar double                       time period for exogenous variables for which to evaluate the model" << endl
+                    << "%" << endl
+                    << "% Outputs:" << endl
+                    << "%   residual  [M_.endo_nbr by 1] double    vector of residuals of the dynamic model equations in order of " << endl
+                    << "%                                          declaration of the equations" << endl
+                    << "%   g1        [M_.endo_nbr by #dynamic variables] double    Jacobian matrix of the dynamic model equations;" << endl
+                    << "%                                                           columns: equations in order of declaration" << endl
+                    << "%                                                           rows: variables in order stored in M_.lead_lag_incidence" << endl
+                    << "%   g2        [M_.endo_nbr by (#dynamic variables)^2] double   Hessian matrix of the dynamic model equations;" << endl
+                    << "%                                                              columns: equations in order of declaration" << endl
+                    << "%                                                              rows: variables in order stored in M_.lead_lag_incidence" << endl
+                    << "%   g3        [M_.endo_nbr by (#dynamic variables)^3] double   Third order derivative matrix of the dynamic model equations;" << endl
+                    << "%                                                              columns: equations in order of declaration" << endl
+                    << "%                                                              rows: variables in order stored in M_.lead_lag_incidence" << endl
+                    << "%" << endl
+                    << "%" << endl                    
                     << "% Warning : this file is generated automatically by Dynare" << endl
                     << "%           from model file (.mod)" << endl << endl;
 
