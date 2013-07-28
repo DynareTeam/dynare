@@ -1,6 +1,11 @@
 function osr1(i_params,i_var,weights)
-
-% Copyright (C) 2005-2012 Dynare Team
+% Compute the Optimal Simple Rules
+% INPUTS
+%   i_params                  vector           index of optimizing parameters in M_.params
+%   i_var                     vector           variables indices
+%   weights                   vector           weights in the OSRs
+%
+% Copyright (C) 2005-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -52,6 +57,15 @@ crit=options_.osr.tolf;
 nit=options_.osr.maxit;
 verbose=options_.osr.verbose;
 
+%% do initial checks
+[loss,vx,info,exit_flag]=osr_obj(t0,i_params,inv_order_var(i_var),weights(i_var,i_var));
+if info~=0
+   print_info(info, options_.noprint, options_);
+else
+   fprintf('\nOSR: Initial value of the objective function: %g \n\n',loss);
+end
+
+%%do actual optimization
 [f,p]=csminwel1('osr_obj',t0,H0,[],crit,nit,options_.gradient_method,options_.gradient_epsilon,i_params,...
                 inv_order_var(i_var),weights(i_var,i_var));
 oo_.osr.objective_function = f;
