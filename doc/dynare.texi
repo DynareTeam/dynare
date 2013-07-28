@@ -675,10 +675,11 @@ file.  By default (unless @code{use_dll} option has been given to
 Contains variable declarations, and computing tasks
 
 @item @var{FILENAME}_dynamic.m
-Contains the dynamic model equations
-
+@vindex M_.lead_lag_incidence
+Contains the dynamic model equations. Note that Dynare might introduce auxiliary equations and variables (@pxref{Auxiliary variables}). Outputs are the residuals of the dynamic model equations in the order the equations were declared and the Jacobian of the dynamic model equations. For higher order approximations also the Hessian and the third-order derivates are provided. When computing the Jacobian of the dynamic model, the order of the endogenous variables in the columns is stored in @code{M_.lead_lag_incidence}. The rows of this matrix represent time periods: the first row denotes a lagged (time t-1) variable, the second row a contemporaneous (time t) variable, and the third row a leaded (time t+1) variable. The colums of the matrix represent the endogenous variables in their order of declaration. A zero in the matrix means that this endogenous does not appear in the model in this time period. The value in the @code{M_.lead_lag_incidence} matrix corresponds to the column of that variable in the Jacobian of the dynamic model. Example: Let the second declared variable be @code{c} and the @code{(3,2)} entry of @code{M_.lead_lag_incidence} be @code{15}. Then the @code{15}th column of the Jacobian is the derivative with respect to @code{y(+1)}. 
+ 
 @item @var{FILENAME}_static.m
-Contains the long run static model equations
+Contains the long run static model equations. Note that Dynare might introduce auxiliary equations and variables (@pxref{Auxiliary variables}). Outputs are the residuals of the static model equations in the order the equations were declared and the Jacobian of the static equations. Entry @code{(i,j)} of the Jacobian represents the derivative of the @code{i}th static model equation with respect to the @code{j}th model variable in declaration order. 
 @end table
 
 @noindent
@@ -3254,7 +3255,7 @@ state value. More details on the computation of IRFs can be found on the
 @uref{http://www.dynare.org/DynareWiki/IrFs,DynareWiki}.
 
 Variance decomposition, correlation, autocorrelation are only
-displayed for variables with positive variance. Impulse response
+displayed for variables with strictly positive variance. Impulse response
 functions are only plotted for variables with response larger than
 @math{10^{-10}}.
 
@@ -3265,10 +3266,6 @@ may happen that, due to numerical error, the two differ by a
 significant amount. Dynare issues a warning if the maximum relative
 difference between the sum of the contribution of each shock and
 aggregate variance is larger than 0.01%.
-
-Currently, the IRFs are only plotted for 12 variables. Select the ones
-you want to see, if your model contains more than 12 endogenous
-variables.
 
 The covariance matrix of the shocks is specified with the
 @code{shocks} command (@pxref{Shocks on exogenous variables}).
