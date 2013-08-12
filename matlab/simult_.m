@@ -54,7 +54,7 @@ if ~options_.k_order_solver || (options_.k_order_solver && options_.pruning) %if
 end
 
 if options_.k_order_solver && ~options_.pruning % Call dynare++ routines.
-    ex_ = [zeros(1,exo_nbr); ex_];
+    ex_ = [zeros(M_.maximum_lag,M_.exo_nbr); ex_];
     switch options_.order
       case 1
         [err, y_] = dynare_simul_(1,M_.nstatic,M_.npred,M_.nboth,M_.nfwrd,exo_nbr, ...

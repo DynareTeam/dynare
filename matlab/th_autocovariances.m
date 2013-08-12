@@ -126,11 +126,16 @@ if options_.order == 2 || options_.hp_filter == 0
     aa = ghx(iky,:);
     bb = ghu(iky,:);
     if options_.order == 2         % mean correction for 2nd order
-        Ex = (dr.ghs2(ikx)+dr.ghxx(ikx,:)*vx(:)+dr.ghuu(ikx,:)*M_.Sigma_e(:))/2;
-        Ex = (eye(n0)-AS(ikx,:))\Ex;
-        Gamma_y{nar+3} = NaN*ones(nvar, 1);
-        Gamma_y{nar+3}(stationary_vars) = AS(iky,:)*Ex+(dr.ghs2(iky)+dr.ghxx(iky,:)*vx(:)+...
-                                                        dr.ghuu(iky,:)*M_.Sigma_e(:))/2;
+        if ~isempty(ikx) 
+            Ex = (dr.ghs2(ikx)+dr.ghxx(ikx,:)*vx(:)+dr.ghuu(ikx,:)*M_.Sigma_e(:))/2;
+            Ex = (eye(n0)-AS(ikx,:))\Ex;
+            Gamma_y{nar+3} = NaN*ones(nvar, 1);
+            Gamma_y{nar+3}(stationary_vars) = AS(iky,:)*Ex+(dr.ghs2(iky)+dr.ghxx(iky,:)*vx(:)+...
+                                                            dr.ghuu(iky,:)*M_.Sigma_e(:))/2;
+        else %no static and no predetermined
+            Gamma_y{nar+3} = NaN*ones(nvar, 1);
+            Gamma_y{nar+3}(stationary_vars) = (dr.ghs2(iky)+ dr.ghuu(iky,:)*M_.Sigma_e(:))/2;
+        end
     end
 end
 if options_.hp_filter == 0
