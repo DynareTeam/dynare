@@ -146,11 +146,14 @@ if ~isempty(estim_params_)
     end
     % Test if initial values of the estimated parameters are all between
     % the prior lower and upper bounds.
-    if any(xparam1 < bounds(:,1)) || any(xparam1 > bounds(:,2))
-        outside_bound_vars=bayestopt_.name([find(xparam1 < bounds(:,1)); find(xparam1 > bounds(:,2))],:);
-        disp_string=[outside_bound_vars{1,:}];
-        for ii=2:size(outside_bound_vars,1)
-            disp_string=[disp_string,', ',outside_bound_vars{ii,:}];
+    outside_bound_pars=find(xparam1 < bounds(:,1) | xparam1 > bounds(:,2));
+    if ~isempty(outside_bound_pars)
+        for ii=1:length(outside_bound_pars)
+            outside_bound_par_names{ii,1}=get_the_name(ii,0,M_,estim_params_,options_);
+        end
+        disp_string=[outside_bound_par_names{1,:}];
+        for ii=2:size(outside_bound_par_names,1)
+            disp_string=[disp_string,', ',outside_bound_par_names{ii,:}];
         end
         error(['Initial value(s) of ', disp_string ,' are outside parameter bounds. Potentially, you should set prior_trunc=0. If you used the mode_file-option, check whether your mode-file is consistent with the priors.'])
     end

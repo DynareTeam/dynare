@@ -109,15 +109,24 @@ for plt = 1:nbplt,
             end
         end
         xx = x;
-        l1 = max(BayesInfo.lb(kk),(1-sign(x(kk))*ll)*x(kk)); m1 = 0;
-        l2 = min(BayesInfo.ub(kk),(1+sign(x(kk))*ll)*x(kk));
-        if DynareOptions.mode_check.symmetric_plots,
-            if l2<(1+ll)*x(kk)
-                l1 = x(kk) - (l2-x(kk));
+        l1 = max(BayesInfo.lb(kk),(1-sign(x(kk))*ll)*x(kk)); m1 = 0; %lower bound
+        l2 = min(BayesInfo.ub(kk),(1+sign(x(kk))*ll)*x(kk)); %upper bound
+        binding_lower_bound=0;
+        binding_upper_bound=0;
+        if isequal(x(kk),BayesInfo.lb(kk))
+            binding_lower_bound=1;
+            bound_value=BayesInfo.lb(kk);
+        elseif isequal(x(kk),BayesInfo.ub(kk))
+            binding_upper_bound=1;
+            bound_value=BayesInfo.ub(kk);           
+        end      
+        if DynareOptions.mode_check.symmetric_plots && ~binding_lower_bound && ~binding_upper_bound
+            if l2<(1+ll)*x(kk) %test whether upper bound is too small due to prior binding
+                l1 = x(kk) - (l2-x(kk)); %adjust lower bound to become closer
                 m1 = 1;
             end
-            if ~m1 && (l1>(1-ll)*x(kk)) && (x(kk)+(x(kk)-l1)<BayesInfo.ub(kk))
-                l2 = x(kk) + (x(kk)-l1);
+            if ~m1 && (l1>(1-ll)*x(kk)) && (x(kk)+(x(kk)-l1)<BayesInfo.ub(kk)) % if lower bound was truncated and using difference from lower bound does not violate upper bound
+                l2 = x(kk) + (x(kk)-l1); %set upper bound to same distance as lower bound
             end
         end
         z1 = l1:((x(kk)-l1)/(DynareOptions.mode_check.number_of_points/2)):x(kk);
@@ -149,8 +158,13 @@ for plt = 1:nbplt,
         yNaN = yl(1)*ones(size(NaN_index));
         plot(zNaN,yNaN,'o','MarkerEdgeColor','r','MarkerFaceColor','r','MarkerSize',6);
         title(name,'interpreter','none')
-        hold off
         axis tight
+        if binding_lower_bound || binding_upper_bound
+            xl=get(gca,'xlim');
+            plot( [bound_value bound_value], yl, 'r--', 'LineWidth', 1)
+            xlim([xl(1)-0.5*binding_lower_bound*(xl(2)-xl(1)) xl(2)+0.5*binding_upper_bound*(xl(2)-xl(1))])
+        end
+        hold off
         drawnow
     end
     if DynareOptions.mode_check.nolik==0,
