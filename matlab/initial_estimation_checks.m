@@ -33,8 +33,8 @@ function DynareResults = initial_estimation_checks(objective_function,xparam1,Dy
 if DynareDataset.info.nvobs>Model.exo_nbr+EstimatedParameters.nvn
     error(['initial_estimation_checks:: Estimation can''t take place because there are less declared shocks than observed variables!'])
 end
-
-if DynareDataset.info.nvobs>find(diag(Model.Sigma_e))+EstimatedParameters.nvn
+ 
+if DynareDataset.info.nvobs>length(find(diag(Model.Sigma_e)))+EstimatedParameters.nvn
     error(['initial_estimation_checks:: Estimation can''t take place because too many shocks have been calibrated with a zero variance!'])
 end
 
