@@ -711,12 +711,19 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
             NAMES = [];
             if options_.TeX, TeXNAMES = []; end
             nstar0=min(nstar,M_.exo_nbr-(plt-1)*nstar);
+            if gend==1
+                marker_string{1,1}='-ro';
+                marker_string{2,1}='-ko';
+            else
+                marker_string{1,1}='-r';
+                marker_string{2,1}='-k';
+            end
             for i=1:nstar0,
                 k = (plt-1)*nstar+i;
                 subplot(nr,nc,i);
-                plot([1 gend],[0 0],'-r','linewidth',.5)
+                plot([1 gend],[0 0],marker_string{1,1},'linewidth',.5)
                 hold on
-                plot(1:gend,innov(k,:),'-k','linewidth',1)
+                plot(1:gend,innov(k,:),marker_string{2,1},'linewidth',1)
                 hold off
                 name = deblank(M_.exo_names(k,:));
                 if isempty(NAMES)
@@ -728,7 +735,9 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                     set(gca,'XTick',options_.XTick)
                     set(gca,'XTickLabel',options_.XTickLabel)
                 end
-                xlim([1 gend])
+                if gend>1
+                    xlim([1 gend])
+                end
                 if options_.TeX
                     texname = M_.exo_names_tex(k,:);
                     if isempty(TeXNAMES)
@@ -795,15 +804,24 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                 NAMES = [];
                 if options_.TeX, TeXNAMES = []; end
                 nstar0=min(nstar,number_of_plots_to_draw-(nbplt-1)*nstar);
+                if gend==1
+                    marker_string{1,1}='-ro';
+                    marker_string{2,1}='-ko';
+                else
+                    marker_string{1,1}='-r';
+                    marker_string{2,1}='-k';
+                end
                 for i=1:nstar0
                     k = (plt-1)*nstar+i;
                     subplot(nr,nc,i);
-                    plot([1 gend],[0 0],'-r','linewidth',.5)
+                    plot([1 gend],[0 0],marker_string{1,1},'linewidth',.5)
                     hold on
-                    plot(1:gend,measurement_error(index(k),:),'-k','linewidth',1)
+                    plot(1:gend,measurement_error(index(k),:),marker_string{2,1},'linewidth',1)
                     hold off
                     name = deblank(options_.varobs(index(k),:));
-                    xlim([1 gend])
+                    if gend>1
+                        xlim([1 gend])
+                    end
                     if isempty(NAMES)
                         NAMES = name;
                     else
@@ -861,12 +879,19 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
         NAMES = [];
         if options_.TeX, TeXNAMES = []; end
         nstar0=min(nstar,n_varobs-(plt-1)*nstar);
+        if gend==1
+           marker_string{1,1}='-ro';
+           marker_string{2,1}='--ko';
+        else
+           marker_string{1,1}='-r';
+           marker_string{2,1}='--k';
+        end
         for i=1:nstar0,
             k = (plt-1)*nstar+i;
             subplot(nr,nc,i);
-            plot(1:gend,yf(k,:),'-r','linewidth',1)
+            plot(1:gend,yf(k,:),marker_string{1,1},'linewidth',1)
             hold on
-            plot(1:gend,rawdata(:,k),'--k','linewidth',1)
+            plot(1:gend,rawdata(:,k),marker_string{2,1},'linewidth',1)
             hold off
             name = deblank(options_.varobs(k,:));
             if isempty(NAMES)
@@ -878,7 +903,9 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                 set(gca,'XTick',options_.XTick)
                 set(gca,'XTickLabel',options_.XTickLabel)
             end
-            xlim([1 gend])
+            if gend>1
+                xlim([1 gend])
+            end
             if options_.TeX
                 idx = strmatch(options_.varobs(k,:),M_.endo_names,'exact');
                 texname = M_.endo_names_tex(idx,:);
