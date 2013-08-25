@@ -79,9 +79,9 @@ if info(1)
 end
     
 [steady_state,M_.params,info] = steady_(M_,options_,oo_);
+oo_.steady_state = steady_state;
 
 if info(1) == 0
-    oo_.steady_state = steady_state;
     if options_.noprint == 0
         disp_steady_state(M_,oo_);
     end

@@ -65,8 +65,15 @@ end
 [dr.ys,params,check1]=evaluate_steady_state(oo.steady_state,M,options,oo,1);
 
 % testing for problem
-if check1
+if check1(1)
     disp('model diagnostic can''t obtain the steady state')
+    if any(isnan(dr.ys))
+        disp(['model diagnostic obtains a steady state with NaNs'])
+    end
+    if any(isinf(dr.ys))
+        disp(['model diagnostic obtains a steady state with Inf'])
+    end
+    return;
 end
 
 if ~isreal(dr.ys)
