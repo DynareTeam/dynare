@@ -82,7 +82,7 @@ end
 
 % Set sigma_e_is_diagonal flag (needed if the shocks block is not declared in the mod file).
 M_.sigma_e_is_diagonal = 1;
-if estim_params_.ncx || ~isequal(nnz(M_.Sigma_e),length(M_.Sigma_e))
+if estim_params_.ncx || any(nnz(tril(M_.Sigma_e,-1)))
     M_.sigma_e_is_diagonal = 0;
 end
 
@@ -97,11 +97,6 @@ if ~isequal(estim_params_.ncx,nnz(tril(M_.Sigma_e,-1)))
             M_.Correlation_matrix(:,zero_variance_idx(i)) = 0;
         end
     end
-end
-
-M_.H_is_diagonal = 1;
-if estim_params_.ncn || ~isequal(nnz(M_.H),length(M_.H))
-    M_.H_is_diagonal = 0;
 end
 
 % Set the correlation matrix of measurement errors if necessary.
