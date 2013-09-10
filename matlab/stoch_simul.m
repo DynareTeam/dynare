@@ -115,7 +115,9 @@ if ~options_.noprint
     end
     skipline()
     if options_.order <= 2 && ~PI_PCL_solver
-        disp_dr(oo_.dr,options_.order,var_list);
+        if ~options_.nofunctions
+            disp_dr(oo_.dr,options_.order,var_list);
+        end
     end
 end
 
