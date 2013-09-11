@@ -1,15 +1,27 @@
 /*
  * This file replicates the model studied in:
  * Aguiar, Mark and Gopinath, Gita (2004): "Emerging Market Business Cycles:
- * The Cycle is the Trend" (NBER WP 10734)
+ * The Cycle is the Trend" (NBER WP 10734). It is different from version published 
+ * in the Journal of Political Economy.
+ * 
+ * This model file is intended to show the capabilities of the Dynare macro 
+ * languange. It is not intended to provide a full replication of the original 
+ * paper due to some differences in model calibration. In 
+ * particular, this mod-file does not calibrate the share of debt to GDP 
+ * to 0.1 as this would require the use of a steady state file. Rather, the
+ * absolute value of debt is set to 0.1. Given that output is close to 1 in
+ * the benchmark specification, this results in only a small difference to 
+ * the working paper. 
+ * The mod-file reproduces Figure 4 of the working paper, which displays the
+ * model response to 1 percent shock to trend and cyclical TFP.
  *
- * This implementation was written by SÃ©bastien Villemot. Please note that the
- * following copyright notice only applies to this Dynare implementation of the
- * model.
+ * This implementation was written by Sébastien Villemot and Johannes Pfeifer. 
+ * Please note that the following copyright notice only applies to this Dynare 
+ * implementation of the model.
  */
 
 /*
- * Copyright (C) 2012 Dynare Team
+ * Copyright (C) 2012-13 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -54,7 +66,7 @@ sigma = 2;
 delta = 0.03;
 beta = 0.98;
 psi = 0.001;
-b_star = 0.1;
+b_star = 0.1; //taken here as the steady state value of debt; in the original paper, this is the share of debt to GDP
 
 // Estimated parameters (table 4)
 @#if mexico == 1
@@ -98,8 +110,8 @@ r_star = mu_g^sigma/beta - 1;
 r_star = mu_g^(1-gamma*(1-sigma))/beta - 1;
 @#endif
 
-model;
-y=exp(z)*k(-1)^(1-alpha)*l^alpha; // Production technology (1)
+model; //equation numbers refer to numbers in the working paper version
+y=exp(z)*k(-1)^(1-alpha)*(g*l)^alpha; // Production technology (1)
 z = rho_z*z(-1)+sigma_z*eps_z; // Transitory shock (2)
 log(g) = (1-rho_g)*log(mu_g)+rho_g*log(g(-1))+sigma_g*eps_g; // Trend shock
 @#if ghh == 1
@@ -115,13 +127,14 @@ f = beta*g^(gamma*(1-sigma));
 @#endif
 c+g*k=y+(1-delta)*k(-1)-phi/2*(g*k/k(-1)-mu_g)^2*k(-1)-b(-1)+q*g*b; // Resource constraint (5)
 1/q = 1+r_star+psi*(exp(b-b_star)-1); // Price of debt (6)
-uc*(1+phi*(g*k/k(-1)-mu_g))*g=f*uc(+1)*(1-delta+(1-alpha)*y(+1)/k+phi/2*(g(+1)*k(+1)/k-mu_g)*(g(+1)*k(+1)/k+mu_g)); // FOC wrt to capital (10)
+uc*(1+phi*(g*k/k(-1)-mu_g))*g=f*uc(+1)*(1-delta+(1-alpha)*y(+1)/k+phi/2*(g(+1)*k(+1)/k-mu_g)*(g(+1)*k(+1)/k+mu_g)); // FOC wrt to capital (10) with envelope condition plugged in
 ul+uc*alpha*y/l=0; // Leisure-consumption arbitrage (11)
 uc*g*q=f*uc(+1); // Euler equation (12)
 
-tb_y = (b(-1)-g*q*b)/y; // Trade balance to GDP ratio
-c_y = c/y; // Consumption to GDP ratio
-i_y = (g*k-(1-delta)*k(-1))/y; // Investment to GDP ratio
+//definition of auxilary variables to be plotted
+tb_y = (b(-1)-g*q*b)/y; // Trade balance to GDP ratio, not logged as it can be negative
+c_y = log(c/y); // Consumption to GDP ratio, logged to be in percent
+i_y = log((g*k-(1-delta)*k(-1)+phi/2*(g*k/k(-1)-mu_g)^2*k(-1))/y); // Investment to GDP ratio, logged to be in percent
 end;
 
 initval;
@@ -153,13 +166,13 @@ i_y = (g*k-(1-delta)*k)/y;
 end;
 
 shocks;
-var eps_g = 1;
-var eps_z = 1;
+var eps_g; stderr 1/sigma_g/100; // use a 1 percent shock
+var eps_z; stderr 1/sigma_z/100; // use a 1 percent shock
 end;
 
 steady;
 
 check;
 
-// Plot impulse response functions (figure 4)
-stoch_simul tb_y c_y i_y;
+// Plot impulse response functions (Figure 4)
+stoch_simul(order=1) tb_y c_y i_y;
