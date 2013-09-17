@@ -59,8 +59,9 @@ clear record;
 
 pnames=['     ';'beta ';'gamma';'norm ';'invg ';'unif ';'invg2'];
 header_width = row_header_width(M_,estim_params_,bayestopt_);
-tit2 = sprintf('%-*s %10s %10s %16s %6s %10s\n',header_width+2,' ','prior mean','post. mean','conf. interval','prior','pstdev');
-pformat = '%-*s %10.3f %10.4f %10.4f %8.4f %6s %10.4f';
+hpd_interval=[num2str(options_.mh_conf_sig*100), '% HPD interval'];
+tit2 = sprintf('%-*s %12s %12s %23s %8s %12s\n',header_width,' ','prior mean','post. mean',hpd_interval,'prior','pstdev');
+pformat =      '%-*s %12.3f % 12.4f %11.4f %11.4f %7s %12.4f';
 
 skipline(2)
 disp('ESTIMATION RESULTS')
