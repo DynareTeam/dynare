@@ -326,7 +326,7 @@ Adjemian (Université du Maine, Gains and Cepremap), Houtan Bastani
 (Cepremap), Michel Juillard (Banque de France), Frédéric Karamé
 (Université du Maine, Gains and Cepremap), Junior Maih (Norges Bank),
 Ferhat Mihoubi (Université Paris-Est Créteil, Epee and Cepremap), George
-Perendia, Johannes Pfeifer (Universität Tübingen), Marco Ratto (JRC)
+Perendia, Johannes Pfeifer (University of Mannheim), Marco Ratto (JRC)
 and Sébastien Villemot (Cepremap).
 Increasingly, the developer base is expanding, as tools developed by
 researchers outside of Cepremap are integrated into Dynare. Financial
