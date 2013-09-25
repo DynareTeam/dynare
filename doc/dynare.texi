@@ -4212,12 +4212,19 @@ graphs of smoothed shocks, smoothed observation errors, smoothed and historical 
 
 @algorithmshead
 
-The Monte Carlo Markov Chain (MCMC) univariate diagnostics are generated
-by  the estimation  command if  @ref{mh_nblocks}  is larger  than 1,  if
-@ref{mh_replic} is larger than 2000, and if option @ref{nodiagnostic} is
-not used.  As described in section  3 of @cite{Brooks and Gelman (1998)}
-the convergence  diagnostics are  based on  comparing pooled  and within
-MCMC moments  (Dynare displays the  second and third order  moments, and
+The Monte Carlo Markov Chain (MCMC) diagnostics are generated
+by the estimation command if @ref{mh_replic} is larger than 2000 and if 
+option @ref{nodiagnostic} is not used. If @ref{mh_nblocks} is equal to one,
+the convergence diagnostics of @cite{Geweke (1992,1999)} is computed. It uses a
+chi square test to compare the means of the first and last draws specified by
+@ref{geweke_interval} after discarding the burnin of @ref{mh_drop}. The test is
+computed using variance estimates under the assumption of no serial correlation
+as well as using tapering windows specified in @ref{taper_steps}.
+If @ref{mh_nblocks}  is larger  than 1, the convergence diagnostics of 
+@cite{Brooks and Gelman (1998)} are used instead.
+As described in section  3 of @cite{Brooks and Gelman (1998)} the univariate
+convergence diagnostics are  based on comparing pooled  and within MCMC moments 
+(Dynare displays the  second and third order  moments, and
 the length of  the Highest Probability Density interval  covering 80% of
 the  posterior   distribution).   Due  to  computational   reasons,  the
 multivariate  convergence diagnostic  does not  follow @cite{Brooks  and
@@ -4358,8 +4365,8 @@ the total number of Metropolis draws available. Default:
 @code{2}
 
 @item mh_drop = @var{DOUBLE}
-The fraction of initially generated parameter vectors to be dropped
-before using posterior simulations. Default: @code{0.5}
+@anchor{mh_drop}
+The fraction of initially generated parameter vectors to be dropped as a burnin before using posterior simulations. Default: @code{0.5}
 
 @item mh_jscale = @var{DOUBLE}
 The scale to be used for the jumping distribution in
@@ -4758,6 +4765,18 @@ Value used to test if a generalized eigenvalue is 0/0 in the generalized
 Schur decomposition  (in which case  the model  does not admit  a unique
 solution). Default: @code{1e-6}.
 
+@item taper_steps = [@var{INTEGER1} @var{INTEGER2} @dots{}]
+@anchor{taper_steps}
+Percent tapering used for the spectral window in the @cite{Geweke (1992,1999)} 
+convergence diagnostics (requires @ref{mh_nblocks}=1). The tapering is used to 
+take the serial correlation of the posterior draws into account. Default: @code{[4 8 15]}.
+
+@item geweke_interval = [@var{DOUBLE} @var{DOUBLE}]
+@anchor{geweke_interval}
+Percentage of MCMC draws at the beginning and end of the MCMC chain taken 
+to compute the @cite{Geweke (1992,1999)} convergence diagnostics (requires @ref{mh_nblocks}=1) 
+after discarding the first @ref{mh_drop} percent of draws as a burnin. Default: @code{[0.2 0.5]}.
+
 @end table
 
 @customhead{Note}
@@ -5046,6 +5065,56 @@ Upper/lower bound of the 90\% HPD interval taking into account both parameter an
 
 @var{VARIABLE_NAME} contains a matrix of the following size: number of time periods for which forecasts are requested using the nobs = [@var{INTEGER1}:@var{INTEGER2}] option times the number of forecast horizons requested by the @code{forecast} option. I.e., the row indicates the period at which the forecast is performed and the column the respective k-step ahead forecast. The starting periods are sorted in ascending order, not in declaration order.
 
+@end defvr
+
+@defvr {MATLAB/Octave variable} oo_.convergence.geweke
+@anchor{convergence.geweke}
+Variable set by the convergence diagnostics of the @code{estimation} command when used with @ref{mh_nblocks}=1 option (@pxref{mh_nblocks}).
+
+Fields are of the form:
+@example
+@code{oo_.convergence.geweke.@var{VARIABLE_NAME}.@var{DIAGNOSTIC_OBJECT}}
+@end example
+where @var{DIAGNOSTIC_OBJECT} is one of the following:
+
+@table @code
+
+@item posteriormean
+Mean of the posterior parameter distribution
+
+@item posteriorstd
+Standard deviation of the posterior parameter distribution
+
+@item nse_iid
+Numerical standard error (NSE) under the assumption of iid draws
+
+@item rne_iid
+Relative numerical efficiency (RNE) under the assumption of iid draws
+
+@item nse_x
+Numerical standard error (NSE) when using an x% taper
+
+@item rne_x
+Relative numerical efficiency (RNE) when using an x% taper
+
+@item pooled_mean
+Mean of the parameter when pooling the beginning and end parts of the chain 
+specified in @ref{geweke_interval} and weighting them with their relative precision. 
+It is a vector containing the results under the iid assumption followed by the ones 
+using the @ref{taper_steps} (@pxref{taper_steps}).
+
+@item pooled_nse
+NSE of the parameter when pooling the beginning and end parts of the chain and weighting them with their relative precision. See @code{pooled_mean}
+
+@item prob_chi2_test
+p-value of a chi squared test for equality of means in the beginning and the end 
+of the MCMC chain. See @code{pooled_mean}. A value above 0.05 indicates that 
+the null hypothesis of equal means and thus convergence cannot be rejected 
+at the 5 percent level. Differing values along the @ref{taper_steps} signal 
+the presence of significant autocorrelation in draws. In this case, the 
+estimates using a higher tapering are usually more reliable.
+
+@end table
 @end defvr
 
 @deffn Command model_comparison @var{FILENAME}[(@var{DOUBLE})]@dots{};
@@ -8691,6 +8760,16 @@ Dynamic Equilibrium Economies to Data: A Bayesian Approach,''
 Fernández-Villaverde, Jesús and Juan Rubio-Ramírez (2005): ``Estimating
 Dynamic Equilibrium Economies: Linear versus Nonlinear Likelihood,''
 @i{Journal of Applied Econometrics}, 20, 891--910
+
+@item
+Geweke, John (1992): ``Evaluating the accuracy of sampling-based approaches 
+to the calculation of posterior moments'', in J.O. Berger, J.M. Bernardo, 
+A.P. Dawid, and A.F.M. Smith (eds.) Proceedings of the Fourth Valencia 
+International Meeting on Bayesian Statistics, pp. 169--194, Oxford University Press
+
+@item
+Geweke, John (1999): ``Using simulation methods for Bayesian econometric models: 
+Inference, development and communication,'' @i{Econometric Reviews}, 18(1), 1--73
 
 @item
 Ireland, Peter (2004): ``A Method for Taking Models to the Data,''

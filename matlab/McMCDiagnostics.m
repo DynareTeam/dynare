@@ -1,4 +1,4 @@
-function McMCDiagnostics(options_, estim_params_, M_)
+function oo_ = McMCDiagnostics(options_, estim_params_, M_, oo_)
 % function McMCDiagnostics
 % Computes convergence tests 
 % 
@@ -8,7 +8,7 @@ function McMCDiagnostics(options_, estim_params_, M_)
 %   M_               [structure]
 %
 % OUTPUTS 
-%   none  
+%   oo_              [structure] 
 %
 % SPECIAL REQUIREMENTS
 %   none
@@ -38,10 +38,6 @@ MhDirectoryName = CheckPath('metropolis',M_.dname);
 
 TeX = options_.TeX;
 nblck = options_.mh_nblck;
-% Brooks and Gelman tests need more than one block 
-if nblck == 1
-    return;
-end
 npar = estim_params_.nvx;
 npar = npar + estim_params_.nvn;
 npar = npar + estim_params_.ncx;
@@ -55,6 +51,57 @@ NumberOfMcFilesPerBlock = size(dir([MhDirectoryName ,filesep, M_.fname '_mh*_blc
 
 % check if all previous files are there for block 1
 check_presence_consecutive_MC_files(MhDirectoryName,M_.fname,1)
+
+if nblck == 1 % Brooks and Gelman tests need more than one block 
+    convergence_diagnostics_geweke=zeros(npar,4+2*length(options_.convergence.geweke.taper_steps));
+    if any(options_.convergence.geweke.geweke_interval<0) || any(options_.convergence.geweke.geweke_interval>1) || length(any(options_.convergence.geweke.geweke_interval<0))~=2 ...
+        || (options_.convergence.geweke.geweke_interval(2)-options_.convergence.geweke.geweke_interval(1)<0)
+        fprintf('\nCONVERGENCE DIAGNOSTICS: Invalid option for geweke_interval. Using the default of [0.2 0.5].\n')
+        options_.convergence.geweke.geweke_interval=[0.2 0.5];
+    end
+    first_obs_begin_sample = max(1,ceil(options_.mh_drop*options_.mh_replic));
+    last_obs_begin_sample = first_obs_begin_sample+round(options_.convergence.geweke.geweke_interval(1)*options_.mh_replic*options_.mh_drop);
+    first_obs_end_sample = first_obs_begin_sample+round(options_.convergence.geweke.geweke_interval(2)*options_.mh_replic*options_.mh_drop);
+    param_name=[];
+    for jj=1:npar
+        param_name = strvcat(param_name,get_the_name(jj,options_.TeX,M_,estim_params_,options_));
+    end
+    fprintf('\nGeweke (1992) Convergence Tests, based on means of draws %d to %d vs %d to %d.\n',first_obs_begin_sample,last_obs_begin_sample,first_obs_end_sample,options_.mh_replic);
+    fprintf('p-values are for Chi2-test for equality of means.\n');    
+    Geweke_header={'Parameter', 'Post. Mean', 'Post. Std', 'p-val No Taper'};
+    print_string=['%',num2str(size(param_name,2)+3),'s \t %12.3f \t %12.3f \t %12.3f'];
+    print_string_header=['%',num2str(size(param_name,2)+3),'s \t %12s \t %12s \t %12s'];    
+    for ii=1:length(options_.convergence.geweke.taper_steps)
+        Geweke_header=[Geweke_header, ['p-val ' num2str(options_.convergence.geweke.taper_steps(ii)),'% Taper']];
+        print_string=[print_string,'\t %12.3f'];
+        print_string_header=[print_string_header,'\t %12s'];
+    end
+    print_string=[print_string,'\n'];
+    print_string_header=[print_string_header,'\n'];
+    fprintf(print_string_header,Geweke_header{1,:});
+    for jj=1:npar
+        startline=0;
+        for n = 1:NumberOfMcFilesPerBlock
+            load([MhDirectoryName '/' M_.fname '_mh',int2str(n),'_blck1.mat'],'x2');
+            nx2 = size(x2,1);
+            param_draws(startline+(1:nx2),1) = x2(:,jj);
+            startline = startline + nx2;
+        end
+        [results_vec, results_struct] = geweke_moments(param_draws,options_);
+        convergence_diagnostics_geweke(jj,:)=results_vec;
+    
+        param_draws1 = param_draws(first_obs_begin_sample:last_obs_begin_sample,:);
+        param_draws2 = param_draws(first_obs_end_sample:end,:);
+        [results_vec1] = geweke_moments(param_draws1,options_);
+        [results_vec2] = geweke_moments(param_draws2,options_);
+        
+        results_struct = geweke_chi2_test(results_vec1,results_vec2,results_struct,options_);
+        eval(['oo_.convergence.geweke.',param_name(jj,:),'=results_struct;'])
+        fprintf(print_string,param_name(jj,:),results_struct.posteriormean,results_struct.posteriorstd,results_struct.prob_chi2_test)
+    end
+    skipline(2);
+    return;
+end
 
 for blck = 2:nblck
     tmp = size(dir([MhDirectoryName ,filesep, M_.fname '_mh*_blck' int2str(blck) '.mat']),1);

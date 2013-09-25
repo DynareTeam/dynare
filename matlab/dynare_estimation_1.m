@@ -611,8 +611,8 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
         CutSample(M_, options_, estim_params_);
         return
     else
-        if ~options_.nodiagnostic && options_.mh_replic > 2000 && options_.mh_nblck > 1
-            McMCDiagnostics(options_, estim_params_, M_);
+        if ~options_.nodiagnostic && options_.mh_replic > 2000
+            oo_= McMCDiagnostics(options_, estim_params_, M_,oo_);
         end
         %% Here i discard first half of the draws:
         CutSample(M_, options_, estim_params_);

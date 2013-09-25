@@ -222,6 +222,8 @@ string eofbuff;
 <DYNARE_STATEMENT>presample 		{return token::PRESAMPLE;}
 <DYNARE_STATEMENT>lik_algo  		{return token::LIK_ALGO;}
 <DYNARE_STATEMENT>lik_init  		{return token::LIK_INIT;}
+<DYNARE_STATEMENT>taper_steps       {return token::TAPER_STEPS;}
+<DYNARE_STATEMENT>geweke_interval   {return token::GEWEKE_INTERVAL;}
 <DYNARE_STATEMENT>graph   		{return token::GRAPH;}
 <DYNARE_STATEMENT>nograph   		{return token::NOGRAPH;}
 <DYNARE_STATEMENT>nodisplay     {return token::NODISPLAY;}
