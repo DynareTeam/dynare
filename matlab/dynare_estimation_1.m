@@ -186,11 +186,17 @@ if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.m
         end
         i_endo = bayestopt_.smoother_saved_var_list;
         if options_.nk ~= 0
-            oo_.FilteredVariablesKStepAhead = ...
-                aK(options_.filter_step_ahead,i_endo,:);
+             oo_.FilteredVariablesKStepAhead=zeros(length(options_.filter_step_ahead),length(i_endo),dataset_.info.ntobs);
+            for ii=1:length(options_.filter_step_ahead)
+                oo_.FilteredVariablesKStepAhead(ii,:,:) = aK(options_.filter_step_ahead(ii), ...
+                                                     i_endo,1+options_.filter_step_ahead(ii):dataset_.info.ntobs+options_.filter_step_ahead(ii));
+            end
             if ~isempty(PK)
-                oo_.FilteredVariablesKStepAheadVariances = ...
-                    PK(options_.filter_step_ahead,i_endo,i_endo,:);
+                oo_.FilteredVariablesKStepAheadVariances=zeros(length(options_.filter_step_ahead),length(i_endo),length(i_endo),dataset_.info.ntobs);
+                for ii=1:length(options_.filter_step_ahead)
+                    oo_.FilteredVariablesKStepAheadVariances(ii,:,:,:)= ...
+                        PK(options_.filter_step_ahead(ii),i_endo,i_endo,1+options_.filter_step_ahead(ii):dataset_.info.ntobs+options_.filter_step_ahead(ii));
+                end
             end
             if ~isempty(decomp)
                 oo_.FilteredVariablesShockDecomposition = ...
@@ -657,12 +663,18 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
     oo_.Smoother.Variance = P;
     i_endo = bayestopt_.smoother_saved_var_list;
     if options_.nk ~= 0
-        oo_.FilteredVariablesKStepAhead = aK(options_.filter_step_ahead, ...
-                                             i_endo,:);
+        oo_.FilteredVariablesKStepAhead=zeros(length(options_.filter_step_ahead),length(i_endo),dataset_.info.ntobs);
+        for ii=1:length(options_.filter_step_ahead)
+            oo_.FilteredVariablesKStepAhead(ii,:,:) = aK(options_.filter_step_ahead(ii), ...
+                                                 i_endo,1+options_.filter_step_ahead(ii):dataset_.info.ntobs+options_.filter_step_ahead(ii));
+        end
         if isfield(options_,'kalman_algo')
             if ~isempty(PK)
-                oo_.FilteredVariablesKStepAheadVariances = ...
-                    PK(options_.filter_step_ahead,i_endo,i_endo,:);
+                oo_.FilteredVariablesKStepAheadVariances=zeros(length(options_.filter_step_ahead),length(i_endo),length(i_endo),dataset_.info.ntobs);
+                for ii=1:length(options_.filter_step_ahead)
+                    oo_.FilteredVariablesKStepAheadVariances(ii,:,:,:)= ...
+                        PK(options_.filter_step_ahead(ii),i_endo,i_endo,1+options_.filter_step_ahead(ii):dataset_.info.ntobs+options_.filter_step_ahead(ii));
+                end
             end
             if ~isempty(decomp)
                 oo_.FilteredVariablesShockDecomposition = ...
