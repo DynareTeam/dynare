@@ -3735,7 +3735,7 @@ declaration order. Conversely, k-th declared variable is numbered
 @vindex M_.nsfwrd
 @vindex M_.ndynamic
 Finally, the state variables of the model are the purely backward variables
-and the mixed variables. They are orderer in DR-order when they appear in
+and the mixed variables. They are ordered in DR-order when they appear in
 decision rules elements. There are @code{M_.nspred = M_.npred + M_.nboth} such
 variables. Similarly, one has @code{M_.nsfwrd = M_.nfwrd + M_.nboth},
 and @code{M_.ndynamic = M_.nfwrd+M_.nboth+M_.npred}.
@@ -3743,7 +3743,7 @@ and @code{M_.ndynamic = M_.nfwrd+M_.nboth+M_.npred}.
 @node First order approximation
 @subsection First order approximation
 
-The approximation has the form:
+The approximation has the stylized form:
 
 @math{y_t = y^s + A y^h_{t-1} + B u_t}
 
@@ -3772,6 +3772,12 @@ endogenous in DR-order. The matrix columns correspond to exogenous
 variables in declaration order.
 @end itemize
 
+Of course, the shown form of the approximation is only stylized, because it neglects the required different ordering in @math{y^s} and @math{y^h_t}. The precise form of the approximation that shows the way Dynare deals with differences between declaration and DR-order, is
+
+@math{y_t(oo_.dr.order_var) = y^s(oo_.dr.order_var) + A (y_{t-1}(oo_.dr.order_var(k2))-y^s(oo_.dr.order_var(k2))) + B u_t}
+
+where @math{k2} selects the state variables, @math{y_t} and @math{y^s} are in declaration order and the coefficient matrices are in DR-order. Effectively, all variables on the right hand side are brought into DR order for computations and then assigned to @math{y_t} in declaration order.
+
 @node Second order approximation
 @subsection Second order approximation
 
@@ -3785,7 +3791,7 @@ A y^h_{t-1} + B u_t + 0.5 C
 
 where @math{y^s} is the steady state value of @math{y},
 @math{y^h_t=y_t-y^s}, and @math{\Delta^2} is the shift effect of the
-variance of future shocks.
+variance of future shocks. For the reordering required due to differences in declaration and DR order, see the first order approximation. 
 
 The coefficients of the decision rules are stored in the variables
 described for first order approximation, plus the following variables:
