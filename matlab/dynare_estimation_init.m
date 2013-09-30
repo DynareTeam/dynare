@@ -253,6 +253,18 @@ if ~isempty(estim_params_)
         end
         error(['Initial value(s) of ', disp_string ,' are outside parameter bounds. Potentially, you should set prior_trunc=0. If you used the mode_file-option, check whether your mode-file is consistent with the priors.'])
     end
+    inadmissible_inverse_gamma_values=find(bayestopt_.pshape==4 & xparam1 == 0);
+    if ~isempty(inadmissible_inverse_gamma_values)
+        for ii=1:length(inadmissible_inverse_gamma_values)
+            inadmissible_inverse_gamma_par_names{ii,1}=get_the_name(inadmissible_inverse_gamma_values(ii),0,M_,estim_params_,options_);
+        end
+        disp_string=[inadmissible_inverse_gamma_par_names{1,:}];
+        for ii=2:size(inadmissible_inverse_gamma_par_names,1)
+            disp_string=[disp_string,', ',inadmissible_inverse_gamma_par_names{ii,:}];
+        end
+        error(['Initial value(s) of ', disp_string ,' is zero. This is not allowed when using an inverse gamma prior.\n'])
+    end
+
     lb = bounds(:,1);
     ub = bounds(:,2);
     bayestopt_.lb = lb;

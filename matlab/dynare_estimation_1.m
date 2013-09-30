@@ -502,7 +502,7 @@ if ~options_.mh_posterior_mode_estimation && options_.cova_compute
         params_at_bound=find(xparam1==ub | xparam1==lb);
         if ~isempty(params_at_bound)
             for ii=1:length(params_at_bound)
-            params_at_bound_name{ii,1}=get_the_name(ii,0,M_,estim_params_,options_);
+            params_at_bound_name{ii,1}=get_the_name(params_at_bound(ii),0,M_,estim_params_,options_);
             end
             disp_string=[params_at_bound_name{1,:}];
             for ii=2:size(params_at_bound_name,1)
