@@ -176,6 +176,12 @@ if options_.irf
                 y=irf(oo_.dr,cs(M_.exo_names_orig_ord,i), options_.irf, options_.drop, ...
                       options_.replic, options_.order);
             end
+            if ~options_.noprint && any(any(isnan(y))) && ~options_.pruning && ~(options_.order==1)
+                fprintf('\nSTOCH_SIMUL: The simulations conducted for generating IRFs to %s were explosive.\n',M_.exo_names(i,:))
+                fprintf('STOCH_SIMUL: No IRFs will be displayed. Either reduce the shock size, \n')
+                fprintf('STOCH_SIMUL: use pruning, or set the approximation order to 1.');
+                skipline(2);
+            end
             if options_.relative_irf
                 y = 100*y/cs(i,i);
             end
