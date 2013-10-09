@@ -93,7 +93,13 @@ else
 end;
 d = dir(fname);
 if length(d) == 0
+    fprintf('\nThe file %s could not be located in the "Current Folder". Check whether you typed in the correct filename\n',fname)
+    fprintf('and whether the file is really located in the "Current Folder".\n')
     error(['DYNARE: can''t open ' fname])
+elseif ~isempty(strfind(fname,'\')) || ~isempty(strfind(fname,'/'))
+    fprintf('\nIt seems you are trying to call a mod-file not located in the "Current Folder". This is not possible.\n')
+    fprintf('Please set your "Current Folder" to the folder where the mod-file is located.\n')
+    error(['DYNARE: can''t open ' fname, '. It seems to be located in a different folder (or has an invalid filename).'])        
 end
 
 % pre-dynare-preprocessor-hook
