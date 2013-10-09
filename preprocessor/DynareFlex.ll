@@ -426,7 +426,6 @@ string eofbuff;
 <DYNARE_STATEMENT>max_block_iterations {return token::MAX_BLOCK_ITERATIONS;}
 <DYNARE_STATEMENT>max_repeated_optimization_runs {return token::MAX_REPEATED_OPTIMIZATION_RUNS;}
 <DYNARE_STATEMENT>maxit {return token::MAXIT;}
-<DYNARE_STATEMENT>solve_maxit {return token::SOLVE_MAXIT;}
 <DYNARE_STATEMENT>function_convergence_criterion {return token::FUNCTION_CONVERGENCE_CRITERION;}
 <DYNARE_STATEMENT>parameter_convergence_criterion {return token::PARAMETER_CONVERGENCE_CRITERION;}
 <DYNARE_STATEMENT>number_of_large_perturbations {return token::NUMBER_OF_LARGE_PERTURBATIONS;}

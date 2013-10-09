@@ -5871,7 +5871,7 @@ This command accepts the same options than @code{ramsey_policy}, plus:
 Sets the tolerance level used to assess convergence of the solution
 algorithm. Default: @code{1e-7}.
 
-@item solve_maxit = @var{INTEGER}
+@item maxit = @var{INTEGER}
 Maximum number of iterations. Default: @code{3000}.
 
 @end table

@@ -111,7 +111,7 @@ class ParsingDriver;
 %token KALMAN_ALGO KALMAN_TOL SUBSAMPLES OPTIONS TOLF
 %token LAPLACE LIK_ALGO LIK_INIT LINEAR LOAD_IDENT_FILES LOAD_MH_FILE LOAD_PARAMS_AND_STEADY_STATE LOGLINEAR LYAPUNOV
 %token LYAPUNOV_FIXED_POINT_TOL LYAPUNOV_DOUBLING_TOL LYAPUNOV_SQUARE_ROOT_SOLVER_TOL LOG_DEFLATOR LOG_TREND_VAR LOG_GROWTH_FACTOR MARKOWITZ MARGINAL_DENSITY MAX MAXIT
-%token MFS MH_DROP MH_INIT_SCALE MH_JSCALE MH_MODE MH_NBLOCKS MH_REPLIC MH_RECOVER MIN MINIMAL_SOLVING_PERIODS SOLVE_MAXIT
+%token MFS MH_DROP MH_INIT_SCALE MH_JSCALE MH_MODE MH_NBLOCKS MH_REPLIC MH_RECOVER MIN MINIMAL_SOLVING_PERIODS
 %token MODE_CHECK MODE_CHECK_NEIGHBOURHOOD_SIZE MODE_CHECK_SYMMETRIC_PLOTS MODE_CHECK_NUMBER_OF_POINTS MODE_COMPUTE MODE_FILE MODEL MODEL_COMPARISON MODEL_INFO MSHOCKS ABS SIGN
 %token MODEL_DIAGNOSTICS MODIFIEDHARMONICMEAN MOMENTS_VARENDO DIFFUSE_FILTER SUB_DRAWS TAPER_STEPS GEWEKE_INTERVAL
 %token <string_val> NAME
@@ -878,7 +878,7 @@ steady_options : o_solve_algo
                | o_homotopy_steps
                | o_homotopy_force_continue
                | o_markowitz
-               | o_maxit
+               | o_steady_maxit
                | o_nocheck
                ;
 
@@ -922,7 +922,7 @@ simul_options : o_periods
               | o_stack_solve_algo
               | o_markowitz
               | o_minimal_solving_periods
-              | o_maxit
+              | o_simul_maxit
               ;
 
 external_function : EXTERNAL_FUNCTION '(' external_function_options_list ')' ';'
@@ -1731,7 +1731,7 @@ discretionary_policy_options_list : discretionary_policy_options_list COMMA disc
 
 discretionary_policy_options : ramsey_policy_options 
                              | o_discretionary_tol;
-                             | o_solve_maxit;
+                             | o_dp_maxit;
                              ;
 
 ramsey_policy_options_list : ramsey_policy_options_list COMMA ramsey_policy_options
@@ -2268,10 +2268,11 @@ o_periods : PERIODS EQUAL INT_NUMBER { driver.option_num("periods", $3); };
 o_solver_periods : SOLVER_PERIODS EQUAL INT_NUMBER { driver.option_num("ep.periods", $3); };
 o_extended_path_order : ORDER EQUAL INT_NUMBER { driver.option_num("ep.stochastic.order", $3); };
 o_hybrid : HYBRID { driver.option_num("ep.stochastic.hybrid_order", "2"); };
-o_maxit : MAXIT EQUAL INT_NUMBER { driver.option_num("maxit_", $3); };
+o_steady_maxit : MAXIT EQUAL INT_NUMBER { driver.option_num("steady.maxit", $3); };
+o_simul_maxit : MAXIT EQUAL INT_NUMBER { driver.option_num("simul.maxit", $3); };
+o_dp_maxit : MAXIT EQUAL INT_NUMBER { driver.option_num("dp.maxit", $3); };
 o_osr_maxit : MAXIT EQUAL INT_NUMBER { driver.option_num("osr.maxit", $3); };
 o_osr_tolf : TOLF EQUAL non_negative_number { driver.option_num("osr.tolf", $3); };
-o_solve_maxit : SOLVE_MAXIT EQUAL INT_NUMBER { driver.option_num("solve_maxit", $3); };
 o_cutoff : CUTOFF EQUAL non_negative_number { driver.cutoff($3); };
 o_markowitz : MARKOWITZ EQUAL non_negative_number { driver.option_num("markowitz", $3); };
 o_minimal_solving_periods : MINIMAL_SOLVING_PERIODS EQUAL non_negative_number { driver.option_num("minimal_solving_periods", $3); };
