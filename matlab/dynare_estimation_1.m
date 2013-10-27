@@ -176,7 +176,7 @@ end
 
 oo_ = initial_estimation_checks(objective_function,xparam1,dataset_,M_,estim_params_,options_,bayestopt_,oo_);
 
-if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.mh_posterior_mode_estimation==0
+if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.mh_posterior_mode_estimation==0 && isempty(options_.MCMC_start)
     if options_.smoother == 1
         [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp] = DsgeSmoother(xparam1,gend,data,data_index,missing_value);
         oo_.Smoother.SteadyState = ys;
@@ -602,8 +602,6 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
 
         [xparam1, fval, nacc, nfcnev, nobds, ier, t, vm] = sa(objective_function,xparam1,maxy,rt_,epsilon,ns,nt ...
                                                               ,neps,maxevl,LB,UB,c,idisp ,t,vm,dataset_,options_,M_,estim_params_,bayestopt_,oo_);
-      case 'prior'
-        hh = diag(bayestopt_.p2.^2);
       otherwise
         if ischar(options_.mode_compute)
             [xparam1, fval, retcode ] = feval(options_.mode_compute,objective_function,xparam1,dataset_,options_,M_,estim_params_,bayestopt_,oo_);
@@ -611,8 +609,8 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
             error(['dynare_estimation:: mode_compute = ' int2str(options_.mode_compute) ' option is unknown!'])
         end
     end
-    if ~isequal(options_.mode_compute,6) && ~isequal(options_.mode_compute,'prior')
-        if options_.cova_compute == 1
+    if ~isequal(options_.mode_compute,6) %always already computes covariance matrix
+        if options_.cova_compute == 1 %user did not request covariance not to be computed
             if options_.analytic_derivation && strcmp(func2str(objective_function),'dsge_likelihood'),
                 ana_deriv = options_.analytic_derivation;
                 options_.analytic_derivation = 2;
@@ -632,6 +630,14 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
     else
         save([M_.fname '_mode.mat'],'xparam1','parameter_names');
     end
+elseif isequal(options_.mode_compute,0) && strcmp(options_.MCMC_start,'prior_variance');
+    if any(isinf(bayestopt_.p2))
+        error('Infinite prior variances detected. You cannot use the prior variances as the proposal density, if some variances are Inf.')
+    else            
+        hh = diag(1./(bayestopt_.p2.^2));
+    end
+elseif isequal(options_.mode_compute,0) && strcmp(options_.MCMC_start,'identity_matrix');
+    hh = eye(nx);   
 end
 
 if options_.cova_compute == 0
