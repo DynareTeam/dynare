@@ -4476,6 +4476,12 @@ Uses the CMA-ES (Covariance Matrix Adaptation Evolution Strategy) algorithm, an 
 Uses the simpsa algorithm, based on the combination of the non-linear simplex and simulated annealing algorithms and proposed by 
 @cite{Cardoso, Salcedo and Feyo de Azevedo (1996)}. 
 
+@item 200
+Uses the user-supplied starting values (or the prior mean if no starting values are provided) as the starting point of the MCMC and the prior variances for the proposal density covariance matrix. No infinite prior variances are allowed.
+
+@item 300
+Uses the user-supplied starting values (or the prior mean if no starting values are provided) as the starting point of the MCMC  and an identity matrix for the proposal density covariance matrix. In combination with @code{mh_jscale}, this allows supplying an arbitrary diagonal matrix for the covariance matrix of the proposal density.
+
 @item @var{FUNCTION_NAME}
 It is also possible to give a @var{FUNCTION_NAME} to this option,
 instead of an @var{INTEGER}. In that case, Dynare takes the return

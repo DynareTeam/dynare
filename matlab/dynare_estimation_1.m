@@ -602,8 +602,14 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
 
         [xparam1, fval, nacc, nfcnev, nobds, ier, t, vm] = sa(objective_function,xparam1,maxy,rt_,epsilon,ns,nt ...
                                                               ,neps,maxevl,LB,UB,c,idisp ,t,vm,dataset_,options_,M_,estim_params_,bayestopt_,oo_);
-      case 'prior'
-        hh = diag(bayestopt_.p2.^2);
+      case 200
+        if any(isinf(bayestopt_.p2))
+            error('Infinite prior variances detected. You cannot use the prior variances as the proposal density, if some variances are Inf.')
+        else            
+            hh = diag(1./(bayestopt_.p2.^2));
+        end
+      case 300
+        hh = eye(nx);
       otherwise
         if ischar(options_.mode_compute)
             [xparam1, fval, retcode ] = feval(options_.mode_compute,objective_function,xparam1,dataset_,options_,M_,estim_params_,bayestopt_,oo_);
