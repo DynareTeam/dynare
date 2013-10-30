@@ -95,6 +95,7 @@ if ~isequal(estim_params_.ncx,nnz(tril(M_.Sigma_e,-1)))
         for i=1:length(zero_variance_idx)
             M_.Correlation_matrix(zero_variance_idx(i),:) = 0;
             M_.Correlation_matrix(:,zero_variance_idx(i)) = 0;
+            M_.Correlation_matrix(zero_variance_idx(i),zero_variance_idx(i))=1;
         end
     end
 end
@@ -108,6 +109,7 @@ if ~isequal(estim_params_.ncn,nnz(tril(M_.H,-1)))
         for i=1:length(zero_variance_idx)
             M_.Correlation_matrix_ME(zero_variance_idx(i),:) = 0;
             M_.Correlation_matrix_ME(:,zero_variance_idx(i)) = 0;
+            M_.Correlation_matrix_ME(zero_variance_idx(i),zero_variance_idx(i))=1;
         end
     end
 end
