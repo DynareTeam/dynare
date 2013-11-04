@@ -242,28 +242,7 @@ if ~isempty(estim_params_)
         bounds(:,2) = ub;
     end
     % Test if initial values of the estimated parameters are all between the prior lower and upper bounds.
-    outside_bound_pars=find(xparam1 < bounds(:,1) | xparam1 > bounds(:,2));
-    if ~isempty(outside_bound_pars)
-        for ii=1:length(outside_bound_pars)
-            outside_bound_par_names{ii,1}=get_the_name(outside_bound_pars(ii),0,M_,estim_params_,options_);
-        end
-        disp_string=[outside_bound_par_names{1,:}];
-        for ii=2:size(outside_bound_par_names,1)
-            disp_string=[disp_string,', ',outside_bound_par_names{ii,:}];
-        end
-        error(['Initial value(s) of ', disp_string ,' are outside parameter bounds. Potentially, you should set prior_trunc=0. If you used the mode_file-option, check whether your mode-file is consistent with the priors.'])
-    end
-    inadmissible_inverse_gamma_values=find(bayestopt_.pshape==4 & xparam1 == 0);
-    if ~isempty(inadmissible_inverse_gamma_values)
-        for ii=1:length(inadmissible_inverse_gamma_values)
-            inadmissible_inverse_gamma_par_names{ii,1}=get_the_name(inadmissible_inverse_gamma_values(ii),0,M_,estim_params_,options_);
-        end
-        disp_string=[inadmissible_inverse_gamma_par_names{1,:}];
-        for ii=2:size(inadmissible_inverse_gamma_par_names,1)
-            disp_string=[disp_string,', ',inadmissible_inverse_gamma_par_names{ii,:}];
-        end
-        error(['Initial value(s) of ', disp_string ,' is zero. This is not allowed when using an inverse gamma prior.\n'])
-    end
+    check_prior_bounds(xparam1,bounds,M_,estim_params_,options_,bayestopt_)
 
     lb = bounds(:,1);
     ub = bounds(:,2);

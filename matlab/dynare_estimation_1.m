@@ -80,6 +80,23 @@ end
 
 [dataset_,xparam1, hh, M_, options_, oo_, estim_params_,bayestopt_] = dynare_estimation_init(var_list_, dname, [], M_, options_, oo_, estim_params_, bayestopt_);
 
+%%read out calibration that was set in mod-file and can be used for initialization
+xparam1_calib=get_all_parameters(estim_params_,M_); %get calibrated parameters
+if ~any(isnan(xparam1_calib)) %all estimated parameters are calibrated
+    full_calibration_detected=1;
+else
+    full_calibration_detected=0;
+end
+if options_.use_calibration_initialization %set calibration as starting values
+    [xparam1,estim_params_]=do_parameter_initialization(estim_params_,xparam1_calib,xparam1); %get explicitly initialized parameters that have precedence to calibrated values
+    try
+        check_prior_bounds(xparam1,[bayestopt_.lb bayestopt_.ub],M_,estim_params_,options_,bayestopt_); %check whether calibration satisfies prior bounds
+    catch prior_bound_check_error
+        fprintf('Cannot use parameter values from calibration as they violate the prior bounds.')
+        rethrow(prior_bound_check_error);
+    end
+end
+
 % Set sigma_e_is_diagonal flag (needed if the shocks block is not declared in the mod file).
 M_.sigma_e_is_diagonal = 1;
 if estim_params_.ncx || any(nnz(tril(M_.Sigma_e,-1)))
@@ -174,7 +191,22 @@ if options_.dsge_var
 end
 
 
-oo_ = initial_estimation_checks(objective_function,xparam1,dataset_,M_,estim_params_,options_,bayestopt_,oo_);
+%% perform initial estimation checks;
+try
+    oo_ = initial_estimation_checks(objective_function,xparam1,dataset_,M_,estim_params_,options_,bayestopt_,oo_);
+catch initial_estimation_checks_fail % if check fails, provide info on using calibration if present
+    if full_calibration_detected %calibrated model present and no explicit starting values
+        skipline(1);
+        fprintf('ESTIMATION_CHECKS: There was an error in computing the likelihood for initial parameter values.\n')
+        fprintf('ESTIMATION_CHECKS: You should try using the calibrated version of the model as starting values. To do\n')
+        fprintf('ESTIMATION_CHECKS: this, add the following estimated_params_init-block immediately before the estimation\n')    
+        fprintf('ESTIMATION_CHECKS: command (and after the estimated_params-block so that it does not get overwritten):\n');
+        skipline(1);
+        generate_estimated_params_init_block(xparam1_calib,estim_params_,M_,options_)
+        skipline(2);
+    end
+    rethrow(initial_estimation_checks_fail);
+end
 
 if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.mh_posterior_mode_estimation==0
     if options_.smoother == 1
