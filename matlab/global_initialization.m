@@ -439,6 +439,10 @@ M_.endo_histval = [];
 M_.Correlation_matrix = [];
 M_.Correlation_matrix_ME = [];
 
+%initialize fields for exogenous variables
+M_.maximum_exo_lag = 0;
+M_.maximum_exo_lead = 0;
+
 % homotopy
 options_.homotopy_mode = 0;
 options_.homotopy_steps = 1;
