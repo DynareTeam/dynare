@@ -4485,6 +4485,18 @@ value of that function as the posterior mode.
 @noindent
 Default value is @code{4}.
 
+@item MCMC_start = prior_variance|identity_matrix
+If specified, tells Dynare to not compute a numerical mode, but to start the MCMC at the user-supplied starting values (or the prior mean if no starting values are provided). Requires @code{mode_compute=0}. The proposal density covariance matrix can be one of the following:
+
+@table @code
+@item prior_variance
+Uses the prior variances for the proposal density covariance matrix. No infinite prior variances are allowed.
+
+@item identity_matrix
+Uses an identity matrix for the proposal density covariance matrix. In combination with @code{mh_jscale}, this allows supplying an arbitrary diagonal matrix for the covariance matrix of the proposal density.
+@end table
+@noindent
+
 @item mode_check
 Tells Dynare to plot the posterior density for values around the
 computed mode for each estimated parameter in turn. This is helpful to
