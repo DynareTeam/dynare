@@ -86,6 +86,8 @@ private:
   //! If current context is the body of a loop, contains the location of the beginning of the body
   Macro::parser::location_type for_body_loc;
 
+  //! Temporary variable used for counting parens in dates statement
+  int dates_parens_nb;
   //! Temporary variable used in FOR_BODY mode
   string for_body_tmp;
   //! Temporary variable used in FOR_BODY mode

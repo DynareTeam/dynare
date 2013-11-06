@@ -51,6 +51,7 @@ typedef Macro::parser::token token;
 %x FOR_BODY
 %x THEN_BODY
 %x ELSE_BODY
+%x COPY_DATE_INFO
 
 %{
 // Increments location counter for every token read
@@ -60,6 +61,7 @@ typedef Macro::parser::token token;
 SPC  [ \t]+
 EOL  (\r)?\n
 CONT \\\\
+DATE (-[1-9][0-9]*|[0-9]+)([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2]))
 
 %%
  /* Code put at the beginning of yylex() */
@@ -86,6 +88,21 @@ CONT \\\\
 
 <INITIAL>^{SPC}*@#          { yylloc->step(); BEGIN(STMT); }
 <INITIAL>@\{                { yylloc->step(); BEGIN(EXPR); }
+
+<INITIAL>{DATE}             { yylloc->step(); *yyout << "dates('" << yytext << "')"; }
+<INITIAL>${DATE}            { yylloc->step(); *yyout << yytext + 1; }
+
+<INITIAL>dates{SPC}*\({SPC}* { yylloc->step(); *yyout << "dates("; dates_parens_nb=1; BEGIN(COPY_DATE_INFO); }
+<COPY_DATE_INFO><<EOF>>      { driver.error(*yylloc, "Unexpected end of file in dates statement"); }
+<COPY_DATE_INFO>{EOL}        { yylloc->lines(1); yylloc->step(); }
+<COPY_DATE_INFO>\(           { yylloc->step(); *yyout << yytext; dates_parens_nb++; }
+<COPY_DATE_INFO>\)           {
+                               yylloc->step();
+                               *yyout << yytext;
+                               if (--dates_parens_nb == 0)
+                                 BEGIN(INITIAL);
+                             }
+<COPY_DATE_INFO>.            { yylloc->step(); *yyout << yytext; }
 
 <EXPR>\}                    { BEGIN(INITIAL); return token::EOL; }
 

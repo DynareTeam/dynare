@@ -1233,10 +1233,7 @@ ParsingDriver::set_unit_root_vars()
 void
 ParsingDriver::set_time(string *arg)
 {
-  string arg1 = *arg;
-  for (size_t i=0; i<arg1.length(); i++)
-    arg1[i]= toupper(arg1[i]);
-  option_date("initial_period", arg1);
+  option_date("initial_period", arg);
   mod_file->addStatement(new SetTimeStatement(options_list));
   options_list.clear();
 }

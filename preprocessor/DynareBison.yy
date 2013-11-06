@@ -99,14 +99,13 @@ class ParsingDriver;
 %token DATAFILE FILE DETERMINISTIC DOUBLING DR_CYCLE_REDUCTION_TOL DR_LOGARITHMIC_REDUCTION_TOL DR_LOGARITHMIC_REDUCTION_MAXITER DR_ALGO DROP DSAMPLE DYNASAVE DYNATYPE CALIBRATION DIFFERENTIATE_FORWARD_VARS
 %token END ENDVAL EQUAL ESTIMATION ESTIMATED_PARAMS ESTIMATED_PARAMS_BOUNDS ESTIMATED_PARAMS_INIT EXTENDED_PATH ENDOGENOUS_PRIOR
 %token FILENAME FILTER_STEP_AHEAD FILTERED_VARS FIRST_OBS LAST_OBS SET_TIME
-%token <string_val> FLOAT_NUMBER
+%token <string_val> FLOAT_NUMBER DATES
 %token DEFAULT FIXED_POINT
 %token FORECAST K_ORDER_SOLVER INSTRUMENTS SHIFT MEAN STDEV VARIANCE MODE INTERVAL SHAPE DOMAINN
 %token GAMMA_PDF GRAPH GRAPH_FORMAT CONDITIONAL_VARIANCE_DECOMPOSITION NOCHECK STD
 %token HISTVAL HOMOTOPY_SETUP HOMOTOPY_MODE HOMOTOPY_STEPS HOMOTOPY_FORCE_CONTINUE HP_FILTER HP_NGRID HYBRID
 %token IDENTIFICATION INF_CONSTANT INITVAL INITVAL_FILE BOUNDS JSCALE INIT
 %token <string_val> INT_NUMBER
-%token <string_val> DATE_NUMBER
 %token INV_GAMMA_PDF INV_GAMMA1_PDF INV_GAMMA2_PDF IRF IRF_SHOCKS
 %token KALMAN_ALGO KALMAN_TOL SUBSAMPLES OPTIONS TOLF
 %token LAPLACE LIK_ALGO LIK_INIT LINEAR LOAD_IDENT_FILES LOAD_MH_FILE LOAD_PARAMS_AND_STEADY_STATE LOGLINEAR LYAPUNOV
@@ -178,8 +177,8 @@ class ParsingDriver;
 
 %type <node_val> expression expression_or_empty
 %type <node_val> equation hand_side
-%type <string_val> non_negative_number signed_number signed_integer date_number
-%type <string_val> filename symbol vec_of_vec_value vec_value_list
+%type <string_val> non_negative_number signed_number signed_integer date_str
+%type <string_val> filename symbol vec_of_vec_value vec_value_list date_expr
 %type <string_val> vec_value_1 vec_value signed_inf signed_number_w_inf
 %type <string_val> range vec_value_w_inf vec_value_1_w_inf
 %type <symbol_type_val> change_type_arg
@@ -1024,10 +1023,6 @@ non_negative_number : INT_NUMBER
                     | FLOAT_NUMBER
                     ;
 
-date_number : DATE_NUMBER
-            | INT_NUMBER
-            ;
-
 signed_number : PLUS non_negative_number
                { $$ = $2; }
               | MINUS non_negative_number
@@ -1243,7 +1238,15 @@ prior_pdf : BETA_PDF
             { $$ = eInvGamma2; }
           ;
 
-set_time : SET_TIME '(' date_number ')' ';'
+date_str : DATES { $$ = $1; }
+
+date_expr : date_str
+            { $$ = $1; }
+          | date_expr PLUS INT_NUMBER
+            { $$ = $1; $$->append("+").append(*$3); }
+          ;
+
+set_time : SET_TIME '(' date_expr ')' ';'
            { driver.set_time($3); }
          ;
 
@@ -2297,10 +2300,10 @@ o_conditional_variance_decomposition : CONDITIONAL_VARIANCE_DECOMPOSITION EQUAL 
                                        { driver.option_vec_int("conditional_variance_decomposition", $3); }
                                      ;
 o_first_obs : FIRST_OBS EQUAL INT_NUMBER { driver.option_num("first_obs", $3); };
-o_new_estimation_data_first_obs : FIRST_OBS EQUAL date_number
+o_new_estimation_data_first_obs : FIRST_OBS EQUAL date_expr
                                   { driver.option_date("first_obs", $3); }
                                 ;
-o_last_obs : LAST_OBS EQUAL date_number
+o_last_obs : LAST_OBS EQUAL date_expr
              { driver.option_date("last_obs", $3); }
            ;
 o_shift : SHIFT EQUAL signed_number { driver.option_num("shift", $3); };
@@ -2344,7 +2347,7 @@ list_allowed_graph_formats : allowed_graph_formats
                            | list_allowed_graph_formats COMMA allowed_graph_formats
                            ;
 
-o_subsample_name : symbol EQUAL date_number ':' date_number
+o_subsample_name : symbol EQUAL date_expr ':' date_expr
                    { driver.set_subsample_name_equal_to_date_range($1, $3, $5); }
                  ;
 o_conf_sig : CONF_SIG EQUAL non_negative_number { driver.option_num("conf_sig", $3); };
