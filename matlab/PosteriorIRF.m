@@ -404,7 +404,7 @@ if options_.TeX
         TEXNAMES = [];
         
         for j=1:nvar
-            if max(abs(MeanIRF(:,j,i))) > 10^(-6)  
+            if max(abs(MeanIRF(:,j,i))) > options_.impulse_responses.plot_threshold  
                 
                 name = deblank(varlist(j,:));
                 texname = deblank(varlist_TeX(j,:));

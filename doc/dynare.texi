@@ -3328,6 +3328,10 @@ The exogenous variables for which to compute IRFs. Default: all.
 Requests the computation of normalized IRFs in percentage of the
 standard error of each shock.
 
+@item irf_plot_threshold = @var{DOUBLE}
+@anchor{irf_plot_threshold}
+Threshold size for plotting IRFs. All IRFs for a particular variable with a maximum absolute deviation from the steady state smaller than this value are not displayed. Default: @code{1e-10}.
+
 @item nocorr
 Don't print the correlation matrix (printing them is the default).
 
@@ -4874,6 +4878,9 @@ using a standard Kalman filter.
 @item irf_shocks = ( @var{VARIABLE_NAME} [[,] @var{VARIABLE_NAME} @dots{}] )
 @xref{irf_shocks}. Only used if @ref{bayesian_irf} is passed. Cannot be used
 with @ref{dsge_var}.
+
+@item irf_plot_threshold = @var{DOUBLE}
+@xref{irf_plot_threshold}. Only used if @ref{bayesian_irf} is passed.
 
 @item aim_solver
 @xref{aim_solver}.

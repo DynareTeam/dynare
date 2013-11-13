@@ -195,7 +195,7 @@ if options_.irf
                          y(i_var(j),:)');
                 eval(['oo_.irfs.' deblank(M_.endo_names(i_var(j),:)) '_' ...
                       deblank(M_.exo_names(i,:)) ' = y(i_var(j),:);']);
-                if max(y(i_var(j),:)) - min(y(i_var(j),:)) > 1e-10
+                if max(y(i_var(j),:)) - min(y(i_var(j),:)) > options_.impulse_responses.plot_threshold
                     irfs  = cat(1,irfs,y(i_var(j),:));
                     if isempty(mylist)
                         mylist = deblank(var_list(j,:));
@@ -208,6 +208,10 @@ if options_.irf
                         else
                             mylistTeX = char(mylistTeX,deblank(var_listTeX(j,:)));
                         end
+                    end
+                else
+                    if options_.debug
+                        fprintf('STOCH_SIMUL: The IRF of %s to %s is smaller than the irf_plot_threshold of %4.3f and will not be displayed.\n',deblank(M_.endo_names(i_var(j),:)),deblank(M_.exo_names(i,:)),options_.impulse_responses.plot_threshold)
                     end
                 end
             end

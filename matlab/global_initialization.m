@@ -140,6 +140,7 @@ end
 
 % IRFs & other stoch_simul output
 options_.irf = 40;
+options_.impulse_responses.plot_threshold=1e-10;
 options_.relative_irf = 0;
 options_.ar = 5;
 options_.hp_filter = 0;
