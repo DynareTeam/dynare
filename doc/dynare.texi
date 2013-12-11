@@ -4924,6 +4924,9 @@ Default value is @code{0}.
 forecast covariance matrices.
 
 @item filter_step_ahead = [@var{INTEGER1}:@var{INTEGER2}]
+See below.
+
+@item filter_step_ahead = [@var{INTEGER1} @var{INTEGER2}  @dots{}]
 @anchor{filter_step_ahead}
 @vindex oo_.FilteredVariablesKStepAhead
 @vindex oo_.FilteredVariablesKStepAheadVariances
@@ -5186,13 +5189,23 @@ Variable set by the @code{estimation} command, if it is used with the
 
 @defvr {MATLAB/Octave variable} oo_.FilteredVariablesKStepAhead
 Variable set by the @code{estimation} command, if it is used with the
-@code{filter_step_ahead} option.
+@code{filter_step_ahead} option. The k-steps are stored along the rows while the columns indicate the respective variables. The third dimension of the array provides the observation for which the forecast has been made. For example, if @code{filter_step_ahead=[1 2 4]} and @code{nobs=200}, the element (3,5,204) stores the four period ahead filtered value of variable 5 computed at time t=200 for time t=204. The periods at the beginning and end of the sample for which no forecasts can be made, e.g. entries (1,5,1) and (1,5,204) in the example, are set to zero.  
 @end defvr
 
 @defvr {MATLAB/Octave variable} oo_.FilteredVariablesKStepAheadVariances
 Variable set by the @code{estimation} command, if it is used with the
 @code{filter_step_ahead} option.
 @end defvr
+
+@defvr {MATLAB/Octave variable} oo_.Filtered_Variables_X_step_ahead
+Variable set by the @code{estimation} command, if it is used with the @code{filter_step_ahead} option in the context of Bayesian estimation. Fields are of the form:
+@example
+@code{oo_.Filtered_Variables_X_step_ahead.@var{VARIABLE_NAME}}
+@end example
+The nth entry stores the k-step ahead filtered variable computed at time n for time n+k.
+@end defvr
+
+
 
 @defvr {MATLAB/Octave variable} oo_.PosteriorIRF.dsge
 Variable set by the @code{estimation} command, if it is used with the

@@ -56,29 +56,67 @@ if options_.TeX
 end
 Mean = zeros(n2,nvar);
 Median = zeros(n2,nvar);
-Std = zeros(n2,nvar);
+Var = zeros(n2,nvar);
 Distrib = zeros(9,n2,nvar);
 HPD = zeros(2,n2,nvar);
 fprintf(['Estimation::mcmc: ' tit1 '\n']);
 stock1 = zeros(n1,n2,B);
 k = 0;
+filter_step_ahead_indicator=0;
 for file = 1:ifil
     load([DirectoryName '/' M_.fname var_type int2str(file)]);
     if size(size(stock),2) == 4
-        stock = squeeze(stock(1,:,1:n2,:));
+        filter_step_ahead_indicator=1;
+        stock_filter_step_ahead=zeros(n1,n2,size(stock,4),length(options_.filter_step_ahead));
+        for ii=1:length(options_.filter_step_ahead)
+            K_step_ahead=options_.filter_step_ahead(ii);
+            stock_filter_step_ahead(:,:,:,ii)=stock(ii,:,1+K_step_ahead:n2+K_step_ahead,:);
+        end
+        stock = squeeze(stock(1,:,1+1:1+n2,:)); %1 step ahead starts at entry 2
     end
     k = k(end)+(1:size(stock,3));
     stock1(:,:,k) = stock;
+    if filter_step_ahead_indicator
+        stock1_filter_step_ahead(:,:,k,:) = stock_filter_step_ahead;
+    end
 end
 clear stock
+if filter_step_ahead_indicator
+    clear stock_filter_step_ahead
+    filter_steps=length(options_.filter_step_ahead);
+    Mean_filter_step_ahead = zeros(filter_steps,nvar,n2);
+    Median_filter_step_ahead = zeros(filter_steps,nvar,n2);
+    Var_filter_step_ahead = zeros(filter_steps,nvar,n2);
+    Distrib_filter_step_ahead = zeros(9,filter_steps,nvar,n2);
+    HPD_filter_step_ahead = zeros(2,filter_steps,nvar,n2);
+end
+
 tmp =zeros(B,1);
 for i = 1:nvar
     for j = 1:n2
         [Mean(j,i),Median(j,i),Var(j,i),HPD(:,j,i),Distrib(:,j,i)] = ...
             posterior_moments(squeeze(stock1(SelecVariables(i),j,:)),0,options_.mh_conf_sig);
+        if filter_step_ahead_indicator
+            for K_step = 1:length(options_.filter_step_ahead)
+                [Mean_filter_step_ahead(K_step,i,j),Median_filter_step_ahead(K_step,i,j),Var_filter_step_ahead(K_step,i,j),HPD_filter_step_ahead(:,K_step,i,j),Distrib_filter_step_ahead(:,K_step,i,j)] = ...
+                    posterior_moments(squeeze(stock1_filter_step_ahead(SelecVariables(i),j,:,K_step)),0,options_.mh_conf_sig);
+            end    
+        end
     end
 end
 clear stock1
+if filter_step_ahead_indicator %write matrices corresponding to ML
+    clear stock1_filter_step_ahead
+    FilteredVariablesKStepAhead=zeros(length(options_.filter_step_ahead),nvar,n2+max(options_.filter_step_ahead));
+    FilteredVariablesKStepAheadVariances=zeros(length(options_.filter_step_ahead),nvar,n2+max(options_.filter_step_ahead));
+    for K_step = 1:length(options_.filter_step_ahead)
+        FilteredVariablesKStepAhead(K_step,:,1+options_.filter_step_ahead(K_step):n2+options_.filter_step_ahead(K_step))=Mean_filter_step_ahead(K_step,:,:);
+        FilteredVariablesKStepAheadVariances(K_step,:,1+options_.filter_step_ahead(K_step):n2+options_.filter_step_ahead(K_step))=Mean_filter_step_ahead(K_step,:,:);
+    end
+    oo_.FilteredVariablesKStepAhead=FilteredVariablesKStepAhead;
+    oo_.FilteredVariablesKStepAheadVariances=FilteredVariablesKStepAheadVariances;
+end
+
 for i = 1:nvar
     name = deblank(names1(SelecVariables(i),:));
     eval(['oo_.' name3 '.Mean.' name ' = Mean(:,i);']);
@@ -87,6 +125,17 @@ for i = 1:nvar
     eval(['oo_.' name3 '.deciles.' name ' = Distrib(:,:,i);']);
     eval(['oo_.' name3 '.HPDinf.' name ' = HPD(1,:,i);']);
     eval(['oo_.' name3 '.HPDsup.' name ' = HPD(2,:,i);']);
+    if filter_step_ahead_indicator
+        for K_step = 1:length(options_.filter_step_ahead)
+            name4=['Filtered_Variables_',num2str(K_step),'_step_ahead'];
+            eval(['oo_.' name4 '.Mean.' name ' = squeeze(Mean_filter_step_ahead(K_step,i,:));']);
+            eval(['oo_.' name4 '.Median.' name ' = squeeze(Median_filter_step_ahead(K_step,i,:));']);
+            eval(['oo_.' name4 '.Var.' name ' = squeeze(Var_filter_step_ahead(K_step,i,:));']);
+            eval(['oo_.' name4 '.deciles.' name ' = squeeze(Distrib_filter_step_ahead(:,K_step,i,:));']);
+            eval(['oo_.' name4 '.HPDinf.' name ' = squeeze(HPD_filter_step_ahead(1,K_step,i,:));']);
+            eval(['oo_.' name4 '.HPDsup.' name ' = squeeze(HPD_filter_step_ahead(2,K_step,i,:));']);
+        end
+    end    
 end
 %%
 %% 	Finally I build the plots.
