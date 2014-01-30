@@ -4436,7 +4436,7 @@ The number of the first observation to be used. Default: @code{1}
 @item prefilter = @var{INTEGER}
 @anchor{prefilter}
 A value of @code{1} means that the estimation procedure will demean
-the data. Default: @code{0}, @i{i.e.} no prefiltering
+each data series by its empirical mean. Default: @code{0}, @i{i.e.} no prefiltering
 
 @item presample = @var{INTEGER}
 @anchor{presample}
@@ -4446,8 +4446,8 @@ likelihood. These first observations are used as a training sample. Default: @co
 @item loglinear
 @anchor{loglinear}
 Computes a log-linear approximation of the model instead of a linear
-approximation. The data must correspond to the definition of the
-variables used in the model. Default: computes a linear approximation
+approximation. As always in the context of estimation, the data must correspond to the definition of the
+variables used in the model (see \cite{Pfeifer 2013} for more details on how to correctly specify observation equations linking model variables and the data). If you specify the loglinear option, Dynare will take the logarithm of both your model variables and of your data as it assumes the data to correspond to the original non-logged model variables. The displayed posterior results like impulse responses, smoothed variables, and moments will be for the logged variables, not the original un-logged ones. Default: computes a linear approximation
 
 @item plot_priors = @var{INTEGER}
 Control the plotting of priors:
@@ -4939,7 +4939,7 @@ Use the Univariate Diffuse Kalman Filter
 
 @end table
 @noindent
-Default value is @code{0}.
+Default value is @code{0}. In case of missing observations of single or all series, Dynare treats those missing values as unobserved states and uses the Kalman filter to infer their value (see e.g. @cite{Durbin and Koopman (2012), Ch. 4.10})
 
 
 @item kalman_tol = @var{DOUBLE}
@@ -4965,15 +4965,9 @@ Triggers the computation k-step ahead filtered values. Stores results in
 @anchor{filter_decomposition} Triggers the computation of the shock
 decomposition of the above k-step ahead filtered values.
 
-@item constant
-@dots{}
-
-@item noconstant
-@dots{}
-
 @item diffuse_filter
 Uses the diffuse Kalman filter (as described in
-@cite{Durbin and Koopman (2001)} and @cite{Koopman and Durbin
+@cite{Durbin and Koopman (2012)} and @cite{Koopman and Durbin
 (2003)}) to estimate models with non-stationary observed variables.
 
 When @code{diffuse_filter} is used the @code{lik_init} option of
@@ -11152,8 +11146,8 @@ Models: New Solution Algorithms,'' @i{Macroeconomic Dynamics}, 11(1),
 31--55
 
 @item
-Durbin, J. and S. J. Koopman (2001), @i{Time Series Analysis by State
-Space Methods}, Oxford University Press
+Durbin, J. and S. J. Koopman (2012), @i{Time Series Analysis by State
+Space Methods}, Second Revised Edition, Oxford University Press
 
 @item
 Fair, Ray and John Taylor (1983): ``Solution and Maximum Likelihood
@@ -11232,6 +11226,9 @@ to the solution and estimation of DSGE models''
 Pearlman, Joseph, David Currie, and Paul Levine (1986): ``Rational
 expectations models with partial information,'' @i{Economic
 Modelling}, 3(2), 90--105
+
+@item
+Pfeifer, Johannes (2013): ``A Guide to Specifying Observation Equations for the Estimation of DSGE Models'' 
 
 @item
 Rabanal, Pau and Juan Rubio-Ramirez (2003): ``Comparing New Keynesian

@@ -93,12 +93,6 @@ elseif isempty(options_.qz_criterium)
     options_.qz_criterium = 1+1e-6;
 end
 
-% If the data are prefiltered then there must not be constants in the
-% measurement equation of the DSGE model or in the DSGE-VAR model.
-if options_.prefilter == 1
-    options_.noconstant = 1;
-end
-
 % Set options related to filtered variables.
 if ~isequal(options_.filtered_vars,0) && isempty(options_.filter_step_ahead)
     options_.filter_step_ahead = 1;
@@ -478,7 +472,7 @@ dataset_ = initialize_dataset(options_.datafile,options_.varobs,options_.first_o
 
 options_.nobs = dataset_.info.ntobs;
 
-% setting noconstant option
+% setting steadystate_check_flag option
 if options_.diffuse_filter
     steadystate_check_flag = 0;
 else
@@ -498,4 +492,13 @@ if all(abs(oo_.steady_state(bayestopt_.mfys))<1e-9)
     options_.noconstant = 1;
 else
     options_.noconstant = 0;
+    % If the data are prefiltered then there must not be constants in the
+    % measurement equation of the DSGE model or in the DSGE-VAR model.
+    if options_.prefilter == 1
+        fprintf('\nestimation_init: You have specified the option "prefilter" to demean your data,\n')
+        fprintf('estimation_init: but your observation equations are not mean zero. Either change your observation\n')
+        fprintf('estimation_init: equation or drop the prefiltering.\n')
+        error('The option "prefilter" is inconsistent with the non-zero mean measurement equations in the model.')
+    end
 end
+
