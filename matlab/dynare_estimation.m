@@ -63,7 +63,12 @@ if (isnumeric(options_.mode_compute) && options_.mode_compute && options_.analyt
     analytic_derivation0=options_.analytic_derivation;
     options_.analytic_derivation=1;
 end
-    
+
+if options_.logged_steady_state
+    oo_.dr.ys=exp(oo_.dr.ys);
+    oo_.steady_state=exp(oo_.steady_state);
+end
+
 
 if nnobs > 1
     for i=1:nnobs

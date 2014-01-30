@@ -65,23 +65,6 @@ gy_obs = dA*y/y(-1);
 gp_obs = (P/P(-1))*m(-1)/dA;
 end;
 
-initval;
-k = 6;
-m = mst;
-P = 2.25;
-c = 0.45;
-e = 1;
-W = 4;
-R = 1.02;
-d = 0.85;
-n = 0.19;
-l = 0.86;
-y = 0.6;
-gy_obs = exp(gam);
-gp_obs = exp(-gam);
-dA = exp(gam);
-end;
-
 shocks;
 var e_a; stderr 0.014;
 var e_m; stderr 0.005;

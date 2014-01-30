@@ -374,6 +374,7 @@ options_.lik_init = 1;
 options_.load_mh_file = 0;
 options_.logdata = 0;
 options_.loglinear = 0;
+options_.logged_steady_state = 0;
 options_.mh_conf_sig = 0.90;
 options_.prior_interval = 0.90;
 options_.mh_drop = 0.5;

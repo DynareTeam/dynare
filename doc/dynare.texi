@@ -3611,7 +3611,11 @@ The convergence criterion used in the logarithmic reduction algorithm. Its defau
 The maximum number of iterations used in the logarithmic reduction algorithm. Its default value is 100.
 
 @item loglinear
-@xref{loglinear}.
+@xref{loglinear}. Note that ALL variables are log-transformed by using the Jacobian transformation,
+not only selected ones. Thus, you have to make sure that your variables have strictly positive 
+steady states. @code{stoch_simul} will display the moments, decision rules, 
+and impulse responses for the log-linearized variables. The decision rules saved 
+in @code{oo_.dr} and the simulated variables will also be the ones for the log-linear variables.
 
 @end table
 
