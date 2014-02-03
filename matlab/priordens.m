@@ -6,8 +6,8 @@ function [logged_prior_density, dlprior, d2lprior] = priordens(x, pshape, p6, p7
 %    pshape         [integer]     vector with n elements (bayestopt_.pshape).
 %    p6:            [double]      vector with n elements, first  parameter of the prior distribution (bayestopt_.p6).
 %    p7:            [double]      vector with n elements, second parameter of the prior distribution (bayestopt_.p7).
-%    p3:            [double]      vector with n elements, lower bounds.
-%    p4:            [double]      vector with n elements, upper bound.
+%    p3:            [double]      vector with n elements, lower bounds of the untruncated standard or generalized distribution
+%    p4:            [double]      vector with n elements, upper bound of the untruncated standard or generalized distribution
 %    initialization [integer]     if 1: initialize persistent variables
 %    
 % OUTPUTS 

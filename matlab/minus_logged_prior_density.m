@@ -66,34 +66,46 @@ Q = DynareModel.Sigma_e;
 H = DynareModel.H;
 
 % Test if Q is positive definite.
-if EstimatedParams.ncx
+if ~issquare(Q) || EstimatedParams.ncx || isfield(EstimatedParams,'calibrated_covariances')
     % Try to compute the cholesky decomposition of Q (possible iff Q is positive definite)
-    [CholQ,testQ] = chol(Q);
-    if testQ
+    [Q_is_positive_definite, penalty] = ispd(Q);
+    if ~Q_is_positive_definite
         % The variance-covariance matrix of the structural innovations is not definite positive. We have to compute the eigenvalues of this matrix in order to build the endogenous penalty.
-        a = diag(eig(Q));
-        k = find(a < 0);
-        if k > 0
-            fval = objective_function_penalty_base+sum(-a(k));
+        fval = objective_function_penalty_base+penalty;
+        exit_flag = 0;
+        info = 43;
+        return
+    end
+    if isfield(EstimatedParams,'calibrated_covariances')
+        correct_flag=check_consistency_covariances(Q);
+        if ~correct_flag
+            penalty = sum(Q(EstimatedParams.calibrated_covariances.position).^2);
+            fval = objective_function_penalty_base+penalty;
             exit_flag = 0;
-            info = 43;
+            info = 71;
             return
         end
     end
+
 end
 
 % Test if H is positive definite.
-if EstimatedParams.ncn
-    % Try to compute the cholesky decomposition of H (possible iff H is positive definite)
-    [CholH,testH] = chol(H);
-    if testH
+if ~issquare(H) || EstimatedParams.ncn || isfield(EstimatedParams,'calibrated_covariances_ME')
+    [H_is_positive_definite, penalty] = ispd(H);
+    if ~H_is_positive_definite
         % The variance-covariance matrix of the measurement errors is not definite positive. We have to compute the eigenvalues of this matrix in order to build the endogenous penalty.
-        a = diag(eig(H));
-        k = find(a < 0);
-        if k > 0
-            fval = objective_function_penalty_base+sum(-a(k));
+        fval = objective_function_penalty_base+penalty;
+        exit_flag = 0;
+        info = 44;
+        return
+    end
+    if isfield(EstimatedParams,'calibrated_covariances_ME')
+        correct_flag=check_consistency_covariances(H);
+        if ~correct_flag
+            penalty = sum(H(EstimatedParams.calibrated_covariances_ME.position).^2);
+            fval = objective_function_penalty_base+penalty;
             exit_flag = 0;
-            info = 44;
+            info = 72;
             return
         end
     end

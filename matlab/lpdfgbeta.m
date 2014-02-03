@@ -5,8 +5,8 @@ function [ldens,Dldens,D2ldens] = lpdfgbeta(x,a,b,aa,bb);
 %    x     [double]  m*n matrix of loactions,
 %    a     [double]  m*n matrix of First BETA distribution parameters, 
 %    b     [double]  m*n matrix of Second BETA distribution parameters, 
-%    aa    [double]  m*n matrix of lower bounds, 
-%    bb    [double]  m*n matrix of upper bounds. 
+%    aa    [double]  m*n matrix of lower bounds for (generalized) distribution, 
+%    bb    [double]  m*n matrix of upper bounds for (generalized) distribution
 %
 % OUTPUTS 
 %    ldens [double]  m*n matrix of logged (generalized) BETA densities.
