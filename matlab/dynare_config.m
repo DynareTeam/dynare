@@ -98,6 +98,7 @@ end
 if (isoctave && octave_ver_less_than('3.8')) || ...
         (~isoctave && matlab_ver_less_than('8.1'))
     addpath([dynareroot '/missing/strjoin'])
+    addpath([dynareroot '/missing/strsplit'])
 end
 
 % nanmean is in Octave Forge Statistics package and in MATLAB Statistics
