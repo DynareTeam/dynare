@@ -1,6 +1,6 @@
 function sim1()
 % function sim1
-% Performs deterministic simulations with lead or lag on one period.
+% Performs deterministic simulations
 % Uses sparse matrices.
 %
 % INPUTS
@@ -13,7 +13,7 @@ function sim1()
 % SPECIAL REQUIREMENTS
 %   None.
 
-% Copyright (C) 1996-2013 Dynare Team
+% Copyright (C) 1996-2014 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -167,7 +167,7 @@ if stop
         oo_.deterministic_simulation.error = err;
         oo_.deterministic_simulation.iterations = iter;
         oo_.deterministic_simulation.periods = vperiods(1:iter);
-        oo_.endo_simul = reshape(Y,ny,periods+2);
+        oo_.endo_simul = reshape(Y,ny,periods+M_.maximum_lag+M_.maximum_lead);
         skipline();
         fprintf('\nSimulation terminated after %d iterations.\n',iter);
         fprintf('Total time of simulation: %16.13f\n',etime(clock,h1));
@@ -182,7 +182,7 @@ if stop
         oo_.deterministic_simulation.error = err;
         oo_.deterministic_simulation.iterations = iter;
         oo_.deterministic_simulation.periods = vperiods(1:iter);
-        oo_.endo_simul = reshape(Y,ny,periods+2);
+        oo_.endo_simul = reshape(Y,ny,periods+M_.maximum_lag+M_.maximum_lead);
     end
 elseif ~stop
     skipline();
