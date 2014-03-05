@@ -5816,11 +5816,55 @@ Fields are of the form:
 
 @descriptionhead
 
-This command computes forecasts on an estimated model for a given
-constrained path of some future endogenous variables. This is done,
-from the reduced form representation of the DSGE model, by finding the
-structural shocks that are needed to match the restricted paths. This
-command has to be called after estimation.
+This command computes forecasts on an estimated or calibrated model for a
+given constrained path of some future endogenous variables. This is done
+using the reduced form first order state-space representation of the DSGE
+model by finding the structural shocks that are needed to match the
+restricted paths. Consider the an augmented state space representation
+that stacks both predetermined and non-predetermined variables into a
+vector @math{y_{t}}:
+ 
+@math{y_t=Ty_{t-1}+R\varepsilon_t} 
+
+Both
+@math{y_t} and @math{\varepsilon_t} are split up into controlled and
+uncontrolled ones to get:
+
+@math{y_t(contr\_vars)=Ty_{t-1}(contr\_vars)+R(contr\_vars,uncontr\_shocks)\varepsilon_t(uncontr\_shocks)
++R(contr\_vars,contr\_shocks)\varepsilon_t(contr\_shocks)}
+ 
+which can be solved algebraically for @math{\varepsilon_t(contr\_shocks)}.
+ 
+Using these controlled shocks, the state-space representation can be used
+for forecasting. A few things need to be noted. First, it is assumed that
+controlled exogenous variables are fully under control of the policy
+maker for all forecast periods and not just for the periods where the
+endogenous variables are controlled. For all uncontrolled periods, the
+controlled exogenous variables are assumed to be 0. This implies that
+there is no forecast uncertainty arising from these exogenous variables
+in uncontrolled periods. Second, by making use of the first order state
+space solution, even if a higher-order approximation was performed, the
+conditional forecasts will be based on a first order approximation.
+Third, although controlled exogenous variables are taken as instruments
+perfectly under the control of the policy-maker, they are nevertheless
+random and unforeseen shocks from the perspective of the households. That is,
+households are in each period surprised by the realization of a shock
+that keeps the controlled endogenous variables at their respective level.
+Fourth, due to the use of the above formula to compute the controlled
+exogenous variables, only relationships between controlled exogenous
+variables embedded in the matrix @math{R} are considered. This implies
+that any correlation information embedded in the covariance matrix of the
+@math{\varepsilon} as specified in the @code{shocks}-block are via
+estimated correlations or covariances is ignored as the controlled
+exogenous variables are assumed to be perfectly controlled without any
+interdependence. Thus, if you want to specify/preserve a correlation
+structure between controlled exogenous variables, you have to embedd that
+correlation stucture directly in the model-block by e.g. having the same
+shock enter different equations.
+
+
+This
+command has to be called after @code{estimation} of @code{stoch_simul}.
 
 Use @code{conditional_forecast_paths} block to give the list of
 constrained endogenous, and their constrained future path.
