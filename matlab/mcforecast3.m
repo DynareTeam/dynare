@@ -1,6 +1,37 @@
 function forcs = mcforecast3(cL,H,mcValue,shocks,forcs,T,R,mv,mu)
-
-% Copyright (C) 2006-2008 Dynare Team
+% forcs = mcforecast3(cL,H,mcValue,shocks,forcs,T,R,mv,mu)
+% Computes the shock values for constrained forecasts necessary to keep
+% endogenous variables at their constrained paths
+% 
+% INPUTS
+%  o cL             [scalar]                            number of controlled periods
+%  o H              [scalar]                            number of forecast periods
+%  o mcValue        [n_controlled_vars by cL double]    paths for constrained variables
+%  o shocks         [nexo by H double]      shock values draws (with zeros for controlled_varexo)
+%  o forcs
+%  o T              [n_endovars by n_endovars double]       transition matrix of the state equation.
+%  o R              [n_endovars by n_exo double]           matrix relating the endogenous variables to the innovations in the state equation.
+%  o mv             [n_controlled_exo by n_endovars boolean]        indicator vector  selecting constrained endogenous variables
+%  o mu             [n_controlled_vars by nexo boolean]             indicator vector
+%                                                   selecting controlled exogenous variables
+% 
+% Algorithm:
+%   Relies on state-space form:
+%       y_t=T*y_{t-1}+R*shocks(:,t)
+%   Shocks are split up into shocks_uncontrolled and shockscontrolled while
+%   the endogenous variables are also split up into controlled and
+%   uncontrolled ones to get:
+%       y_t(controlled_vars_index)=T*y_{t-1}(controlled_vars_index)+R(controlled_vars_index,uncontrolled_shocks_index)*shocks_uncontrolled_t
+%                    + R(controlled_vars_index,controlled_shocks_index)*shocks_controlled_t
+%
+%   This is then solved to get:
+%       shocks_controlled_t=(y_t(controlled_vars_index)-(T*y_{t-1}(controlled_vars_index)+R(controlled_vars_index,uncontrolled_shocks_index)*shocks_uncontrolled_t)/R(controlled_vars_index,controlled_shocks_index)
+%
+%   After obtaining the shocks, and for uncontrolled periods, the state-space representation
+%       y_t=T*y_{t-1}+R*shocks(:,t)
+%   is used for forecasting
+%  
+% Copyright (C) 2006-2013 Dynare Team
 %
 % This file is part of Dynare.
 %
