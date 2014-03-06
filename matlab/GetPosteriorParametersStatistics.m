@@ -75,6 +75,14 @@ catch
     [marginal,oo_] = marginal_density(M_, options_, estim_params_, oo_);
     disp(sprintf('Log data density is %f.',oo_.MarginalDensity.ModifiedHarmonicMean))
 end
+num_draws=length(NumberOfDraws*options_.mh_nblck);
+hpd_draws = round((1-options_.mh_conf_sig)*num_draws);
+if hpd_draws<2
+    fprintf('posterior_moments: There are not enough draws computes to compute HPD Intervals. Skipping their computation.\n')
+end
+if num_draws<9
+    fprintf('posterior_moments: There are not enough draws computes to compute deciles. Skipping their computation.\n')
+end
 if np
     type = 'parameters';
     if TeX
