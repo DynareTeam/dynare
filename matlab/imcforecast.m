@@ -147,7 +147,7 @@ if isempty(options_.qz_criterium)
 end
 [T,R,ys,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_);
 
-sQ = sqrt(M_.Sigma_e);
+sQ = chol(M_.Sigma_e,'lower');
 
 NumberOfStates = length(InitState);
 FORCS1 = zeros(NumberOfStates,options_cond_fcst.periods+1,options_cond_fcst.replic);
