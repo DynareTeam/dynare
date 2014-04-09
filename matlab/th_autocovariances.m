@@ -2,7 +2,7 @@ function [Gamma_y,stationary_vars] = th_autocovariances(dr,ivar,M_,options_,node
 % Computes the theoretical auto-covariances, Gamma_y, for an AR(p) process 
 % with coefficients dr.ghx and dr.ghu and shock variances Sigma_e_
 % for a subset of variables ivar (indices in lgy_)
-% Theoretical HPfiltering is available as an option
+% Theoretical HP-filtering is available as an option
 %    
 % INPUTS
 %   dr:               [structure]    Reduced form solution of the DSGE model  (decisions rules)
@@ -23,8 +23,26 @@ function [Gamma_y,stationary_vars] = th_autocovariances(dr,ivar,M_,options_,node
 %
 % SPECIAL REQUIREMENTS
 %   
-
-% Copyright (C) 2001-2012 Dynare Team
+% Algorithms
+%   The means at order=2 are based on the pruned state space as
+%   in Kim, Kim, Schaumburg, Sims (2008): Calculating and using second-order accurate
+%   solutions of discrete time dynamic equilibrium models.
+%   The solution at second order can be written as:
+%   \[
+%   \hat x_t = g_x \hat x_{t - 1} + g_u u_t + \frac{1}{2}\left( g_{\sigma\sigma} \sigma^2 + g_{xx}\hat x_t^2 + g_{uu} u_t^2 \right)
+%   \]
+%   Taking expectations on both sides requires to compute E(x^2)=Var(x), which
+%   can be obtained up to second order from the first order solution
+%   \[
+%       \hat x_t = g_x \hat x_{t - 1} + g_u u_t   
+%   \]
+%   by solving the corresponding Lyapunov equation. 
+%   Given Var(x), the above equation can be solved for E(x_t) as
+%   \[
+%   E(x_t) = (I - {g_x}\right)^{- 1} 0.5\left( g_{\sigma\sigma} \sigma^2 + g_{xx} Var(\hat x_t) + g_{uu} Var(u_t) \right)
+%   \]
+% 
+% Copyright (C) 2001-2014 Dynare Team
 %
 % This file is part of Dynare.
 %
