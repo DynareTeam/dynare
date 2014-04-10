@@ -34,6 +34,34 @@ function myoutput = McMCDiagnostics_core(myinputs,fpar,npar,whoiam, ThisMatlab)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
+%%
+% % Unpack Global Variables, they are already in global space when running
+% % single computation
+% % 
+Cluster_settings=0;
+try                                                 % would be catched in single computation ('no such fieldname')
+    globalVars = fieldnames(myinputs.global);       % packed by masterParallel2      
+    for j=1:length(globalVars),
+        eval(['global ',globalVars{j},';'])
+        fieldname=globalVars{j};
+        value=myinputs.global.(fieldname);
+        eval([fieldname '=value;'])
+        
+        evalin('base',['global ', globalVars{j},';']) % put also into base workspace
+        assignin('base','value',value);
+        evalin('base',[fieldname '=value;'])
+        
+    end
+    Parallel=myinputs.Parallel;
+    Cluster_settings=options_.Cluster_settings; 
+    whoiam=0;
+catch 
+
+end
+
+
+%%
+
 if nargin<4,
     whoiam=0;
 end
@@ -57,6 +85,20 @@ if whoiam
 end
 if ~exist('MetropolisFolder'),
     MetropolisFolder = CheckPath('metropolis',M_.dname);
+end
+
+switch Cluster_settings
+    case 1                                               % Distributed Computing Toolbox with shared filesystem
+        MetropolisFolder = ([myinputs.HostDir '/' MetropolisFolder]); % read / write to home HostDirectory (if function is called from masterparallel2)        
+    case 2                                               % Distributed Computing Toolbox with shared filesystem, local processing
+        MetropolisFolder = ([myinputs.HostDir '/' MetropolisFolder]); % read / write to home HostDirectory (if function is called from masterparallel2)
+    case 3                                               % non-shared filesystem (MDCS toolbox)
+        MetropolisFolder = cd; % store temporarily on node 
+        for i=1:size(myinputs.SendFiles,2) % prepare input files 
+            fid=fopen([myinputs.SendFiles{1,i}.name],'w');
+            fwrite(fid,myinputs.SendFiles{1,i}.data);
+            fclose(fid);
+        end
 end
 
 ALPHA = 0.2;                                % increase too much with the number of simulations.

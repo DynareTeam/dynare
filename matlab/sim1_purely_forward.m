@@ -1,7 +1,7 @@
 function sim1_purely_forward()
 % Performs deterministic simulation of a purely forward model
 
-% Copyright (C) 2012 Dynare Team
+% Copyright (C) 2012-2014 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -29,15 +29,22 @@ function sim1_purely_forward()
     
     model_dynamic = str2func([M_.fname,'_dynamic']);
 
+    oo_.deterministic_simulation.status = 1;
+
     for it = options_.periods:-1:1
         yf = oo_.endo_simul(:,it+1); % Values at next period, also used as guess value for current period
         yf1 = yf(iyf);
        
-        tmp = solve1(model_dynamic, [yf; yf1], 1:M_.endo_nbr, 1:M_.endo_nbr, ...
-                     1, options_.gstep, options_.solve_tolf, ...
-                     options_.solve_tolx, options_.simul.maxit, ...
-                     options_.debug,oo_.exo_simul, M_.params, oo_.steady_state, ...
-                     it);
+        [tmp, info] = solve1(model_dynamic, [yf; yf1], 1:M_.endo_nbr, 1:M_.endo_nbr, ...
+                             1, options_.gstep, options_.solve_tolf, ...
+                             options_.solve_tolx, options_.simul.maxit, ...
+                             options_.debug,oo_.exo_simul, M_.params, oo_.steady_state, ...
+                             it);
+
+        if info
+            oo_.deterministic_simulation.status = 0;
+        end
+
         oo_.endo_simul(:,it) = tmp(1:M_.endo_nbr);
     end
     

@@ -108,9 +108,9 @@ class ParsingDriver;
 %token MODE_CHECK MODE_CHECK_NEIGHBOURHOOD_SIZE MODE_CHECK_SYMMETRIC_PLOTS MODE_CHECK_NUMBER_OF_POINTS MODE_COMPUTE MODE_FILE MODEL MODEL_COMPARISON MODEL_INFO MSHOCKS ABS SIGN
 %token MODEL_DIAGNOSTICS MODIFIEDHARMONICMEAN MOMENTS_VARENDO DIFFUSE_FILTER SUB_DRAWS TAPER_STEPS GEWEKE_INTERVAL MCMC_JUMPING_COVARIANCE MOMENT_CALIBRATION
 %token <string_val> NAME
-%token NAN_CONSTANT NO_STATIC NOBS NOCONSTANT NODISPLAY NOCORR NODIAGNOSTIC NOFUNCTIONS
+%token NAN_CONSTANT NO_STATIC NOBS NOCONSTANT NODISPLAY NOCORR NODIAGNOSTIC NOFUNCTIONS NO_HOMOTOPY
 %token NOGRAPH NOMOMENTS NOPRINT NORMAL_PDF SAVE_DRAWS
-%token OBSERVATION_TRENDS OPTIM OPTIM_WEIGHTS ORDER OSR OSR_PARAMS MAX_DIM_COVA_GROUP ADVANCED OUTFILE OUTVARS
+%token OBSERVATION_TRENDS OPTIM OPTIM_WEIGHTS ORDER OSR OSR_PARAMS MAX_DIM_COVA_GROUP ADVANCED OUTFILE OUTVARS OVERWRITE
 %token PARALLEL_LOCAL_FILES PARAMETERS PARAMETER_SET PARTIAL_INFORMATION PERFECT_FORESIGHT PERIODS PERIOD PLANNER_OBJECTIVE PLOT_CONDITIONAL_FORECAST PLOT_PRIORS PREFILTER PRESAMPLE
 %token PERFECT_FORESIGHT_SETUP PERFECT_FORESIGHT_SOLVER
 %token PRINT PRIOR_MC PRIOR_TRUNC PRIOR_MODE PRIOR_MEAN POSTERIOR_MODE POSTERIOR_MEAN POSTERIOR_MEDIAN PRUNING
@@ -769,7 +769,9 @@ comma_hand_side : hand_side
 pound_expression: '#' symbol EQUAL hand_side ';'
                   { driver.declare_and_init_model_local_variable($2, $4); };
 
-shocks : SHOCKS ';' shock_list END ';' { driver.end_shocks(); };
+shocks : SHOCKS ';' shock_list END ';' { driver.end_shocks(false); }
+       | SHOCKS '(' OVERWRITE ')' ';' shock_list END ';' { driver.end_shocks(true); }
+       ;
 
 shock_list : shock_list shock_elem
            | shock_elem
@@ -873,7 +875,9 @@ svar_options : o_coefficients
              | o_chain
              ;
 
-mshocks : MSHOCKS ';' mshock_list END ';' { driver.end_mshocks(); };
+mshocks : MSHOCKS ';' mshock_list END ';' { driver.end_mshocks(false); }
+        | MSHOCKS '(' OVERWRITE ')' ';' mshock_list END ';' { driver.end_mshocks(true); }
+        ;
 
 mshock_list : mshock_list det_shock_elem
             | det_shock_elem
@@ -1002,6 +1006,7 @@ perfect_foresight_solver_options : o_stack_solve_algo
                                  | o_minimal_solving_periods
                                  | o_simul_maxit
 	                         | o_endogenous_terminal_period
+                                 | o_no_homotopy
                                  ;
 
 simul : SIMUL ';'
@@ -2892,6 +2897,7 @@ o_mcmc_jumping_covariance : MCMC_JUMPING_COVARIANCE EQUAL HESSIAN
 o_irf_plot_threshold : IRF_PLOT_THRESHOLD EQUAL non_negative_number { driver.option_num("impulse_responses.plot_threshold", $3); };
 o_consider_all_endogenous : CONSIDER_ALL_ENDOGENOUS { driver.option_str("endo_vars_for_moment_computations_in_estimation", "all_endogenous_variables"); };
 o_consider_only_observed : CONSIDER_ONLY_OBSERVED { driver.option_str("endo_vars_for_moment_computations_in_estimation", "only_observed_variables"); };
+o_no_homotopy : NO_HOMOTOPY { driver.option_num("no_homotopy", "1"); };
 
 o_infile : INFILE EQUAL filename { driver.option_str("infile", $3); };
 o_invars : INVARS EQUAL '(' symbol_list ')' { driver.option_symbol_list("invars"); };

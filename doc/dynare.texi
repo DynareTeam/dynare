@@ -2448,7 +2448,16 @@ isn't used in the computation of moments and of Impulse Response
 Functions. Setting a variance to zero is an easy way of removing an
 exogenous shock.
 
+Note that, by default, if there are several @code{shocks} or @code{mshocks}
+blocks in the same @file{.mod} file, then they are cumulative: all the shocks
+declared in all the blocks are considered; however, if a @code{shocks} or
+@code{mshocks} block is declared with the @code{overwrite} option, then it
+replaces all the previous @code{shocks} and @code{mshocks} blocks.
+
 @deffn Block shocks ;
+@deffnx Block shocks (overwrite) ;
+
+See above for the meaning of the @code{overwrite} option.
 
 @customhead{In deterministic context}
 
@@ -2584,6 +2593,7 @@ forecast;
 
 
 @deffn Block mshocks ;
+@deffnx Block mshocks (overwrite) ;
 
 The purpose of this block is similar to that of the @code{shocks}
 block for deterministic shocks, except that the numeric values given
@@ -2605,6 +2615,8 @@ on exogenous variables with a non-zero steady state, in a deterministic setup,
 on deterministic exogenous variables with a non-zero steady state, in
 a stochastic setup.
 @end itemize
+
+See above for the meaning of the @code{overwrite} option.
 
 @end deffn
 
@@ -3393,6 +3405,12 @@ options).
 
 @end table
 
+@item no_homotopy
+By default, the perfect foresight solver uses a homotopy technique if it cannot
+solve the problem. Concretely, it divides the problem into smaller steps by
+diminishing the size of shocks and increasing them progressively until the
+problem converges. This option tells Dynare to disable that behavior.
+
 @item markowitz = @var{DOUBLE}
 Value of the Markowitz criterion, used to select the pivot. Only used
 when @code{stack_solve_algo = 5}. Default: @code{0.5}.
@@ -3691,7 +3709,7 @@ period(s). The periods must be strictly positive. Conditional variances are give
 decomposition provides the decomposition of the effects of shocks upon
 impact. The results are stored in
 @code{oo_.conditional_variance_decomposition}
-(@pxref{oo_.conditional_variance_decomposition}). The variance decomposition is only conducted, if theoretical moments are requested, i.e. using the @code{periods=0}-option. In case of @code{order=2}, Dynare provides a second-order accurate approximation to the true second moments based on the linear terms of the second-order solution (see @cite{Kim, Kim, Schaumburg and Sims (2008)}).
+(@pxref{oo_.conditional_variance_decomposition}). The variance decomposition is only conducted, if theoretical moments are requested, i.e. using the @code{periods=0}-option. In case of @code{order=2}, Dynare provides a second-order accurate approximation to the true second moments based on the linear terms of the second-order solution (see @cite{Kim, Kim, Schaumburg and Sims (2008)}). Note that the unconditional variance decomposition (i.e. at horizon infinity) is automatically conducted if theoretical moments are requested (@pxref{oo_.variance_decomposition})
 
 @item pruning
 Discard higher order terms when iteratively computing simulations of
@@ -3840,7 +3858,7 @@ number of the matrix in the cell array corresponds to the order of
 autocorrelation. The option @code{ar} specifies the number of
 autocorrelation matrices available. Contains theoretical
 autocorrelations if the @code{periods} option is not present (or an approximation thereof for @code{order=2}), and
-empirical autocorrelations otherwise.
+empirical autocorrelations otherwise. The field is only created if stationary variables are present.
 
 The element @code{oo_.autocorr@{i@}(k,l)} is equal to the correlation
 between @math{y^k_t} and @math{y^l_{t-i}}, where @math{y^k}
@@ -3867,7 +3885,7 @@ details. Beware, this is the @i{autocorrelation} function, not the
 @i{autocovariance} function.
 
 @item oo_.gamma@{nar+2@}
-Variance decomposition.
+Unconditional variance decomposition @pxref{oo_.variance_decomposition}
 
 @item oo_.gamma@{nar+3@}
 If a second order approximation has been requested, contains the
@@ -3876,6 +3894,22 @@ vector of the mean correction terms.
 
 In case of @code{order=2}, the theoretical second moments are a second order accurate approximation of the true second moments, see @code{conditional_variance_decomposition}.
 
+@end defvr
+
+@anchor{oo_.variance_decomposition}
+@defvr {MATLAB/Octave variable} oo_.variance_decomposition
+After a run of @code{stoch_simul} when requesting theoretical moments (@code{periods=0}), contains a matrix with the result of the unconditional variance decomposition (i.e. at horizon infinity). The first dimension corresponds to the endogenous variables (in the order of declaration) and the second dimension corresponds to exogenous variables (in the order of declaration). Numbers are in percent and sum up to 100 across columns.
+@end defvr
+
+@anchor{oo_.conditional_variance_decomposition}
+@defvr {MATLAB/Octave variable} oo_.conditional_variance_decomposition
+After a run of @code{stoch_simul} with the
+@code{conditional_variance_decomposition} option, contains a
+three-dimensional array with the result of the decomposition. The
+first dimension corresponds to forecast horizons (as declared with the
+option), the second dimension corresponds to endogenous variables (in
+the order of declaration), the third dimension corresponds to
+exogenous variables (in the order of declaration).
 @end defvr
 
 @defvr {MATLAB/Octave variable} oo_.irfs
@@ -4171,16 +4205,6 @@ three times in the unfolded @math{G_3} matrix, they must be multiplied
 by 3 when computing the decision rules.
 @end itemize
 
-@anchor{oo_.conditional_variance_decomposition}
-@defvr {MATLAB/Octave variable} oo_.conditional_variance_decomposition
-After a run of @code{stoch_simul} with the
-@code{conditional_variance_decomposition} option, contains a
-three-dimensional array with the result of the decomposition. The
-first dimension corresponds to forecast horizons (as declared with the
-option), the second dimension corresponds to endogenous variables (in
-the order of declaration), the third dimension corresponds to
-exogenous variables (in the order of declaration).
-@end defvr
 
 @node Estimation
 @section Estimation
@@ -5032,8 +5056,7 @@ model. Default: @code{4}.
 @anchor{moments_varendo} Triggers the computation of the posterior
 distribution of the theoretical moments of the endogenous
 variables. Results are stored in
-@code{oo_.PosteriorTheoreticalMoments} (see below for a description of
-this variable). The number of lags in the autocorrelation function is
+@code{oo_.PosteriorTheoreticalMoments} (@pxref{oo_.PosteriorTheoreticalMoments}). The number of lags in the autocorrelation function is
 controlled by the @code{ar} option.
 
 @item conditional_variance_decomposition = @var{INTEGER}
@@ -5050,7 +5073,7 @@ period 1, the conditional variance decomposition provides the
 decomposition of the effects of shocks upon impact. The results are
 stored in
 @code{oo_.PosteriorTheoreticalMoments.dsge.ConditionalVarianceDecomposition},
-but currently there is no output. Note that this option requires the
+but currently there is no displayed output. Note that this option requires the
 option @code{moments_varendo} to be specified.
 
 @item filtered_vars
@@ -5477,6 +5500,7 @@ After an estimation with Metropolis, fields are of the form:
 @end defvr
 
 @defvr {MATLAB/Octave variable} oo_.PosteriorTheoreticalMoments
+@anchor{oo_.PosteriorTheoreticalMoments}
 Variable set by the @code{estimation} command, if it is used with the
 @code{moments_varendo} option. Fields are of the form:
 @example
@@ -5494,7 +5518,7 @@ Auto- and cross-correlation of endogenous variables. Fields are vectors with cor
 
 
 @item VarianceDecomposition
-Decomposition of variance@footnote{When the shocks are correlated, it
+Decomposition of variance (unconditional variance, i.e. at horizon infinity)@footnote{When the shocks are correlated, it
 is the decomposition of orthogonalized shocks via Cholesky
 decomposition according to the order of declaration of shocks
 (@pxref{Variable declarations})}
@@ -9893,7 +9917,7 @@ Merge two @dseries objects along the time dimension. The two objects must have t
 
 @examplehead
 @example
->> ts = dseries([1; 2; 3; 4],dates('1950Q1'))
+>> ts = dseries([1; 2; 3; 4],dates(`1950Q1'))
 
 ts is a dseries object:
 
@@ -9903,15 +9927,15 @@ ts is a dseries object:
 1950Q3 | 3
 1950Q4 | 4
 
->> us = dseries([3; 4; 5; 6],dates('1950Q3'))
+>> us = dseries([3; 4; 5; 6],dates(`1950Q3'))
 
 us is a dseries object:
 
        | Variable_1
-1950Q3 | 3.1
-1950Q4 | 4.1
-1951Q1 | 8.2
-1951Q2 | 16.4
+1950Q3 | 3
+1950Q4 | 4
+1951Q1 | 5
+1951Q2 | 6
 
 >> chain(ts, us)
 
@@ -9922,8 +9946,8 @@ ans is a dseries object:
 1950Q2 | 2
 1950Q3 | 3
 1950Q4 | 4
-1951Q1 | 8
-1951Q2 | 16
+1951Q1 | 5
+1951Q2 | 6
 
 @end example
 

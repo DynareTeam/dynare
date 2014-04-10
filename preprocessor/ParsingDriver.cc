@@ -620,9 +620,9 @@ ParsingDriver::begin_model()
 }
 
 void
-ParsingDriver::end_shocks()
+ParsingDriver::end_shocks(bool overwrite)
 {
-  mod_file->addStatement(new ShocksStatement(det_shocks, var_shocks, std_shocks,
+  mod_file->addStatement(new ShocksStatement(overwrite, det_shocks, var_shocks, std_shocks,
                                              covar_shocks, corr_shocks, mod_file->symbol_table));
   det_shocks.clear();
   var_shocks.clear();
@@ -632,9 +632,9 @@ ParsingDriver::end_shocks()
 }
 
 void
-ParsingDriver::end_mshocks()
+ParsingDriver::end_mshocks(bool overwrite)
 {
-  mod_file->addStatement(new MShocksStatement(det_shocks, mod_file->symbol_table));
+  mod_file->addStatement(new MShocksStatement(overwrite, det_shocks, mod_file->symbol_table));
   det_shocks.clear();
 }
 

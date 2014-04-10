@@ -39,6 +39,36 @@ end
 
 global bayestopt_ estim_params_ options_  M_ oo_ objective_function_penalty_base
 
+%%
+% % Unpack Global Variables from MasterParallel2, they are already in global space when running
+% % single computation
+
+Cluster_settings=0;
+try                                                 % would be catched in single computation ('no such fieldname')
+    globalVars = fieldnames(myinputs.global);       % packed by masterParallel2      
+    for j=1:length(globalVars),
+        eval(['global ',globalVars{j},';'])
+        fieldname=globalVars{j};
+        value=myinputs.global.(fieldname);
+        eval([fieldname '=value;'])
+        
+        evalin('base',['global ', globalVars{j},';']) % put also into base workspace
+        assignin('base','value',value);
+        evalin('base',[fieldname '=value;'])
+        
+    end
+    Parallel=myinputs.Parallel;
+    whoiam=0;
+    % initialize persistent variables in priordens()  
+    priordens(myinputs.xparam1,bayestopt_.pshape,bayestopt_.p6,bayestopt_.p7, ...
+        bayestopt_.p3,bayestopt_.p4,1);
+    Cluster_settings=options_.Cluster_settings; 
+
+catch 
+end
+
+%%
+
 % Reshape 'myinputs' for local computation.
 % In order to avoid confusion in the name space, the instruction struct2local(myinputs) is replaced by:
 
@@ -200,8 +230,28 @@ for b = fblck:nblck,
         end
 
         if (irun == InitSizeArray(b)) || (j == nruns(b)) % Now I save the simulations
-            save([BaseName '_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'],'x2','logpo2');
-            fidlog = fopen([MetropolisFolder '/metropolis.log'],'a');
+            switch Cluster_settings                      % MDCS Toolbox? 
+                case 0                                   % save to local filesystem (single computation mode and dynare parallel toolbox)
+                   save([BaseName '_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'],'x2','logpo2');
+                   fidlog = fopen([MetropolisFolder '/metropolis.log'],'a');    
+                case 1                           % save to working directory on host (MDCS toolbox)
+                   save([myinputs.HostDir '/' BaseName '_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'],'x2','logpo2');
+                   fidlog = fopen([myinputs.HostDir '/' MetropolisFolder '/metropolis.log'],'a');
+                case 2                          % save to working directory on host (MDCS toolbox), local computation
+                   save([myinputs.HostDir '/' BaseName '_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'],'x2','logpo2');
+                   fidlog = fopen([myinputs.HostDir '/' MetropolisFolder '/metropolis.log'],'a');   
+                case 3                          % non-shared filesystem (MDCS toolbox)
+                   save(['_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'],'x2','logpo2'); % store temporarily on node 
+                   fidlog = fopen(['metropolis.log'],'a'); 
+                   for i=1:size(myinputs.SendFiles,2)
+                       fid=fopen([myinputs.SendFiles{1,i}.name],'w');
+                       fwrite(fid,myinputs.SendFiles{1,i}.data);
+                       fclose(fid);
+                   end
+                   
+            end
+            %save([BaseName '_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'],'x2','logpo2');
+            %fidlog = fopen([MetropolisFolder '/metropolis.log'],'a');
             fprintf(fidlog,['\n']);
             fprintf(fidlog,['%% Mh' int2str(NewFile(b)) 'Blck' int2str(b) ' (' datestr(now,0) ')\n']);
             fprintf(fidlog,' \n');
@@ -224,6 +274,18 @@ for b = fblck:nblck,
             fprintf(fidlog,['    log2po:' num2str(max(logpo2)) '\n']);
             fprintf(fidlog,' \n');
             fclose(fidlog);
+            if Cluster_settings == 3 % read local files into structure
+                mhLocalFiles(b).mat={([BaseName '_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat'])};
+                mhLocalFiles(b).log={([MetropolisFolder '/metropolis.log'])};
+                
+                fid=fopen(['_mh' int2str(NewFile(b)) '_blck' int2str(b) '.mat']);
+                mhLocalData(b).mat=fread(fid);
+                fclose(fid);
+                
+                fid=fopen(['metropolis.log']);
+                mhLocalData(b).log=fread(fid);
+                fclose(fid);
+            end
             jsux = 0;
             if j == nruns(b) % I record the last draw...
                 record.LastParameters(b,:) = x2(end,:);
@@ -258,3 +320,8 @@ myoutput.record = record;
 myoutput.irun = irun;
 myoutput.NewFile = NewFile;
 myoutput.OutputFileName = OutputFileName;
+
+if Cluster_settings == 3 % send data back to host via output arguments
+    myoutput.LocalFiles=mhLocalFiles;
+    myoutput.LocalData=mhLocalData;
+end

@@ -69,7 +69,7 @@ histval;
 Capital(0) = CapitalSS/2;
 end;
 
-simul(periods=300);
+simul(periods=20);
 
 rplot Consumption;
 rplot Capital;

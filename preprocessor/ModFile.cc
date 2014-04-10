@@ -594,6 +594,9 @@ ModFile::writeOutputFiles(const string &basename, bool clear_all, bool no_log, b
     mOutputFile << "M_.H = 0;" << endl
                 << "M_.Correlation_matrix_ME = 1;" << endl;
 
+  // May be later modified by a shocks block
+  mOutputFile << "M_.sigma_e_is_diagonal = 1;" << endl;
+
   // Initialize M_.det_shocks
   mOutputFile << "M_.det_shocks = [];" << endl;
 

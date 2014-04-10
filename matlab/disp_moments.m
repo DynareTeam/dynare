@@ -80,6 +80,10 @@ if options_.nocorr == 0
     end
 end
 
+if options_.noprint == 0 && length(options_.conditional_variance_decomposition)
+   fprintf('\nSTOCH_SIMUL: conditional_variance_decomposition requires theoretical moments, i.e. periods=0.\n') 
+end
+
 ar = options_.ar;
 if ar > 0
     autocorr = [];

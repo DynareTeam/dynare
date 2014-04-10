@@ -73,9 +73,9 @@ Cluster::Cluster(member_nodes_t  member_nodes_arg) :
 }
 
 ConfigFile::ConfigFile(bool parallel_arg, bool parallel_test_arg,
-                       bool parallel_slave_open_mode_arg, const string &cluster_name_arg) :
+                       bool parallel_slave_open_mode_arg, const string &cluster_name_arg, int dct_arg) :
   parallel(parallel_arg), parallel_test(parallel_test_arg),
-  parallel_slave_open_mode(parallel_slave_open_mode_arg), cluster_name(cluster_name_arg)
+  parallel_slave_open_mode(parallel_slave_open_mode_arg), cluster_name(cluster_name_arg), dct (dct_arg)
 {
 }
 
@@ -672,6 +672,7 @@ ConfigFile::writeCluster(ostream &output) const
       else
         output << "'SingleCompThread', 'false');" << endl;
     }
+    output << "options_.Cluster_settings = " << this->dct << ";" << endl;
 
   if (parallel_slave_open_mode)
     output << "options_.parallel_info.leaveSlaveOpen = 1;" << endl;

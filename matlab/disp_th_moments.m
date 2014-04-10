@@ -50,43 +50,54 @@ z = [ m sd s2 ];
 oo_.mean = m;
 oo_.var = oo_.gamma_y{1};
 
-if ~options_.noprint %options_.nomoments == 0
-    if options_.order == 2
-        title='APROXIMATED THEORETICAL MOMENTS';
-    else
-        title='THEORETICAL MOMENTS';
-    end
-    if options_.hp_filter
-        title = [title ' (HP filter, lambda = ' num2str(options_.hp_filter) ')'];
-    end
-    headers=char('VARIABLE','MEAN','STD. DEV.','VARIANCE');
-    labels = deblank(M_.endo_names(ivar,:));
-    lh = size(labels,2)+2;
-    dyntable(title,headers,labels,z,lh,11,4);
-    if M_.exo_nbr > 1 && size(stationary_vars, 1) > 0
-        skipline()
+if M_.exo_nbr > 1 && size(stationary_vars, 1) > 0
+    oo_.variance_decomposition=100*oo_.gamma_y{options_.ar+2};
+    if ~options_.noprint %options_.nomoments == 0
         if options_.order == 2
-            title='APPROXIMATED VARIANCE DECOMPOSITION (in percent)';            
+            title='APROXIMATED THEORETICAL MOMENTS';
         else
-            title='VARIANCE DECOMPOSITION (in percent)';
+            title='THEORETICAL MOMENTS';
         end
         if options_.hp_filter
-            title = [title ' (HP filter, lambda = ' ...
-                     num2str(options_.hp_filter) ')'];
+            title = [title ' (HP filter, lambda = ' num2str(options_.hp_filter) ')'];
         end
-        headers = M_.exo_names;
-        headers(M_.exo_names_orig_ord,:) = headers;
-        headers = char(' ',headers);
-        lh = size(deblank(M_.endo_names(ivar(stationary_vars),:)),2)+2;
-        dyntable(title,headers,deblank(M_.endo_names(ivar(stationary_vars), ...
-                                                     :)),100*oo_.gamma_y{options_.ar+2}(stationary_vars,:),lh,8,2);
+        headers=char('VARIABLE','MEAN','STD. DEV.','VARIANCE');
+        labels = deblank(M_.endo_names(ivar,:));
+        lh = size(labels,2)+2;
+        dyntable(title,headers,labels,z,lh,11,4);
+
+        skipline()
+            if options_.order == 2
+                title='APPROXIMATED VARIANCE DECOMPOSITION (in percent)';            
+            else
+                title='VARIANCE DECOMPOSITION (in percent)';
+            end
+            if options_.hp_filter
+                title = [title ' (HP filter, lambda = ' ...
+                         num2str(options_.hp_filter) ')'];
+            end
+            headers = M_.exo_names;
+            headers(M_.exo_names_orig_ord,:) = headers;
+            headers = char(' ',headers);
+            lh = size(deblank(M_.endo_names(ivar(stationary_vars),:)),2)+2;
+            dyntable(title,headers,deblank(M_.endo_names(ivar(stationary_vars), ...
+                                                         :)),100*oo_.gamma_y{options_.ar+2}(stationary_vars,:),lh,8,2);
     end
     
     conditional_variance_steps = options_.conditional_variance_decomposition;
     if length(conditional_variance_steps)
-        oo_ = display_conditional_variance_decomposition(conditional_variance_steps,...
-                                                         ivar,dr,M_, ...
-                                                         options_,oo_);
+        StateSpaceModel.number_of_state_equations = M_.endo_nbr;
+        StateSpaceModel.number_of_state_innovations = M_.exo_nbr;
+        StateSpaceModel.sigma_e_is_diagonal = M_.sigma_e_is_diagonal;
+        [StateSpaceModel.transition_matrix,StateSpaceModel.impulse_matrix] = kalman_transition_matrix(dr,(1:M_.endo_nbr)',M_.nstatic+(1:M_.nspred)',M_.exo_nbr);
+        StateSpaceModel.state_innovations_covariance_matrix = M_.Sigma_e;
+        StateSpaceModel.order_var = dr.order_var;
+        oo_.conditional_variance_decomposition = conditional_variance_decomposition(StateSpaceModel,conditional_variance_steps,ivar);
+        
+        if options_.noprint == 0
+            display_conditional_variance_decomposition(oo_.conditional_variance_decomposition,conditional_variance_steps,...
+                                                         ivar,M_,options_);
+        end
     end
 end
 

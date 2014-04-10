@@ -272,6 +272,7 @@ options_.stack_solve_algo = 0;
 options_.markowitz = 0.5;
 options_.minimal_solving_periods = 1;
 options_.endogenous_terminal_period = 0;
+options_.no_homotopy = 0;
 
 % Solution
 options_.order = 2;
@@ -444,7 +445,7 @@ M_.endo_histval = [];
 M_.Correlation_matrix = [];
 M_.Correlation_matrix_ME = [];
 
-% homotopy
+% homotopy for steady state
 options_.homotopy_mode = 0;
 options_.homotopy_steps = 1;
 options_.homotopy_force_continue = 0;

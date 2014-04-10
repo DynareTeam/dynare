@@ -96,6 +96,12 @@ if nargin>8 && initialize==1
         mydelete(['slaveParallel_input*.mat']);
     end
     return
+else 
+    global options_ 
+    if options_.Cluster_settings > 0
+        [fOutVar,nBlockPerCPU, totCPU] = masterParallel2(Parallel,fBlock,nBlock,NamFileInput,fname,fInputVar,fGlobalVar,Parallel_info);  
+        return
+    end
 end
 
 if isfield(Parallel_info,'local_files')
