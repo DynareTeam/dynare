@@ -5038,7 +5038,7 @@ distribution of IRFs. The length of the IRFs are controlled by the
 @item dsge_var = @var{DOUBLE}
 @anchor{dsge_var} Triggers the estimation of a DSGE-VAR model, where the
 weight of  the DSGE prior  of the VAR model  is calibrated to  the value
-passed (see @cite{Del  Negro and Schorfheide (2004)}). NB:  The previous method
+passed (see @cite{Del  Negro and Schorfheide (2004)}). It represents ratio of dummy over actual observations. To assure that the prior is proper, the value must be bigger than @math{(k+n)/T}, where @math{k} is the number of estimated parameters, @math{n} is the number of observables, and @math{T} is the number of observations. NB:  The previous method
 of   declaring  @code{dsge_prior_weight}   as  a   parameter  and   then
 calibrating it is now deprecated and will be removed in a future release
 of Dynare.

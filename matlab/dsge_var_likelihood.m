@@ -114,6 +114,8 @@ if dsge_prior_weight<(NumberOfParameters+NumberOfObservedVariables)/DynareDatase
     fval = objective_function_penalty_base+abs(DynareDataset.info.ntobs*dsge_prior_weight-(NumberOfParameters+NumberOfObservedVariables));
     exit_flag = 0;
     info = 51;
+    info(2)=dsge_prior_weight;
+    info(3)=(NumberOfParameters+NumberOfObservedVariables)/DynareDataset.info.ntobs;
     return
 end
 

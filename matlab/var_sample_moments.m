@@ -77,8 +77,10 @@ XtX = [];
 
 data = read_variables(datafile,varobs,[],xls_sheet,xls_range);
 
-if qlag > FirstObservation
-    error('VarSampleMoments :: not enough data to initialize! Try to increase FirstObservation.')
+if qlag >= FirstObservation
+    fprintf('\nVarSampleMoments: The first used observation is %d, but there are %d lags.\n',FirstObservation,qlag)
+    fprintf('VarSampleMoments: Try to increase first_obs. Given the lags, it must be at least first_obs=%d.\n',qlag+1)
+    error('VarSampleMoments :: not enough data to initialize!')
     return
 end
 
