@@ -558,7 +558,7 @@ if info(1)
     print_info(info, 0, options_);
 end
 
-if all(abs(oo_.steady_state(bayestopt_.mfys))<1e-9)
+if (~options_.loglinear && all(abs(oo_.steady_state(bayestopt_.mfys))<1e-9)) || (options_.loglinear && all(abs(log(oo_.steady_state(bayestopt_.mfys)))<1e-9))
     options_.noconstant = 1;
 else
     options_.noconstant = 0;
