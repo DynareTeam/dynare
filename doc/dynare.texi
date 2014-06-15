@@ -4798,7 +4798,7 @@ The number of the first observation to be used. In case of estimating a DSGE-VAR
 @item prefilter = @var{INTEGER}
 @anchor{prefilter}
 A value of @code{1} means that the estimation procedure will demean
-each data series by its empirical mean. Default: @code{0}, @i{i.e.} no prefiltering
+each data series by its empirical mean. If the (@ref{loglinear}) option without the (@ref{logdata}) option is requested, the data will first be logged and then demeaned. Default: @code{0}, @i{i.e.} no prefiltering
 
 @item presample = @var{INTEGER}
 @anchor{presample}
