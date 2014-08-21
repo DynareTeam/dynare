@@ -458,6 +458,13 @@ k = find(isnan(bayestopt_.jscale));
 bayestopt_.jscale(k) = options_.mh_jscale;
 
 % Build the dataset
+if ~isempty(options_.datafile)
+    [pathstr,name,ext] = fileparts(options_.datafile);
+    if strcmp(name,M_.fname)
+        error('Data-file and mod-file are not allowed to have the same name. Please change the name of the data file.')
+    end
+end
+
 [dataset_, dataset_info, newdatainterfaceflag] = makedataset(options_, options_.dsge_var*options_.dsge_varlag, gsa_flag);
 
 % Set options_.nobs if needed
