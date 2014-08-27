@@ -137,7 +137,7 @@ if strcmpi(flag,'--load-mh-history') || strcmpi(flag,'--display-mh-history')
             d1s = size(d1,2);
             d2s = size(d2,2);
             c0 = repmat('   ',length(names)+2,1);
-            c1 = char(' ', repmat('+',1,size(cell2mat(names),2)), cell2mat(names));
+            c1 = char(' ', repmat('+',1,size(char(names),2)), char(names));
             s1 = char(' || ','++++',repmat(' || ', length(names),1));
             t1 = repmat(' ',1,d1s);
             if d1s<=7
