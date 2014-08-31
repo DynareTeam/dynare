@@ -16,7 +16,7 @@ function [x,info] = dynare_solve(func,x,jacobian_flag,varargin)
 % SPECIAL REQUIREMENTS
 %    none
 
-% Copyright (C) 2001-2012 Dynare Team
+% Copyright (C) 2001-2014 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -80,9 +80,9 @@ if options_.solve_algo == 0
     end
     options=optimset('fsolve');
     options.MaxFunEvals = 50000;
-    options.MaxIter = 2000;
-    options.TolFun=1e-8;
-    options.Display = 'iter';
+    options.MaxIter = options_.steady.maxit;
+    options.TolFun=tolf;
+    options.Display = 'iter';          
     if jacobian_flag
         options.Jacobian = 'on';
     else
