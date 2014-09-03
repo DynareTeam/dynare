@@ -1,4 +1,4 @@
-Nonlinear Movering Average (nlma) Software
+Nonlinear Moving Average (nlma) Software
 ------------------------------------------
 
 <a href="mailto:lanhongken@gmail.com">Hong Lan</a> 
@@ -174,7 +174,7 @@ Indeed, this version directly recovers nlma coefficients from Dynare's solution,
 
 - [Lan and Meyer-Gohde (2013b)](http://ideas.repec.org/p/hum/wpaper/sfb649dp2013-024.html) provides the recurssive representation of nlma policy rule, and compares nlma with several other pruning algorithms.
 
-- [Lan and Meyer-Ghode (2013c)](http://ideas.repec.org/p/hum/wpaper/sfb649dp2013-022.html) provides the derivation of nlma theoretical moments and variance decomposition.
+- [Lan and Meyer-Gohde (2013c)](http://ideas.repec.org/p/hum/wpaper/sfb649dp2013-022.html) provides the derivation of nlma theoretical moments and variance decomposition.
 
 
 
