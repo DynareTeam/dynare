@@ -18,7 +18,12 @@ function [numeric_version]=return_dynare_version(dynare_version)
 %This software is provided as is with no guarantees of any kind
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 dynare_ver=dynare_version;
+dynare_ver = strtok(dynare_ver, '-'); % -> HL, sept. 2014: for dynare unstable builds
+
 [dynare_ver_1,dynare_ver_remain] = strtok(dynare_ver, '.');
 [dynare_ver_2,dynare_ver_remain2] = strtok(dynare_ver_remain, '.');
-[dynare_ver_3,dynare_ver_remain3] = strtok(dynare_ver_remain2, '.');
-numeric_version=str2num([dynare_ver_1 '.' dynare_ver_2 dynare_ver_3]);
+
+%[dynare_ver_3,dynare_ver_remain3] = strtok(dynare_ver_remain2, '.');
+%numeric_version=str2num([dynare_ver_1 '.' dynare_ver_2 dynare_ver_3]);
+[dynare_ver_3,waste] = strtok(dynare_ver_remain2, '.'); % -> HL, sept. 2014: for dynare unstable builds
+numeric_version=str2double([dynare_ver_1 '.' dynare_ver_2 dynare_ver_3]);
