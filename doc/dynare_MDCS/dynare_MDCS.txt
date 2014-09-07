@@ -1,0 +1,16 @@
+Dynare MDCS – Extension for parallel processing on the Matlab Distributed Computing Server
+This version extends the functionality of Dynare’s parallel procession capabilities and supports the Matlab Distributed Computing Server-Toolbox.
+The MDCS-functionality provides an alternative to the classic Dynare Parallel Toolbox and runs platform-independent on clusters with- and without shared filesystems. The scheduling and dispatching of parallel jobs is managed by the Matlab Distributed Computing Server.
+Leaving the existing single- and parallel-processing capabilities of the standard Dynare-Package unaffected,parallel computation on the distributed computing server can be invoked via following command-line arguments:
+1.) "dynare parallel -1"
+Dynare parallel computation using Matlab's Distributed Computing Server (cluster with shared file system). MH-chains are assigned to the different Matlab workers and managed by the scheduler. This functionality is introduced bt the new wrapper-file "masterParallel2.m", which is called by "masterParallel.m" when using the "dynare parallel -1" input argument. As soon as the computing nodes finish their assigned jobs, results are returned to the head node and and sent to the function output arguments of "masterParallel.m". The Dynare estimation continues as usual.
+2.) "dynare parallel -2"
+Job dispatch on a local multicore machine. This option uses the same job management and scheduling routines as "dynare parallel -1", but all jobs are computed on local Matlab workers, residing on the local machine. This option is ideal for testing the Dynare package and avoiding unnecessary load in the network.
+Furthermore, this strategy is also suitable for multicore-processing on a local machine using Matlab's Parallel Computing Toolbox, since the MDCS-toolbox is not required in this case.
+3.) "dynare parallel -3"
+Using Matlab's Distributed Computing Server, but on a non-shared filesystem. Use this option for platform-independent computation and in the case of heterogenous cluster architecture (mix of windows- and linux nodes).
+All necessary files are transported between the nodes via function input- output arguments.
+Since Matlab's distributed computing server becomes now responsible for sending the batch-jobs over the network, the definition of involved cluster-nodes in the config-file is no longer valid. However, the overall number of processors defined in the config file will determine the overall number of jobs sent over the network ( e.g. 12 Processor cores will result in 12 MDCS-jobs being dispatched by Matlab). In all cases, the MH-chains will be equally distributed across the available workers.
+Still to add:
+- Enabling "Old file mode" for MH-estimation
+- Cleanup of old files on compute-nodes when using option "parallel -3"

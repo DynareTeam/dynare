@@ -80,13 +80,14 @@ protected:
 class ConfigFile
 {
 public:
-  ConfigFile(bool parallel_arg, bool parallel_test_arg, bool parallel_slave_open_mode_arg, const string &cluster_name);
+  ConfigFile(bool parallel_arg, bool parallel_test_arg, bool parallel_slave_open_mode_arg, const string &cluster_name, int dct_arg);
   ~ConfigFile();
 
 private:
   const bool parallel;
   const bool parallel_test;
   const bool parallel_slave_open_mode;
+  const int dct;
   const string cluster_name;
   string firstClusterName;
   //! Hooks

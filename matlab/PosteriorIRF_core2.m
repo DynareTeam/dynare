@@ -42,6 +42,35 @@ if nargin<4,
     whoiam=0;
 end
 
+%%
+% % Unpack Global Variables, they are already in global space when running
+% % single computation
+% % 
+Cluster_settings=0;
+try                                                 % would be catched in single computation ('no such fieldname')
+    globalVars = fieldnames(myinputs.global);       % packed by masterParallel2      
+    for j=1:length(globalVars),
+        eval(['global ',globalVars{j},';'])
+        fieldname=globalVars{j};
+        value=myinputs.global.(fieldname);
+        eval([fieldname '=value;'])
+        
+        evalin('base',['global ', globalVars{j},';']) % put also into base workspace
+        assignin('base','value',value);
+        evalin('base',[fieldname '=value;'])
+        
+    end
+    whoiam=0;	
+    Parallel=myinputs.Parallel;
+    Cluster_settings=options_.Cluster_settings; 
+    RemoteFlag = 1;
+catch 
+RemoteFlag = 0;    
+end
+
+%%
+
+
 % Reshape 'myinputs' for local computation.
 % In order to avoid confusion in the name space, the instruction struct2local(myinputs) is replaced by:
 
@@ -73,7 +102,13 @@ end
 
 DirectoryName = CheckPath('Output',M_.dname);
 
-RemoteFlag = 0;
+switch Cluster_settings
+    case 1                                               % Distributed Computing Toolbox with shared filesystem
+        DirectoryName = ([myinputs.HostDir '/' DirectoryName]); % read / write to home HostDirectory (if function is called from masterparallel2)        
+    case 2                                               % Distributed Computing Toolbox with shared filesystem, local processing
+        DirectoryName = ([myinputs.HostDir '/' DirectoryName]); % read / write to home HostDirectory (if function is called from masterparallel2)                    
+end
+
 if whoiam,
     if Parallel(ThisMatlab).Local==0,
         RemoteFlag =1;
@@ -141,7 +176,16 @@ for i=fpar:npar,
 
         if subplotnum == MaxNumberOfPlotPerFigure || (j == nvar  && subplotnum> 0)
             figunumber = figunumber+1;
-            dyn_saveas(hh,[DirectoryName '/'  M_.fname '_Bayesian_IRF_' deblank(tit(i,:)) '_' int2str(figunumber)],options_);
+            switch  Cluster_settings
+                case 3 % read local files into structure, MDCS Toolbox without shared filesystem
+                    saveas(hh,[M_.fname '_Bayesian_IRF_' deblank(tit(i,:)) '_' int2str(figunumber)],'fig');
+                    mhLocalFiles(i).mat={([DirectoryName '/' M_.fname '_Bayesian_IRF_' deblank(tit(i,:)) '_' int2str(figunumber) '.fig'])};
+                    fid=fopen([M_.fname '_Bayesian_IRF_' deblank(tit(i,:)) '_' int2str(figunumber) '.fig']);
+                    mhLocalData(i).mat=fread(fid);
+                    fclose(fid);
+                otherwise
+                    dyn_saveas(hh,[DirectoryName '/'  M_.fname '_Bayesian_IRF_' deblank(tit(i,:)) '_' int2str(figunumber)],options_);
+  			end
             if RemoteFlag==1,
                 OutputFileName = [OutputFileName; {[DirectoryName,filesep], [M_.fname '_Bayesian_IRF_' deblank(tit(i,:)) '_' int2str(figunumber) '.*']}];
             end
@@ -159,3 +203,13 @@ end% loop over exo_var
 
 
 myoutput.OutputFileName = OutputFileName;
+
+if Cluster_settings == 3 % send data back to host via output arguments
+    if exist('mhLocalFiles') 
+       myoutput.LocalFiles=mhLocalFiles;
+    end
+    if exist('mhLocalData')
+       myoutput.LocalData=mhLocalData;
+    end
+end
+
