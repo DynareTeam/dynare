@@ -452,8 +452,8 @@ for i = 1:Size;
                 data(i).rank = rank(w(nd-nyf+1:end,nd-nyf+1:end));
                 dr.full_rank = dr.full_rank && (rcond(w(nd-nyf+1:end,nd- ...
                                                         nyf+1:end)) > 1e-9);
-                dr.eigval = [dr.eigval ; data(i).eigval];
             end
+            dr.eigval = [dr.eigval ; data(i).eigval];
             if (verbose)
                 disp(['sum eigval > 1 = ' int2str(sum(abs(data(i).eigval) > 1.)) ' nyf=' int2str(nyf) ' and dr.rank=' int2str(data(i).rank)]);
                 disp(['data(' int2str(i) ').eigval']);
