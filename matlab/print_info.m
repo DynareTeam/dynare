@@ -67,7 +67,7 @@ if ~noprint
       case 9
         error(['k_order_pert was unable to compute the solution']) 
       case 10
-        error(['The Jacobian or the dynamic model contains Inf. For more information, use options_.debug.'])         
+        error(['The Jacobian of the dynamic model contains Inf. For more information, use options_.debug.'])         
       case 19
         error('The steadystate file did not compute the steady state')
       case 20

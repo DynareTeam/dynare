@@ -214,7 +214,7 @@ end
 % Linearize the model around the deterministic sdteadystate and extract the matrices of the state equation (T and R).
 [T,R,SteadyState,info,Model,DynareOptions,DynareResults] = dynare_resolve(Model,DynareOptions,DynareResults,'restrict');
 
-if info(1) == 1 || info(1) == 2 || info(1) == 5 || info(1) == 25
+if info(1) == 1 || info(1) == 2 || info(1) == 5 || info(1) == 25 || info(1) == 10
     fval = objective_function_penalty_base+1;
     exit_flag = 0;
     return
