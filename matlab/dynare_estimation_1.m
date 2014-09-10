@@ -287,7 +287,6 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
         H0 = 1e-4*eye(nx);
         crit = 1e-7;
         nit = 1000;
-        verbose = 2;
         numgrad = options_.gradient_method;
         epsilon = options_.gradient_epsilon;
         % Change some options.

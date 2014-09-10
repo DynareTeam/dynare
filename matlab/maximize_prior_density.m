@@ -36,7 +36,6 @@ number_of_estimated_parameters = length(iparams);
 H0 = 1e-4*eye(number_of_estimated_parameters);
 crit = 1e-7;
 nit = 1000;
-verbose = 2;
 gradient_method = 2;
 gradient_epsilon = 1e-6;
 

@@ -51,7 +51,7 @@ function [dr,info,M_,options_,oo_] = dr_block(dr,task,M_,options_,oo_)
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 info = 0;
-verbose = 0;
+verbose = options_.verbosity;
 if options_.order > 1
     error('2nd and 3rd order approximation not implemented with block option')
 end

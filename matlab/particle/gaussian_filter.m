@@ -55,8 +55,6 @@ persistent init_flag mf0 mf1
 persistent nodes2 weights2 weights_c2 number_of_particles
 persistent sample_size number_of_state_variables number_of_observed_variables
 
-verbose = 1;
-
 % Set default
 if isempty(start)
     start = 1;

@@ -34,7 +34,7 @@ function r = ep_residuals(x, y, ix, iy, steadystate, dr, maximum_lag, endo_nbr)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global oo_
+global oo_ options_
 
 persistent k1 k2 weight
 
@@ -45,7 +45,7 @@ if isempty(k1)
     weight = 0.0;
 end
 
-verbose = 0;
+verbose = options_.ep.verbosity;
 
 % Copy the shocks in exo_simul.
 oo_.exo_simul(maximum_lag+1,ix) = exp(transpose(x));
