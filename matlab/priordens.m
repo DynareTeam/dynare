@@ -1,4 +1,4 @@
-function [logged_prior_density, dlprior, d2lprior] = priordens(x, pshape, p6, p7, p3, p4,initialization)
+function [logged_prior_density, dlprior, d2lprior, info] = priordens(x, pshape, p6, p7, p3, p4,initialization)
 % Computes a prior density for the structural parameters of DSGE models
 %
 % INPUTS 
@@ -12,6 +12,7 @@ function [logged_prior_density, dlprior, d2lprior] = priordens(x, pshape, p6, p7
 %    
 % OUTPUTS 
 %    logged_prior_density  [double]  scalar, log of the prior density evaluated at x.
+%    info                  [double]  error code for index of Inf-prior parameter
 %
 
 % Copyright (C) 2003-2012 Dynare Team
@@ -33,6 +34,8 @@ function [logged_prior_density, dlprior, d2lprior] = priordens(x, pshape, p6, p7
 
 persistent id1 id2 id3 id4 id5 id6
 persistent tt1 tt2 tt3 tt4 tt5 tt6
+
+info=0;
 
 if nargin > 6  && initialization == 1
     % Beta indices.
@@ -81,6 +84,9 @@ d2lprior = 0.0;
 if tt1
     logged_prior_density = logged_prior_density + sum(lpdfgbeta(x(id1),p6(id1),p7(id1),p3(id1),p4(id1))) ;
     if isinf(logged_prior_density)
+        if nargout ==4 
+            info=id1(isinf(lpdfgbeta(x(id1),p6(id1),p7(id1),p3(id1),p4(id1))));
+        end
         return
     end
     if nargout == 2,
@@ -93,6 +99,9 @@ end
 if tt2
     logged_prior_density = logged_prior_density + sum(lpdfgam(x(id2)-p3(id2),p6(id2),p7(id2))) ;
     if isinf(logged_prior_density)
+        if nargout ==4 
+            info=id2(isinf(lpdfgam(x(id2)-p3(id2),p6(id2),p7(id2))));
+        end
         return
     end
     if nargout == 2,
@@ -114,6 +123,9 @@ end
 if tt4
     logged_prior_density = logged_prior_density + sum(lpdfig1(x(id4)-p3(id4),p6(id4),p7(id4))) ;
     if isinf(logged_prior_density)
+        if nargout ==4 
+            info=id4(isinf(lpdfig1(x(id4)-p3(id4),p6(id4),p7(id4))));
+        end
         return
     end
     if nargout == 2,
@@ -126,6 +138,9 @@ end
 if tt5
     if any(x(id5)-p3(id5)<0) || any(x(id5)-p4(id5)>0)
         logged_prior_density = -Inf ;
+        if nargout ==4 
+            info=id5((x(id5)-p3(id5)<0) || (x(id5)-p4(id5)>0));
+        end
         return
     end
     logged_prior_density = logged_prior_density + sum(log(1./(p4(id5)-p3(id5)))) ;
@@ -140,6 +155,9 @@ end
 if tt6
     logged_prior_density = logged_prior_density + sum(lpdfig2(x(id6)-p3(id6),p6(id6),p7(id6))) ;
     if isinf(logged_prior_density)
+        if nargout ==4 
+            info=id6(isinf(lpdfig2(x(id6)-p3(id6),p6(id6),p7(id6))));
+        end
         return
     end
     if nargout == 2,
