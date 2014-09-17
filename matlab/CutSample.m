@@ -54,7 +54,7 @@ TotalNumberOfMhDraws = sum(record.MhDraws(:,1));
 MAX_nruns = ceil(options_.MaxNumberOfBytes/(npar+2)/8);
 FirstDraw = max(1,floor(options_.mh_drop*TotalNumberOfMhDraws));
 FirstMhFile = ceil(FirstDraw/MAX_nruns);
-FirstLine = FirstDraw-(FirstMhFile-1)*MAX_nruns;
+FirstLine = FirstDraw-(FirstMhFile-1)*MAX_nruns+1;
 record.KeepedDraws.FirstMhFile = FirstMhFile;
 record.KeepedDraws.FirstLine = FirstLine;
 if (TotalNumberOfMhFiles-1)-(FirstMhFile+1)+1 > 0
@@ -70,9 +70,9 @@ end
 % Save updated mh-history file.
 update_last_mh_history_file(MetropolisFolder, ModelName, record);
 
-fprintf('Estimation::mcmc: Total number of MH draws: %d.\n',TotalNumberOfMhDraws);
+fprintf('Estimation::mcmc: Total number of MH draws per chain: %d.\n',TotalNumberOfMhDraws);
 fprintf('Estimation::mcmc: Total number of generated MH files: %d.\n',TotalNumberOfMhFiles);
 fprintf('Estimation::mcmc: I''ll use mh-files %d to %d.\n',FirstMhFile,TotalNumberOfMhFiles);
 fprintf('Estimation::mcmc: In MH-file number %d I''ll start at line %d.\n',FirstMhFile,FirstLine);
-fprintf('Estimation::mcmc: Finally I keep %d draws.\n',TotalNumberOfMhDraws-FirstDraw);
+fprintf('Estimation::mcmc: Finally I keep %d draws per chain.\n',TotalNumberOfMhDraws-FirstDraw);
 skipline()
