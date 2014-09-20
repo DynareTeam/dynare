@@ -367,7 +367,7 @@ switch DynareOptions.lik_init
         kalman_algo = 1;
     end
     if DynareOptions.lyapunov_fp == 1
-        Pstar = lyapunov_symm(T,Q,DynareOptions.lyapunov_fixed_point_tol,DynareOptions.lyapunov_complex_threshold, 3, R);
+        Pstar = lyapunov_symm(T,R*Q'*R',DynareOptions.lyapunov_fixed_point_tol,DynareOptions.lyapunov_complex_threshold, 3, R);
     elseif DynareOptions.lyapunov_db == 1
         Pstar = disclyap_fast(T,R*Q*R',DynareOptions.lyapunov_doubling_tol);
     elseif DynareOptions.lyapunov_srs == 1
@@ -490,7 +490,7 @@ switch DynareOptions.lik_init
     R_tmp = R(stable, :);
     T_tmp = T(stable,stable);
     if DynareOptions.lyapunov_fp == 1
-        Pstar_tmp = lyapunov_symm(T_tmp,Q,DynareOptions.lyapunov_fixed_point_tol,DynareOptions.lyapunov_complex_threshold, 3, R_tmp);
+        Pstar_tmp = lyapunov_symm(T_tmp,R_tmp*Q*R_tmp',DynareOptions.lyapunov_fixed_point_tol,DynareOptions.lyapunov_complex_threshold, 3);
     elseif DynareOptions.lyapunov_db == 1
         Pstar_tmp = disclyap_fast(T_tmp,R_tmp*Q*R_tmp',DynareOptions.lyapunov_doubling_tol);
     elseif DynareOptions.lyapunov_srs == 1
