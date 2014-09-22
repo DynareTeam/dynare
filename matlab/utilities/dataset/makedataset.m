@@ -62,9 +62,9 @@ elseif ~isempty(DynareOptions.datafile) && isempty(DynareOptions.dataset.file)
     datafile = DynareOptions.datafile;
     newdatainterface = 0;
 elseif isempty(DynareOptions.datafile) && ~isempty(DynareOptions.dataset.file)
-    error('You cannot use simultaneously the data command and the datafile option (in the estimation command)!')
+    error('makedataset: You cannot simultaneously use the data command and the datafile option (in the estimation command)!')
 else
-    error('You have to specify the datafile!')
+    error('makedataset: You have to specify the datafile!')
 end
 
 % Check extension.
@@ -80,12 +80,12 @@ if ~isempty(datafile)
             end
         end
         if isempty(available_extensions)
-            error(['I can''t find a datafile (with allowed extension)!'])
+            error(['makedataset: I can''t find a datafile (with allowed extension m, mat, csv, xls or xlsx)!'])
         end
         if length(available_extensions)>1
-            error(sprintf(['You did not specify an extension for the datafile, but more than one candidate ' ...
-                           'are available in the designed folder!\nPlease, add an extension to the datafile ' ...
-                           '(m, mat, csv, xls or xlsx are legal extensions).']));
+            error(sprintf(['makedataset: You did not specify an extension for the datafile, but more than one candidate ' ...
+                           'is available in the designated folder!\nPlease, add an extension to the datafile ' ...
+                           '(m, mat, csv, xls or xlsx are permitted extensions).']));
         end
         datafile = [datafile '.' available_extensions{1}];
     end
@@ -136,7 +136,7 @@ end
 if ~set_time_default_initial_period && ~dataset_default_initial_period
     % Check if dataset.init and options_.initial_period are identical.
     if DynareOptions.initial_period<DynareDataset.init
-        error('The date as defined by the set_time command is not consistent with the initial period in the database!')
+        error('makedataset: The date as defined by the set_time command is not consistent with the initial period in the database!')
     end
 end
 
@@ -166,7 +166,7 @@ if newdatainterface
         else
             % last_obs and nobs were used in the data command. Check that they are consistent (with firstobs).
             if ~isequal(lastobs,firstobs+(nobs-1))
-                error(sprintf('Options last_obs (%s), first_obs (%s) and nobs (%s) are not consistent!',char(lastobs),char(firstobs),num2str(nobs)));
+                error(sprintf('makedataset: Options last_obs (%s), first_obs (%s) and nobs (%s) are not consistent!',char(lastobs),char(firstobs),num2str(nobs)));
             end
         end
     end
@@ -190,23 +190,23 @@ FIRSTOBS = firstobs-initialconditions;
 
 % Check that firstobs belongs to DynareDataset.dates
 if firstobs<DynareDataset.init
-    error(sprintf('first_obs (%s) cannot be less than the first date in the dataset (%s)!',char(firstobs),char(DynareDataset.init)))
+    error(sprintf('makedataset: first_obs (%s) cannot be less than the first date in the dataset (%s)!',char(firstobs),char(DynareDataset.init)))
 end
 
 % Check that FIRSTOBS belongs to DynareDataset.dates
 if initialconditions && FIRSTOBS<DynareDataset.init
-    error(sprintf('first_obs (%s) - %i cannot be less than the first date in the dataset (%s)!\nReduce the number of lags in the VAR model or increase the value of first_obs.', char(firstobs), initialconditions, char(DynareDataset.init)));
+    error(sprintf('makedataset: first_obs (%s) - %i cannot be less than the first date in the dataset (%s)!\nReduce the number of lags in the VAR model or increase the value of first_obs\nto at least first_obs=%i.', char(firstobs), initialconditions, char(DynareDataset.init),initialconditions+1));
 end
 
 % Check that lastobs belongs to DynareDataset.dates...
 if newdatainterface
     if lastobs>DynareDataset.dates(end)
-        error(sprintf('last_obs (%s) cannot be greater than the last date in the dataset (%s)!',char(lastobs),char(DynareDataset.dates(end))))
+        error(sprintf('makedataset: last_obs (%s) cannot be greater than the last date in the dataset (%s)!',char(lastobs),char(DynareDataset.dates(end))))
     end
 else
     % ...  or check that nobs is smaller than the number of observations in DynareDataset.
     if nobs>DynareDataset.nobs
-        error(sprintf('nobs (%s) cannot be greater than the last date in the dataset (%s)!', num2str(nobs), num2str(nobs)))
+        error(sprintf('makedataset: nobs (%s) cannot be greater than the last date in the dataset (%s)!', num2str(nobs), num2str(DynareDataset.nobs)))
     end
 end
 
