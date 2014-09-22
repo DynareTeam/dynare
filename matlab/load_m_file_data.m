@@ -32,6 +32,7 @@ function [freq,init,data,varlist,tex] = load_m_file_data(file)
 %
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
+global options_
 
 if isoctave
     run(file);
@@ -87,26 +88,20 @@ varlist = {};
 
 if isempty(varlist0)
     for current_variable_index=1:length(list_of_variables)
-        if isequal(list_of_variables(current_variable_index).name,'freq') ...
-                || isequal(list_of_variables(current_variable_index).name,'time') ...
-                || isequal(list_of_variables(current_variable_index).name,'data') ...
-                || isequal(list_of_variables(current_variable_index).name,'varlist') ...
-                || isequal(list_of_variables(current_variable_index).name,'varlist0') ...
-                || isequal(list_of_variables(current_variable_index).name,'list_of_variables') ...
-                || isequal(list_of_variables(current_variable_index).name,'tex') ...
+        if isempty(strmatch(list_of_variables(current_variable_index).name,options_.varobs,'exact')) %ignore all non-requested variables
             continue
         end
         if list_of_variables(current_variable_index).global || list_of_variables(current_variable_index).persistent
-            % A variable cannot be a global or persistent variable.
-            continue
+            fprintf('load_m_file_data:: The variable %s is a global or persistent variable.\n', list_of_variables(current_variable_index).name)
+            error('load_m_file_data:: Observed variable cannot be a global or persistent variable.')
         end
         if list_of_variables(current_variable_index).complex || ~strcmp(list_of_variables(current_variable_index).class,'double')
-            % A variable cannot be complex.
-            continue
+            fprintf('load_m_file_data:: The variable %s is a complex or not a double.\n', list_of_variables(current_variable_index).name)
+            error('load_m_file_data:: Observed variable cannot be complex or non-double.')
         end
         if list_of_variables(current_variable_index).size(2)>1
-            % A variable must be passed as a column vector.
-            continue
+            fprintf('load_m_file_data:: The variable %s is a row vector.\n', list_of_variables(current_variable_index).name)
+            error('load_m_file_data:: Observed variables must be passed as column vectors.')
         end
         try
             eval(['data = [data, ' list_of_variables(current_variable_index).name '];'])
