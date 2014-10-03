@@ -69,6 +69,11 @@ if any(BayesInfo.pshape) % if Bayesian estimation
     end
 end
 
+[lnprior, junk1,junk2,info]= priordens(xparam1,BayesInfo.pshape,BayesInfo.p6,BayesInfo.p7,BayesInfo.p3,BayesInfo.p4);
+if info
+    fprintf('The prior density evaluated at the initial values if Inf for the following parameters: %s\n',BayesInfo.name{info,1})
+    error('The initial value of the prior is -Inf')
+end
     
 % Evaluate the likelihood.
 ana_deriv = DynareOptions.analytic_derivation;
