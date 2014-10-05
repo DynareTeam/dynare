@@ -207,6 +207,53 @@ if isnumeric(options_.parallel),
 else
     % Parallel execution!
     [nCPU, totCPU, nBlockPerCPU] = distributeJobs(options_.parallel, 1, B);
+    %% in conjunction with distributed computing toolbox
+    if options_.Cluster_settings > 0
+       totCPU=0;
+       lP=length(options_.parallel);
+
+       for j=1:lP,
+           nCPU(j)=length(options_.parallel(j).CPUnbr);
+           totCPU=totCPU+nCPU(j);
+       end
+
+
+    NumberOfBlocks=B;
+    remainder=0;
+
+    switch rem(NumberOfBlocks,totCPU)
+    
+    case 0 % even distribution across CPUs
+        BlocksPerCPU=NumberOfBlocks/totCPU;
+        CPUsinUse=totCPU;
+
+    case NumberOfBlocks % more CPUs than blocks, each block on a different CPU
+        BlocksPerCPU=1;
+        CPUsinUse=NumberOfBlocks;
+
+    otherwise
+        BlocksPerCPU=floor(NumberOfBlocks/totCPU);
+        CPUsinUse=totCPU;
+        remainder=rem(NumberOfBlocks,totCPU); % the first |rem| workers get an extra chain
+    end
+
+    slices=zeros(CPUsinUse,2);
+    nBlockPerCPU=zeros(1,CPUsinUse);
+    fblck=1;
+    
+    for i=1:CPUsinUse
+        nblck=(fblck+BlocksPerCPU)-1;
+        if remainder && ( i <= remainder) % the first |rem| workers get an extra chain
+           nblck=nblck+1;
+    end
+    slices(i,1)=fblck;
+    slices(i,2)=nblck;
+    nBlockPerCPU(1,i)=(nblck-fblck)+1;
+    fblck=nblck+1;
+    end
+
+end
+ %%    
     for j=1:totCPU-1,
         nfiles = ceil(nBlockPerCPU(j)/MAX_nirfs_dsge);
         NumberOfIRFfiles_dsge(j+1) =NumberOfIRFfiles_dsge(j)+nfiles;

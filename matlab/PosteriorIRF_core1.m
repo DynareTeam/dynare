@@ -47,6 +47,40 @@ if nargin<4,
     whoiam=0;
 end
 
+%%
+% % Unpack Global Variables from MasterParallel2, they are already in global space when running
+% % single computation
+
+Cluster_settings=0;
+try % would be catched in single computation ('no such fieldname')
+   globalVars = fieldnames(myinputs.global); % packed by masterParallel2
+   for j=1:length(globalVars),
+       eval(['global ',globalVars{j},';'])
+       fieldname=globalVars{j};
+       value=myinputs.global.(fieldname);
+       eval([fieldname '=value;'])
+       evalin('base',['global ', globalVars{j},';']) % put also into base workspace
+       assignin('base','value',value);
+       evalin('base',[fieldname '=value;'])
+ 
+    end
+    Parallel=myinputs.Parallel;
+    Cluster_settings=options_.Cluster_settings;
+    ifil2=myinputs.ifil2(whoiam);
+    NumberOfIRFfiles_dsge=myinputs.NumberOfIRFfiles_dsge(whoiam);
+    NumberOfIRFfiles_dsgevar=myinputs.NumberOfIRFfiles_dsgevar(whoiam);
+    whoiam=0;
+    RemoteFlag = 1;
+catch
+    NumberOfIRFfiles_dsge=myinputs.NumberOfIRFfiles_dsge;
+    NumberOfIRFfiles_dsgevar=myinputs.NumberOfIRFfiles_dsgevar;
+    ifil2=myinputs.ifil2;
+    RemoteFlag = 0;
+end
+
+%%
+
+
 % Reshape 'myinputs' for local computation.
 % In order to avoid confusion in the name space, the instruction struct2local(myinputs) is replaced by:
 
@@ -98,7 +132,18 @@ else
     MhDirectoryName = CheckPath('prior',M_.dname);
 end
 
-RemoteFlag = 0;
+switch Cluster_settings
+       case 1 % Distributed Computing Toolbox with shared filesystem
+          MhDirectoryName = ([myinputs.HostDir '/' MhDirectoryName]); % read / write to home HostDirectory (if function is called from masterparallel2)
+       case 2 % Distributed Computing Toolbox with shared filesystem, local processing
+          MhDirectoryName = ([myinputs.HostDir '/' MhDirectoryName]); % read / write to home HostDirectory (if function is called from masterparallel2)
+       case 3
+          for i=1:size(myinputs.SendFiles,2)
+              fid=fopen([myinputs.SendFiles{1,i}.name],'w');
+              fwrite(fid,myinputs.SendFiles{1,i}.data);
+              fclose(fid);
+          end
+end
 
 if whoiam
     if Parallel(ThisMatlab).Local==0,
@@ -260,7 +305,16 @@ while fpar<B
                 irun = 0;
             end
         end
-        save([MhDirectoryName '/' M_.fname '_irf_dsge' int2str(NumberOfIRFfiles_dsge) '.mat'],'stock_irf_dsge');
+        switch Cluster_settings
+              case 3
+                  save([M_.fname '_irf_dsge' int2str(NumberOfIRFfiles_dsge) '.mat'],'stock_irf_dsge');
+                  mhLocalFiles(NumberOfIRFfiles_dsge).mat={([MhDirectoryName '/' M_.fname '_irf_dsge' int2str(NumberOfIRFfiles_dsge) '.mat'])};
+                  fid=fopen([M_.fname '_irf_dsge' int2str(NumberOfIRFfiles_dsge) '.mat']);
+                  mhLocalData(NumberOfIRFfiles_dsge).mat=fread(fid);
+                  fclose(fid);
+              otherwise
+                  save([MhDirectoryName '/' M_.fname '_irf_dsge' int2str(NumberOfIRFfiles_dsge) '.mat'],'stock_irf_dsge');
+        end
         if RemoteFlag==1,
             OutputFileName_dsge = [OutputFileName_dsge; {[MhDirectoryName filesep], [M_.fname '_irf_dsge' int2str(NumberOfIRFfiles_dsge) '.mat']}];
         end
@@ -272,7 +326,16 @@ while fpar<B
             stock_param = stock_param(1:irun2,:);
         end
         stock = stock_param;
-        save([MhDirectoryName '/' M_.fname '_param_irf' int2str(ifil2) '.mat'],'stock');
+        switch Cluster_settings
+             case 3
+                save([M_.fname '_param_irf' int2str(ifil2) '.mat'],'stock');
+                mhLocalFiles(ifil2).log={([MhDirectoryName '/' M_.fname '_param_irf' int2str(ifil2) '.mat'])};
+                fid=fopen([M_.fname '_param_irf' int2str(ifil2) '.mat']);
+                mhLocalData(ifil2).log=fread(fid);
+                fclose(fid);
+                otherwise
+                save([MhDirectoryName '/' M_.fname '_param_irf' int2str(ifil2) '.mat'],'stock');
+             end
         if RemoteFlag==1,
             OutputFileName_param = [OutputFileName_param; {[MhDirectoryName filesep], [M_.fname '_param_irf' int2str(ifil2) '.mat']}];
         end
@@ -298,3 +361,12 @@ myoutput.OutputFileName = [OutputFileName_dsge;
                     OutputFileName_bvardsge];
 
 myoutput.nosaddle = nosaddle;
+
+if Cluster_settings == 3 % send data back to host via output arguments
+   if exist('mhLocalFiles')
+      myoutput.LocalFiles=mhLocalFiles;
+   end
+   if exist('mhLocalData')
+      myoutput.LocalData=mhLocalData;
+   end
+end
