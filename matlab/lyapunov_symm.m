@@ -53,12 +53,12 @@ if method == 3
         method = method1;
     end;
     tol = third_argument;
-    fprintf(' [methode=%d] ',method);
+%     fprintf('lyapunov_symm:: [method=%d] \n',method);
     if method == 3
         %tol = 1e-10;
         it_fp = 0;
         evol = 100;
-        if isempty(X)
+        if isempty(X) || length(X)~=length(b)
             X = b;
             max_it_fp = 2000;
         else
@@ -73,9 +73,9 @@ if method == 3
             %evol = max(sum(abs(X - X_old)')); %norm_inf
             it_fp = it_fp + 1;
         end;
-        fprintf('lyapunov it_fp=%d evol=%g\n',it_fp,evol);
+%         fprintf('lyapunov_symm:: lyapunov fixed_point iterations=%d norm=%g\n',it_fp,evol);
         if it_fp >= max_it_fp
-            disp(['convergence not achieved in solution of Lyapunov equation after ' int2str(it_fp) ' iterations, switching method from 3 to 0']);
+            disp(['lyapunov_symm:: convergence not achieved in solution of Lyapunov equation after ' int2str(it_fp) ' iterations, switching method from 3 to 0']);
             method1 = 0;
             method = 0;
         else

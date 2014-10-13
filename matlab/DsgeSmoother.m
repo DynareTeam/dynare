@@ -117,7 +117,7 @@ if options_.lik_init == 1               % Kalman filter
         kalman_algo = 1;
     end
 	if options_.lyapunov_fp == 1
-        Pstar = lyapunov_symm(T,Q,options_.lyapunov_fixed_point_tol,options_.lyapunov_complex_threshold, 3, R);
+        Pstar = lyapunov_symm(T,R*Q*R',options_.lyapunov_fixed_point_tol,options_.lyapunov_complex_threshold, 3);
     elseif options_.lyapunov_db == 1
         Pstar = disclyap_fast(T,R*Q*R',options_.lyapunov_doubling_tol);
     elseif options_.lyapunov_srs == 1
@@ -160,7 +160,7 @@ elseif options_.lik_init == 5            % Old diffuse Kalman filter only for th
     R_tmp = R(stable, :);
     T_tmp = T(stable,stable);
     if options_.lyapunov_fp == 1
-        Pstar_tmp = lyapunov_symm(T_tmp,Q,options_.lyapunov_fixed_point_tol,options_.lyapunov_complex_threshold, 3, R_tmp);
+        Pstar_tmp = lyapunov_symm(T_tmp,R_tmp*Q*R_tmp',options_.lyapunov_fixed_point_tol,options_.lyapunov_complex_threshold, 3);
     elseif options_.lyapunov_db == 1
         Pstar_tmp = disclyap_fast(T_tmp,R_tmp*Q*R_tmp',options_.lyapunov_doubling_tol);
     elseif options_.lyapunov_srs == 1

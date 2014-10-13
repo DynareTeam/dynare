@@ -133,6 +133,7 @@ MODFILES = \
 	ms-sbvar/test_ms_variances.mod \
 	ms-sbvar/test_ms_variances_repeated_runs.mod \
 	ms-dsge/test_ms_dsge.mod \
+	kalman/lyapunov/fs2000_lyap.mod \
 	kalman_filter_smoother/gen_data.mod \
 	kalman_filter_smoother/algo1.mod \
 	kalman_filter_smoother/algo2.mod \
@@ -336,6 +337,8 @@ EXTRA_DIST = \
 	ms-sbvar/archive-files/specification_2v.dat \
 	ms-sbvar/archive-files/specification_2v2c.dat \
 	recursive/data_ca1.m \
+	kalman/lyapunov/fsdat_simul.m \
+	kalman/lyapunov/fs2000_mode.mat \
 	kalman_filter_smoother/fsdat_simul.m \
 	kalman_filter_smoother/fs2000a_steadystate.m \
 	identification/kim/kim2_steadystate.m \
