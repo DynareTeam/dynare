@@ -135,8 +135,8 @@ if run_smoother
   stock_update=NaN(endo_nbr,gend,MAX_nsmoo);
   stock_innov=NaN(M_.exo_nbr,gend,MAX_ninno);
   if horizon
-      stock_forcst_mean= NaN(endo_nbr,horizon+maxlag,MAX_nforc1);
-      stock_forcst_point = NaN(endo_nbr,horizon+maxlag,MAX_nforc2);
+      stock_forcst_mean= NaN(endo_nbr,horizon,MAX_nforc1);
+      stock_forcst_point = NaN(endo_nbr,horizon,MAX_nforc2);
   end
 end
 if nvn
@@ -214,8 +214,8 @@ for b=fpar:B
                 yf1 = yf1 + repmat(SteadyState',[horizon+maxlag,1,1]);
             end
 
-            stock_forcst_mean(:,:,irun(6)) = yf';
-            stock_forcst_point(:,:,irun(7)) = yf1';
+            stock_forcst_mean(:,:,irun(6)) = yf(maxlag+1:end,:)';
+            stock_forcst_point(:,:,irun(7)) = yf1(maxlag+1:end,:)';
         end
     else
         [T,R,SteadyState,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_);

@@ -102,8 +102,8 @@ if naK
 end
 
 if horizon
-    MAX_nforc1 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/8));
-    MAX_nforc2 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/ ...
+    MAX_nforc1 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*horizon)/8));
+    MAX_nforc2 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*horizon)/ ...
                             8));
     IdObs    = bayestopt_.mfys;
 
@@ -144,8 +144,8 @@ if options_.filter_step_ahead
     run_smoother = 1;
 end
 if options_.forecast
-    stock_forcst_mean = zeros(endo_nbr,horizon+maxlag,MAX_nforc1);
-    stock_forcst_point = zeros(endo_nbr,horizon+maxlag,MAX_nforc2);
+    stock_forcst_mean = zeros(endo_nbr,horizon,MAX_nforc1);
+    stock_forcst_point = zeros(endo_nbr,horizon,MAX_nforc2);
     run_smoother = 1;
 end
 
@@ -286,10 +286,10 @@ if options_.filtered_vars
 end
 
 if options_.forecast
-    pm3(endo_nbr,horizon+maxlag,ifil(6),B,'Forecasted variables (mean)',...
+    pm3(endo_nbr,horizon,ifil(6),B,'Forecasted variables (mean)',...
         '',varlist,M_.endo_names_tex,M_.endo_names,...
         varlist,'MeanForecast',DirectoryName,'_forc_mean');
-    pm3(endo_nbr,horizon+maxlag,ifil(6),B,'Forecasted variables (point)',...
+    pm3(endo_nbr,horizon,ifil(6),B,'Forecasted variables (point)',...
         '',varlist,M_.endo_names_tex,M_.endo_names,...
         varlist,'PointForecast',DirectoryName,'_forc_point');
 end
