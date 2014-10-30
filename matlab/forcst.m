@@ -67,6 +67,7 @@ sigma_u = B*M_.Sigma_e*B';
 sigma_u1 = ghu1*M_.Sigma_e*ghu1';
 sigma_y = 0;
 
+var_yf=NaN(horizon,nvar); %initialize
 for i=1:horizon
     sigma_y1 = ghx1*sigma_y*ghx1'+sigma_u1;
     var_yf(i,:) = diag(sigma_y1)';
