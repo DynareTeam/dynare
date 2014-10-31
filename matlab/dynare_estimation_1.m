@@ -886,7 +886,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                             'atT(i,:)'';']);
         if options_.nk > 0
             eval(['oo_.FilteredVariables.' deblank(M_.endo_names(i1,:)) ...
-                  ' = squeeze(aK(1,i,:));']);
+                  ' = squeeze(aK(1,i,2:end-(options_.nk-1)));']);
         end
         eval(['oo_.UpdatedVariables.' deblank(M_.endo_names(i1,:)) ...
               ' = updated_variables(i,:)'';']);
