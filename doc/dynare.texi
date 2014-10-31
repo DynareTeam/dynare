@@ -5494,7 +5494,18 @@ After an estimation with Metropolis, fields are of the form:
 
 @defvr {MATLAB/Octave variable} oo_.FilteredVariablesKStepAhead
 Variable set by the @code{estimation} command, if it is used with the
-@code{filter_step_ahead} option. The k-steps are stored along the rows while the columns indicate the respective variables. The third dimension of the array provides the observation for which the forecast has been made. For example, if @code{filter_step_ahead=[1 2 4]} and @code{nobs=200}, the element (3,5,204) stores the four period ahead filtered value of variable 5 computed at time t=200 for time t=204. The periods at the beginning and end of the sample for which no forecasts can be made, e.g. entries (1,5,1) and (1,5,204) in the example, are set to zero.
+@code{filter_step_ahead} option. The k-steps are stored along the rows while the columns 
+indicate the respective variables. The third dimension of the array provides the
+observation for which the forecast has been made. For example, if @code{filter_step_ahead=[1 2 4]} 
+and @code{nobs=200}, the element (3,5,204) stores the four period ahead filtered 
+value of variable 5 computed at time t=200 for time t=204. The periods at the beginning 
+and end of the sample for which no forecasts can be made, e.g. entries (1,5,1) and 
+(1,5,204) in the example, are set to zero. Note that in case of Bayesian estimation 
+the variables will be ordered in the order of declaration after the estimation 
+command (or in general declaration order if no variables are specified here). In case 
+of running the classical smoother, the variables will always be ordered in general 
+declaration order. If the @xref{use_selected_variables_only} option is specified with the classical smoother, 
+non-requested variables will be simply left out in this order.
 @end defvr
 
 @defvr {MATLAB/Octave variable} oo_.FilteredVariablesKStepAheadVariances
