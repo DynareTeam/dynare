@@ -61,9 +61,8 @@ else
     end
 end
 if options_.TeX
-    % needs to be fixed
     if isempty(tit_tex),
-        tit_tex=M_.endo_names_tex;
+        tit_tex=names1;
     end
         
     varlist_TeX = [];
