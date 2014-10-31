@@ -58,6 +58,7 @@ naK = length(options_.filter_step_ahead);
 MaxNumberOfBytes=options_.MaxNumberOfBytes;
 endo_nbr=M_.endo_nbr;
 exo_nbr=M_.exo_nbr;
+meas_err_nbr=length(M_.Correlation_matrix_ME);
 nvobs     = length(options_.varobs);
 iendo = 1:endo_nbr;
 horizon = options_.forecast;
@@ -268,10 +269,15 @@ if options_.smoother
         '',M_.exo_names,M_.exo_names_tex,M_.exo_names,...
         M_.exo_names,'SmoothedShocks',DirectoryName,'_inno');
     if nvn
-        % needs to  be fixed
-        %        pm3(endo_nbr,gend,ifil(3),B,'Smoothed measurement errors',...
-        %            M_.endo_names(SelecVariables),M_.endo_names,'tit_tex',M_.endo_names,...
-        %            'names2','smooth_errors',[M_.fname '/metropolis'],'_error')
+        for obs_iter=1:length(options_.varobs)        
+            meas_error_names{obs_iter,1}=['SE_EOBS_' M_.endo_names(strmatch(options_.varobs{obs_iter},M_.endo_names,'exact'),:)];
+            texnames{obs_iter,1}=['SE_EOBS_' M_.endo_names_tex(strmatch(options_.varobs{obs_iter},M_.endo_names,'exact'),:)];
+        end
+        meas_error_names=char(meas_error_names);
+        texnames=char(texnames);
+        pm3(meas_err_nbr,gend,ifil(3),B,'Smoothed measurement errors',...
+           '',meas_error_names,texnames,meas_error_names,...
+           meas_error_names,'SmoothedMeasurementErrors',DirectoryName,'_error')
     end
 end
 
