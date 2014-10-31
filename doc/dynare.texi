@@ -5158,13 +5158,14 @@ See below.
 
 @item filter_step_ahead = [@var{INTEGER1} @var{INTEGER2}  @dots{}]
 @anchor{filter_step_ahead}
-Triggers the computation k-step ahead filtered values. Stores results in
+Triggers the computation k-step ahead filtered values, i.e. @math{E_{t}{y_{t+k}}}. Stores results in
 @code{oo_.FilteredVariablesKStepAhead} and
 @code{oo_.FilteredVariablesKStepAheadVariances}.
 
 @item filter_decomposition
 @anchor{filter_decomposition} Triggers the computation of the shock
-decomposition of the above k-step ahead filtered values.
+decomposition of the above k-step ahead filtered values. Stores results in @code{oo_.FilteredVariablesShockDecomposition}.
+
 
 @item diffuse_filter
 Uses the diffuse Kalman filter (as described in
@@ -5483,6 +5484,7 @@ After an estimation without Metropolis, fields are of the form:
 @code{oo_.FilteredVariables.@var{VARIABLE_NAME}}
 @end example
 
+
 After an estimation with Metropolis, fields are of the form:
 @example
 @code{oo_.FilteredVariables.@var{MOMENT_NAME}.@var{VARIABLE_NAME}}
@@ -5496,7 +5498,7 @@ Variable set by the @code{estimation} command, if it is used with the
 
 @defvr {MATLAB/Octave variable} oo_.FilteredVariablesKStepAheadVariances
 Variable set by the @code{estimation} command, if it is used with the
-@code{filter_step_ahead} option.
+@code{filter_step_ahead} option. It is a 4 dimensional array where the k-steps are stored along the first dimension, while the fourth dimension of the array provides the observation for which the forecast has been made. The second and third dimension provide the respective variables. For example, if @code{filter_step_ahead=[1 2 4]} and @code{nobs=200}, the element (3,4,5,204) stores the four period ahead forecast error covariance between variable 4 and variable 5, computed at time t=200 for time t=204. Padding with zeros is analogous to @code{oo_.FilteredVariablesKStepAhead}. 
 @end defvr
 
 @defvr {MATLAB/Octave variable} oo_.Filtered_Variables_X_step_ahead
