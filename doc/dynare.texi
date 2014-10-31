@@ -5184,8 +5184,9 @@ any value of  @math{\bar a} of @math{a} is a  deterministic steady state for pro
 Note that the nonstationary variables in the model must be integrated processes (their first difference or k-difference must be stationary).
 
 @item selected_variables_only
+@anchor{selected_variables_only}
 Only run the smoother on the variables listed just after the
-@code{estimation} command. Default: run the smoother on all the
+@code{estimation} command. This options is incompatible with requesting classical frequentist forecasts and will be overridden in this case. Default: run the smoother on all the
 declared endogenous variables.
 
 @item cova_compute = @var{INTEGER}
