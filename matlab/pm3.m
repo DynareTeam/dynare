@@ -126,8 +126,8 @@ for i = 1:nvar
     eval(['oo_.' name3 '.Median.' name ' = Median(:,i);']);
     eval(['oo_.' name3 '.Var.' name ' = Var(:,i);']);
     eval(['oo_.' name3 '.deciles.' name ' = Distrib(:,:,i);']);
-    eval(['oo_.' name3 '.HPDinf.' name ' = HPD(1,:,i);']);
-    eval(['oo_.' name3 '.HPDsup.' name ' = HPD(2,:,i);']);
+    eval(['oo_.' name3 '.HPDinf.' name ' = HPD(1,:,i)'';']);
+    eval(['oo_.' name3 '.HPDsup.' name ' = HPD(2,:,i)'';']);
     if filter_step_ahead_indicator
         for K_step = 1:length(options_.filter_step_ahead)
             name4=['Filtered_Variables_',num2str(K_step),'_step_ahead'];
