@@ -119,15 +119,15 @@ if options.loglinear
             fprintf(' - %s (%s)\n',deblank(variables_with_non_positive_steady_state(var_iter,:)), num2str(dr.ys(idx(var_iter))))
         end
         if isestimation()
-            fprintf('You should check that the priors and/or bounds over the deep parameters are such')
-            fprintf('the steady state levels of all the variables are strictly positive, or consider')
-            fprintf('a linearization of the model instead of a log linearization.')
+            fprintf('You should check that the priors and/or bounds over the deep parameters are such\n')
+            fprintf('that the steady state levels of all the variables are strictly positive, or consider\n')
+            fprintf('a linearization of the model instead of a log linearization.\n')
         else
-            fprintf('You should check that the calibration of the deep parameters is such that the')
-            fprintf('steady state levels of all the variables are strictly positive, or consider')
-            fprintf('a linearization of the model instead of a log linearization.')
+            fprintf('You should check that the calibration of the deep parameters is such that the\n')
+            fprintf('steady state levels of all the variables are strictly positive, or consider\n')
+            fprintf('a linearization of the model instead of a log linearization.\n')
         end
-        error('stoch_simul::resol: The loglinearization of the model cannot be performed because the steady state is not strictly positive!')
+        error('stoch_simul::resol: The loglinearization of the model cannot be performed, because the steady state is not strictly positive!')
     end
 end
 

@@ -384,9 +384,15 @@ oo_.dr.restrict_columns = [ic; length(k2)+(1:nspred-npred)'];
 k3 = [];
 k3p = [];
 if options_.selected_variables_only
-    for i=1:size(var_list_,1)
-        k3 = [k3; strmatch(var_list_(i,:),M_.endo_names(dr.order_var,:), 'exact')];
-        k3p = [k3; strmatch(var_list_(i,:),M_.endo_names, 'exact')];
+    if options_.forecast > 0 && options_.mh_replic == 0 && ~options_.load_mh_file
+        fprintf('\nEstimation: The selected_variables_only option is incompatible with classical forecasts. It will be ignored.\n')
+        k3 = (1:M_.endo_nbr)';
+        k3p = (1:M_.endo_nbr)';    
+    else
+        for i=1:size(var_list_,1)
+            k3 = [k3; strmatch(var_list_(i,:),M_.endo_names(dr.order_var,:), 'exact')];
+            k3p = [k3; strmatch(var_list_(i,:),M_.endo_names, 'exact')];
+        end
     end
 else
     k3 = (1:M_.endo_nbr)';
