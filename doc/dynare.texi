@@ -5504,7 +5504,7 @@ and end of the sample for which no forecasts can be made, e.g. entries (1,5,1) a
 the variables will be ordered in the order of declaration after the estimation 
 command (or in general declaration order if no variables are specified here). In case 
 of running the classical smoother, the variables will always be ordered in general 
-declaration order. If the @xref{use_selected_variables_only} option is specified with the classical smoother, 
+declaration order. If the @xref{selected_variables_only} option is specified with the classical smoother, 
 non-requested variables will be simply left out in this order.
 @end defvr
 
