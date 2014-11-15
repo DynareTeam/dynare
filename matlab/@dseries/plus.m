@@ -124,10 +124,10 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts3.vobs,2);
-%$    t(3) = dyn_assert(ts3.nobs,10);
-%$    t(4) = dyn_assert(ts3.data,[A(:,1)+B, A(:,2)+B],1e-15);
-%$    t(5) = dyn_assert(ts3.name,{'plus(A1;B1)';'plus(A2;B1)'});
+%$    t(2) = dassert(ts3.vobs,2);
+%$    t(3) = dassert(ts3.nobs,10);
+%$    t(4) = dassert(ts3.data,[A(:,1)+B, A(:,2)+B],1e-15);
+%$    t(5) = dassert(ts3.name,{'plus(A1;B1)';'plus(A2;B1)'});
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -153,10 +153,10 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts4.vobs,2);
-%$    t(3) = dyn_assert(ts4.nobs,10);
-%$    t(4) = dyn_assert(ts4.data,[A(:,1)+B, A(:,2)+B]+A,1e-15);
-%$    t(5) = dyn_assert(ts4.name,{'plus(plus(A1;B1);A1)';'plus(plus(A2;B1);A2)'});
+%$    t(2) = dassert(ts4.vobs,2);
+%$    t(3) = dassert(ts4.nobs,10);
+%$    t(4) = dassert(ts4.data,[A(:,1)+B, A(:,2)+B]+A,1e-15);
+%$    t(5) = dassert(ts4.name,{'plus(plus(A1;B1);A1)';'plus(plus(A2;B1);A2)'});
 %$ end
 %$ T = all(t);
 %@eof:2
@@ -182,10 +182,10 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts3.vobs,2);
-%$    t(3) = dyn_assert(ts3.nobs,10);
-%$    t(4) = dyn_assert(ts3.data,[A(1:5,1)+B(1:5), A(1:5,2)+B(1:5) ; NaN(5,2)],1e-15);
-%$    t(5) = dyn_assert(ts3.name,{'plus(A1;B1)';'plus(A2;B1)'});
+%$    t(2) = dassert(ts3.vobs,2);
+%$    t(3) = dassert(ts3.nobs,10);
+%$    t(4) = dassert(ts3.data,[A(1:5,1)+B(1:5), A(1:5,2)+B(1:5) ; NaN(5,2)],1e-15);
+%$    t(5) = dassert(ts3.name,{'plus(A1;B1)';'plus(A2;B1)'});
 %$ end
 %$ T = all(t);
 %@eof:3
@@ -203,12 +203,12 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(us.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(us.init.time,[1949, 4]);
-%$     t(6) = dyn_assert(vs.init.time,[1949, 4]);
-%$     t(7) = dyn_assert(vs.nobs,6);
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(us.freq,4);
+%$     t(4) = dassert(ts.init.time,[1950, 1]);
+%$     t(5) = dassert(us.init.time,[1949, 4]);
+%$     t(6) = dassert(vs.init.time,[1949, 4]);
+%$     t(7) = dassert(vs.nobs,6);
 %$ end
 %$
 %$ T = all(t);
@@ -227,12 +227,12 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(us.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(us.init.time,[1950, 1]);
-%$     t(6) = dyn_assert(vs.init.time,[1950, 1]);
-%$     t(7) = dyn_assert(vs.nobs,7);
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(us.freq,4);
+%$     t(4) = dassert(ts.init.time,[1950, 1]);
+%$     t(5) = dassert(us.init.time,[1950, 1]);
+%$     t(6) = dassert(vs.init.time,[1950, 1]);
+%$     t(7) = dassert(vs.nobs,7);
 %$ end
 %$
 %$ T = all(t);
@@ -251,13 +251,13 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(us.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(us.init.time,[1950, 1]);
-%$     t(6) = dyn_assert(vs.init.time,[1950, 1]);
-%$     t(7) = dyn_assert(vs.nobs,5);
-%$     t(8) = dyn_assert(vs.data,ts.data+1);
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(us.freq,4);
+%$     t(4) = dassert(ts.init.time,[1950, 1]);
+%$     t(5) = dassert(us.init.time,[1950, 1]);
+%$     t(6) = dassert(vs.init.time,[1950, 1]);
+%$     t(7) = dassert(vs.nobs,5);
+%$     t(8) = dassert(vs.data,ts.data+1);
 %$ end
 %$
 %$ T = all(t);
@@ -276,13 +276,13 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(us.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(us.init.time,[1950, 1]);
-%$     t(6) = dyn_assert(vs.init.time,[1950, 1]);
-%$     t(7) = dyn_assert(vs.nobs,5);
-%$     t(8) = dyn_assert(vs.data,bsxfun(@plus,ts.data,[1, 2]));
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(us.freq,4);
+%$     t(4) = dassert(ts.init.time,[1950, 1]);
+%$     t(5) = dassert(us.init.time,[1950, 1]);
+%$     t(6) = dassert(vs.init.time,[1950, 1]);
+%$     t(7) = dassert(vs.nobs,5);
+%$     t(8) = dassert(vs.data,bsxfun(@plus,ts.data,[1, 2]));
 %$ end
 %$
 %$ T = all(t);

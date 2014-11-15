@@ -49,11 +49,11 @@ vs.dates = firstdate(vs):firstdate(vs)+nobs(vs);
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(vs.freq,4);
-%$     t(3) = dyn_assert(vs.init.freq,4);
-%$     t(4) = dyn_assert(vs.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(ts.vobs,1);
-%$     t(6) = dyn_assert(vs.nobs,6);
+%$     t(2) = dassert(vs.freq,4);
+%$     t(3) = dassert(vs.init.freq,4);
+%$     t(4) = dassert(vs.init.time,[1950, 1]);
+%$     t(5) = dassert(ts.vobs,1);
+%$     t(6) = dassert(vs.nobs,6);
 %$     t(7) = isequal(vs.data,transpose(1:6));
 %$ end
 %$

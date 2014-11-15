@@ -121,11 +121,11 @@ ts.dates = init:init+(nobs(ts)-1);
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1953, 1]);
-%$     t(5) = dyn_assert(ts.vobs,1);
-%$     t(6) = dyn_assert(ts.nobs,176);
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1953, 1]);
+%$     t(5) = dassert(ts.vobs,1);
+%$     t(6) = dassert(ts.nobs,176);
 %$ end
 %$
 %$ % Show results

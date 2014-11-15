@@ -10,3 +10,6 @@
 [submodule "contrib/dmm"]
 	path = contrib/dmm
 	url = http://www.dynare.org/git/dmm.git
+[submodule "matlab/utilities/tests"]
+	path = matlab/utilities/tests
+	url = https://github.com/DynareTeam/m-unit-tests.git

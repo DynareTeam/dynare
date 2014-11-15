@@ -55,7 +55,7 @@ else
 end
 
 if ~isequal(A.freq,B.freq)
-    error(['dates::colon: Input arguments ' inputname(1) 'and ' inputname(2) ' must have common frequency!'])
+    error(['dates::colon: Input arguments ' inputname(1) ' and ' inputname(2) ' must have common frequency!'])
 end
 
 if A>B && d>0
@@ -123,8 +123,8 @@ end
 %$ d3 = d1:d2;
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d3.time,e.time);
-%$ t(2) = dyn_assert(d3.freq,e.freq);
+%$ t(1) = dassert(d3.time,e.time);
+%$ t(2) = dassert(d3.freq,e.freq);
 %$ T = all(t);
 %@eof:1
 
@@ -137,8 +137,8 @@ end
 %$ d = dates('1950Q2'):dates('1951Q4');
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
 %$ T = all(t);
 %@eof:2
 
@@ -151,8 +151,8 @@ end
 %$ d = dates('1950Q2'):2:dates('1951Q4');
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
 %$ T = all(t);
 %@eof:3
 
@@ -169,8 +169,8 @@ end
 %$ d = qq(1950,2):qq(1951,4);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
 %$ T = all(t);
 %$ @eof:3
 
@@ -186,7 +186,7 @@ end
 %$ d = qq(1950,1):qq(1950,3);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
 %$ T = all(t);
 %$ @eof:4

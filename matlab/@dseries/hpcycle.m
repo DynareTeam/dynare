@@ -69,11 +69,11 @@ ts.data = data;
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(ts2.freq,4);
-%$     t(3) = dyn_assert(ts2.init.freq,4);
-%$     t(4) = dyn_assert(ts2.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(ts2.vobs,1);
-%$     t(6) = dyn_assert(ts2.nobs,200);
+%$     t(2) = dassert(ts2.freq,4);
+%$     t(3) = dassert(ts2.init.freq,4);
+%$     t(4) = dassert(ts2.init.time,[1950, 1]);
+%$     t(5) = dassert(ts2.vobs,1);
+%$     t(6) = dassert(ts2.nobs,200);
 %$ end
 %$
 %$ % Show results

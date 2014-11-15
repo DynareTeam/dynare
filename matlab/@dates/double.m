@@ -52,7 +52,7 @@ end
 %$ E = [ones(4,1)*1950; 1951];
 %$ E = E + [(transpose(1:4)-1)/4; 0];
 %$ if t(1)
-%$     t(2) = dyn_assert(isequal(C,E),1);
+%$     t(2) = dassert(C,E);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -75,7 +75,7 @@ end
 %$ E = ones(2,1)*1950;
 %$ E = E + [0; .25];
 %$ if t(1)
-%$     t(2) = dyn_assert(isequal(C,E),1);
+%$     t(2) = dassert(C,E);
 %$ end
 %$ T = all(t);
 %@eof:2

@@ -168,16 +168,16 @@ function b = isnotempty_cell(CellArray)
 %$ e2.init = dates(1,1);
 %$
 %$ % Check results.
-%$ t(1) = dyn_assert(e1.data,a.data);
-%$ t(2) = dyn_assert(e1.nobs,a.nobs);
-%$ t(3) = dyn_assert(e1.vobs,a.vobs);
-%$ t(4) = dyn_assert(e1.name,a.name);
-%$ t(5) = dyn_assert(isequal(e1.init,a.init),1);
-%$ t(6) = dyn_assert(e2.data,b.data);
-%$ t(7) = dyn_assert(e2.nobs,b.nobs);
-%$ t(8) = dyn_assert(e2.vobs,b.vobs);
-%$ t(9) = dyn_assert(e2.name,b.name);
-%$ t(10) = dyn_assert(isequal(e2.init,b.init),1);
+%$ t(1) = dassert(e1.data,a.data);
+%$ t(2) = dassert(e1.nobs,a.nobs);
+%$ t(3) = dassert(e1.vobs,a.vobs);
+%$ t(4) = dassert(e1.name,a.name);
+%$ t(5) = dassert(e1.init,a.init);
+%$ t(6) = dassert(e2.data,b.data);
+%$ t(7) = dassert(e2.nobs,b.nobs);
+%$ t(8) = dassert(e2.vobs,b.vobs);
+%$ t(9) = dassert(e2.name,b.name);
+%$ t(10) = dassert(e2.init,b.init);
 %$ T = all(t);
 %@eof:1
 
@@ -223,7 +223,7 @@ function b = isnotempty_cell(CellArray)
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(a.name,{'GDP_1';'GDP_2';'GDP_3';'GDP_4';'GDP_5';'HICP_1';'HICP_2';'HICP_3';'HICP_4';'HICP_5'});
+%$   t(2) = dassert(a.name,{'GDP_1';'GDP_2';'GDP_3';'GDP_4';'GDP_5';'HICP_1';'HICP_2';'HICP_3';'HICP_4';'HICP_5'});
 %$ end
 %$
 %$ T = all(t);

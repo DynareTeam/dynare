@@ -69,8 +69,8 @@ end
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(e1,[2; 2; 0]);
-%$   t(3) = dyn_assert(e2,9);
+%$   t(2) = dassert(e1,[2; 2; 0]);
+%$   t(3) = dassert(e2,9);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -91,8 +91,8 @@ end
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(e1,[1; 1; 0]);
-%$   t(3) = dyn_assert(e2,-1);
+%$   t(2) = dassert(e1,[1; 1; 0]);
+%$   t(3) = dassert(e2,-1);
 %$ end
 %$ T = all(t);
 %@eof:2
@@ -111,8 +111,8 @@ end
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(isequal(e1,d2),1);
-%$   t(3) = dyn_assert(isequal(e2,d1),1);
+%$   t(2) = dassert(e1,d2);
+%$   t(3) = dassert(e2,d1);
 %$ end
 %$ T = all(t);
 %@eof:3
@@ -130,7 +130,7 @@ end
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(isequal(e1,f1),1);
+%$   t(2) = dassert(e1,f1);
 %$ end
 %$ T = all(t);
 %@eof:4
@@ -148,7 +148,7 @@ end
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(isequal(e1,f1),1);
+%$   t(2) = dassert(e1,f1);
 %$ end
 %$ T = all(t);
 %@eof:5

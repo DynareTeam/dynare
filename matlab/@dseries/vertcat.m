@@ -97,11 +97,11 @@ function d = vertcat_(b, c)
 %$
 %$ % Check the results.
 %$
-%$ t(1) = dyn_assert(isequal(ts3.init,e.init),1);
-%$ t(2) = dyn_assert(ts3.freq,e.freq);
-%$ t(3) = dyn_assert(ts3.data,e.data);
-%$ t(4) = dyn_assert(ts3.name,e.name);
-%$ t(5) = dyn_assert(ts3.nobs,20);
+%$ t(1) = dassert(ts3.init,e.init);
+%$ t(2) = dassert(ts3.freq,e.freq);
+%$ t(3) = dassert(ts3.data,e.data);
+%$ t(4) = dassert(ts3.name,e.name);
+%$ t(5) = dassert(ts3.nobs,20);
 %$ T = all(t);
 %@eof:1
 
@@ -133,10 +133,10 @@ function d = vertcat_(b, c)
 %$
 %$ % Check the results.
 %$
-%$ t(1) = dyn_assert(isequal(ts4.init,e.init),1);
-%$ t(2) = dyn_assert(ts4.freq,e.freq);
-%$ t(3) = dyn_assert(ts4.data,e.data);
-%$ t(4) = dyn_assert(ts4.name,e.name);
-%$ t(5) = dyn_assert(ts4.nobs,30);
+%$ t(1) = dassert(ts4.init,e.init);
+%$ t(2) = dassert(ts4.freq,e.freq);
+%$ t(3) = dassert(ts4.data,e.data);
+%$ t(4) = dassert(ts4.name,e.name);
+%$ t(5) = dassert(ts4.nobs,30);
 %$ T = all(t);
 %@eof:2

@@ -1,6 +1,17 @@
-function skipline(n,fid)
-    
-% Copyright (C) 2013 Dynare Team
+function skipline(n, fid)
+% function skipline(n, fid)
+% This function prints n newlines to fid
+%
+% INPUTS 
+%
+%   n        [integer]    Number of newlines to print
+%   fid      [integer]    file id returned by fopen
+%    
+% OUTPUTS 
+%   None
+%
+
+% Copyright (C) 2013-2014 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -17,18 +28,14 @@ function skipline(n,fid)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.    
 
-if nargin<2
-    fid = 1;
+if nargin < 2
+	fid = 1;
+	if nargin < 1
+		n = 1;
+	end
 end
 
-if nargin<1
-    fid = 1;
+for i=1:n
+	fprintf(fid,'\n');
 end
-    
-if ~nargin || isequal(n,1)
-    fprintf(fid,'\n');
-else
-    for i=1:n
-        fprintf(fid,'\n');
-    end
 end

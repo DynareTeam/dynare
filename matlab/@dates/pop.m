@@ -82,17 +82,17 @@ end
 %$ d = dates(B4,B3,B2,B1);
 %$ d = d.append(dates(B5));
 %$ f = d.pop();
-%$ t(1) = dyn_assert(f.time,e.time(1:end-1,:));
-%$ t(2) = dyn_assert(f.freq,e.freq);
-%$ t(3) = dyn_assert(f.ndat,e.ndat-1);
+%$ t(1) = dassert(f.time,e.time(1:end-1,:));
+%$ t(2) = dassert(f.freq,e.freq);
+%$ t(3) = dassert(f.ndat,e.ndat-1);
 %$ f = d.pop(B1);
-%$ t(4) = dyn_assert(f.time,[1945 3; 1950 1; 1950 2; 2009 2]);
-%$ t(5) = dyn_assert(f.freq,e.freq);
-%$ t(6) = dyn_assert(f.ndat,e.ndat-1);
+%$ t(4) = dassert(f.time,[1945 3; 1950 1; 1950 2; 2009 2]);
+%$ t(5) = dassert(f.freq,e.freq);
+%$ t(6) = dassert(f.ndat,e.ndat-1);
 %$ f = d.pop(dates(B1));
-%$ t(7) = dyn_assert(f.time,[1945 3; 1950 1; 1950 2; 2009 2]);
-%$ t(8) = dyn_assert(f.freq,e.freq);
-%$ t(9) = dyn_assert(f.ndat,e.ndat-1);
+%$ t(7) = dassert(f.time,[1945 3; 1950 1; 1950 2; 2009 2]);
+%$ t(8) = dassert(f.freq,e.freq);
+%$ t(9) = dassert(f.ndat,e.ndat-1);
 %$
 %$ % Check the results.
 %$ T = all(t);
@@ -110,10 +110,10 @@ end
 %$ d = dates(B1,B2,B3,B4);
 %$ d = d.append(dates(B5));
 %$ f = d.pop();
-%$ t(1) = dyn_assert(isequal(f,dates(B1,B2,B3,B4)),1);
+%$ t(1) = dassert(f,dates(B1,B2,B3,B4));
 %$ f = d.pop(B1);
-%$ t(2) = dyn_assert(isequal(f,dates(B1,B2,B4,B5)),1);
+%$ t(2) = dassert(f,dates(B1,B2,B4,B5));
 %$ g = f.pop(1);
-%$ t(3) = dyn_assert(isequal(g,dates(B2,B4,B5)),1);
+%$ t(3) = dassert(g,dates(B2,B4,B5));
 %$ T = all(t);
 %@eof:2

@@ -139,11 +139,11 @@ end
 %$ [s3,nu3] = inverse_gamma_specification(.75,.1,1,0);
 %$ [s4,nu4] = inverse_gamma_specification(.75,.1,1,1);
 %$ % Check the results.
-%$ t(1) = dyn_assert(s0,s1,1e-6);
-%$ t(2) = dyn_assert(nu0,nu1,1e-6);
+%$ t(1) = dassert(s0,s1,1e-6);
+%$ t(2) = dassert(nu0,nu1,1e-6);
 %$ t(3) = isnan(s4);
 %$ t(4) = isnan(nu4);
-%$ t(5) = dyn_assert(s3,16.240907971002265,1e-6);;
-%$ t(6) = dyn_assert(nu3,30.368398202624046,1e-6);;
+%$ t(5) = dassert(s3,16.240907971002265,1e-6);;
+%$ t(6) = dassert(nu3,30.368398202624046,1e-6);;
 %$ T = all(t);
 %@eof:1

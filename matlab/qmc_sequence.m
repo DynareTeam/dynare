@@ -111,9 +111,9 @@
 %$ [draws2, Q] = qmc_sequence(d,S,0,n);
 %$ [draws3, P] = qmc_sequence(d,s,0,2*n);
 %$
-%$ t(1) = dyn_assert(s,int64(0));
-%$ t(2) = dyn_assert(P,Q);
-%$ t(3) = dyn_assert([draws1,draws2],draws3);
+%$ t(1) = dassert(s,int64(0));
+%$ t(2) = dassert(P,Q);
+%$ t(3) = dassert([draws1,draws2],draws3);
 %$ T = all(t);
 %@eof:2
 
@@ -129,8 +129,8 @@
 %$ draws3 = draws2;
 %$ draws3(1,:) = 2*draws2(1,:);
 %$ draws3(2,:) = 3*draws2(2,:)-1;
-%$ t(1) = dyn_assert(S,Q);
-%$ t(2) = dyn_assert(draws1,draws3);
+%$ t(1) = dassert(S,Q);
+%$ t(2) = dassert(draws1,draws3);
 %$ T = all(t);
 %@eof:3
 
@@ -143,15 +143,15 @@
 %$
 %$ [draws, S] = qmc_sequence(d,s,2,n,radius);
 %$
-%$ t(1) = dyn_assert(sqrt(draws(:,3)'*draws(:,3)),radius,1e-14);
-%$ t(2) = dyn_assert(sqrt(draws(:,5)'*draws(:,5)),radius,1e-14);
-%$ t(3) = dyn_assert(sqrt(draws(:,7)'*draws(:,7)),radius,1e-14);
-%$ t(4) = dyn_assert(sqrt(draws(:,11)'*draws(:,11)),radius,1e-14);
-%$ t(5) = dyn_assert(sqrt(draws(:,13)'*draws(:,13)),radius,1e-14);
-%$ t(6) = dyn_assert(sqrt(draws(:,17)'*draws(:,17)),radius,1e-14);
-%$ t(7) = dyn_assert(sqrt(draws(:,19)'*draws(:,19)),radius,1e-14);
-%$ t(8) = dyn_assert(sqrt(draws(:,23)'*draws(:,23)),radius,1e-14);
-%$ t(9) = dyn_assert(sqrt(draws(:,29)'*draws(:,29)),radius,1e-14);
+%$ t(1) = dassert(sqrt(draws(:,3)'*draws(:,3)),radius,1e-14);
+%$ t(2) = dassert(sqrt(draws(:,5)'*draws(:,5)),radius,1e-14);
+%$ t(3) = dassert(sqrt(draws(:,7)'*draws(:,7)),radius,1e-14);
+%$ t(4) = dassert(sqrt(draws(:,11)'*draws(:,11)),radius,1e-14);
+%$ t(5) = dassert(sqrt(draws(:,13)'*draws(:,13)),radius,1e-14);
+%$ t(6) = dassert(sqrt(draws(:,17)'*draws(:,17)),radius,1e-14);
+%$ t(7) = dassert(sqrt(draws(:,19)'*draws(:,19)),radius,1e-14);
+%$ t(8) = dassert(sqrt(draws(:,23)'*draws(:,23)),radius,1e-14);
+%$ t(9) = dassert(sqrt(draws(:,29)'*draws(:,29)),radius,1e-14);
 %$ T = all(t);
 %@eof:4
 
@@ -174,6 +174,6 @@
 %$
 %$ COVARIANCE = draws*draws'/(b*n);
 %$
-%$ t(1) = dyn_assert(covariance,COVARIANCE,1e-6);
+%$ t(1) = dassert(covariance,COVARIANCE,1e-6);
 %$ T = all(t);
 %@eof:5

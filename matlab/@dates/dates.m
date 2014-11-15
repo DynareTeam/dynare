@@ -180,9 +180,9 @@ error('dates::dates: Wrong calling sequence!')
 %$ d = dates(B1,B2,B3,B4);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
-%$ t(3) = dyn_assert(d.ndat,e.ndat);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
+%$ t(3) = dassert(d.ndat,e.ndat);
 %$ T = all(t);
 %@eof:1
 
@@ -202,9 +202,9 @@ error('dates::dates: Wrong calling sequence!')
 %$ d = dates(B1,B2,B3,B4);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
-%$ t(3) = dyn_assert(d.ndat,e.ndat);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
+%$ t(3) = dassert(d.ndat,e.ndat);
 %$ T = all(t);
 %@eof:2
 
@@ -224,9 +224,9 @@ error('dates::dates: Wrong calling sequence!')
 %$ d = dates(B1,B2,B3,B4);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
-%$ t(3) = dyn_assert(d.ndat,e.ndat);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
+%$ t(3) = dassert(d.ndat,e.ndat);
 %$ T = all(t);
 %@eof:3
 
@@ -244,8 +244,8 @@ error('dates::dates: Wrong calling sequence!')
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(d.freq,B.freq);
-%$     t(3) = dyn_assert(d.time,[1950 2]);
+%$     t(2) = dassert(d.freq,B.freq);
+%$     t(3) = dassert(d.time,[1950 2]);
 %$ end
 %$ T = all(t);
 %@eof:4
@@ -263,8 +263,8 @@ error('dates::dates: Wrong calling sequence!')
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(d.freq,B.freq);
-%$     t(3) = dyn_assert(d.time,[1950 2]);
+%$     t(2) = dassert(d.freq,B.freq);
+%$     t(3) = dassert(d.time,[1950 2]);
 %$ end
 %$ T = all(t);
 %@eof:5
@@ -282,8 +282,8 @@ error('dates::dates: Wrong calling sequence!')
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(d.freq,B.freq);
-%$     t(3) = dyn_assert(d.time,[1950 2]);
+%$     t(2) = dassert(d.freq,B.freq);
+%$     t(3) = dassert(d.time,[1950 2]);
 %$ end
 %$ T = all(t);
 %@eof:6

@@ -77,9 +77,9 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(n,m);
-%$    t(3) = dyn_assert(n,0);
-%$    t(4) = dyn_assert(isempty(message),1);
+%$    t(2) = dassert(n,m);
+%$    t(3) = dassert(n,0);
+%$    t(4) = dassert(isempty(message),1);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -98,9 +98,9 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(n,m);
-%$    t(3) = dyn_assert(n,2);
-%$    t(4) = dyn_assert(message,'A2 and A4');
+%$    t(2) = dassert(n,m);
+%$    t(3) = dassert(n,2);
+%$    t(4) = dassert(message,'A2 and A4');
 %$ end
 %$ T = all(t);
 %@eof:2
@@ -119,9 +119,9 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(n,m);
-%$    t(3) = dyn_assert(n,3);
-%$    t(4) = dyn_assert(message,'A2, A4 and A1');
+%$    t(2) = dassert(n,m);
+%$    t(3) = dassert(n,3);
+%$    t(4) = dassert(message,'A2, A4 and A1');
 %$ end
 %$ T = all(t);
 %@eof:3

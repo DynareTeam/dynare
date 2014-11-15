@@ -93,8 +93,8 @@ C = ne(A.data, B.data);
 %$    t = 0;
 %$ end
 %$
-%$ if length(t)>1
-%$    t(2) = dyn_assert(a,[ones(10,2), ones(10,1)]);
+%$ if t(1)
+%$    t(2) = dassert(a,logical([ones(10,2), ones(10,1)]));
 %$ end
 %$ T = all(t);
 %@eof:1

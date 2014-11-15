@@ -75,10 +75,10 @@ end
 %$
 %$ if length(t)>1
 %$     DATA = [transpose(1:50); NaN(1,ts.vobs)];
-%$     t(2) = dyn_assert(a.data,DATA,1e-15);
+%$     t(2) = dassert(a.data,DATA,1e-15);
 %$     DATA = [transpose(2:50); NaN(2,ts.vobs)];
-%$     t(3) = dyn_assert(b.data,DATA,1e-15);
-%$     t(4) = dyn_assert(b.data,c.data,1e-15);
+%$     t(3) = dassert(b.data,DATA,1e-15);
+%$     t(4) = dassert(b.data,c.data,1e-15);
 %$ end
 %$
 %$ T = all(t);

@@ -98,10 +98,10 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts1.vobs,{'B1';'A1';'B2';'A3'});
-%$    t(3) = dyn_assert(ts1.nobs,10);
+%$    t(2) = dassert(ts1.vobs,{'B1';'A1';'B2';'A3'});
+%$    t(3) = dassert(ts1.nobs,10);
 %$    eB = [NaN(2,2); B; NaN(3,2)];
-%$    t(4) = dyn_assert(ts1.data,[eB(:,1), A(:,1), eB(:,2), A(:,2:3)], 1e-15);
+%$    t(4) = dassert(ts1.data,[eB(:,1), A(:,1), eB(:,2), A(:,2:3)], 1e-15);
 %$ end
 %$ T = all(t);
 %@eof:1

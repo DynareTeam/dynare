@@ -189,9 +189,9 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(d.freq,B.freq);
-%$     t(3) = dyn_assert(d.time,[1950 2; 1950 3]);
-%$     t(4) = dyn_assert(d.ndat,2);
+%$     t(2) = dassert(d.freq,B.freq);
+%$     t(3) = dassert(d.time,[1950 2; 1950 3]);
+%$     t(4) = dassert(d.ndat,2);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -211,9 +211,9 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(d.freq,B.freq);
-%$     t(3) = dyn_assert(d.time,[1950 2; 1950 3]);
-%$     t(4) = dyn_assert(d.ndat,2);
+%$     t(2) = dassert(d.freq,B.freq);
+%$     t(3) = dassert(d.time,[1950 2; 1950 3]);
+%$     t(4) = dassert(d.ndat,2);
 %$ end
 %$ T = all(t);
 %@eof:2
@@ -233,9 +233,9 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(d.freq,B.freq);
-%$     t(3) = dyn_assert(d.time,[1950 2; 1950 3]);
-%$     t(4) = dyn_assert(d.ndat,2);
+%$     t(2) = dassert(d.freq,B.freq);
+%$     t(3) = dassert(d.time,[1950 2; 1950 3]);
+%$     t(4) = dassert(d.ndat,2);
 %$ end
 %$ T = all(t);
 %@eof:3
@@ -254,9 +254,9 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(d.freq,B.freq);
-%$     t(3) = dyn_assert(d.time,[1950 2]);
-%$     t(4) = dyn_assert(d.ndat,1);
+%$     t(2) = dassert(d.freq,B.freq);
+%$     t(3) = dassert(d.time,[1950 2]);
+%$     t(4) = dassert(d.ndat,1);
 %$ end
 %$ T = all(t);
 %@eof:4
@@ -290,8 +290,8 @@ end
 %$ end
 %$
 %$ if t(1) && t(2) && t(3)
-%$     t(4) = dyn_assert(isequal(r1,r2),1);
-%$     t(5) = dyn_assert(isequal(r1,r3),1);
+%$     t(4) = dassert(r1,r2);
+%$     t(5) = dassert(r1,r3);
 %$ end
 %$ T = all(t);
 %@eof:5
@@ -325,8 +325,8 @@ end
 %$ end
 %$
 %$ if t(1) && t(2) && t(3)
-%$     t(4) = dyn_assert(isequal(r1,r2),1);
-%$     t(5) = dyn_assert(isequal(r1,r3),1);
+%$     t(4) = dassert(r1,r2);
+%$     t(5) = dassert(r1,r3);
 %$ end
 %$ T = all(t);
 %@eof:6

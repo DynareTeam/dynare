@@ -71,9 +71,9 @@ B.time(A.ndat+1,:) = a.time;
 %$ d = d.append(dates(B5));
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
-%$ t(3) = dyn_assert(d.ndat,e.ndat);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
+%$ t(3) = dassert(d.ndat,e.ndat);
 %$ T = all(t);
 %@eof:1
 
@@ -95,8 +95,8 @@ B.time(A.ndat+1,:) = a.time;
 %$ d = d.append(B5);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d.time,e.time);
-%$ t(2) = dyn_assert(d.freq,e.freq);
-%$ t(3) = dyn_assert(d.ndat,e.ndat);
+%$ t(1) = dassert(d.time,e.time);
+%$ t(2) = dassert(d.freq,e.freq);
+%$ t(3) = dassert(d.ndat,e.ndat);
 %$ T = all(t);
 %@eof:2

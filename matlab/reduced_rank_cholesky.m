@@ -92,6 +92,6 @@ end
 %$
 %$
 %$ % Check the results.
-%$ t(2) = dyn_assert(T,chol(X),1e-16);
+%$ t(2) = dassert(T,chol(X),1e-16);
 %$ T = all(t);
 %@eof:1

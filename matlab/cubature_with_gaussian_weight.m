@@ -159,10 +159,10 @@ function m = ee(n,i,j)
 %$ % Compute (approximated) fourth order moments.
 %$ m4 = nodes.^4*weights;
 %$
-%$ t(2) = dyn_assert(m1,zeros(d,1),1e-12);
-%$ t(3) = dyn_assert(m2,ones(d,1),1e-12);
-%$ t(4) = dyn_assert(m3,zeros(d,1),1e-12);
-%$ t(5) = dyn_assert(m4,d*ones(d,1),1e-10);
+%$ t(2) = dassert(m1,zeros(d,1),1e-12);
+%$ t(3) = dassert(m2,ones(d,1),1e-12);
+%$ t(4) = dassert(m3,zeros(d,1),1e-12);
+%$ t(5) = dassert(m4,d*ones(d,1),1e-10);
 %$ T = all(t);
 %@eof:1
 
@@ -201,10 +201,10 @@ function m = ee(n,i,j)
 %$ % Compute (approximated) fourth order moments.
 %$ m4 = nodes.^4*weights;
 %$
-%$ t(2) = dyn_assert(m1,zeros(d,1),1e-12);
-%$ t(3) = dyn_assert(m2,transpose(1:d),1e-12);
-%$ t(4) = dyn_assert(m3,zeros(d,1),1e-12);
-%$ t(5) = dyn_assert(m4,d*transpose(1:d).^2,1e-10);
+%$ t(2) = dassert(m1,zeros(d,1),1e-12);
+%$ t(3) = dassert(m2,transpose(1:d),1e-12);
+%$ t(4) = dassert(m3,zeros(d,1),1e-12);
+%$ t(5) = dassert(m4,d*transpose(1:d).^2,1e-10);
 %$ T = all(t);
 %@eof:2
 
@@ -237,9 +237,9 @@ function m = ee(n,i,j)
 %$ % Compute (approximated) second order moments.
 %$ m2 = bsxfun(@times,nodes,transpose(weights))*transpose(nodes);
 %$
-%$ t(2) = dyn_assert(m1,zeros(d,1),1e-12);
-%$ t(3) = dyn_assert(diag(m2),transpose(1:d),1e-12);
-%$ t(4) = dyn_assert(m2(:),vec(diag(diag(m2))),1e-12);
+%$ t(2) = dassert(m1,zeros(d,1),1e-12);
+%$ t(3) = dassert(diag(m2),transpose(1:d),1e-12);
+%$ t(4) = dassert(m2(:),vec(diag(diag(m2))),1e-12);
 %$ T = all(t);
 %@eof:3
 
@@ -280,9 +280,9 @@ function m = ee(n,i,j)
 %$ % Compute (approximated) third order moments.
 %$ m3 = nodes.^3*weights;
 %$
-%$ t(2) = dyn_assert(m1,zeros(d,1),1e-12);
-%$ t(3) = dyn_assert(m2(:),vec(Sigma),1e-12);
-%$ t(4) = dyn_assert(m3,zeros(d,1),1e-12);
+%$ t(2) = dassert(m1,zeros(d,1),1e-12);
+%$ t(3) = dassert(m2(:),vec(Sigma),1e-12);
+%$ t(4) = dassert(m3,zeros(d,1),1e-12);
 %$ T = all(t);
 %@eof:4
 
@@ -322,11 +322,11 @@ function m = ee(n,i,j)
 %$ % Compute (approximated) fifth order moments.
 %$ m5 = nodes.^5*weights;
 %$
-%$ t(2) = dyn_assert(m1,zeros(d,1),1e-12);
-%$ t(3) = dyn_assert(m2,ones(d,1),1e-12);
-%$ t(4) = dyn_assert(m3,zeros(d,1),1e-12);
-%$ t(5) = dyn_assert(m4,3*ones(d,1),1e-12);
-%$ t(6) = dyn_assert(m5,zeros(d,1),1e-12);
+%$ t(2) = dassert(m1,zeros(d,1),1e-12);
+%$ t(3) = dassert(m2,ones(d,1),1e-12);
+%$ t(4) = dassert(m3,zeros(d,1),1e-12);
+%$ t(5) = dassert(m4,3*ones(d,1),1e-12);
+%$ t(6) = dassert(m5,zeros(d,1),1e-12);
 %$ T = all(t);
 %@eof:5
 
@@ -361,8 +361,8 @@ function m = ee(n,i,j)
 %$ % Compute (approximated) third order moments.
 %$ m3 = nodes.^3*weights;
 %$
-%$ t(2) = dyn_assert(m1,zeros(d,1),1e-12);
-%$ t(3) = dyn_assert(m2,ones(d,1),1e-12);
-%$ t(4) = dyn_assert(m3,zeros(d,1),1e-12);
+%$ t(2) = dassert(m1,zeros(d,1),1e-12);
+%$ t(3) = dassert(m2,ones(d,1),1e-12);
+%$ t(4) = dassert(m3,zeros(d,1),1e-12);
 %$ T = all(t);
 %@eof:6

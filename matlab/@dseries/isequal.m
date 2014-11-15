@@ -1,10 +1,11 @@
-function C = isequal(A,B)
+function C = isequal(A, B, tol)
 
 % Overloads the isequal Matlab/Octave's function.
 %
 % INPUTS 
 %  o A      dseries object (T periods, N variables).
 %  o B      dseries object (T periods, N variables).
+%  o tol    tolerance parameter.
 %
 % OUTPUTS 
 %  o C      Integer scalar equal to zero or one.
@@ -62,4 +63,8 @@ if ~isequal(A.tex,B.tex)
     warning('dseries::isequal: Both input arguments do not have the same tex names!')
 end
 
-C = isequal(A.data, B.data);
+if nargin<3
+    C = isequal(A.data, B.data);
+else
+    C = ~(max(abs(A.data(:)-B.data(:)))>tol);
+end

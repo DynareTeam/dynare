@@ -97,7 +97,7 @@ switch nargin
     if isdates(varargin{1})
         switch length(varargin{1})
           case 0
-            error(['dseries::dseries: Input ' inputname(1) ' (identified as a dates object) must be non empty!'])
+            error(['dseries::dseries: Input (identified as a dates object) must be non empty!'])
           case 1
             % Create an empty dseries object with an initial date.
             ts.dates = varargin{1};
@@ -131,7 +131,7 @@ switch nargin
             [freq,init,data,varlist] = load_xls_file_data(varargin{1}, sheet, range);
             tex = [];
         else
-            error(['dseries:: I''m not able to load data from ' inputname(1) '!'])
+            error(['dseries:: I''m not able to load data from ' varargin{1} '!'])
         end
         ts.data = data;
         ts.name = varlist;
@@ -265,9 +265,9 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,12);
-%$     t(3) = dyn_assert(ts.init.freq,12);
-%$     t(4) = dyn_assert(ts.init.time,[1938, 11]);
+%$     t(2) = dassert(ts.freq,12);
+%$     t(3) = dassert(ts.init.freq,12);
+%$     t(4) = dassert(ts.init.time,[1938, 11]);
 %$ end
 %$
 %$ T = all(t);
@@ -284,11 +284,11 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1994, 3]);
-%$     t(5) = dyn_assert(ts.vobs,2);
-%$     t(6) = dyn_assert(ts.nobs,100);
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1994, 3]);
+%$     t(5) = dassert(ts.vobs,2);
+%$     t(6) = dassert(ts.nobs,100);
 %$ end
 %$
 %$ T = all(t);
@@ -305,11 +305,11 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1994, 3]);
-%$     t(5) = dyn_assert(ts.vobs,2);
-%$     t(6) = dyn_assert(ts.nobs,100);
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1994, 3]);
+%$     t(5) = dassert(ts.vobs,2);
+%$     t(6) = dassert(ts.nobs,100);
 %$ end
 %$
 %$ T = all(t);
@@ -326,13 +326,13 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1990, 1]);
-%$     t(5) = dyn_assert(ts.vobs,4);
-%$     t(6) = dyn_assert(ts.nobs,4);
-%$     t(7) = dyn_assert(ts.name,{'azert';'yuiop';'qsdfg';'jklm'});
-%$     t(8) = dyn_assert(ts.tex,{'azert';'yuiop';'qsdfg';'jklm'});
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1990, 1]);
+%$     t(5) = dassert(ts.vobs,4);
+%$     t(6) = dassert(ts.nobs,4);
+%$     t(7) = dassert(ts.name,{'azert';'yuiop';'qsdfg';'jklm'});
+%$     t(8) = dassert(ts.tex,{'azert';'yuiop';'qsdfg';'jklm'});
 %$ end
 %$
 %$ T = all(t);
@@ -349,13 +349,13 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,1);
-%$     t(3) = dyn_assert(ts.init.freq,1);
-%$     t(4) = dyn_assert(ts.init.time,[1, 1]);
-%$     t(5) = dyn_assert(ts.vobs,1);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'Variable_1'});
-%$     t(8) = dyn_assert(ts.tex,{'Variable\\_1'});
+%$     t(2) = dassert(ts.freq,1);
+%$     t(3) = dassert(ts.init.freq,1);
+%$     t(4) = dassert(ts.init.time,[1, 1]);
+%$     t(5) = dassert(ts.vobs,1);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'Variable_1'});
+%$     t(8) = dassert(ts.tex,{'Variable\\_1'});
 %$ end
 %$
 %$ T = all(t);
@@ -372,13 +372,13 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(ts.vobs,1);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'Variable_1'});
-%$     t(8) = dyn_assert(ts.tex,{'Variable\\_1'});
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1950, 1]);
+%$     t(5) = dassert(ts.vobs,1);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'Variable_1'});
+%$     t(8) = dassert(ts.tex,{'Variable\\_1'});
 %$ end
 %$
 %$ T = all(t);
@@ -395,13 +395,13 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(ts.vobs,2);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'Output'; 'Consumption'});
-%$     t(8) = dyn_assert(ts.tex,{'Y_t'; 'C_t'});
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1950, 1]);
+%$     t(5) = dassert(ts.vobs,2);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'Output'; 'Consumption'});
+%$     t(8) = dassert(ts.tex,{'Y_t'; 'C_t'});
 %$ end
 %$
 %$ T = all(t);
@@ -416,13 +416,13 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1990, 1]);
-%$     t(5) = dyn_assert(ts.vobs,3);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'GDP';'Consumption';'CPI'});
-%$     t(8) = dyn_assert(ts.tex,{'GDP';'Consumption';'CPI'});
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1990, 1]);
+%$     t(5) = dassert(ts.vobs,3);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'GDP';'Consumption';'CPI'});
+%$     t(8) = dassert(ts.tex,{'GDP';'Consumption';'CPI'});
 %$ end
 %$
 %$ T = all(t);
@@ -437,13 +437,13 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1990, 1]);
-%$     t(5) = dyn_assert(ts.vobs,3);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'Variable_1';'Variable_2';'Variable_3'});
-%$     t(8) = dyn_assert(ts.tex,{'Variable\\_1';'Variable\\_2';'Variable\\_3'});
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1990, 1]);
+%$     t(5) = dassert(ts.vobs,3);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'Variable_1';'Variable_2';'Variable_3'});
+%$     t(8) = dassert(ts.tex,{'Variable\\_1';'Variable\\_2';'Variable\\_3'});
 %$ end
 %$
 %$ T = all(t);
@@ -458,13 +458,13 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(ts.freq,1);
-%$     t(3) = dyn_assert(ts.init.freq,1);
-%$     t(4) = dyn_assert(ts.init.time,[1, 1]);
-%$     t(5) = dyn_assert(ts.vobs,3);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'Variable_1';'Variable_2';'Variable_3'});
-%$     t(8) = dyn_assert(ts.tex,{'Variable\\_1';'Variable\\_2';'Variable\\_3'});
+%$     t(2) = dassert(ts.freq,1);
+%$     t(3) = dassert(ts.init.freq,1);
+%$     t(4) = dassert(ts.init.time,[1, 1]);
+%$     t(5) = dassert(ts.vobs,3);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'Variable_1';'Variable_2';'Variable_3'});
+%$     t(8) = dassert(ts.tex,{'Variable\\_1';'Variable\\_2';'Variable\\_3'});
 %$ end
 %$
 %$ T = all(t);
@@ -479,13 +479,13 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(2) = dyn_assert(ts.freq,1);
-%$     t(3) = dyn_assert(ts.init.freq,1);
-%$     t(4) = dyn_assert(ts.init.time,[1, 1]);
-%$     t(5) = dyn_assert(ts.vobs,3);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'GDP';'Consumption';'CPI'});
-%$     t(8) = dyn_assert(ts.tex,{'GDP';'Consumption';'CPI'});
+%$     t(2) = dassert(ts.freq,1);
+%$     t(3) = dassert(ts.init.freq,1);
+%$     t(4) = dassert(ts.init.time,[1, 1]);
+%$     t(5) = dassert(ts.vobs,3);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'GDP';'Consumption';'CPI'});
+%$     t(8) = dassert(ts.tex,{'GDP';'Consumption';'CPI'});
 %$ end
 %$
 %$ T = all(t);
@@ -502,11 +502,11 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1990, 1]);
-%$     t(5) = dyn_assert(ts.vobs,1);
-%$     t(6) = dyn_assert(ts.nobs,4);
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1990, 1]);
+%$     t(5) = dassert(ts.vobs,1);
+%$     t(6) = dassert(ts.nobs,4);
 %$ end
 %$
 %$ T = all(t);
@@ -523,12 +523,12 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1990, 1]);
-%$     t(5) = dyn_assert(ts.vobs,2);
-%$     t(6) = dyn_assert(ts.nobs,4);
-%$     t(7) = dyn_assert(ts.data, [ones(4,1), 2*ones(4,1)]);
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1990, 1]);
+%$     t(5) = dassert(ts.vobs,2);
+%$     t(6) = dassert(ts.nobs,4);
+%$     t(7) = dassert(ts.data, [ones(4,1), 2*ones(4,1)]);
 %$ end
 %$
 %$ T = all(t);

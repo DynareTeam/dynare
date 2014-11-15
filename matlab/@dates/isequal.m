@@ -1,4 +1,4 @@
-function C = isequal(A,B)
+function C = isequal(A, B, fake)
 
 % Overloads isequal function for dates objects.
     

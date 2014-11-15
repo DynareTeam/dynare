@@ -79,7 +79,7 @@ end
 %$ if length(t)>1
 %$     DATA = NaN(1,ts.vobs);
 %$     DATA = [DATA; .01*ones(ts.nobs-1,ts.vobs)];
-%$     t(2) = dyn_assert(ts.data,DATA,1e-15);
+%$     t(2) = dassert(ts.data,DATA,1e-15);
 %$ end
 %$
 %$ T = all(t);
@@ -100,7 +100,7 @@ end
 %$ if length(t)>1
 %$     DATA = NaN(3,ts.vobs);
 %$     DATA = [DATA; (1.01^3-1)*ones(ts.nobs-3,ts.vobs)];
-%$     t(2) = dyn_assert(ts.data,DATA,1e-15);
+%$     t(2) = dassert(ts.data,DATA,1e-15);
 %$ end
 %$
 %$ T = all(t);

@@ -26,7 +26,7 @@ function b = isdate(str)  % --*-- Unitary tests --*--
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 if isnumeric(str) && isscalar(str)
-    b = 1;
+    b = true;
     return
 end
 
@@ -43,13 +43,13 @@ b = isstringdate(str);
 %$ date_7 = '-1950a';
 %$ date_8 = '1950m ';
 %$
-%$ t(1) = dyn_assert(isdate(date_1),1);
-%$ t(2) = dyn_assert(isdate(date_2),1);
-%$ t(3) = dyn_assert(isdate(date_3),1);
-%$ t(4) = dyn_assert(isdate(date_4),0);
-%$ t(5) = dyn_assert(isdate(date_5),0);
-%$ t(6) = dyn_assert(isdate(date_6),1);
-%$ t(7) = dyn_assert(isdate(date_7),1);
-%$ t(8) = dyn_assert(isdate(date_8),0);
+%$ t(1) = dassert(isdate(date_1),true);
+%$ t(2) = dassert(isdate(date_2),true);
+%$ t(3) = dassert(isdate(date_3),true);
+%$ t(4) = dassert(isdate(date_4),false);
+%$ t(5) = dassert(isdate(date_5),false);
+%$ t(6) = dassert(isdate(date_6),true);
+%$ t(7) = dassert(isdate(date_7),true);
+%$ t(8) = dassert(isdate(date_8),false);
 %$ T = all(t);
 %@eof:1

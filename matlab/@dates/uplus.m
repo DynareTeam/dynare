@@ -52,11 +52,11 @@ B.time(idx,2) = 1;
 %$ i5 = (d5==dates('1951M1'));
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(i1,1);
-%$ t(2) = dyn_assert(i2,1);
-%$ t(3) = dyn_assert(i3,1);
-%$ t(4) = dyn_assert(i4,1);
-%$ t(5) = dyn_assert(i5,1);
+%$ t(1) = dassert(i1,true);
+%$ t(2) = dassert(i2,true);
+%$ t(3) = dassert(i3,true);
+%$ t(4) = dassert(i4,true);
+%$ t(5) = dassert(i5,true);
 %$ T = all(t);
 %@eof:1
 
@@ -71,7 +71,7 @@ B.time(idx,2) = 1;
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(all(d2==d3),1);
+%$   t(2) = dassert(all(d2==d3),true);
 %$ end
 %$
 %$ T = all(t);

@@ -35,17 +35,17 @@ if ~isa(A,'dates') || ~isa(B,'dates')
 end
 
 if ~isequal(A.freq,B.freq)
-    C = 0;
+    C = false;
     return
 end
 
 if isequal(A.ndat, B.ndat)
-    C = transpose(all(transpose(eq(A.time,B.time))));
+    C = logical(transpose(all(transpose(eq(A.time,B.time)))));
 else
     if isequal(A.ndat,1) || isequal(B.ndat,1)
-        C = transpose(all(transpose(bsxfun(@eq,A.time,B.time))));
+        C = logical(transpose(all(transpose(bsxfun(@eq,A.time,B.time)))));
     else
-        C = 0;
+        C = false;
     end
 end
 
@@ -61,9 +61,9 @@ end
 %$ t3 = d1==d3;
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(t1,ones(4,1));
-%$ t(2) = dyn_assert(t2,zeros(4,1));
-%$ t(2) = dyn_assert(t3,[1; 0; 1; 0]);
+%$ t(1) = dassert(t1,true(4,1));
+%$ t(2) = dassert(t2,false(4,1));
+%$ t(2) = dassert(t3,[true; false; true; false]);
 %$ T = all(t);
 %@eof:1
 
@@ -79,9 +79,9 @@ end
 %$ t3 = d1==d3;
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(t1,1);
-%$ t(2) = dyn_assert(t2,0);
-%$ t(2) = dyn_assert(t3,0);
+%$ t(1) = dassert(t1,true);
+%$ t(2) = dassert(t2,false);
+%$ t(2) = dassert(t3,false);
 %$ T = all(t);
 %@eof:2
 
@@ -96,7 +96,7 @@ end
 %$ t2 = d1==d3;
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(t1,[0; 1; 0; 0]);
-%$ t(2) = dyn_assert(t2,zeros(4,1));
+%$ t(1) = dassert(t1,[false; true; false; false]);
+%$ t(2) = dassert(t2,false(4,1));
 %$ T = all(t);
 %@eof:3

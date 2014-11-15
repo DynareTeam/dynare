@@ -93,17 +93,17 @@ function b = write_time_field_y(c, d)
 %$ d6 = string2date(date_6);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(d1.time,e_date_1);
-%$ t(2) = dyn_assert(d2.time,e_date_2);
-%$ t(3) = dyn_assert(d3.time,e_date_3);
-%$ t(4) = dyn_assert(d4.time,e_date_4);
-%$ t(5) = dyn_assert(d5.time,e_date_5);
-%$ t(6) = dyn_assert(d6.time,e_date_6);
-%$ t(7) = dyn_assert(d1.freq,e_freq_1);
-%$ t(8) = dyn_assert(d2.freq,e_freq_2);
-%$ t(9) = dyn_assert(d3.freq,e_freq_3);
-%$ t(10) = dyn_assert(d4.freq,e_freq_4);
-%$ t(11)= dyn_assert(d5.freq,e_freq_5);
-%$ t(12)= dyn_assert(d6.freq,e_freq_6);
+%$ t(1) = dassert(d1.time,e_date_1);
+%$ t(2) = dassert(d2.time,e_date_2);
+%$ t(3) = dassert(d3.time,e_date_3);
+%$ t(4) = dassert(d4.time,e_date_4);
+%$ t(5) = dassert(d5.time,e_date_5);
+%$ t(6) = dassert(d6.time,e_date_6);
+%$ t(7) = dassert(d1.freq,e_freq_1);
+%$ t(8) = dassert(d2.freq,e_freq_2);
+%$ t(9) = dassert(d3.freq,e_freq_3);
+%$ t(10) = dassert(d4.freq,e_freq_4);
+%$ t(11)= dassert(d5.freq,e_freq_5);
+%$ t(12)= dassert(d6.freq,e_freq_6);
 %$ T = all(t);
 %@eof:1

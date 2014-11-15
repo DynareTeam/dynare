@@ -111,9 +111,9 @@ A.dates = A_init:A_init+(nobs(A)-1);
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts3.vobs,2);
-%$    t(3) = dyn_assert(ts3.nobs,10);
-%$    t(4) = dyn_assert(ts3.data,[B, A(:,2)],1e-15);
+%$    t(2) = dassert(ts3.vobs,2);
+%$    t(3) = dassert(ts3.nobs,10);
+%$    t(4) = dassert(ts3.data,[B, A(:,2)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -138,9 +138,9 @@ A.dates = A_init:A_init+(nobs(A)-1);
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts3.vobs,3);
-%$    t(3) = dyn_assert(ts3.nobs,10);
-%$    t(4) = dyn_assert(ts3.data,[A, B],1e-15);
+%$    t(2) = dassert(ts3.vobs,3);
+%$    t(3) = dassert(ts3.nobs,10);
+%$    t(4) = dassert(ts3.data,[A, B],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:2

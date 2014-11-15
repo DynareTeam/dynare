@@ -50,7 +50,7 @@ z = [ m sd s2 ];
 oo_.mean = m;
 oo_.var = oo_.gamma_y{1};
 
-if M_.exo_nbr > 1 && size(stationary_vars, 1) > 0
+if size(stationary_vars, 1) > 0
     oo_.variance_decomposition=100*oo_.gamma_y{options_.ar+2};
     if ~options_.noprint %options_.nomoments == 0
         if options_.order == 2
@@ -66,7 +66,8 @@ if M_.exo_nbr > 1 && size(stationary_vars, 1) > 0
         lh = size(labels,2)+2;
         dyntable(title,headers,labels,z,lh,11,4);
 
-        skipline()
+        if M_.exo_nbr > 1
+            skipline()
             if options_.order == 2
                 title='APPROXIMATED VARIANCE DECOMPOSITION (in percent)';            
             else
@@ -81,7 +82,9 @@ if M_.exo_nbr > 1 && size(stationary_vars, 1) > 0
             headers = char(' ',headers);
             lh = size(deblank(M_.endo_names(ivar(stationary_vars),:)),2)+2;
             dyntable(title,headers,deblank(M_.endo_names(ivar(stationary_vars), ...
-                                                         :)),100*oo_.gamma_y{options_.ar+2}(stationary_vars,:),lh,8,2);
+                                                         :)),100* ...
+                     oo_.gamma_y{options_.ar+2}(stationary_vars,:),lh,8,2);
+        end
     end
     
     conditional_variance_steps = options_.conditional_variance_decomposition;

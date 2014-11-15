@@ -42,13 +42,13 @@ end
 %$ date_7 = '-1950a';
 %$ date_8 = '1950m ';
 %$
-%$ t(1) = dyn_assert(isstringdate(date_1),1);
-%$ t(2) = dyn_assert(isstringdate(date_2),1);
-%$ t(3) = dyn_assert(isstringdate(date_3),1);
-%$ t(4) = dyn_assert(isstringdate(date_4),0);
-%$ t(5) = dyn_assert(isstringdate(date_5),0);
-%$ t(6) = dyn_assert(isstringdate(date_6),1);
-%$ t(7) = dyn_assert(isstringdate(date_7),1);
-%$ t(8) = dyn_assert(isstringdate(date_8),0);
+%$ t(1) = dassert(isstringdate(date_1),true);
+%$ t(2) = dassert(isstringdate(date_2),true);
+%$ t(3) = dassert(isstringdate(date_3),true);
+%$ t(4) = dassert(isstringdate(date_4),false);
+%$ t(5) = dassert(isstringdate(date_5),false);
+%$ t(6) = dassert(isstringdate(date_6),true);
+%$ t(7) = dassert(isstringdate(date_7),true);
+%$ t(8) = dassert(isstringdate(date_8),false);
 %$ T = all(t);
 %@eof:1

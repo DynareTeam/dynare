@@ -79,9 +79,9 @@ end
 %$ end
 %$ 
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts2.vobs,3);
-%$    t(3) = dyn_assert(ts2.nobs,10);
-%$    t(4) = dyn_assert(ts2.name,A_name);
+%$    t(2) = dassert(ts2.vobs,3);
+%$    t(3) = dassert(ts2.nobs,10);
+%$    t(4) = dassert(ts2.name,A_name);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -105,9 +105,9 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,10);
-%$    t(4) = dyn_assert(ts1.name,A_name);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,10);
+%$    t(4) = dassert(ts1.name,A_name);
 %$ end
 %$ T = all(t);
 %@eof:2

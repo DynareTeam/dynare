@@ -136,6 +136,9 @@ for iter = 1:options_.simul.maxit
         if any(isnan(res)) || any(isinf(res)) || any(isnan(Y)) || any(isinf(Y))
             fprintf('\nWARNING: NaN or Inf detected in the residuals or endogenous variables.\n');    
         end
+        if ~isreal(res) || ~isreal(Y)
+            fprintf('\nWARNING: Imaginary parts detected in the residuals or endogenous variables.\n');    
+        end        
         skipline()
     end
     
@@ -162,7 +165,7 @@ end
 
 
 if stop
-    if any(isnan(res)) || any(isinf(res)) || any(isnan(Y)) || any(isinf(Y))
+    if any(isnan(res)) || any(isinf(res)) || any(isnan(Y)) || any(isinf(Y)) || ~isreal(res) || ~isreal(Y)
         oo_.deterministic_simulation.status = 0;% NaN or Inf occurred
         oo_.deterministic_simulation.error = err;
         oo_.deterministic_simulation.iterations = iter;
@@ -171,7 +174,12 @@ if stop
         skipline();
         fprintf('\nSimulation terminated after %d iterations.\n',iter);
         fprintf('Total time of simulation: %16.13f\n',etime(clock,h1));
-        fprintf('WARNING: Simulation terminated with NaN or Inf in the residuals or endogenous variables. There is most likely something wrong with your model.\n');
+        if ~isreal(res) || ~isreal(Y)
+            fprintf('WARNING: Simulation terminated with imaginary parts in the residuals or endogenous variables.\n');
+        else
+            fprintf('WARNING: Simulation terminated with NaN or Inf in the residuals or endogenous variables.\n');
+        end
+        fprintf('WARNING: There is most likely something wrong with your model. Try model_diagnostics.\n');
     else
         skipline();
         fprintf('\nSimulation concluded successfully after %d iterations.\n',iter);

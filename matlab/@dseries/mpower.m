@@ -109,11 +109,11 @@ error(['dseries::mpower: Wrong calling sequence!'])
 %$ end
 %$
 %$ if t(1)
-%$    t(2) = dyn_assert(ts3.vobs,2);
-%$    t(3) = dyn_assert(ts3.nobs,10);
-%$    t(4) = dyn_assert(ts3.data,A.^B,1e-15);
-%$    t(5) = dyn_assert(ts3.name,{'power(A1;B1)';'power(A2;B2)'});
-%$    t(6) = dyn_assert(ts3.tex,{'A1^{B1}';'A2^{B2}'});
+%$    t(2) = dassert(ts3.vobs,2);
+%$    t(3) = dassert(ts3.nobs,10);
+%$    t(4) = dassert(ts3.data,A.^B,1e-15);
+%$    t(5) = dassert(ts3.name,{'power(A1;B1)';'power(A2;B2)'});
+%$    t(6) = dassert(ts3.tex,{'A1^{B1}';'A2^{B2}'});
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -136,11 +136,11 @@ error(['dseries::mpower: Wrong calling sequence!'])
 %$ end
 %$
 %$ if t(1)
-%$    t(2) = dyn_assert(ts3.vobs,2);
-%$    t(3) = dyn_assert(ts3.nobs,10);
-%$    t(4) = dyn_assert(ts3.data,A.^2,1e-15);
-%$    t(5) = dyn_assert(ts3.name,{'power(A1;2)';'power(A2;2)'});
-%$    t(6) = dyn_assert(ts3.tex,{'A1^2';'A2^2'});
+%$    t(2) = dassert(ts3.vobs,2);
+%$    t(3) = dassert(ts3.nobs,10);
+%$    t(4) = dassert(ts3.data,A.^2,1e-15);
+%$    t(5) = dassert(ts3.name,{'power(A1;2)';'power(A2;2)'});
+%$    t(6) = dassert(ts3.tex,{'A1^2';'A2^2'});
 %$ end
 %$ T = all(t);
 %@eof:2
@@ -158,11 +158,11 @@ error(['dseries::mpower: Wrong calling sequence!'])
 %$ end
 %$
 %$ if t(1)
-%$    t(2) = dyn_assert(ts2.vobs,2);
-%$    t(3) = dyn_assert(ts2.nobs,3);
-%$    t(4) = dyn_assert(ts2.data,bsxfun(@power,ts1.data,transpose(1:3)),1e-15);
-%$    t(5) = dyn_assert(ts2.name,{'MyVar1';'MyVar2'});
-%$    t(6) = dyn_assert(ts2.tex,{'MyVar1';'MyVar2'});
+%$    t(2) = dassert(ts2.vobs,2);
+%$    t(3) = dassert(ts2.nobs,3);
+%$    t(4) = dassert(ts2.data,bsxfun(@power,ts1.data,transpose(1:3)),1e-15);
+%$    t(5) = dassert(ts2.name,{'MyVar1';'MyVar2'});
+%$    t(6) = dassert(ts2.tex,{'MyVar1';'MyVar2'});
 %$ end
 %$ T = all(t);
 %@eof:3

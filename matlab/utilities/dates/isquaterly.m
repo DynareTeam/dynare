@@ -45,12 +45,12 @@ end
 %$ date_6 = '1950Y';
 %$ date_7 = '1950m24';
 %$
-%$ t(1) = dyn_assert(isquaterly(date_1),1);
-%$ t(2) = dyn_assert(isquaterly(date_2),1);
-%$ t(3) = dyn_assert(isquaterly(date_3),1);
-%$ t(4) = dyn_assert(isquaterly(date_4),0);
-%$ t(5) = dyn_assert(isquaterly(date_5),0);
-%$ t(6) = dyn_assert(isquaterly(date_6),0);
-%$ t(7) = dyn_assert(isquaterly(date_7),0);
+%$ t(1) = dassert(isquaterly(date_1),1);
+%$ t(2) = dassert(isquaterly(date_2),1);
+%$ t(3) = dassert(isquaterly(date_3),1);
+%$ t(4) = dassert(isquaterly(date_4),0);
+%$ t(5) = dassert(isquaterly(date_5),0);
+%$ t(6) = dassert(isquaterly(date_6),0);
+%$ t(7) = dassert(isquaterly(date_7),0);
 %$ T = all(t);
 %@eof:1

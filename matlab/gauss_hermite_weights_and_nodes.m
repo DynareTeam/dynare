@@ -69,8 +69,8 @@ nodes = sqrt(2)*nodes;
 %$ enodes = [-2.020182870; -0.9585724646; 0; 0.9585724646;   2.020182870]; 
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(1.0,sum_of_weights,1e-12);
-%$ t(2) = dyn_assert(enodes,nodes/sqrt(2),1e-8);
+%$ t(1) = dassert(1.0,sum_of_weights,1e-12);
+%$ t(2) = dassert(enodes,nodes/sqrt(2),1e-8);
 %$ T = all(t);
 %@eof:1
 
@@ -83,9 +83,9 @@ nodes = sqrt(2)*nodes;
 %$ variance = sum(weights.*(nodes.^2));
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(1.0,sum_of_weights,1e-12);
-%$ t(2) = dyn_assert(1.0,variance,1e-12);
-%$ t(3) = dyn_assert(0.0,expectation,1e-12);
+%$ t(1) = dassert(1.0,sum_of_weights,1e-12);
+%$ t(2) = dassert(1.0,variance,1e-12);
+%$ t(3) = dassert(0.0,expectation,1e-12);
 %$ T = all(t);
 %@eof:2
 
@@ -102,9 +102,9 @@ nodes = sqrt(2)*nodes;
 %$ variance = transpose(WEIGHTS)*NODES.^2;
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(1.0,sum_of_weights,1e-12);
-%$ t(2) = dyn_assert(ones(1,2),variance,1e-12);
-%$ t(3) = dyn_assert(zeros(1,2),expectation,1e-12);
+%$ t(1) = dassert(1.0,sum_of_weights,1e-12);
+%$ t(2) = dassert(ones(1,2),variance,1e-12);
+%$ t(3) = dassert(zeros(1,2),expectation,1e-12);
 %$ T = all(t);
 %@eof:3
 
@@ -117,8 +117,8 @@ nodes = sqrt(2)*nodes;
 %$ variance = sum(weights.*((nodes*.1).^2));
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(1.0,sum_of_weights,1e-12);
-%$ t(2) = dyn_assert(.01,variance,1e-12);
-%$ t(3) = dyn_assert(0.0,expectation,1e-12);
+%$ t(1) = dassert(1.0,sum_of_weights,1e-12);
+%$ t(2) = dassert(.01,variance,1e-12);
+%$ t(3) = dassert(0.0,expectation,1e-12);
 %$ T = all(t);
 %@eof:4

@@ -1,4 +1,4 @@
-function [steady_state,params,check] = dyn_ramsey_static(x,M,options_,oo)
+function [steady_state,params,check] = dyn_ramsey_static(ys_init,M,options_,oo)
 
 % function  [steady_state,params,check] = dyn_ramsey_static_(x)
 % Computes the static first order conditions for optimal policy
@@ -39,8 +39,8 @@ options_.steadystate.nocheck = 1; %disable checking because Lagrange multipliers
 nl_func = @(x) dyn_ramsey_static_1(x,M,options_,oo);
 
 % check_static_model is a subfunction
-if check_static_model(oo.steady_state,M,options_,oo) && ~options_.steadystate_flag
-    steady_state = oo.steady_state;
+if check_static_model(ys_init,M,options_,oo) && ~options_.steadystate_flag
+    steady_state = ys_init;
     return
 elseif options_.steadystate_flag
     k_inst = [];
@@ -50,14 +50,14 @@ elseif options_.steadystate_flag
                                    M.endo_names,'exact')];
     end
     if inst_nbr == 1
-        inst_val = csolve(nl_func,oo.steady_state(k_inst),'',options_.solve_tolf,100);
+        inst_val = csolve(nl_func,ys_init(k_inst),'',options_.solve_tolf,100); %solve for instrument, using univariate solver, starting at initial value for instrument
     else
-        [inst_val,info1] = dynare_solve(nl_func,oo.steady_state(k_inst),0);
+        [inst_val,info1] = dynare_solve(nl_func,ys_init(k_inst),0); %solve for instrument, using multivariate solver, starting at initial value for instrument
     end
-    ys(k_inst) = inst_val;
+    ys_init(k_inst) = inst_val;
     exo_ss = [oo.exo_steady_state oo.exo_det_steady_state];
-    [xx,params,check] = evaluate_steady_state_file(ys,exo_ss,M,options_);
-    [junk,junk,steady_state] = nl_func(inst_val);
+    [xx,params,check] = evaluate_steady_state_file(ys_init,exo_ss,M,options_); %run steady state file again to update parameters
+    [junk,junk,steady_state] = nl_func(inst_val); %compute and return steady state
 else
     n_var = M.orig_endo_nbr;
     xx = oo.steady_state(1:n_var);
@@ -92,18 +92,19 @@ if options_.steadystate_flag
         k_inst = [k_inst; strmatch(instruments(i,:), ...
                                    endo_names,'exact')];
     end
-    oo.steady_state(k_inst) = x;
-    [x,params,check] = evaluate_steady_state_file(oo.steady_state,...
+    ys_init=zeros(size(oo.steady_state)); %create starting vector for steady state computation as only instrument value is handed over
+    ys_init(k_inst) = x; %set instrument, the only value required for steady state computation, to current value
+    [x,params,check] = evaluate_steady_state_file(ys_init,... %returned x now has size endo_nbr as opposed to input size of n_instruments
                                                   [oo.exo_steady_state; ...
                                                   oo.exo_det_steady_state], ...
                                                   M,options_);
 end
 
-xx = zeros(endo_nbr,1);
-xx(1:M.orig_endo_nbr) = x(1:M.orig_endo_nbr); %take care of steady state file that will also return multipliers
-% setting steady state of auxiliary variables
-% that depends on original endogenous variables
-if any([M.aux_vars.type] ~= 6)
+xx = zeros(endo_nbr,1); %initialize steady state vector
+xx(1:M.orig_endo_nbr) = x(1:M.orig_endo_nbr); %set values of original endogenous variables based on steady state file or initial value
+
+% setting steady state of auxiliary variables that depends on original endogenous variables
+if any([M.aux_vars.type] ~= 6) %auxiliary variables other than multipliers
     needs_set_auxiliary_variables = 1;
     fh = str2func([M.fname '_set_auxiliary_variables']);
     s_a_v_func = @(z) fh(z,... 

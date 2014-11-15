@@ -46,13 +46,13 @@ end
 %$ date_7 = '1950Q3';
 %$ date_8 = '1950m54';
 %$
-%$ t(1) = dyn_assert(isweekly(date_1),1);
-%$ t(2) = dyn_assert(isweekly(date_2),1);
-%$ t(3) = dyn_assert(isweekly(date_3),1);
-%$ t(4) = dyn_assert(isweekly(date_4),1);
-%$ t(5) = dyn_assert(isweekly(date_5),0);
-%$ t(6) = dyn_assert(isweekly(date_6),0);
-%$ t(7) = dyn_assert(isweekly(date_7),0);
-%$ t(8) = dyn_assert(isweekly(date_8),0);
+%$ t(1) = dassert(isweekly(date_1),1);
+%$ t(2) = dassert(isweekly(date_2),1);
+%$ t(3) = dassert(isweekly(date_3),1);
+%$ t(4) = dassert(isweekly(date_4),1);
+%$ t(5) = dassert(isweekly(date_5),0);
+%$ t(6) = dassert(isweekly(date_6),0);
+%$ t(7) = dassert(isweekly(date_7),0);
+%$ t(8) = dassert(isweekly(date_8),0);
 %$ T = all(t);
 %@eof:1

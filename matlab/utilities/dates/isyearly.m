@@ -46,13 +46,13 @@ end
 %$ date_7 = '-1950a';
 %$ date_8 = '1950m24';
 %$
-%$ t(1) = dyn_assert(isyearly(date_1),0);
-%$ t(2) = dyn_assert(isyearly(date_2),0);
-%$ t(3) = dyn_assert(isyearly(date_3),0);
-%$ t(4) = dyn_assert(isyearly(date_4),0);
-%$ t(5) = dyn_assert(isyearly(date_5),0);
-%$ t(6) = dyn_assert(isyearly(date_6),1);
-%$ t(7) = dyn_assert(isyearly(date_7),1);
-%$ t(8) = dyn_assert(isyearly(date_8),0);
+%$ t(1) = dassert(isyearly(date_1),0);
+%$ t(2) = dassert(isyearly(date_2),0);
+%$ t(3) = dassert(isyearly(date_3),0);
+%$ t(4) = dassert(isyearly(date_4),0);
+%$ t(5) = dassert(isyearly(date_5),0);
+%$ t(6) = dassert(isyearly(date_6),1);
+%$ t(7) = dassert(isyearly(date_7),1);
+%$ t(8) = dassert(isyearly(date_8),0);
 %$ T = all(t);
 %@eof:1

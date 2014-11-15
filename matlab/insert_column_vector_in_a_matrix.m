@@ -58,9 +58,9 @@ end
 %$ end
 %$ 
 %$ if t(1)
-%$   t(2) = dyn_assert(A4,[A,b],1e-15);
-%$   t(3) = dyn_assert(A1,[b,A],1e-15);
-%$   t(4) = dyn_assert(A2,[A(:,1), b, A(:,2:end)],1e-15);
+%$   t(2) = dassert(A4,[A,b],1e-15);
+%$   t(3) = dassert(A1,[b,A],1e-15);
+%$   t(4) = dassert(A2,[A(:,1), b, A(:,2:end)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:1

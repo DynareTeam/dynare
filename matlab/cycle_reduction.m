@@ -143,7 +143,7 @@ end
 %$
 %$ % Check the results.
 %$ if t(1) && t(2)
-%$     t(3) = dyn_assert(X1,X2,1e-12);
+%$     t(3) = dassert(X1,X2,1e-12);
 %$ end
 %$
 %$ T = all(t);

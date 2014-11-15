@@ -96,16 +96,16 @@ end
 %$ f7 = [.1294849661; .2797053914; .3818300505]; f7 = [f7; .4179591836; flipud(f7)];
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(e2,n2,1e-9);
-%$ t(2) = dyn_assert(e3,n3,1e-9);
-%$ t(3) = dyn_assert(e4,n4,1e-9);
-%$ t(4) = dyn_assert(e5,n5,1e-9);
-%$ t(5) = dyn_assert(e7,n7,1e-9);
-%$ t(6) = dyn_assert(w2,f2,1e-9);
-%$ t(7) = dyn_assert(w3,f3,1e-9);
-%$ t(8) = dyn_assert(w4,f4,1e-9);
-%$ t(9) = dyn_assert(w5,f5,1e-9);
-%$ t(10) = dyn_assert(w7,f7,1e-9);
+%$ t(1) = dassert(e2,n2,1e-9);
+%$ t(2) = dassert(e3,n3,1e-9);
+%$ t(3) = dassert(e4,n4,1e-9);
+%$ t(4) = dassert(e5,n5,1e-9);
+%$ t(5) = dassert(e7,n7,1e-9);
+%$ t(6) = dassert(w2,f2,1e-9);
+%$ t(7) = dassert(w3,f3,1e-9);
+%$ t(8) = dassert(w4,f4,1e-9);
+%$ t(9) = dassert(w5,f5,1e-9);
+%$ t(10) = dassert(w7,f7,1e-9);
 %$ T = all(t);
 %@eof:1
 
@@ -116,7 +116,7 @@ end
 %$
 %$ for i=1:nmax
 %$     [n,w] = gauss_legendre_weights_and_nodes(i);
-%$     t(i) = dyn_assert(sum(w),2,1e-12);
+%$     t(i) = dassert(sum(w),2,1e-12);
 %$ end
 %$
 %$ T = all(t);
@@ -127,6 +127,6 @@ end
 %$ % Check that the 
 %$ t(1) = all(n>pi);
 %$ t(2) = all(n<2*pi);
-%$ t(3) = dyn_assert(sum(w),pi,1e-12);
+%$ t(3) = dassert(sum(w),pi,1e-12);
 %$ T = all(t);
 %@eof:3

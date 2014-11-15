@@ -71,11 +71,11 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts2.vobs,2);
-%$    t(3) = dyn_assert(ts2.nobs,10);
-%$    t(4) = dyn_assert(ts2.data,-A,1e-15);
-%$    t(5) = dyn_assert(ts2.name,{'-A1';'-A2'});
-%$    t(6) = dyn_assert(ts2.tex,{'-A_1';'-A_2'});
+%$    t(2) = dassert(ts2.vobs,2);
+%$    t(3) = dassert(ts2.nobs,10);
+%$    t(4) = dassert(ts2.data,-A,1e-15);
+%$    t(5) = dassert(ts2.name,{'-A1';'-A2'});
+%$    t(6) = dassert(ts2.tex,{'-A_1';'-A_2'});
 %$ end
 %$ T = all(t);
 %@eof:1

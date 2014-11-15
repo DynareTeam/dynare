@@ -108,14 +108,14 @@ end
 %$ end
 %$
 %$ % Check the results.
-%$ t(2) = dyn_assert(freq,12);
-%$ t(3) = dyn_assert(isa(init,'dates'),1);
-%$ t(4) = dyn_assert(init.freq,12);
-%$ t(5) = dyn_assert(init.time,[1938 11]);
-%$ t(6) = dyn_assert(varlist,{'hagop';'bedros'});
-%$ t(7) = dyn_assert(varlist,{'hagop';'bedros'});
-%$ t(8) = dyn_assert(data(:,1),[1;2;3;4;5]);
-%$ t(9) = dyn_assert(data(:,2),[2;3;4;5;6]);
+%$ t(2) = dassert(freq,12);
+%$ t(3) = dassert(isa(init,'dates'),true);
+%$ t(4) = dassert(init.freq,12);
+%$ t(5) = dassert(init.time,[1938 11]);
+%$ t(6) = dassert(varlist,{'hagop';'bedros'});
+%$ t(7) = dassert(varlist,{'hagop';'bedros'});
+%$ t(8) = dassert(data(:,1),[1;2;3;4;5]);
+%$ t(9) = dassert(data(:,2),[2;3;4;5;6]);
 %$ T = all(t);
 %@eof:1
 
@@ -142,13 +142,13 @@ end
 %$ end
 %$
 %$ % Check the results.
-%$ t(2) = dyn_assert(freq,12);
-%$ t(3) = dyn_assert(isa(init,'dates'),1);
-%$ t(4) = dyn_assert(init.freq,12);
-%$ t(5) = dyn_assert(init.time,[1938 11]);
-%$ t(6) = dyn_assert(varlist,{'hagop';'bedros'});
-%$ t(7) = dyn_assert(varlist,{'hagop';'bedros'});
-%$ t(8) = dyn_assert(data(:,1),[1;2;3;4;5]);
-%$ t(9) = dyn_assert(data(:,2),[2;3;4;5;6]);
+%$ t(2) = dassert(freq,12);
+%$ t(3) = dassert(isa(init,'dates'),true);
+%$ t(4) = dassert(init.freq,12);
+%$ t(5) = dassert(init.time,[1938 11]);
+%$ t(6) = dassert(varlist,{'hagop';'bedros'});
+%$ t(7) = dassert(varlist,{'hagop';'bedros'});
+%$ t(8) = dassert(data(:,1),[1;2;3;4;5]);
+%$ t(9) = dassert(data(:,2),[2;3;4;5;6]);
 %$ T = all(t);
 %@eof:2

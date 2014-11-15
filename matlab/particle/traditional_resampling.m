@@ -231,7 +231,7 @@ end
 %$ end
 %$
 %$ % Check results.
-%$ t(1) = dyn_assert(indx1,indx1_);
-%$ t(2) = dyn_assert(indx2,indx2_);
+%$ t(1) = dassert(indx1,indx1_);
+%$ t(2) = dassert(indx2,indx2_);
 %$ T = all(t);
 %@eof:3

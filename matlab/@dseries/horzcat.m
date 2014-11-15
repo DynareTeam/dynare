@@ -125,10 +125,10 @@ function a = concatenate(b,c)
 %$
 %$ % Check the results.
 %$
-%$ t(1) = dyn_assert(isequal(ts3.init,e.init),1);
-%$ t(2) = dyn_assert(ts3.freq,e.freq);
-%$ t(3) = dyn_assert(ts3.data,e.data);
-%$ t(4) = dyn_assert(ts3.name,e.name);
+%$ t(1) = dassert(ts3.init,e.init);
+%$ t(2) = dassert(ts3.freq,e.freq);
+%$ t(3) = dassert(ts3.data,e.data);
+%$ t(4) = dassert(ts3.name,e.name);
 %$ T = all(t);
 %@eof:1
 
@@ -159,10 +159,10 @@ function a = concatenate(b,c)
 %$ ts3 = [ts1,ts2];
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(isequal(ts3.init,e.init),1);
-%$ t(2) = dyn_assert(ts3.freq,e.freq);
-%$ t(3) = dyn_assert(ts3.data,e.data);
-%$ t(4) = dyn_assert(ts3.name,e.name);
+%$ t(1) = dassert(ts3.init,e.init);
+%$ t(2) = dassert(ts3.freq,e.freq);
+%$ t(3) = dassert(ts3.data,e.data);
+%$ t(4) = dassert(ts3.name,e.name);
 %$ T = all(t);
 %@eof:2
 
@@ -193,10 +193,10 @@ function a = concatenate(b,c)
 %$ ts3 = [ts1,ts2];
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(isequal(ts3.init,e.init),1);
-%$ t(2) = dyn_assert(ts3.freq,e.freq);
-%$ t(3) = dyn_assert(ts3.data,e.data);
-%$ t(4) = dyn_assert(ts3.name,e.name);
+%$ t(1) = dassert(ts3.init,e.init);
+%$ t(2) = dassert(ts3.freq,e.freq);
+%$ t(3) = dassert(ts3.data,e.data);
+%$ t(4) = dassert(ts3.name,e.name);
 %$ T = all(t);
 %@eof:3
 
@@ -227,10 +227,10 @@ function a = concatenate(b,c)
 %$ ts3 = [ts1,ts2];
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(isequal(ts3.init,e.init),1);
-%$ t(2) = dyn_assert(ts3.freq,e.freq);
-%$ t(3) = dyn_assert(ts3.data,e.data);
-%$ t(4) = dyn_assert(ts3.name,e.name);
+%$ t(1) = dassert(ts3.init,e.init);
+%$ t(2) = dassert(ts3.freq,e.freq);
+%$ t(3) = dassert(ts3.data,e.data);
+%$ t(4) = dassert(ts3.name,e.name);
 %$ T = all(t);
 %@eof:4
 
@@ -260,10 +260,10 @@ function a = concatenate(b,c)
 %$ ts4 = [ts1,ts2,ts3];
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(isequal(ts4.init,e.init),1);
-%$ t(2) = dyn_assert(ts4.freq,e.freq);
-%$ t(3) = dyn_assert(ts4.data,e.data);
-%$ t(4) = dyn_assert(ts4.name,e.name);
+%$ t(1) = dassert(ts4.init,e.init);
+%$ t(2) = dassert(ts4.freq,e.freq);
+%$ t(3) = dassert(ts4.data,e.data);
+%$ t(4) = dassert(ts4.name,e.name);
 %$ T = all(t);
 %@eof:5
 
@@ -308,9 +308,9 @@ function a = concatenate(b,c)
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(ts3.freq,4);
-%$   t(3) = dyn_assert(ts3.data,X);
-%$   t(4) = dyn_assert(isequal(ts3.dates(1),dates('1950Q2')),1);
+%$   t(2) = dassert(ts3.freq,4);
+%$   t(3) = dassert(ts3.data,X);
+%$   t(4) = dassert(ts3.dates(1),dates('1950Q2'));
 %$ end
 %$
 %$ T = t;

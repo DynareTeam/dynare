@@ -121,9 +121,9 @@ end
 %$ [B,C,D,E] = describe_missing_data(transpose(A));
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(B,eB);
-%$ t(2) = dyn_assert(C,eC);
-%$ t(3) = dyn_assert(D,eD);
-%$ t(4) = dyn_assert(E,eE);
+%$ t(1) = dassert(B,eB);
+%$ t(2) = dassert(C,eC);
+%$ t(3) = dassert(D,eD);
+%$ t(4) = dassert(E,eE);
 %$ T = all(t);
 %@eof:1

@@ -33,25 +33,25 @@ if time(2)<1
 end
 
 %@test:1
-%$ t(1) = dyn_assert(add_periods_to_date([1950 1], 4, 1),[1950 2]);
-%$ t(2) = dyn_assert(add_periods_to_date([1950 1], 4, 2),[1950 3]);
-%$ t(3) = dyn_assert(add_periods_to_date([1950 1], 4, 3),[1950 4]);
-%$ t(4) = dyn_assert(add_periods_to_date([1950 1], 4, 4),[1951 1]);
-%$ t(5) = dyn_assert(add_periods_to_date([1950 1], 4, 5),[1951 2]);
-%$ t(6) = dyn_assert(add_periods_to_date([1950 1], 4, 6),[1951 3]);
-%$ t(7) = dyn_assert(add_periods_to_date([1950 1], 4, 7),[1951 4]);
-%$ t(8) = dyn_assert(add_periods_to_date([1950 1], 4, 8),[1952 1]);
+%$ t(1) = dassert(add_periods_to_date([1950 1], 4, 1),[1950 2]);
+%$ t(2) = dassert(add_periods_to_date([1950 1], 4, 2),[1950 3]);
+%$ t(3) = dassert(add_periods_to_date([1950 1], 4, 3),[1950 4]);
+%$ t(4) = dassert(add_periods_to_date([1950 1], 4, 4),[1951 1]);
+%$ t(5) = dassert(add_periods_to_date([1950 1], 4, 5),[1951 2]);
+%$ t(6) = dassert(add_periods_to_date([1950 1], 4, 6),[1951 3]);
+%$ t(7) = dassert(add_periods_to_date([1950 1], 4, 7),[1951 4]);
+%$ t(8) = dassert(add_periods_to_date([1950 1], 4, 8),[1952 1]);
 %$ T = all(t);
 %@eof:1
 
 %@test:2
-%$ t(1) = dyn_assert(add_periods_to_date([1950 1], 4, -1),[1949 4]);
-%$ t(2) = dyn_assert(add_periods_to_date([1950 1], 4, -2),[1949 3]);
-%$ t(3) = dyn_assert(add_periods_to_date([1950 1], 4, -3),[1949 2]);
-%$ t(4) = dyn_assert(add_periods_to_date([1950 1], 4, -4),[1949 1]);
-%$ t(5) = dyn_assert(add_periods_to_date([1950 1], 4, -5),[1948 4]);
-%$ t(6) = dyn_assert(add_periods_to_date([1950 1], 4, -6),[1948 3]);
-%$ t(7) = dyn_assert(add_periods_to_date([1950 1], 4, -7),[1948 2]);
-%$ t(8) = dyn_assert(add_periods_to_date([1950 1], 4, -8),[1948 1]);
+%$ t(1) = dassert(add_periods_to_date([1950 1], 4, -1),[1949 4]);
+%$ t(2) = dassert(add_periods_to_date([1950 1], 4, -2),[1949 3]);
+%$ t(3) = dassert(add_periods_to_date([1950 1], 4, -3),[1949 2]);
+%$ t(4) = dassert(add_periods_to_date([1950 1], 4, -4),[1949 1]);
+%$ t(5) = dassert(add_periods_to_date([1950 1], 4, -5),[1948 4]);
+%$ t(6) = dassert(add_periods_to_date([1950 1], 4, -6),[1948 3]);
+%$ t(7) = dassert(add_periods_to_date([1950 1], 4, -7),[1948 2]);
+%$ t(8) = dassert(add_periods_to_date([1950 1], 4, -8),[1948 1]);
 %$ T = all(t);
 %@eof:2

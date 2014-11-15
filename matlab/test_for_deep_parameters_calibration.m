@@ -42,7 +42,7 @@ if ~isempty(plist)
     end
     tmp = dbstack;
     message = [message, ' when using ' tmp(2).name '. '];
-    message = [message, 'If these parameters are not initialized in a steadystate file, Dynare may not be able to solve the model...'];
+    message = [message, 'If these parameters are not initialized in a steadystate file or a steady_state_model-block, Dynare may not be able to solve the model...'];
     message_id  = 'Dynare:ParameterCalibration:NaNValues';
     warning(message_id,message);
     if strmatch('optimal_policy_discount_factor',plist,'exact')

@@ -49,8 +49,8 @@ end
 %$ i3 = (m3==d6);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(i2,1);
-%$ t(2) = dyn_assert(i3,1);
+%$ t(1) = dassert(i2,1);
+%$ t(2) = dassert(i3,1);
 %$ T = all(t);
 %@eof:1
 
@@ -61,7 +61,7 @@ end
 %$ i = (m==dates('1949Q1'));
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(i,1);
+%$ t(1) = dassert(i,1);
 %$ T = all(t);
 %@eof:2
 
@@ -71,7 +71,7 @@ end
 %$ i = (m==dates('1949Q1'));
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(i,1);
+%$ t(1) = dassert(i,1);
 %$ T = all(t);
 %@eof:3
 
@@ -81,6 +81,6 @@ end
 %$ i = (m==dates('1949Q1'));
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(i,1);
+%$ t(1) = dassert(i,1);
 %$ T = all(t);
 %@eof:4

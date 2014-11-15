@@ -100,11 +100,11 @@ o = dseries(data, o.dates, o.name, o.tex);
 %$ end
 %$
 %$ if t(5)
-%$    t(6) = dyn_assert(max(mean(b1.data)),0,1e-12);
-%$    t(7) = dyn_assert(max(mean(b2.data)),0,1e-12);
-%$    t(8) = dyn_assert(max(mean(b3.data)),0,1e-12);
-%$    t(9) = dyn_assert(max(mean(b4.data)),0,1e-12);
-%$    t(10) = dyn_assert(max(mean(b5.data)),0,1e-12);
+%$    t(6) = dassert(max(mean(b1.data)),0,1e-12);
+%$    t(7) = dassert(max(mean(b2.data)),0,1e-12);
+%$    t(8) = dassert(max(mean(b3.data)),0,1e-12);
+%$    t(9) = dassert(max(mean(b4.data)),0,1e-12);
+%$    t(10) = dassert(max(mean(b5.data)),0,1e-12);
 %$ end
 %$ T = all(t);
 %@eof:1

@@ -40,13 +40,13 @@ ts.name(idname) = {new};
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(ts.vobs,2);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'Production'; 'Consumption'});
-%$     t(8) = dyn_assert(ts.tex,{'Y_t'; 'C_t'});
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1950, 1]);
+%$     t(5) = dassert(ts.vobs,2);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'Production'; 'Consumption'});
+%$     t(8) = dassert(ts.tex,{'Y_t'; 'C_t'});
 %$ end
 %$
 %$ T = all(t);
@@ -63,13 +63,13 @@ ts.name(idname) = {new};
 %$ end
 %$
 %$ if length(t)>1
-%$     t(2) = dyn_assert(ts.freq,4);
-%$     t(3) = dyn_assert(ts.init.freq,4);
-%$     t(4) = dyn_assert(ts.init.time,[1950, 1]);
-%$     t(5) = dyn_assert(ts.vobs,2);
-%$     t(6) = dyn_assert(ts.nobs,5);
-%$     t(7) = dyn_assert(ts.name,{'Production'; 'Consumption'});
-%$     t(8) = dyn_assert(ts.tex,{'Y_t'; 'C_t'});
+%$     t(2) = dassert(ts.freq,4);
+%$     t(3) = dassert(ts.init.freq,4);
+%$     t(4) = dassert(ts.init.time,[1950, 1]);
+%$     t(5) = dassert(ts.vobs,2);
+%$     t(6) = dassert(ts.nobs,5);
+%$     t(7) = dassert(ts.name,{'Production'; 'Consumption'});
+%$     t(8) = dassert(ts.tex,{'Y_t'; 'C_t'});
 %$ end
 %$
 %$ T = all(t);

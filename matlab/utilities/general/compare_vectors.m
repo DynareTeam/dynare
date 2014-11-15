@@ -77,18 +77,18 @@ else
 end
 
 %@test:1
-%$ t(1) = dyn_assert(compare_vectors(@lt, [1990 3], [1991 3]), 1);
-%$ t(2) = dyn_assert(compare_vectors(@lt, [1990 3], [1990 3]), 0);
-%$ t(3) = dyn_assert(compare_vectors(@le, [1990 3], [1990 3]), 1);
-%$ t(4) = dyn_assert(compare_vectors(@lt, [1990 3], [1990 4]), 1);
-%$ t(5) = dyn_assert(compare_vectors(@le, [1990 3], [1990 4]), 1);
-%$ t(6) = dyn_assert(compare_vectors(@gt, [1990 3], [1991 3]), 0);
-%$ t(7) = dyn_assert(compare_vectors(@gt, [1990 3], [1990 3]), 0);
-%$ t(8) = dyn_assert(compare_vectors(@ge, [1990 3], [1990 3]), 1);
-%$ t(9) = dyn_assert(compare_vectors(@gt, [1990 3], [1990 4]), 0);
-%$ t(10) = dyn_assert(compare_vectors(@ge, [1990 3], [1990 4]), 0);
-%$ t(11) = dyn_assert(compare_vectors(@le, [1991 3], [1990 4]), 0);
-%$ t(12) = dyn_assert(compare_vectors(@le, [1991 3], [1990 2]), 0);
-%$ t(13) = dyn_assert(compare_vectors(@le, [1945 2], [1950, 1]),1);
+%$ t(1) = dassert(compare_vectors(@lt, [1990 3], [1991 3]), 1);
+%$ t(2) = dassert(compare_vectors(@lt, [1990 3], [1990 3]), 0);
+%$ t(3) = dassert(compare_vectors(@le, [1990 3], [1990 3]), 1);
+%$ t(4) = dassert(compare_vectors(@lt, [1990 3], [1990 4]), 1);
+%$ t(5) = dassert(compare_vectors(@le, [1990 3], [1990 4]), 1);
+%$ t(6) = dassert(compare_vectors(@gt, [1990 3], [1991 3]), 0);
+%$ t(7) = dassert(compare_vectors(@gt, [1990 3], [1990 3]), 0);
+%$ t(8) = dassert(compare_vectors(@ge, [1990 3], [1990 3]), 1);
+%$ t(9) = dassert(compare_vectors(@gt, [1990 3], [1990 4]), 0);
+%$ t(10) = dassert(compare_vectors(@ge, [1990 3], [1990 4]), 0);
+%$ t(11) = dassert(compare_vectors(@le, [1991 3], [1990 4]), 0);
+%$ t(12) = dassert(compare_vectors(@le, [1991 3], [1990 2]), 0);
+%$ t(13) = dassert(compare_vectors(@le, [1945 2], [1950, 1]),1);
 %$ T = all(t);
 %@eof:1

@@ -146,13 +146,13 @@ end
 %$ end
 %$
 %$ % Check the results.
-%$ t(2) = dyn_assert(freq,4);
-%$ t(3) = dyn_assert(isa(init,'dates'),1);
-%$ t(4) = dyn_assert(init.freq,4);
-%$ t(5) = dyn_assert(init.time,[1938 4]);
-%$ t(6) = dyn_assert(varlist,{'azert';'yuiop'});
-%$ t(7) = dyn_assert(tex,{'azert';'yuiop'});
-%$ t(8) = dyn_assert(data(:,1),[1;2;3;4;5]);
-%$ t(9) = dyn_assert(data(:,2),[2;3;4;5;6]);
+%$ t(2) = dassert(freq,4);
+%$ t(3) = dassert(isa(init,'dates'),1);
+%$ t(4) = dassert(init.freq,4);
+%$ t(5) = dassert(init.time,[1938 4]);
+%$ t(6) = dassert(varlist,{'azert';'yuiop'});
+%$ t(7) = dassert(tex,{'azert';'yuiop'});
+%$ t(8) = dassert(data(:,1),[1;2;3;4;5]);
+%$ t(9) = dassert(data(:,2),[2;3;4;5;6]);
 %$ T = all(t);
 %@eof:1

@@ -177,30 +177,34 @@ if options_.hp_filter == 0
         end
     end
     % variance decomposition
-    if ~nodecomposition && M_.exo_nbr > 1 && size(stationary_vars, 1) > 0
-        Gamma_y{nar+2} = zeros(nvar,M_.exo_nbr);
-        SS(exo_names_orig_ord,exo_names_orig_ord)=M_.Sigma_e+1e-14*eye(M_.exo_nbr);
-        cs = chol(SS)';
-        b1(:,exo_names_orig_ord) = ghu1;
-        b1 = b1*cs;
-        b2(:,exo_names_orig_ord) = ghu(iky,:);
-        b2 = b2*cs;
-        vx  = lyapunov_symm(A,b1*b1',options_.qz_criterium,options_.lyapunov_complex_threshold,1,[],options_.debug);
-        vv = diag(aa*vx*aa'+b2*b2');
-        vv2 = 0;
-        for i=1:M_.exo_nbr
-            vx1 = lyapunov_symm(A,b1(:,i)*b1(:,i)',options_.qz_criterium,options_.lyapunov_complex_threshold,2,[],options_.debug);
-            vx2 = abs(diag(aa*vx1*aa'+b2(:,i)*b2(:,i)'));
-            Gamma_y{nar+2}(stationary_vars,i) = vx2;
-            vv2 = vv2 +vx2;
-        end
-        if max(abs(vv2-vv)./vv) > 1e-4
-            warning(['Aggregate variance and sum of variances by shocks ' ...
-                     'differ by more than 0.01 %'])
-        end
-        for i=1:M_.exo_nbr
-            Gamma_y{nar+2}(stationary_vars,i) = Gamma_y{nar+ ...
-                                2}(stationary_vars,i)./vv2;
+    if ~nodecomposition && M_.exo_nbr > 0 && size(stationary_vars, 1) > 0
+        if M_.exo_nbr == 1
+            Gamma_y{nar+2} = ones(nvar,1);
+        else
+            Gamma_y{nar+2} = zeros(nvar,M_.exo_nbr);
+            SS(exo_names_orig_ord,exo_names_orig_ord)=M_.Sigma_e+1e-14*eye(M_.exo_nbr);
+            cs = chol(SS)';
+            b1(:,exo_names_orig_ord) = ghu1;
+            b1 = b1*cs;
+            b2(:,exo_names_orig_ord) = ghu(iky,:);
+            b2 = b2*cs;
+            vx  = lyapunov_symm(A,b1*b1',options_.qz_criterium,options_.lyapunov_complex_threshold,1,[],options_.debug);
+            vv = diag(aa*vx*aa'+b2*b2');
+            vv2 = 0;
+            for i=1:M_.exo_nbr
+                vx1 = lyapunov_symm(A,b1(:,i)*b1(:,i)',options_.qz_criterium,options_.lyapunov_complex_threshold,2,[],options_.debug);
+                vx2 = abs(diag(aa*vx1*aa'+b2(:,i)*b2(:,i)'));
+                Gamma_y{nar+2}(stationary_vars,i) = vx2;
+                vv2 = vv2 +vx2;
+            end
+            if max(abs(vv2-vv)./vv) > 1e-4
+                warning(['Aggregate variance and sum of variances by shocks ' ...
+                         'differ by more than 0.01 %'])
+            end
+            for i=1:M_.exo_nbr
+                Gamma_y{nar+2}(stationary_vars,i) = Gamma_y{nar+ ...
+                                    2}(stationary_vars,i)./vv2;
+            end
         end
     end
 else% ==> Theoretical HP filter.
@@ -224,8 +228,8 @@ else% ==> Theoretical HP filter.
             f_hp = zeros(length(ivar),length(ivar));
         else
             f_omega  =(1/(2*pi))*( [inv(IA-A*tneg(ig))*ghu1;IE]...
-                *M_.Sigma_e*[ghu1'*inv(IA-A'*tpos(ig)) ...
-                IE]); % state variables
+                                   *M_.Sigma_e*[ghu1'*inv(IA-A'*tpos(ig)) ...
+                                IE]); % state variables
             g_omega = [aa*tneg(ig) bb]*f_omega*[aa'*tpos(ig); bb']; % selected variables
             f_hp = hp1(ig)^2*g_omega; % spectral density of selected filtered series
         end
@@ -244,49 +248,53 @@ else% ==> Theoretical HP filter.
         end
     end
     % Variance decomposition
-    if ~nodecomposition && M_.exo_nbr > 1
-        Gamma_y{nar+2} = zeros(nvar,M_.exo_nbr);
-        SS(exo_names_orig_ord,exo_names_orig_ord) = M_.Sigma_e+1e-14*eye(M_.exo_nbr);
-        cs = chol(SS)';
-        SS = cs*cs';
-        b1(:,exo_names_orig_ord) = ghu1;
-        b2(:,exo_names_orig_ord) = ghu(iky,:);
-        mathp_col = [];
-        IA = eye(size(A,1));
-        IE = eye(M_.exo_nbr);
-        for ig = 1:ngrid
-            if hp1(ig)==0,
-                f_hp = zeros(length(ivar),length(ivar));
-            else
-                f_omega  =(1/(2*pi))*( [inv(IA-A*tneg(ig))*b1;IE]...
-                    *SS*[b1'*inv(IA-A'*tpos(ig)) ...
-                    IE]); % state variables
-                g_omega = [aa*tneg(ig) b2]*f_omega*[aa'*tpos(ig); b2']; % selected variables
-                f_hp = hp1(ig)^2*g_omega; % spectral density of selected filtered series
-            end
-            mathp_col = [mathp_col ; (f_hp(:))'];    % store as matrix row
-                                                     % for ifft
-        end;  
-        imathp_col = real(ifft(mathp_col))*(2*pi);
-        vv = diag(reshape(imathp_col(1,:),nvar,nvar));
-        for i=1:M_.exo_nbr
+    if ~nodecomposition && M_.exo_nbr > 0
+        if M_.exo_nbr == 1
+            Gamma_y{nar+2} = ones(nvar,1);
+        else
+            Gamma_y{nar+2} = zeros(nvar,M_.exo_nbr);
+            SS(exo_names_orig_ord,exo_names_orig_ord) = M_.Sigma_e+1e-14*eye(M_.exo_nbr);
+            cs = chol(SS)';
+            SS = cs*cs';
+            b1(:,exo_names_orig_ord) = ghu1;
+            b2(:,exo_names_orig_ord) = ghu(iky,:);
             mathp_col = [];
-            SSi = cs(:,i)*cs(:,i)';
+            IA = eye(size(A,1));
+            IE = eye(M_.exo_nbr);
             for ig = 1:ngrid
                 if hp1(ig)==0,
                     f_hp = zeros(length(ivar),length(ivar));
                 else
                     f_omega  =(1/(2*pi))*( [inv(IA-A*tneg(ig))*b1;IE]...
-                        *SSi*[b1'*inv(IA-A'*tpos(ig)) ...
-                        IE]); % state variables
+                                           *SS*[b1'*inv(IA-A'*tpos(ig)) ...
+                                        IE]); % state variables
                     g_omega = [aa*tneg(ig) b2]*f_omega*[aa'*tpos(ig); b2']; % selected variables
                     f_hp = hp1(ig)^2*g_omega; % spectral density of selected filtered series
                 end
                 mathp_col = [mathp_col ; (f_hp(:))'];    % store as matrix row
-                % for ifft
-            end;
+                                                         % for ifft
+            end;  
             imathp_col = real(ifft(mathp_col))*(2*pi);
-            Gamma_y{nar+2}(:,i) = abs(diag(reshape(imathp_col(1,:),nvar,nvar)))./vv;
+            vv = diag(reshape(imathp_col(1,:),nvar,nvar));
+            for i=1:M_.exo_nbr
+                mathp_col = [];
+                SSi = cs(:,i)*cs(:,i)';
+                for ig = 1:ngrid
+                    if hp1(ig)==0,
+                        f_hp = zeros(length(ivar),length(ivar));
+                    else
+                        f_omega  =(1/(2*pi))*( [inv(IA-A*tneg(ig))*b1;IE]...
+                                               *SSi*[b1'*inv(IA-A'*tpos(ig)) ...
+                                            IE]); % state variables
+                        g_omega = [aa*tneg(ig) b2]*f_omega*[aa'*tpos(ig); b2']; % selected variables
+                        f_hp = hp1(ig)^2*g_omega; % spectral density of selected filtered series
+                    end
+                    mathp_col = [mathp_col ; (f_hp(:))'];    % store as matrix row
+                                                             % for ifft
+                end;
+                imathp_col = real(ifft(mathp_col))*(2*pi);
+                Gamma_y{nar+2}(:,i) = abs(diag(reshape(imathp_col(1,:),nvar,nvar)))./vv;
+            end
         end
     end
 end

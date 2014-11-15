@@ -96,22 +96,22 @@ end
 %$ t17 = name2tex('_azert_uiop_qsdfg',1);
 %$ t18 = name2tex('_azert_uiop_qsdfg_',1);
 %$
-%$ t(1) = dyn_assert(strcmp(t1,'\\_azert'),1);
-%$ t(2) = dyn_assert(strcmp(t2,'azert\\_'),1);
-%$ t(3) = dyn_assert(strcmp(t3,'\\_azert\\_'),1);
-%$ t(4) = dyn_assert(strcmp(t4,'azert\\_uiop'),1);
-%$ t(5) = dyn_assert(strcmp(t5,'azert\\_uiop\\_qsdfg'),1);
-%$ t(6) = dyn_assert(strcmp(t6,'azert\\_uiop\\_qsdfg\\_'),1);
-%$ t(7) = dyn_assert(strcmp(t7,'\\_azert\\_uiop\\_qsdfg'),1);
-%$ t(8) = dyn_assert(strcmp(t8,'\\_azert\\_uiop\\_qsdfg\\_'),1);
-%$ t(9) = dyn_assert(strcmp(t11,'\\_azert'),1);
-%$ t(10) = dyn_assert(strcmp(t12,'azert\\_'),1);
-%$ t(11) = dyn_assert(strcmp(t13,'\\_azert\\_'),1);
-%$ t(12) = dyn_assert(strcmp(t14,'azert_{uiop}'),1);
-%$ t(13) = dyn_assert(strcmp(t15,'azert\\_uiop_{qsdfg}'),1);
-%$ t(14) = dyn_assert(strcmp(t16,'azert\\_uiop_{qsdfg\\_}'),1);
-%$ t(15) = dyn_assert(strcmp(t17,'\\_azert\\_uiop_{qsdfg}'),1);
-%$ t(16) = dyn_assert(strcmp(t18,'\\_azert\\_uiop_{qsdfg\\_}'),1);
+%$ t(1) = dassert(strcmp(t1,'\\_azert'),true);
+%$ t(2) = dassert(strcmp(t2,'azert\\_'),true);
+%$ t(3) = dassert(strcmp(t3,'\\_azert\\_'),true);
+%$ t(4) = dassert(strcmp(t4,'azert\\_uiop'),true);
+%$ t(5) = dassert(strcmp(t5,'azert\\_uiop\\_qsdfg'),true);
+%$ t(6) = dassert(strcmp(t6,'azert\\_uiop\\_qsdfg\\_'),true);
+%$ t(7) = dassert(strcmp(t7,'\\_azert\\_uiop\\_qsdfg'),true);
+%$ t(8) = dassert(strcmp(t8,'\\_azert\\_uiop\\_qsdfg\\_'),true);
+%$ t(9) = dassert(strcmp(t11,'\\_azert'),true);
+%$ t(10) = dassert(strcmp(t12,'azert\\_'),true);
+%$ t(11) = dassert(strcmp(t13,'\\_azert\\_'),true);
+%$ t(12) = dassert(strcmp(t14,'azert_{uiop}'),true);
+%$ t(13) = dassert(strcmp(t15,'azert\\_uiop_{qsdfg}'),true);
+%$ t(14) = dassert(strcmp(t16,'azert\\_uiop_{qsdfg\\_}'),true);
+%$ t(15) = dassert(strcmp(t17,'\\_azert\\_uiop_{qsdfg}'),true);
+%$ t(16) = dassert(strcmp(t18,'\\_azert\\_uiop_{qsdfg\\_}'),true);
 %$
 %$ T = all(t);
 %@eof:1
@@ -135,22 +135,22 @@ end
 %$ t17 = name2tex({'_azert_uiop_qsdfg'},1);
 %$ t18 = name2tex({'_azert_uiop_qsdfg_'},1);
 %$
-%$ t(1) = dyn_assert(t1,{'\\_azert'});
-%$ t(2) = dyn_assert(t2,{'azert\\_'});
-%$ t(3) = dyn_assert(t3,{'\\_azert\\_'});
-%$ t(4) = dyn_assert(t4,{'azert\\_uiop'});
-%$ t(5) = dyn_assert(t5,{'azert\\_uiop\\_qsdfg'});
-%$ t(6) = dyn_assert(t6,{'azert\\_uiop\\_qsdfg\\_'});
-%$ t(7) = dyn_assert(t7,{'\\_azert\\_uiop\\_qsdfg'});
-%$ t(8) = dyn_assert(t8,{'\\_azert\\_uiop\\_qsdfg\\_'});
-%$ t(9) = dyn_assert(t11,{'\\_azert'});
-%$ t(10) = dyn_assert(t12,{'azert\\_'});
-%$ t(11) = dyn_assert(t13,{'\\_azert\\_'});
-%$ t(12) = dyn_assert(t14,{'azert_{uiop}'});
-%$ t(13) = dyn_assert(t15,{'azert\\_uiop_{qsdfg}'});
-%$ t(14) = dyn_assert(t16,{'azert\\_uiop_{qsdfg\\_}'});
-%$ t(15) = dyn_assert(t17,{'\\_azert\\_uiop_{qsdfg}'});
-%$ t(16) = dyn_assert(t18,{'\\_azert\\_uiop_{qsdfg\\_}'});
+%$ t(1) = dassert(t1,{'\\_azert'});
+%$ t(2) = dassert(t2,{'azert\\_'});
+%$ t(3) = dassert(t3,{'\\_azert\\_'});
+%$ t(4) = dassert(t4,{'azert\\_uiop'});
+%$ t(5) = dassert(t5,{'azert\\_uiop\\_qsdfg'});
+%$ t(6) = dassert(t6,{'azert\\_uiop\\_qsdfg\\_'});
+%$ t(7) = dassert(t7,{'\\_azert\\_uiop\\_qsdfg'});
+%$ t(8) = dassert(t8,{'\\_azert\\_uiop\\_qsdfg\\_'});
+%$ t(9) = dassert(t11,{'\\_azert'});
+%$ t(10) = dassert(t12,{'azert\\_'});
+%$ t(11) = dassert(t13,{'\\_azert\\_'});
+%$ t(12) = dassert(t14,{'azert_{uiop}'});
+%$ t(13) = dassert(t15,{'azert\\_uiop_{qsdfg}'});
+%$ t(14) = dassert(t16,{'azert\\_uiop_{qsdfg\\_}'});
+%$ t(15) = dassert(t17,{'\\_azert\\_uiop_{qsdfg}'});
+%$ t(16) = dassert(t18,{'\\_azert\\_uiop_{qsdfg\\_}'});
 %$
 %$ T = all(t);
 %@eof:2
@@ -174,11 +174,11 @@ end
 %$ end
 %$
 %$ if t(1)
-%$     t(3) = dyn_assert(t1,{'\\_azert';'azert\\_';'\\_azert\\_';'azert\\_uiop';'azert\\_uiop\\_qsdfg';'azert\\_uiop\\_qsdfg\\_'});
+%$     t(3) = dassert(t1,{'\\_azert';'azert\\_';'\\_azert\\_';'azert\\_uiop';'azert\\_uiop\\_qsdfg';'azert\\_uiop\\_qsdfg\\_'});
 %$ end
 %$
 %$ if t(2)
-%$     t(4) = dyn_assert(t2,{'\\_azert';'azert\\_';'\\_azert\\_';'azert_{uiop}';'azert\\_uiop_{qsdfg}';'azert\\_uiop_{qsdfg\\_}'});
+%$     t(4) = dassert(t2,{'\\_azert';'azert\\_';'\\_azert\\_';'azert_{uiop}';'azert\\_uiop_{qsdfg}';'azert\\_uiop_{qsdfg\\_}'});
 %$ end
 %$
 %$ T = all(t);

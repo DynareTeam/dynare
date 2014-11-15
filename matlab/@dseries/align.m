@@ -109,10 +109,10 @@ b.dates = b_init:b_init+(nobs(b)-1);
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(ts1.nobs,ts2.nobs);
-%$   t(3) = dyn_assert(isequal(ts1.init,ts2.init),1);
-%$   t(4) = dyn_assert(ts1.data,[NaN(3,3); A], 1e-15);
-%$   t(5) = dyn_assert(ts2.data,[B; NaN(4,2)], 1e-15);
+%$   t(2) = dassert(ts1.nobs,ts2.nobs);
+%$   t(3) = dassert(ts1.init,ts2.init);
+%$   t(4) = dassert(ts1.data,[NaN(3,3); A], 1e-15);
+%$   t(5) = dassert(ts2.data,[B; NaN(4,2)], 1e-15);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -141,10 +141,10 @@ b.dates = b_init:b_init+(nobs(b)-1);
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(ts1.nobs,ts2.nobs);
-%$   t(3) = dyn_assert(isequal(ts1.init,ts2.init),1);
-%$   t(4) = dyn_assert(ts1.data,A, 1e-15);
-%$   t(5) = dyn_assert(ts2.data,[B; NaN(1,2)], 1e-15);
+%$   t(2) = dassert(ts1.nobs,ts2.nobs);
+%$   t(3) = dassert(ts1.init,ts2.init);
+%$   t(4) = dassert(ts1.data,A, 1e-15);
+%$   t(5) = dassert(ts2.data,[B; NaN(1,2)], 1e-15);
 %$ end
 %$ T = all(t);
 %@eof:2
@@ -173,10 +173,10 @@ b.dates = b_init:b_init+(nobs(b)-1);
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(ts1.nobs,ts2.nobs);
-%$   t(3) = dyn_assert(isequal(ts1.init,ts2.init),1);
-%$   t(4) = dyn_assert(ts1.data,A, 1e-15);
-%$   t(5) = dyn_assert(ts2.data,[B; NaN(1,2)], 1e-15);
+%$   t(2) = dassert(ts1.nobs,ts2.nobs);
+%$   t(3) = dassert(ts1.init,ts2.init);
+%$   t(4) = dassert(ts1.data,A, 1e-15);
+%$   t(5) = dassert(ts2.data,[B; NaN(1,2)], 1e-15);
 %$ end
 %$ T = all(t);
 %@eof:3

@@ -1,4 +1,4 @@
-function [x,fval,exitflag] = simplex_optimization_routine(objective_function,x,options,varargin)
+function [x,fval,exitflag] = simplex_optimization_routine(objective_function,x,options,var_names,varargin)
 
 % Nelder-Mead like optimization routine (see http://en.wikipedia.org/wiki/Nelder-Mead_method)
 %
@@ -11,6 +11,8 @@ function [x,fval,exitflag] = simplex_optimization_routine(objective_function,x,o
 %  o objective_function     [string]                  Name of the objective function to be minimized.
 %  o x                      [double]                  n*1 vector, starting guess of the optimization routine.
 %  o options                [structure]               Options of this implementation of the simplex algorithm.
+%  o var_names              [cell]                    Names of parameters
+%                                                       for verbose output
 %  o varargin               [cell of structures]      Structures to be passed to the objective function.
 %
 %     varargin{1} --> DynareDataset
@@ -45,7 +47,7 @@ function [x,fval,exitflag] = simplex_optimization_routine(objective_function,x,o
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 % Set verbose mode
-verbose = 2;
+verbose = options.verbosity;
 
 % Set number of control variables.
 number_of_variables = length(x);
@@ -194,7 +196,7 @@ else
         disp(['Current parameter values: '])
         fprintf(1,'%s: \t\t\t %s \t\t\t %s \t\t\t %s \t\t\t %s \t\t\t %s \n','Names','Best point', 'Worst point', 'Mean values', 'Min values', 'Max values');
         for i=1:number_of_variables
-            fprintf(1,'%s: \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \n',varargin{6}.name{i},v(i,1), v(i,end), mean(v(i,:),2), min(v(i,:),[],2), max(v(i,:),[],2));
+            fprintf(1,'%s: \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \n',var_names{i},v(i,1), v(i,end), mean(v(i,:),2), min(v(i,:),[],2), max(v(i,:),[],2));
         end
         skipline()
     end
@@ -406,7 +408,7 @@ while (func_count < max_func_calls) && (iter_count < max_iterations) && (simplex
         disp(['Current parameter values: '])
         fprintf(1,'%s: \t\t\t %s \t\t\t %s \t\t\t %s \t\t\t %s \t\t\t %s \n','Names','Best point', 'Worst point', 'Mean values', 'Min values', 'Max values');
         for i=1:number_of_variables
-            fprintf(1,'%s: \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \n',varargin{6}.name{i}, v(i,1), v(i,end), mean(v(i,:),2), min(v(i,:),[],2), max(v(i,:),[],2));
+            fprintf(1,'%s: \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \t\t\t %+8.6f \n',var_names{i}, v(i,1), v(i,end), mean(v(i,:),2), min(v(i,:),[],2), max(v(i,:),[],2));
         end
         skipline()
     end
@@ -432,7 +434,7 @@ while (func_count < max_func_calls) && (iter_count < max_iterations) && (simplex
                 disp(['values for the control variables. '])
                 disp(['New value of delta (size of the new simplex) is: '])
                 for i=1:number_of_variables
-                    fprintf(1,'%s: \t\t\t %+8.6f \n',varargin{6}.name{i}, delta(i));
+                    fprintf(1,'%s: \t\t\t %+8.6f \n',var_names{i}, delta(i));
                 end
             end
             % Reset counters
@@ -479,7 +481,7 @@ while (func_count < max_func_calls) && (iter_count < max_iterations) && (simplex
                 disp(['values for the control variables. '])
                 disp(['New value of delta (size of the new simplex) is: '])
                 for i=1:number_of_variables
-                    fprintf(1,'%s: \t\t\t %+8.6f \n',varargin{6}.name{i}, delta(i));
+                    fprintf(1,'%s: \t\t\t %+8.6f \n',var_names{i}, delta(i));
                 end
             end
             % Reset counters
@@ -499,7 +501,7 @@ while (func_count < max_func_calls) && (iter_count < max_iterations) && (simplex
 end% while loop.
 
 x(:) = v(:,1);
-fval = fv(:,1);
+fval = fv(1);
 exitflag = 1;
 
 if func_count>= max_func_calls

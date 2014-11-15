@@ -65,9 +65,9 @@ end
 %$ end
 %$
 %$ if t(1)
-%$   t(2) = dyn_assert(C4,[A;b]);
-%$   t(3) = dyn_assert(C1,[b;A],1e-15);
-%$   t(4) = dyn_assert(C2,[A(1); b; A(2:3)]);
+%$   t(2) = dassert(C4,[A;b]);
+%$   t(3) = dassert(C1,[b;A],1e-15);
+%$   t(4) = dassert(C2,[A(1); b; A(2:3)]);
 %$ end
 %$ T = all(t);
 %@eof:1

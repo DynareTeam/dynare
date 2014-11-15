@@ -4615,7 +4615,7 @@ The name of the sheet with the data in an Excel file
 
 @item xls_range = @var{RANGE}
 @anchor{xls_range}
-The range with the data in an Excel file
+The range with the data in an Excel file. For example, @code{xls_range=B2:D200}
 
 @item nobs = @var{INTEGER}
 @anchor{nobs}
@@ -10244,6 +10244,31 @@ Overloads the Matlab/Octave @code{exp} function for @dseries objects.
 @example
 >> ts0 = dseries(rand(10,1));
 >> ts1 = ts0.exp();
+@end example
+
+@end deftypefn
+
+@sp 1
+
+@deftypefn{dseries} {@var{l} =} exist (@var{A}, @var{varname})
+
+Tests if @var{variable} exists in @dseries object @var{A}. Returns 1 (true) iff @var{variable} exists in @var{A}.
+
+@exampleshead
+
+@example
+>> ts = dseries(randn(100,1));
+>> ts.exist('Variable_1')
+
+ans =
+
+     1
+
+>> ts.exist('Variable_2')
+
+ans =
+
+     0
 @end example
 
 @end deftypefn

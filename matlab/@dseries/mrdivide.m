@@ -114,9 +114,9 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts3.vobs,2);
-%$    t(3) = dyn_assert(ts3.nobs,10);
-%$    t(4) = dyn_assert(ts3.data,[A(:,1)./B, A(:,2)./B],1e-15);
+%$    t(2) = dassert(ts3.vobs,2);
+%$    t(3) = dassert(ts3.nobs,10);
+%$    t(4) = dassert(ts3.data,[A(:,1)./B, A(:,2)./B],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -140,9 +140,9 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts2.vobs,2);
-%$    t(3) = dyn_assert(ts2.nobs,10);
-%$    t(4) = dyn_assert(ts2.data,A/B,1e-15);
+%$    t(2) = dassert(ts2.vobs,2);
+%$    t(3) = dassert(ts2.nobs,10);
+%$    t(4) = dassert(ts2.data,A/B,1e-15);
 %$ end
 %$ T = all(t);
 %@eof:2
@@ -166,9 +166,9 @@ end
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts2.vobs,2);
-%$    t(3) = dyn_assert(ts2.nobs,10);
-%$    t(4) = dyn_assert(ts2.data,B./A,1e-15);
+%$    t(2) = dassert(ts2.vobs,2);
+%$    t(3) = dassert(ts2.nobs,10);
+%$    t(4) = dassert(ts2.data,B./A,1e-15);
 %$ end
 %$ T = all(t);
 %@eof:3

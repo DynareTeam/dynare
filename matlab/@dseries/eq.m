@@ -83,7 +83,7 @@ C = eq(A.data, B.data);
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(a,ones(10,3));
+%$    t(2) = dassert(a,logical(ones(10,3)));
 %$ end
 %$ T = all(t);
 %@eof:1

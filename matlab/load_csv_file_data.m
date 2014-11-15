@@ -49,7 +49,7 @@ if isoctave
     withvars = L.numlimits(2,1) > L.txtlimits(2,1);
     withtime = L.numlimits(1,1) > L.txtlimits(1,1);
 else
-    A = importdata(file);
+    A = importdata(file, ',');
     if ~isstruct(A)
         data = A;
         T = {};

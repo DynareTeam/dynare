@@ -29,6 +29,7 @@ MODFILES = \
 	optimal_policy/Ramsey/ramsey_ex_initval.mod \
 	optimal_policy/Ramsey/ramsey_ex.mod \
 	optimal_policy/Ramsey/ramsey_ex_initval_AR2.mod \
+	optimal_policy/Ramsey/ramsey_ex_aux.mod \
 	discretionary_policy/dennis_1.mod \
 	ramst_initval_file.mod \
 	ramst_normcdf_and_friends.mod \
@@ -119,6 +120,7 @@ MODFILES = \
 	identification/kim/kim2.mod \
 	identification/as2007/as2007.mod \
 	simul/example1.mod \
+	simul/Solow_no_varexo.mod \
 	conditional_forecasts/fs2000_cal.mod \
 	conditional_forecasts/fs2000_est.mod \
 	recursive/ls2003.mod \

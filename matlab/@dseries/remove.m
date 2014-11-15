@@ -64,9 +64,9 @@ ts = pop(ts, a);
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts2.vobs,2);
-%$    t(3) = dyn_assert(ts2.nobs,10);
-%$    t(4) = dyn_assert(ts2.data,[A(:,1), A(:,3)],1e-15);
+%$    t(2) = dassert(ts2.vobs,2);
+%$    t(3) = dassert(ts2.nobs,10);
+%$    t(4) = dassert(ts2.data,[A(:,1), A(:,3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -90,9 +90,9 @@ ts = pop(ts, a);
 %$ end
 %$
 %$ if length(t)>1
-%$    t(2) = dyn_assert(ts2.vobs,2);
-%$    t(3) = dyn_assert(ts2.nobs,10);
-%$    t(4) = dyn_assert(ts2.data,[A(:,1), A(:,3)],1e-15);
+%$    t(2) = dassert(ts2.vobs,2);
+%$    t(3) = dassert(ts2.nobs,10);
+%$    t(4) = dassert(ts2.data,[A(:,1), A(:,3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:2

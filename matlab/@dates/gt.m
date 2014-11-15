@@ -35,43 +35,43 @@ if ~isa(A,'dates') || ~isa(B,'dates')
 end
 
 if ~isequal(A.freq,B.freq)
-    C = 0;
+    C = false;
     return
 end
 
 if isequal(A.ndat, B.ndat)
-    C = NaN(A.ndat,1);
+    C = false(A.ndat,1);
     for i=1:A.ndat
         C(i) = greaterthan(A.time(i,:), B.time(i,:));
     end
 else
     if isequal(A.ndat,1)
-        C = NaN(B.ndat,1);
+        C = false(B.ndat,1);
         for i=1:B.ndat
             C(i) = greaterthan(A.time, B.time(i,:));
         end
     elseif isequal(B.ndat,1)
-        C = NaN(A.ndat,1);
+        C = false(A.ndat,1);
         for i=1:A.ndat
             C(i) = greaterthan(A.time(i,:), B.time);
         end
     else
-        C = 0;
+        C = false;
     end
 end
 
 
 function c = greaterthan(a,b)
     if a(1)>b(1)
-        c = 1;
+        c = true;
     else
         if a(1)<b(1)
-            c = 0;
+            c = false;
         else
             if a(2)>b(2)
-                c = 1;
+                c = true;
             else
-                c = 0;
+                c = false;
             end
         end
     end
@@ -94,10 +94,10 @@ function c = greaterthan(a,b)
 %$ i4 = (d5>d4);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(i1,0);
-%$ t(2) = dyn_assert(i2,1);
-%$ t(3) = dyn_assert(i3,0);
-%$ t(4) = dyn_assert(i4,0);
+%$ t(1) = dassert(i1,false);
+%$ t(2) = dassert(i2,true);
+%$ t(3) = dassert(i3,false);
+%$ t(4) = dassert(i4,false);
 %$ T = all(t);
 %@eof:1
 
@@ -113,11 +113,11 @@ function c = greaterthan(a,b)
 %$ dd = dates(B1,B2,B3,B4);
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(dates(B1)>dates(B2),0);
-%$ t(2) = dyn_assert(dates(B2)>dates(B1),1);
-%$ t(3) = dyn_assert(dates(B5)>dates(B1),1);
-%$ t(4) = dyn_assert(dd>dates(B5),zeros(4,1));
-%$ t(5) = dyn_assert(dates(B5)>dd,ones(4,1));
-%$ t(6) = dyn_assert(dates(B1)>dd,[0; zeros(3,1)]);
+%$ t(1) = dassert(dates(B1)>dates(B2),false);
+%$ t(2) = dassert(dates(B2)>dates(B1),true);
+%$ t(3) = dassert(dates(B5)>dates(B1),true);
+%$ t(4) = dassert(dd>dates(B5),false(4,1));
+%$ t(5) = dassert(dates(B5)>dd,true(4,1));
+%$ t(6) = dassert(dates(B1)>dd,false(4,1));
 %$ T = all(t);
 %@eof:2

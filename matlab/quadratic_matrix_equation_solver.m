@@ -152,7 +152,7 @@ function t = line_search(A,H,F)
 %$ tic, X2 = quadratic_matrix_equation_solver(A,B,C,1e-16,100,1,zeros(n)); toc
 %$
 %$ % Check the results.
-%$ t(1) = dyn_assert(X1,X2,1e-12);
+%$ t(1) = dassert(X1,X2,1e-12);
 %$
 %$ T = all(t);
 %@eof:1

@@ -274,12 +274,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,10);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,[A(:,1), B, A(:,3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,10);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,[A(:,1), B, A(:,3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:1
@@ -296,12 +296,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$
-%$    t(1) = dyn_assert(ts1.vobs,3);
-%$    t(2) = dyn_assert(ts1.nobs,10);
-%$    t(3) = dyn_assert(ts1.name{2},'A2');
-%$    t(4) = dyn_assert(ts1.name{1},'A1');
-%$    t(5) = dyn_assert(ts1.name{3},'A3');
-%$    t(6) = dyn_assert(ts1.data,[A(:,1), exp(A(:,2)), A(:,3)],1e-15);
+%$    t(1) = dassert(ts1.vobs,3);
+%$    t(2) = dassert(ts1.nobs,10);
+%$    t(3) = dassert(ts1.name{2},'A2');
+%$    t(4) = dassert(ts1.name{1},'A1');
+%$    t(5) = dassert(ts1.name{3},'A3');
+%$    t(6) = dassert(ts1.data,[A(:,1), exp(A(:,2)), A(:,3)],1e-15);
 %$ T = all(t);
 %@eof:2
 
@@ -318,12 +318,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$
-%$    t(1) = dyn_assert(ts1.vobs,3);
-%$    t(2) = dyn_assert(ts1.nobs,10);
-%$    t(3) = dyn_assert(ts1.name{2},'A2');
-%$    t(4) = dyn_assert(ts1.name{1},'A1');
-%$    t(5) = dyn_assert(ts1.name{3},'A3');
-%$    t(6) = dyn_assert(ts1.data,[log(A(:,1)), A(:,2), log(A(:,3))],1e-15);
+%$    t(1) = dassert(ts1.vobs,3);
+%$    t(2) = dassert(ts1.nobs,10);
+%$    t(3) = dassert(ts1.name{2},'A2');
+%$    t(4) = dassert(ts1.name{1},'A1');
+%$    t(5) = dassert(ts1.name{3},'A3');
+%$    t(6) = dassert(ts1.data,[log(A(:,1)), A(:,2), log(A(:,3))],1e-15);
 %$ T = all(t);
 %@eof:3
 
@@ -337,10 +337,10 @@ end
 %$ % Apply the logarithm function to the first and third variables of ts1.
 %$ ts1{'A1','A3'} = ts1{'A1','A3'}.log;
 %$
-%$ t(1) = dyn_assert(ts1.vobs,3);
-%$ t(2) = dyn_assert(ts1.nobs,10);
-%$ t(3) = dyn_assert(ts1.name{1},'A1') && dyn_assert(ts1.name{2},'A2') && dyn_assert(ts1.name{3},'A3');
-%$ t(4) = dyn_assert(ts1.data,[log(A(:,1)), A(:,2), log(A(:,3))],1e-15);
+%$ t(1) = dassert(ts1.vobs,3);
+%$ t(2) = dassert(ts1.nobs,10);
+%$ t(3) = dassert(ts1.name{1},'A1') && dassert(ts1.name{2},'A2') && dassert(ts1.name{3},'A3');
+%$ t(4) = dassert(ts1.data,[log(A(:,1)), A(:,2), log(A(:,3))],1e-15);
 %$ T = all(t);
 %@eof:4
 
@@ -357,11 +357,11 @@ end
 %$
 %$ % Instantiate a time series object.
 %$
-%$ t(1) = dyn_assert(ts1.vobs,3);
-%$ t(2) = dyn_assert(ts1.nobs,10);
-%$ t(3) = dyn_assert(ts1.name{1},'A1');
-%$ t(4) = dyn_assert(ts1.data(:,1),B(:,1), 1e-15);
-%$ t(5) = dyn_assert(ts1.data(:,2:3),A(:,2:3), 1e-15);
+%$ t(1) = dassert(ts1.vobs,3);
+%$ t(2) = dassert(ts1.nobs,10);
+%$ t(3) = dassert(ts1.name{1},'A1');
+%$ t(4) = dassert(ts1.data(:,1),B(:,1), 1e-15);
+%$ t(5) = dassert(ts1.data(:,2:3),A(:,2:3), 1e-15);
 %$ T = all(t);
 %@eof:5
 
@@ -383,13 +383,13 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,4);
-%$    t(3) = dyn_assert(ts1.nobs,10);
-%$    t(4) = dyn_assert(ts1.name{1},'A1');
-%$    t(5) = dyn_assert(ts1.name{2},'A2');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.name{4},'B2');
-%$    t(8) = dyn_assert(ts1.data,[A(:,1), A(:,2), A(:,3), log(B(:,2))],1e-15);
+%$    t(2) = dassert(ts1.vobs,4);
+%$    t(3) = dassert(ts1.nobs,10);
+%$    t(4) = dassert(ts1.name{1},'A1');
+%$    t(5) = dassert(ts1.name{2},'A2');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.name{4},'B2');
+%$    t(8) = dassert(ts1.data,[A(:,1), A(:,2), A(:,3), log(B(:,2))],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:6
@@ -407,13 +407,13 @@ end
 %$ t(1) = 1;
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,4);
-%$    t(3) = dyn_assert(ts1.nobs,10);
-%$    t(4) = dyn_assert(ts1.name{1},'A1');
-%$    t(5) = dyn_assert(ts1.name{2},'A2');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(6) = dyn_assert(ts1.name{4},'B2');
-%$    t(7) = dyn_assert(ts1.data,[A(:,1), A(:,2), A(:,3), B(:,2)],1e-15);
+%$    t(2) = dassert(ts1.vobs,4);
+%$    t(3) = dassert(ts1.nobs,10);
+%$    t(4) = dassert(ts1.name{1},'A1');
+%$    t(5) = dassert(ts1.name{2},'A2');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(6) = dassert(ts1.name{4},'B2');
+%$    t(7) = dassert(ts1.data,[A(:,1), A(:,2), A(:,3), B(:,2)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:7
@@ -436,13 +436,13 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,4);
-%$    t(3) = dyn_assert(ts1.nobs,10);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.name{4},'A4');
-%$    t(8) = dyn_assert(ts1.data,[A, B],1e-15);
+%$    t(2) = dassert(ts1.vobs,4);
+%$    t(3) = dassert(ts1.nobs,10);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.name{4},'A4');
+%$    t(8) = dassert(ts1.data,[A, B],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:8
@@ -465,13 +465,13 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,4);
-%$    t(3) = dyn_assert(ts1.nobs,10);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.name{4},'A4');
-%$    t(8) = dyn_assert(ts1.data,[B(:,1), A(:,2:3), B(:,2)],1e-15);
+%$    t(2) = dassert(ts1.vobs,4);
+%$    t(3) = dassert(ts1.nobs,10);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.name{4},'A4');
+%$    t(8) = dassert(ts1.data,[B(:,1), A(:,2:3), B(:,2)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:9
@@ -495,13 +495,13 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,4);
-%$    t(3) = dyn_assert(ts1.nobs,10);
-%$    t(4) = dyn_assert(ts1.name{1},'A1');
-%$    t(5) = dyn_assert(ts1.name{2},'A2');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.name{4},'A4');
-%$    t(8) = dyn_assert(ts1.data,[B(:,1:2), A(:,3), B(:,3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,4);
+%$    t(3) = dassert(ts1.nobs,10);
+%$    t(4) = dassert(ts1.name{1},'A1');
+%$    t(5) = dassert(ts1.name{2},'A2');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.name{4},'A4');
+%$    t(8) = dassert(ts1.data,[B(:,1:2), A(:,3), B(:,3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:10
@@ -524,10 +524,10 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    %t(2) = dyn_assert(ts1.vobs,4);
-%$    %t(3) = dyn_assert(ts1.nobs,10);
-%$    %t(4) = dyn_assert(ts1.name,{'A1','A2';'A3';'B1';'B2'});
-%$    %t(5) = dyn_assert(ts1.data,[B(:,1:2), A(:,3), B(:,3:4)],1e-15);
+%$    %t(2) = dassert(ts1.vobs,4);
+%$    %t(3) = dassert(ts1.nobs,10);
+%$    %t(4) = dassert(ts1.name,{'A1','A2';'A3';'B1';'B2'});
+%$    %t(5) = dassert(ts1.data,[B(:,1:2), A(:,3), B(:,3:4)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:11
@@ -553,12 +553,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,[[A(1:2,1); B(3:7); A(8:end,1)], A(:,2:3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,[[A(1:2,1); B(3:7); A(8:end,1)], A(:,2:3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:12
@@ -584,12 +584,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,[[A(1:2,1); B(3:7); A(8:end,1)], A(:,2:3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,[[A(1:2,1); B(3:7); A(8:end,1)], A(:,2:3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:13
@@ -615,12 +615,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,[[A(1:2,1); B(3:7); A(8:end,1)], A(:,2:3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,[[A(1:2,1); B(3:7); A(8:end,1)], A(:,2:3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:14
@@ -646,12 +646,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,[[A(1:2,1); repmat(sqrt(pi),5,1); A(8:end,1)], A(:,2:3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,[[A(1:2,1); repmat(sqrt(pi),5,1); A(8:end,1)], A(:,2:3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:15
@@ -677,12 +677,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,[[A(1:2,1); repmat(sqrt(pi),5,1); A(8:end,1)], [A(1:2,2); repmat(sqrt(pi),5,1); A(8:end,2)], A(:,3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,[[A(1:2,1); repmat(sqrt(pi),5,1); A(8:end,1)], [A(1:2,2); repmat(sqrt(pi),5,1); A(8:end,2)], A(:,3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:16
@@ -708,12 +708,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,[[A(1:2,1); repmat(sqrt(pi),5,1); A(8:end,1)], [A(1:2,2); repmat(pi,5,1); A(8:end,2)], A(:,3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,[[A(1:2,1); repmat(sqrt(pi),5,1); A(8:end,1)], [A(1:2,2); repmat(pi,5,1); A(8:end,2)], A(:,3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:17
@@ -739,12 +739,12 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,[[A(1:2,1); ones(5,1); A(8:end,1)], [A(1:2,2); ones(5,1); A(8:end,2)], A(:,3)],1e-15);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,[[A(1:2,1); ones(5,1); A(8:end,1)], [A(1:2,2); ones(5,1); A(8:end,2)], A(:,3)],1e-15);
 %$ end
 %$ T = all(t);
 %@eof:18
@@ -769,14 +769,14 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,A,1e-15);
-%$    t(8) = dyn_assert(isequal(ts1.init,dd),1);
-%$    t(9) = dyn_assert(isequal(ts1.dates(1),dd),1);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,A,1e-15);
+%$    t(8) = dassert(ts1.init,dd);
+%$    t(9) = dassert(ts1.dates(1),dd);
 %$ end
 %$ T = all(t);
 %@eof:19
@@ -801,14 +801,14 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts1.vobs,3);
-%$    t(3) = dyn_assert(ts1.nobs,40);
-%$    t(4) = dyn_assert(ts1.name{2},'A2');
-%$    t(5) = dyn_assert(ts1.name{1},'A1');
-%$    t(6) = dyn_assert(ts1.name{3},'A3');
-%$    t(7) = dyn_assert(ts1.data,A,1e-15);
-%$    t(8) = dyn_assert(isequal(ts1.init,dd),1);
-%$    t(9) = dyn_assert(isequal(ts1.dates(1),dd),1);
+%$    t(2) = dassert(ts1.vobs,3);
+%$    t(3) = dassert(ts1.nobs,40);
+%$    t(4) = dassert(ts1.name{2},'A2');
+%$    t(5) = dassert(ts1.name{1},'A1');
+%$    t(6) = dassert(ts1.name{3},'A3');
+%$    t(7) = dassert(ts1.data,A,1e-15);
+%$    t(8) = dassert(ts1.init,dd);
+%$    t(9) = dassert(ts1.dates(1),dd);
 %$ end
 %$ T = all(t);
 %@eof:20
@@ -830,9 +830,9 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts.vobs,3);
-%$    t(3) = dyn_assert(ts.nobs,4);
-%$    t(4) = dyn_assert(ts.data,A,1e-15);
+%$    t(2) = dassert(ts.vobs,3);
+%$    t(3) = dassert(ts.nobs,4);
+%$    t(4) = dassert(ts.data,A,1e-15);
 %$ end
 %$ T = all(t);
 %@eof:21
@@ -854,9 +854,9 @@ end
 %$
 %$ % Instantiate a time series object.
 %$ if t(1)
-%$    t(2) = dyn_assert(ts.vobs,3);
-%$    t(3) = dyn_assert(ts.nobs,4);
-%$    t(4) = dyn_assert(ts.data,repmat(A,4,1),1e-15);
+%$    t(2) = dassert(ts.vobs,3);
+%$    t(3) = dassert(ts.nobs,4);
+%$    t(4) = dassert(ts.data,repmat(A,4,1),1e-15);
 %$ end
 %$ T = all(t);
 %@eof:22
