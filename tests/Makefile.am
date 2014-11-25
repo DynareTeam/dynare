@@ -21,6 +21,9 @@ MODFILES = \
 	optimal_policy/osr_example.mod \
 	optimal_policy/osr_example_objective_correctness.mod \
 	optimal_policy/osr_example_obj_corr_non_stat_vars.mod \
+	optimal_policy/OSR/osr_obj_corr_algo_2.mod \
+	optimal_policy/OSR/osr_obj_corr_algo_3.mod \
+	optimal_policy/OSR/osr_obj_corr_algo_4.mod \
 	optimal_policy/ramsey.mod \
 	optimal_policy/nk_ramsey.mod \
 	optimal_policy/nk_ramsey_model.mod \
