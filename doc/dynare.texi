@@ -4905,6 +4905,7 @@ Metropolis-Hastings simulations instead of starting from
 scratch. Shouldn't be used together with @code{mh_recover}
 
 @item optim = (@var{NAME}, @var{VALUE}, ...)
+@anchor{optim}
 A list of @var{NAME} and @var{VALUE} pairs. Can be used to set options for the optimization routines. The set of available options depends on the selected optimization routine (ie on the value of option @ref{mode_compute}):
 
 @table @code
@@ -6492,6 +6493,9 @@ value of that function as the maximum of the objective function.
 
 @noindent
 Default value is @code{1}.
+
+@item optim = (@var{NAME}, @var{VALUE}, ...)
+A list of @var{NAME} and @var{VALUE} pairs. Can be used to set options for the optimization routines. The set of available options depends on the selected optimization routine (ie on the value of option @ref{opt_algo}). @xref{optim}.
 
 @item maxit = @var{INTEGER} Determines the maximum number of iterations
 used in the non-linear solver. Default: @code{1000}
