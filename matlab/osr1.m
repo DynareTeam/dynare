@@ -73,10 +73,6 @@ t0 = M_.params(i_params);
 
 inv_order_var = oo_.dr.inv_order_var;
 
-H0 = 1e-4*eye(np);
-crit=options_.osr.tolf;
-nit=options_.osr.maxit;
-
 %extract unique entries of covariance
 i_var=unique(i_var);
 %% do initial checks
@@ -97,11 +93,35 @@ end
 
 switch options_.osr.opt_algo
     case 1 %default
+        H0 = 1e-4*eye(np);
+        crit=options_.osr.tolf;
+        nit=options_.osr.maxit;
+        % Change some options.
+        if isfield(options_,'optim_opt')
+            options_list = read_key_value_string(options_.optim_opt);
+            for i=1:rows(options_list)
+                switch options_list{i,1}
+                  case 'MaxIter'
+                    nit = options_list{i,2};
+                  case 'InitialInverseHessian'
+                    H0 = eval(options_list{i,2});
+                  case 'TolFun'
+                    crit = options_list{i,2};
+                  case 'NumgradAlgorithm'
+                    numgrad = options_list{i,2};
+                  case 'NumgradEpsilon'
+                    epsilon = options_list{i,2};
+                  otherwise
+                    warning(['csminwel: Unknown option (' options_list{i,1} ')!'])
+                end
+            end
+        end
         [f,p]=csminwel1('osr_obj',t0,H0,[],crit,nit,options_.gradient_method,options_.gradient_epsilon,i_params,...
                 inv_order_var(i_var),weights(i_var,i_var));
     case 2
-        H0 = 1e-4*ones(np,1);
         cmaesOptions = options_.cmaes;
+        cmaesOptions.MaxIter=options_.osr.maxit;
+        cmaesOptions.TolFun=options_.osr.tolf;
         % Modify defaults
         if isfield(options_,'optim_opt')
             options_list = read_key_value_string(options_.optim_opt);
@@ -133,7 +153,7 @@ switch options_.osr.opt_algo
             error('Option mode_compute=3 requires the Optimization Toolbox')
         end
         % Set default optimization options for fminunc.
-        optim_options = optimset('display','iter','MaxFunEvals',100000,'TolFun',1e-8,'TolX',1e-6);
+        optim_options = optimset('display','iter','MaxFunEvals',options_.osr.maxit,'TolFun',options_.osr.tolf,'TolX',1e-6);
         if isfield(options_,'optim_opt')
             eval(['optim_options = optimset(optim_options,' options_.optim_opt ');']);
         end
@@ -146,6 +166,8 @@ switch options_.osr.opt_algo
         end
     case 4
         simplexOptions = options_.simplex;
+        simplexOptions.maxfcall=options_.osr.maxit;
+        simplexOptions.tolerance.f=options_.osr.tolf;	
         if isfield(options_,'optim_opt')
             options_list = read_key_value_string(options_.optim_opt);
             for i=1:rows(options_list)
