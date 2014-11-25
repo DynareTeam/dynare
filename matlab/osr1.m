@@ -94,8 +94,89 @@ if isinf(loss)
 end
 
 %%do actual optimization
-[f,p]=csminwel1('osr_obj',t0,H0,[],crit,nit,options_.gradient_method,options_.gradient_epsilon,i_params,...
+
+switch options_.osr.opt_algo
+    case 1 %default
+        [f,p]=csminwel1('osr_obj',t0,H0,[],crit,nit,options_.gradient_method,options_.gradient_epsilon,i_params,...
                 inv_order_var(i_var),weights(i_var,i_var));
+    case 2
+        H0 = 1e-4*ones(np,1);
+        cmaesOptions = options_.cmaes;
+        % Modify defaults
+        if isfield(options_,'optim_opt')
+            options_list = read_key_value_string(options_.optim_opt);
+            for i=1:rows(options_list)
+                switch options_list{i,1}
+                  case 'MaxIter'
+                    cmaesOptions.MaxIter = options_list{i,2};
+                  case 'TolFun'
+                    cmaesOptions.TolFun = options_list{i,2};
+                  case 'TolX'
+                    cmaesOptions.TolX = options_list{i,2};
+                  case 'MaxFunEvals'
+                    cmaesOptions.MaxFunEvals = options_list{i,2};
+                  otherwise
+                    warning(['cmaes: Unknown option (' options_list{i,1}  ')!'])
+                end
+            end
+        end
+        warning('off','CMAES:NonfinitenessRange');
+        warning('off','CMAES:InitialSigma');
+        [p,f,COUNTEVAL, STOPFLAG, OUT, BESTEVER]=cmaes('osr_obj',t0,1e-4,cmaesOptions,i_params,...
+                inv_order_var(i_var),weights(i_var,i_var));
+        p=BESTEVER.x;
+        f=BESTEVER.f;
+    case 3
+        if isoctave && ~user_has_octave_forge_package('optim')
+            error('Option mode_compute=3 requires the optim package')
+        elseif ~isoctave && ~user_has_matlab_license('optimization_toolbox')
+            error('Option mode_compute=3 requires the Optimization Toolbox')
+        end
+        % Set default optimization options for fminunc.
+        optim_options = optimset('display','iter','MaxFunEvals',100000,'TolFun',1e-8,'TolX',1e-6);
+        if isfield(options_,'optim_opt')
+            eval(['optim_options = optimset(optim_options,' options_.optim_opt ');']);
+        end
+        if ~isoctave
+            [p,f,exitflag] = fminunc(@osr_obj,t0,optim_options,i_params,inv_order_var(i_var),weights(i_var,i_var));
+        else
+            % Under Octave, use a wrapper, since fminunc() does not have a 4th arg
+            func = @(x)osr_obj(x,i_params,inv_order_var(i_var),weights(i_var,i_var));
+            [p,f,exitflag] = fminunc(func,t0,optim_options);
+        end
+    case 4
+        simplexOptions = options_.simplex;
+        if isfield(options_,'optim_opt')
+            options_list = read_key_value_string(options_.optim_opt);
+            for i=1:rows(options_list)
+                switch options_list{i,1}
+                  case 'MaxIter'
+                    simplexOptions.maxiter = options_list{i,2};
+                  case 'TolFun'
+                    simplexOptions.tolerance.f = options_list{i,2};
+                  case 'TolX'
+                    simplexOptions.tolerance.x = options_list{i,2};
+                  case 'MaxFunEvals'
+                    simplexOptions.maxfcall = options_list{i,2};
+                  case 'MaxFunEvalFactor'
+                    simplexOptions.maxfcallfactor = options_list{i,2};
+                  case 'InitialSimplexSize'
+                    simplexOptions.delta_factor = options_list{i,2};
+                  otherwise
+                    warning(['simplex: Unknown option (' options_list{i,1} ')!'])
+                end
+            end
+        end
+        [p,f,exitflag] = simplex_optimization_routine(@osr_obj,t0,simplexOptions,cellstr(M_.param_names(i_params)),i_params,...
+                inv_order_var(i_var),weights(i_var,i_var));
+    otherwise
+        if ischar(options_.osr.opt_algo)
+            [p,f,exitflag] = feval(options_.osr.opt_algo,@osr_obj,i_params,inv_order_var(i_var),weights(i_var,i_var));
+        else
+            error(['dynare_estimation:: mode_compute = ' int2str(options_.mode_compute) ' option is unknown!'])
+        end    
+end
+
 osr_res.objective_function = f;
 M_.params(i_params)=p; %make sure optimal parameters are set (and not the last draw used in csminwel)
 for i=1:length(i_params)

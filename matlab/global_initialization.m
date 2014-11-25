@@ -628,6 +628,7 @@ options_.endogenous_prior_restrictions.moment={};
 % OSR Optimal Simple Rules
 options_.osr.tolf=1e-7;
 options_.osr.maxit=1000;
+options_.osr.opt_algo=1;
 
 % use GPU
 options_.gpu = 0;
