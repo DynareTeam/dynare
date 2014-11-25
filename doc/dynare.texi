@@ -6451,8 +6451,7 @@ is specified in the @code{optim_weights}-block. By attaching weights to
 endogenous variables, the subset of endogenous variables entering the
 objective function, @math{y}, is implicitly specified.
 
-The linear quadratic problem is solved using the numerical optimizer
-@code{csminwel} of Chris Sims.
+The linear quadratic problem is solved using the numerical optimizer specified with @ref{opt_algo}.
 
 
 @optionshead
@@ -6463,6 +6462,36 @@ by listing them after the command, as @code{stoch_simul}
 (@pxref{Computing the stochastic solution}) plus
 
 @table @code
+
+@item opt_algo = @var{INTEGER} 
+@anchor{opt_algo}
+Specifies the optimizer for minimizing the objective function:
+
+@table @code
+
+@item 1
+Uses Chris Sims's @code{csminwel}
+
+@item 2
+Uses the CMA-ES (Covariance Matrix Adaptation Evolution Strategy) algorithm, an evolutionary algorithm for difficult non-linear non-convex optimization
+
+@item 3
+Uses @code{fminunc} optimization routine (available under MATLAB if
+the optimization toolbox is installed; available under Octave if the
+@uref{http://octave.sourceforge.net/optim/,optim} package from
+Octave-Forge is installed)
+
+@item 4
+Uses Dynare implementation of the Nelder-Mead simplex based optimization routine 
+
+@item @var{FUNCTION_NAME}
+It is also possible to give a @var{FUNCTION_NAME} to this option,
+instead of an @var{INTEGER}. In that case, Dynare takes the return
+value of that function as the maximum of the objective function.
+@end table
+
+@noindent
+Default value is @code{1}.
 
 @item maxit = @var{INTEGER} Determines the maximum number of iterations
 used in the non-linear solver. Default: @code{1000}
