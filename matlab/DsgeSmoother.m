@@ -93,14 +93,8 @@ else
 end
 trend_coeff = zeros(vobs,1);
 if bayestopt_.with_trend == 1
-    trend_coeff = zeros(vobs,1);
-    t = options_.trend_coeffs;
-    for i=1:length(t)
-        if ~isempty(t{i})
-            trend_coeff(i) = evalin('base',t{i});
-        end
-    end
-    trend = constant*ones(1,gend)+trend_coeff*(1:gend);
+    [trend_addition, trend_coeff] =compute_trend_coefficients(M_,options_,vobs,gend);
+    trend = constant*ones(1,gend)+trend_addition;
 else
     trend = constant*ones(1,gend);
 end

@@ -375,13 +375,11 @@ if ~isfield(options_,'trend_coeffs') % No!
 else% Yes!
     bayestopt_.with_trend = 1;
     bayestopt_.trend_coeff = {};
-    trend_coeffs = options_.trend_coeffs;
-    nt = length(trend_coeffs);
     for i=1:options_.number_of_observed_variables
-        if i > length(trend_coeffs)
+        if i > length(options_.trend_coeffs)
             bayestopt_.trend_coeff{i} = '0';
         else
-            bayestopt_.trend_coeff{i} = trend_coeffs{i};
+            bayestopt_.trend_coeff{i} = options_.trend_coeffs{i};
         end
     end
 end

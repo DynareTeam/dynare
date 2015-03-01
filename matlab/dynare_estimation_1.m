@@ -605,14 +605,16 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
     %%
     %%  Smooth observational errors...
     %%
-    if options_.prefilter == 1
-        yf = atT(bayestopt_.mf,:)+repmat(dataset_info.descriptive.mean',1,gend);
+    if options_.prefilter == 1 %as mean is taken after log transformation, no distinction is needed here
+        yf = atT(bayestopt_.mf,:)+repmat(dataset_info.descriptive.mean',1,gend)+...
+             trend_coeff*[options_.first_obs:options_.first_obs+gend-1]-...
+             repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2),1,gend);
     elseif options_.loglinear == 1
         yf = atT(bayestopt_.mf,:)+repmat(log(ys(bayestopt_.mfys)),1,gend)+...
-             trend_coeff*[1:gend];
+             trend_coeff*[options_.first_obs:options_.first_obs+gend-1];
     else
         yf = atT(bayestopt_.mf,:)+repmat(ys(bayestopt_.mfys),1,gend)+...
-             trend_coeff*[1:gend];
+             trend_coeff*[options_.first_obs:options_.first_obs+gend-1];
     end
     if nvn
         number_of_plots_to_draw = 0;

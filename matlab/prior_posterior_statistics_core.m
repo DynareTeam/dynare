@@ -191,11 +191,17 @@ for b=fpar:B
         if horizon
             yyyy = alphahat(iendo,i_last_obs);
             yf = forcst2a(yyyy,dr,zeros(horizon,exo_nbr));
-            if options_.prefilter
+            if options_.prefilter 
+                % add mean
                 yf(:,IdObs) = yf(:,IdObs)+repmat(bayestopt_.mean_varobs', ...
                                                  horizon+maxlag,1);
+                % add trend
+                yf(:,IdObs) = yf(:,IdObs)+(options_.first_obs+gend+[1-maxlag:horizon]')*trend_coeff'-...
+                             repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2)',length(1-maxlag:horizon),1); %center trend
+            else
+                % add trend
+                    yf(:,IdObs) = yf(:,IdObs)+(options_.first_obs+gend+[1-maxlag:horizon]')*trend_coeff';                
             end
-            yf(:,IdObs) = yf(:,IdObs)+(gend+[1-maxlag:horizon]')*trend_coeff';
             if options_.loglinear
                 yf = yf+repmat(log(SteadyState'),horizon+maxlag,1);
             else
@@ -203,8 +209,15 @@ for b=fpar:B
             end
             yf1 = forcst2(yyyy,horizon,dr,1);
             if options_.prefilter == 1
+                % add mean
                 yf1(:,IdObs,:) = yf1(:,IdObs,:)+ ...
                     repmat(bayestopt_.mean_varobs',[horizon+maxlag,1,1]);
+                % add trend
+                yf1(:,IdObs) = yf1(:,IdObs)+(options_.first_obs+gend+[1-maxlag:horizon]')*trend_coeff'-...
+                             repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2)',length(1-maxlag:horizon),1); %center trend
+            else
+                yf1(:,IdObs,:) = yf1(:,IdObs,:)+repmat((options_.first_obs+gend+[1-maxlag:horizon]')* ...
+                                                       trend_coeff',[1,1,1]);
             end
             yf1(:,IdObs,:) = yf1(:,IdObs,:)+repmat((gend+[1-maxlag:horizon]')* ...
                                                    trend_coeff',[1,1,1]);
