@@ -530,6 +530,8 @@ end
 
 [dataset_, dataset_info, newdatainterfaceflag] = makedataset(options_, options_.dsge_var*options_.dsge_varlag, gsa_flag);
 
+bayestopt_.mean_varobs = dataset_info.descriptive.mean';
+
 % Set options_.nobs if needed
 if newdatainterfaceflag
     options_.nobs = dataset_.nobs;

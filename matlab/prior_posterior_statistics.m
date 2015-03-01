@@ -44,7 +44,6 @@ Y = transpose(dataset.data);
 gend = dataset.nobs;
 data_index = dataset_info.missing.aindex;
 missing_value = dataset_info.missing.state;
-bayestopt_.mean_varobs = dataset_info.descriptive.mean';
 
 nvx  = estim_params_.nvx;
 nvn  = estim_params_.nvn;
