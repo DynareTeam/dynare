@@ -1,5 +1,16 @@
 function yf=forcst2(y0,horizon,dr,n)
-
+% function yf=forcst2(y0,horizon,dr,n)
+% 
+% computes forecasts based on first order model solution, given shocks drawn from the shock distribution
+% Inputs:
+%   - y0        [endo_nbr by maximum_endo_lag]          matrix of starting values
+%   - dr        [structure]                         structure with Dynare decision rules
+%   - e         [horizon by exo_nbr]                matrix with shocks
+%   - n         [scalar]                            number of repetitions
+%
+% Outputs:
+%   - yf        [horizon+ykmin_ by endo_nbr by n]   array of forecasts
+% 
 % Copyright (C) 2008-2010 Dynare Team
 %
 % This file is part of Dynare.
@@ -24,13 +35,9 @@ endo_nbr = M_.endo_nbr;
 exo_nbr = M_.exo_nbr;
 ykmin_ = M_.maximum_endo_lag;
 
-order = options_.order;
-
 k1 = [ykmin_:-1:1];
 k2 = dr.kstate(find(dr.kstate(:,2) <= ykmin_+1),[1 2]);
 k2 = k2(:,1)+(ykmin_+1-k2(:,2))*endo_nbr;
-
-it_ = ykmin_ + 1 ;
 
 % eliminate shocks with 0 variance
 i_exo_var = setdiff([1:exo_nbr],find(diag(Sigma_e_) == 0));
