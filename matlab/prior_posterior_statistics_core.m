@@ -166,7 +166,7 @@ for b=fpar:B
 
     if run_smoother
         [dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
-        [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK] = ...
+        [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK,junk1,junk2,junk3,junk4,junk5,trend_addition] = ...
             DsgeSmoother(deep,gend,Y,data_index,missing_value);
 
         if options_.loglinear
@@ -180,6 +180,10 @@ for b=fpar:B
             stock_update(dr.order_var,:,irun(1)) = alphatilde(1:endo_nbr,:)+ ...
                 repmat(SteadyState(dr.order_var),1,gend);
         end
+        %add trend to observables
+        stock_smooth(IdObs,:,irun(1))=stock_smooth(IdObs,:,irun(1))+trend_addition;
+        stock_update(IdObs,:,irun(1))=stock_update(IdObs,:,irun(1))+trend_addition; 
+
         stock_innov(:,:,irun(2))  = etahat;
         if nvn
             stock_error(:,:,irun(3))  = epsilonhat;
@@ -195,12 +199,12 @@ for b=fpar:B
                 % add mean
                 yf(:,IdObs) = yf(:,IdObs)+repmat(bayestopt_.mean_varobs', ...
                                                  horizon+maxlag,1);
-                % add trend
-                yf(:,IdObs) = yf(:,IdObs)+(options_.first_obs+gend+[1-maxlag:horizon]')*trend_coeff'-...
+                % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
+                yf(:,IdObs) = yf(:,IdObs)+((options_.first_obs-1)+gend+[1-maxlag:horizon]')*trend_coeff'-...
                              repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2)',length(1-maxlag:horizon),1); %center trend
             else
-                % add trend
-                    yf(:,IdObs) = yf(:,IdObs)+(options_.first_obs+gend+[1-maxlag:horizon]')*trend_coeff';                
+                % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
+                    yf(:,IdObs) = yf(:,IdObs)+((options_.first_obs-1)+gend+[1-maxlag:horizon]')*trend_coeff';                
             end
             if options_.loglinear
                 yf = yf+repmat(log(SteadyState'),horizon+maxlag,1);
@@ -212,15 +216,14 @@ for b=fpar:B
                 % add mean
                 yf1(:,IdObs,:) = yf1(:,IdObs,:)+ ...
                     repmat(bayestopt_.mean_varobs',[horizon+maxlag,1,1]);
-                % add trend
-                yf1(:,IdObs) = yf1(:,IdObs)+(options_.first_obs+gend+[1-maxlag:horizon]')*trend_coeff'-...
+                % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
+                yf1(:,IdObs) = yf1(:,IdObs)+((options_.first_obs-1)+gend+[1-maxlag:horizon]')*trend_coeff'-...
                              repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2)',length(1-maxlag:horizon),1); %center trend
             else
-                yf1(:,IdObs,:) = yf1(:,IdObs,:)+repmat((options_.first_obs+gend+[1-maxlag:horizon]')* ...
+               % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
+               yf1(:,IdObs,:) = yf1(:,IdObs,:)+repmat(((options_.first_obs-1)+gend+[1-maxlag:horizon]')* ...
                                                        trend_coeff',[1,1,1]);
             end
-            yf1(:,IdObs,:) = yf1(:,IdObs,:)+repmat((gend+[1-maxlag:horizon]')* ...
-                                                   trend_coeff',[1,1,1]);
             if options_.loglinear
                 yf1 = yf1 + repmat(log(SteadyState'),[horizon+maxlag,1,1]);
             else

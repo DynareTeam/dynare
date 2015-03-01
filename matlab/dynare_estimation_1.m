@@ -170,9 +170,10 @@ end
 
 if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.mh_posterior_mode_estimation==0
     if options_.smoother == 1
-        [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp] = DsgeSmoother(xparam1,gend,transpose(data),data_index,missing_value);
+        [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend] = DsgeSmoother(xparam1,gend,transpose(data),data_index,missing_value);
         oo_.Smoother.SteadyState = ys;
         oo_.Smoother.TrendCoeffs = trend_coeff;
+        oo_.Smoother.Trend = Trend;
         if options_.filter_covariance
             oo_.Smoother.Variance = P;
         end
@@ -499,9 +500,10 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                                                       > 0) && options_.load_mh_file)) ...
     || ~options_.smoother ) && options_.partial_information == 0  % to be fixed
     %% ML estimation, or posterior mode without metropolis-hastings or metropolis without bayesian smooth variable
-    [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp] = DsgeSmoother(xparam1,dataset_.nobs,transpose(dataset_.data),dataset_info.missing.aindex,dataset_info.missing.state);
+    [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend] = DsgeSmoother(xparam1,dataset_.nobs,transpose(dataset_.data),dataset_info.missing.aindex,dataset_info.missing.state);
     oo_.Smoother.SteadyState = ys;
     oo_.Smoother.TrendCoeffs = trend_coeff;
+    oo_.Smoother.Trend = Trend;
     oo_.Smoother.Variance = P;
     i_endo = bayestopt_.smoother_saved_var_list;
     if ~isempty(options_.nk) && options_.nk ~= 0 && (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file)))
@@ -606,15 +608,11 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
     %%  Smooth observational errors...
     %%
     if options_.prefilter == 1 %as mean is taken after log transformation, no distinction is needed here
-        yf = atT(bayestopt_.mf,:)+repmat(dataset_info.descriptive.mean',1,gend)+...
-             trend_coeff*[options_.first_obs:options_.first_obs+gend-1]-...
-             repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2),1,gend);
+        yf = atT(bayestopt_.mf,:)+repmat(dataset_info.descriptive.mean',1,gend)+Trend;
     elseif options_.loglinear == 1
-        yf = atT(bayestopt_.mf,:)+repmat(log(ys(bayestopt_.mfys)),1,gend)+...
-             trend_coeff*[options_.first_obs:options_.first_obs+gend-1];
+        yf = atT(bayestopt_.mf,:)+repmat(log(ys(bayestopt_.mfys)),1,gend)+Trend;
     else
-        yf = atT(bayestopt_.mf,:)+repmat(ys(bayestopt_.mfys),1,gend)+...
-             trend_coeff*[options_.first_obs:options_.first_obs+gend-1];
+        yf = atT(bayestopt_.mf,:)+repmat(ys(bayestopt_.mfys),1,gend)+Trend;
     end
     if nvn
         number_of_plots_to_draw = 0;

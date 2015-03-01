@@ -1,4 +1,4 @@
-function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,decomp] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value)
+function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,decomp,trend_addition] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value)
 % Estimation of the smoothed variables and innovations. 
 % 
 % INPUTS 
@@ -23,7 +23,8 @@ function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,de
 %                       matrices (meaningless for periods 1:d)
 %   o decomp        4D array of shock decomposition of k-step ahead
 %                       filtered variables
-% 
+%   o trend_addition [double] (n_observed_series*T) pure trend component; stored in options_.varobs order         
+%  
 % ALGORITHM 
 %   Diffuse Kalman filter (Durbin and Koopman)       
 %
@@ -96,6 +97,7 @@ if bayestopt_.with_trend == 1
     [trend_addition, trend_coeff] =compute_trend_coefficients(M_,options_,vobs,gend);
     trend = constant*ones(1,gend)+trend_addition;
 else
+    trend_addition=zeros(size(constant,1),gend);
     trend = constant*ones(1,gend);
 end
 start = options_.presample+1;
