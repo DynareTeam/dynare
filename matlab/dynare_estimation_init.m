@@ -530,12 +530,10 @@ end
 
 [dataset_, dataset_info, newdatainterfaceflag] = makedataset(options_, options_.dsge_var*options_.dsge_varlag, gsa_flag);
 
+%set options for old interface from the ones for new interface
 bayestopt_.mean_varobs = dataset_info.descriptive.mean';
-
-% Set options_.nobs if needed
-if newdatainterfaceflag
-    options_.nobs = dataset_.nobs;
-end
+options_.nobs = dataset_.nobs;
+options_.first_obs=double(dataset_.init);
 
 % setting steadystate_check_flag option
 if options_.diffuse_filter
