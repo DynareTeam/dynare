@@ -773,7 +773,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
 end
 
 if options_.forecast > 0 && options_.mh_replic == 0 && ~options_.load_mh_file
-    dyn_forecast(var_list_,'smoother');
+    dyn_forecast(var_list_,'smoother',dataset_info);
 end
 
 if np > 0

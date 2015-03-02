@@ -57,6 +57,7 @@ Y=myinputs.Y;
 data_index=myinputs.data_index;
 missing_value=myinputs.missing_value;
 varobs=myinputs.varobs;
+mean_varobs=myinputs.mean_varobs;
 irun=myinputs.irun;
 endo_nbr=myinputs.endo_nbr;
 nvn=myinputs.nvn;
@@ -197,7 +198,7 @@ for b=fpar:B
             yf = forcst2a(yyyy,dr,zeros(horizon,exo_nbr));
             if options_.prefilter 
                 % add mean
-                yf(:,IdObs) = yf(:,IdObs)+repmat(bayestopt_.mean_varobs', ...
+                yf(:,IdObs) = yf(:,IdObs)+repmat(mean_varobs, ...
                                                  horizon+maxlag,1);
                 % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
                 yf(:,IdObs) = yf(:,IdObs)+((options_.first_obs-1)+gend+[1-maxlag:horizon]')*trend_coeff'-...
@@ -215,7 +216,7 @@ for b=fpar:B
             if options_.prefilter == 1
                 % add mean
                 yf1(:,IdObs,:) = yf1(:,IdObs,:)+ ...
-                    repmat(bayestopt_.mean_varobs',[horizon+maxlag,1,1]);
+                    repmat(mean_varobs,[horizon+maxlag,1,1]);
                 % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
                 yf1(:,IdObs) = yf1(:,IdObs)+((options_.first_obs-1)+gend+[1-maxlag:horizon]')*trend_coeff'-...
                              repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2)',length(1-maxlag:horizon),1); %center trend

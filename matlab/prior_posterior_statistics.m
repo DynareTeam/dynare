@@ -44,6 +44,8 @@ Y = transpose(dataset.data);
 gend = dataset.nobs;
 data_index = dataset_info.missing.aindex;
 missing_value = dataset_info.missing.state;
+mean_varobs = dataset_info.descriptive.mean;
+
 
 nvx  = estim_params_.nvx;
 nvn  = estim_params_.nvn;
@@ -160,6 +162,7 @@ localVars.Y=Y;
 localVars.data_index=data_index;
 localVars.missing_value=missing_value;
 localVars.varobs=options_.varobs;
+localVars.mean_varobs=mean_varobs;
 localVars.irun=irun;
 localVars.endo_nbr=endo_nbr;
 localVars.nvn=nvn;

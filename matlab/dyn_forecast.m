@@ -1,12 +1,13 @@
-function info = dyn_forecast(var_list,task)
-% function dyn_forecast(var_list,task)
+function info = dyn_forecast(var_list,task,dataset_info)
+% function dyn_forecast(var_list,task,dataset_info))
 %   computes mean forecast for a given value of the parameters
 %   computes also confidence band for the forecast    
 %
 % INPUTS
-%   var_list:    list of variables (character matrix)
-%   task:        indicates how to initialize the forecast
-%                either 'simul' or 'smoother'
+%   var_list:       list of variables (character matrix)
+%   task:           indicates how to initialize the forecast
+%                   either 'simul' or 'smoother'
+%   dataset_info:   Various informations about the dataset (descriptive statistics and missing observations).
 % OUTPUTS
 %   nothing is returned but the procedure saves output
 %   in oo_.forecast.Mean
@@ -35,6 +36,12 @@ function info = dyn_forecast(var_list,task)
 
 global options_ oo_ M_
 
+if nargin<3 && options_.prefilter
+    error('The prefiltering option is not allow without providing a dataset')
+else
+    mean_varobs=dataset_info.descriptive.mean';
+end
+    
 info = 0;
 
 make_ex_;
@@ -95,7 +102,6 @@ switch task
         end
     end
     if options_.prefilter
-        global bayestopt_
         trend = trend - repmat(mean(trend_coeffs*[options_.first_obs:options_.first_obs+gend-1],2),1,horizon+1); %subtract mean trend
     end
   otherwise
@@ -126,11 +132,11 @@ end
 if options_.loglinear == 1
     yf=yf-oo_.dr.ys(i_var)*ones(1,horizon+M_.maximum_lag)+log(oo_.dr.ys(i_var))*ones(1,horizon+M_.maximum_lag); %take care of logged steady state in this case; above the unlogged one was added    
     if options_.prefilter == 1 %subtract steady state and add mean for observables
-        yf(i_var_obs,:)=yf(i_var_obs,:)-repmat(log(oo_.dr.ys(i_var_obs)),1,horizon+M_.maximum_lag)+ repmat(bayestopt_.mean_varobs,1,horizon+M_.maximum_lag);
+        yf(i_var_obs,:)=yf(i_var_obs,:)-repmat(log(oo_.dr.ys(i_var_obs)),1,horizon+M_.maximum_lag)+ repmat(mean_varobs,1,horizon+M_.maximum_lag);
     end
 else
     if options_.prefilter == 1 %subtract steady state and add mean for observables
-        yf(i_var_obs,:)=yf(i_var_obs,:)-repmat(oo_.dr.ys(i_var_obs),1,horizon+M_.maximum_lag)+ repmat(bayestopt_.mean_varobs,1,horizon+M_.maximum_lag);
+        yf(i_var_obs,:)=yf(i_var_obs,:)-repmat(oo_.dr.ys(i_var_obs),1,horizon+M_.maximum_lag)+ repmat(mean_varobs,1,horizon+M_.maximum_lag);
     end    
 end
 
