@@ -2450,6 +2450,7 @@ calib_smoother_option : o_filtered_vars
                       | o_prefilter
                       | o_loglinear
                       | o_first_obs
+                      | o_filter_decomposition
                       ;
 
 extended_path : EXTENDED_PATH ';'
