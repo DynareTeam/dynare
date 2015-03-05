@@ -53,13 +53,12 @@ P_obs (g_p);
 Y_obs (g_y);
 end;
 
-% estimated_params_init(use_calibration);
-% end;
+estimated_params_init(use_calibration);
+end;
 
 options_.plot_priors=0;
 
 estimation(order=1,datafile='../AR1_trend_data_with_constant',mh_replic=0,
-mode_file=Trend_no_prefilter_first_obs_mode,
 mode_compute=4,first_obs=1000,smoother,forecast=100,prefilter=0) P_obs Y_obs junk1 junk2;
 
 load('../AR1_trend_data_with_constant');

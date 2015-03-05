@@ -5,8 +5,8 @@ parameters rho_y rho_p  g_y g_p sigma_y sigma_p;
 
 rho_y=0.5;
 rho_p=0.5;
-g_y=0.001;
-g_p=-0.001;
+g_y=0.0001;
+g_p=-0.0001;
 sigma_y=0.001;
 sigma_p=0.001;
 
@@ -43,6 +43,9 @@ sigma_y, inv_gamma_pdf, 0.001, inf;
 sigma_p, inv_gamma_pdf, 0.001, inf;
 end;
 
+estimated_params_init(use_calibration);
+end;
+
 varobs P_obs Y_obs;
 
 observation_trends;
@@ -50,13 +53,9 @@ P_obs (g_p);
 Y_obs (g_y);
 end;
 
-// estimated_params_init(use_calibration);
-// end;
-
 options_.plot_priors=0;
 
 estimation(order=1,datafile='../AR1_trend_data_with_constant',mh_replic=2000,mode_compute=4,
-mode_file=Trend_prefilter_first_obs_MC_mode,
 first_obs=1000,smoother,prefilter=1,
 mh_nblocks=1,mh_jscale=1e-4,
 mcmc_jumping_covariance='MCMC_jump_covar_prefilter',forecast=100) P_obs Y_obs;
