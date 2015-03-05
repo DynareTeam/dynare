@@ -64,9 +64,9 @@ nvn=myinputs.nvn;
 naK=myinputs.naK;
 horizon=myinputs.horizon;
 iendo=myinputs.iendo;
+IdObs=myinputs.IdObs;
 if horizon
     i_last_obs=myinputs.i_last_obs;
-    IdObs=myinputs.IdObs;
     MAX_nforc1=myinputs.MAX_nforc1;
     MAX_nforc2=myinputs.MAX_nforc2;
 end

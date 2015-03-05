@@ -64,6 +64,7 @@ nvobs     = length(options_.varobs);
 iendo = 1:endo_nbr;
 horizon = options_.forecast;
 filtered_vars = options_.filtered_vars;
+IdObs    = bayestopt_.mfys;
 if horizon
     i_last_obs = gend+(1-M_.maximum_endo_lag:0);
 end
@@ -107,8 +108,6 @@ if horizon
     MAX_nforc1 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/8));
     MAX_nforc2 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/ ...
                             8));
-    IdObs    = bayestopt_.mfys;
-
 end
 MAX_momentsno = min(B,ceil(MaxNumberOfBytes/(get_moments_size(options_)*8)));
 
@@ -169,9 +168,9 @@ localVars.nvn=nvn;
 localVars.naK=naK;
 localVars.horizon=horizon;
 localVars.iendo=iendo;
+localVars.IdObs=IdObs;
 if horizon
     localVars.i_last_obs=i_last_obs;
-    localVars.IdObs=IdObs;
     localVars.MAX_nforc1=MAX_nforc1;
     localVars.MAX_nforc2=MAX_nforc2;
 end
