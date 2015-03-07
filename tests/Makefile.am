@@ -175,6 +175,11 @@ MODFILES = \
 	kalman/likelihood_from_dynare/fs2000_uncorr_ME.mod \
 	kalman/likelihood_from_dynare/fs2000_uncorr_ME_missing.mod \
 	second_order/burnside_1.mod \
+	kalman_filter_smoother/compare_results_simulation/fs2000_ML.mod \
+	kalman_filter_smoother/compare_results_simulation/fs2000_ML_loglinear.mod \
+	kalman_filter_smoother/compare_results_simulation/fs2000.mod \
+	kalman_filter_smoother/compare_results_simulation/fs2000_loglinear.mod \
+	second_order/burnside_1.mod \
 	second_order/ds1.mod \
 	second_order/ds2.mod \
 	ep/rbc.mod \
@@ -457,6 +462,7 @@ EXTRA_DIST = \
 	kalman/likelihood_from_dynare/fsdat_simul_corr_ME_missing.m \
 	kalman/likelihood_from_dynare/fsdat_simul_uncorr_ME.m \
 	kalman/likelihood_from_dynare/fsdat_simul_uncorr_ME_missing.m \
+	kalman_filter_smoother/compare_results_simulation/fsdat_simul_logged.m \
 	identification/kim/kim2_steadystate.m \
 	identification/as2007/as2007_steadystate.m \
 	estimation/fsdat_simul.m \
