@@ -4,7 +4,7 @@ function y_=simult_(y0,dr,ex_,iorder)
 %
 % INPUTS
 %    y0       [double]   n*1 vector, initial value (n is the number of declared endogenous variables plus the number 
-%                        of auxilliary variables for lags and leads)
+%                        of auxilliary variables for lags and leads); must be in declaration order, i.e. as in M_.endo_names
 %    dr       [struct]   matlab's structure where the reduced form solution of the model is stored.
 %    ex_      [double]   T*q matrix of innovations.
 %    iorder   [integer]  order of the taylor approximation.
@@ -40,6 +40,10 @@ exo_nbr = M_.exo_nbr;
 
 y_ = zeros(size(y0,1),iter+M_.maximum_lag);
 y_(:,1) = y0;
+
+if options_.loglinear && ~options_.logged_steady_state
+    dr.ys=log(dr.ys);
+end
 
 if ~options_.k_order_solver || (options_.k_order_solver && options_.pruning) %if k_order_pert is not used or if we do not use Dynare++ with k_order_pert
     if iorder==1
