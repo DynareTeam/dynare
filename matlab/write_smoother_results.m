@@ -62,7 +62,7 @@ if ~isempty(Trend)
         oo_.Smoother.Trend.(deblank(options_.varobs{1,var_iter})) = Trend(var_iter,:)';
     end
 end
-%% Compute constant
+%% Compute constant for observables
 if options_.prefilter == 1 %as mean is taken after log transformation, no distinction is needed here
     constant_part=repmat(dataset_info.descriptive.mean',1,gend);
 elseif options_.prefilter == 0 && options_.loglinear == 1 %logged steady state must be used
@@ -70,9 +70,11 @@ elseif options_.prefilter == 0 && options_.loglinear == 1 %logged steady state m
 elseif options_.prefilter == 0 && options_.loglinear == 0 %unlogged steady state must be used
     constant_part=repmat(ys(bayestopt_.mfys),1,gend);
 end
+
 %% get observed variables including trend and constant
 trend_constant_observables=constant_part+Trend;
 yf = atT(bayestopt_.mf,:)+trend_constant_observables;
+
 if options_.nk > 0
     %filtered variable E_t(y_t+k) requires to shift trend by k periods    
     filter_steps_required=union(1,options_.filter_step_ahead); % 1 is required for standard filtered variables
@@ -104,13 +106,18 @@ end
 
 for i=bayestopt_.smoother_saved_var_list'
     i1 = oo_.dr.order_var(bayestopt_.smoother_var_list(i)); %get indices of smoothed variables in name vector
-    oo_.SmoothedVariables.(deblank(M_.endo_names(i1,:)))=atT(i,:)';
+    %% Compute constant
+    if  options_.loglinear == 1 %logged steady state must be used
+        constant_current_variable=repmat(log(ys(i1)),gend,1);
+    elseif options_.loglinear == 0 %unlogged steady state must be used
+        constant_current_variable=repmat((ys(i1)),gend,1);
+    end
+    oo_.SmoothedVariables.(deblank(M_.endo_names(i1,:)))=atT(i,:)'+constant_current_variable;
     if options_.nk > 0 && ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file))
         oo_.FilteredVariables.(deblank(M_.endo_names(i1,:)))=squeeze(aK(1,i,2:end-(options_.nk-1)));
     end
-    oo_.UpdatedVariables.(deblank(M_.endo_names(i1,:)))=updated_variables(i,:)';
+    oo_.UpdatedVariables.(deblank(M_.endo_names(i1,:)))=updated_variables(i,:)'+constant_current_variable;
 end
-
     
 %% Add trend and constant for observed variables
 for pos_iter=1:length(bayestopt_.mf)

@@ -52,7 +52,7 @@ if isfield(oo_,'PointForecast')
 end
 
 %% change HPD-fields back to row vectors
-if isfield(oo_.PointForecast,'HPDinf')
+if isfield(oo_,'PointForecast') && isfield(oo_.PointForecast,'HPDinf')
     names=fieldnames(oo_.PointForecast.HPDinf);
     for ii=1:length(names)
         oo_.PointForecast.HPDinf.(names{ii})=oo_.PointForecast.HPDinf.(names{ii})';
@@ -60,7 +60,7 @@ if isfield(oo_.PointForecast,'HPDinf')
     end
 end
 
-if isfield(oo_.MeanForecast,'HPDinf')
+if isfield(oo_,'MeanForecast') && isfield(oo_.MeanForecast,'HPDinf')
     names=fieldnames(oo_.MeanForecast.HPDinf);
     for ii=1:length(names)
         oo_.MeanForecast.HPDinf.(names{ii})=oo_.MeanForecast.HPDinf.(names{ii})';
@@ -68,7 +68,7 @@ if isfield(oo_.MeanForecast,'HPDinf')
     end
 end
 
-if isfield(oo_.UpdatedVariables,'HPDinf')
+if isfield(oo_,'UpdatedVariables') && isfield(oo_.UpdatedVariables,'HPDinf')
     names=fieldnames(oo_.UpdatedVariables.HPDinf);
     for ii=1:length(names)
         oo_.UpdatedVariables.HPDinf.(names{ii})=oo_.UpdatedVariables.HPDinf.(names{ii})';
@@ -76,7 +76,7 @@ if isfield(oo_.UpdatedVariables,'HPDinf')
     end
 end
 
-if isfield(oo_.SmoothedVariables,'HPDinf')
+if isfield(oo_,'SmoothedVariables') && isfield(oo_.SmoothedVariables,'HPDinf')
     names=fieldnames(oo_.SmoothedVariables.HPDinf);
     for ii=1:length(names)
         oo_.SmoothedVariables.HPDinf.(names{ii})=oo_.SmoothedVariables.HPDinf.(names{ii})';
@@ -84,7 +84,7 @@ if isfield(oo_.SmoothedVariables,'HPDinf')
     end
 end
 
-if isfield(oo_.FilteredVariables,'HPDinf')
+if isfield(oo_,'FilteredVariables') && isfield(oo_.FilteredVariables,'HPDinf')
     names=fieldnames(oo_.FilteredVariables.HPDinf);
     for ii=1:length(names)
         oo_.FilteredVariables.HPDinf.(names{ii})=oo_.FilteredVariables.HPDinf.(names{ii})';
@@ -92,7 +92,7 @@ if isfield(oo_.FilteredVariables,'HPDinf')
     end
 end
 
-if isfield(oo_.SmoothedShocks,'HPDinf')
+if isfield(oo_,'SmoothedShocks') && isfield(oo_.SmoothedShocks,'HPDinf')
     names=fieldnames(oo_.SmoothedShocks.HPDinf);
     for ii=1:length(names)
         oo_.SmoothedShocks.HPDinf.(names{ii})=oo_.SmoothedShocks.HPDinf.(names{ii})';
@@ -100,13 +100,44 @@ if isfield(oo_.SmoothedShocks,'HPDinf')
     end
 end
 
-%% padd classical filtered variables with redundant zeros
+%% subtract mean from classical Updated variables
+if isfield(oo_,'UpdatedVariables')
+    names=fieldnames(oo_.UpdatedVariables);
+    for ii=1:length(names)
+        %make sure Bayesian fields are not affected
+        if ~strcmp(names{ii},'Mean') && ~strcmp(names{ii},'Median') && ~strcmp(names{ii},'deciles') ...
+                && ~strcmp(names{ii},'Var') && ~strcmp(names{ii},'HPDinf') && ~strcmp(names{ii},'HPDsup') 
+            current_var_index=find(strmatch(names{ii},deblank(M_.endo_names),'exact'));
+            if  options_.loglinear == 1 %logged steady state must be used
+                constant_current_variable=log(oo_.dr.ys(current_var_index));
+            elseif options_.loglinear == 0 %unlogged steady state must be used
+                constant_current_variable=oo_.dr.ys(current_var_index);
+            end
+            oo_.UpdatedVariables.(names{ii})=oo_.UpdatedVariables.(names{ii})-constant_current_variable;
+            if isfield(oo_.Smoother,'Trend') && isfield(oo_.Smoother.Trend,names{ii})
+                oo_.UpdatedVariables.(names{ii})=oo_.UpdatedVariables.(names{ii})-oo_.Smoother.Trend.(names{ii});
+            end
+        end
+    end
+end
+
+%% padd classical filtered variables with redundant zeros and subtract mean
 if isfield(oo_,'FilteredVariables')
     names=fieldnames(oo_.FilteredVariables);
     for ii=1:length(names)
-        %make sure Bayesian fields are not affect
+        %make sure Bayesian fields are not affected
         if ~strcmp(names{ii},'Mean') && ~strcmp(names{ii},'Median') && ~strcmp(names{ii},'deciles') ...
                 && ~strcmp(names{ii},'Var') && ~strcmp(names{ii},'HPDinf') && ~strcmp(names{ii},'HPDsup') 
+            current_var_index=find(strmatch(names{ii},deblank(M_.endo_names),'exact'));
+            if  options_.loglinear == 1 %logged steady state must be used
+                constant_current_variable=log(oo_.dr.ys(current_var_index));
+            elseif options_.loglinear == 0 %unlogged steady state must be used
+                constant_current_variable=oo_.dr.ys(current_var_index);
+            end
+            oo_.FilteredVariables.(names{ii})=oo_.FilteredVariables.(names{ii})-constant_current_variable;
+            if isfield(oo_.Smoother,'Trend') && isfield(oo_.Smoother.Trend,names{ii})
+                oo_.FilteredVariables.(names{ii})=oo_.FilteredVariables.(names{ii})-oo_.Smoother.Trend.(names{ii});
+            end
             oo_.FilteredVariables.(names{ii})=[0; oo_.FilteredVariables.(names{ii}); zeros(options_.nk-1,1)];
         end
     end

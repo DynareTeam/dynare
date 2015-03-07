@@ -81,7 +81,20 @@ switch task
     y0 = zeros(M_.endo_nbr,maximum_lag);
     for i = 1:M_.endo_nbr
         v_name = deblank(M_.endo_names(i,:));
-        y0(i,:) = y_smoothed.(v_name)(end-maximum_lag+1:end)+oo_.dr.ys(i); %does not need to be logged in loglinear case, because simult_ will subtract unlooged steady state
+        y0(i,:) = y_smoothed.(v_name)(end-maximum_lag+1:end); %includes steady state or mean, but simult_ will subtract only steady state
+        % 2. Subtract mean/steady state and add steady state; takes care of prefiltering        
+        if isfield(oo_.Smoother,'Constant') && isfield(oo_.Smoother.Constant,v_name)
+            y0(i,:)=y0(i,:)-oo_.Smoother.Constant.(v_name)(end-maximum_lag+1:end); %subtract mean or steady state
+            if options_.loglinear
+                y0(i,:)=y0(i,:)+log(oo_.dr.ys(strmatch(v_name,deblank(M_.endo_names),'exact')));
+            else
+                y0(i,:)=y0(i,:)+oo_.dr.ys(strmatch(v_name,deblank(M_.endo_names),'exact'));                
+            end
+        end                
+        % 2. Subtract trend
+        if isfield(oo_.Smoother,'Trend') && isfield(oo_.Smoother.Trend,v_name)
+            y0(i,:)=y0(i,:)-oo_.Smoother.Trend.(v_name)(end-maximum_lag+1:end); %subtract trend, which is not subtracted by simult_
+        end
     end
     gend = options_.nobs;
     if isfield(oo_.Smoother,'TrendCoeffs')
@@ -98,11 +111,13 @@ switch task
             end
         end
         if ~isempty(trend_coeffs) 
-          trend = trend_coeffs*(options_.first_obs+gend-1+(1-M_.maximum_lag:horizon)); 
+            trend = trend_coeffs*(options_.first_obs+gend-1+(1-M_.maximum_lag:horizon)); 
+            if options_.prefilter
+                trend = trend - repmat(mean(trend_coeffs*[options_.first_obs:options_.first_obs+gend-1],2),1,horizon+1); %subtract mean trend
+            end
         end
-    end
-    if options_.prefilter
-        trend = trend - repmat(mean(trend_coeffs*[options_.first_obs:options_.first_obs+gend-1],2),1,horizon+1); %subtract mean trend
+    else
+        trend_coeffs=zeros(length(options_.varobs),1);
     end
   otherwise
     error('Wrong flag value')
@@ -125,12 +140,11 @@ else
                                 options_.order,var_list,M_,oo_,options_);
 end
 
-if ~isscalar(trend)
+if ~isscalar(trend) %add trend back to forecast
     yf(i_var_obs,:) = yf(i_var_obs,:) + trend;
 end
 
 if options_.loglinear == 1
-    yf=yf-oo_.dr.ys(i_var)*ones(1,horizon+M_.maximum_lag)+log(oo_.dr.ys(i_var))*ones(1,horizon+M_.maximum_lag); %take care of logged steady state in this case; above the unlogged one was added    
     if options_.prefilter == 1 %subtract steady state and add mean for observables
         yf(i_var_obs,:)=yf(i_var_obs,:)-repmat(log(oo_.dr.ys(i_var_obs)),1,horizon+M_.maximum_lag)+ repmat(mean_varobs,1,horizon+M_.maximum_lag);
     end
