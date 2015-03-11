@@ -1,5 +1,5 @@
 var Y_obs P_obs junk1 junk2;
-varexo e_y e_p;
+varexo e_y e_p eps_junk;
 
 parameters rho_y rho_p  g_y g_p sigma_y sigma_p;
 
@@ -15,7 +15,7 @@ model;
 Y_obs = rho_y*Y_obs(-1)+sigma_y*e_y;
 P_obs = rho_p*P_obs(-1)+sigma_p*e_p;
 junk1 = 0.9*junk1(+1);
-junk2 = 0.9*junk2(-1);
+junk2 = 0.9*junk2(-1)+eps_junk;
 
 end;
 
@@ -29,6 +29,7 @@ end;
 shocks;
 var e_p; stderr 1;
 var e_y; stderr 1;
+var eps_junk; stderr 1;
 end;
 
 steady(nocheck);
@@ -46,7 +47,7 @@ end;
 estimated_params_init(use_calibration);
 end;
 
-varobs P_obs Y_obs;
+varobs P_obs Y_obs junk2;
 
 observation_trends;
 P_obs (g_p);
@@ -61,7 +62,8 @@ options_.plot_priors=0;
 estimation(order=1,datafile='../AR1_trend_data_with_constant',mh_replic=2000,mode_compute=4,
 first_obs=1,smoother,prefilter=1,
 mh_nblocks=1,mh_jscale=1e-4,
-mcmc_jumping_covariance='MCMC_jump_covar_prefilter',forecast=100) P_obs Y_obs;
+filtered_vars, filter_step_ahead = [1,2,4],
+mcmc_jumping_covariance='MCMC_jump_covar_prefilter',forecast=100) P_obs Y_obs junk2;
 
 load('../AR1_trend_data_with_constant');
 loaded_par=load('../orig_params_prefilter');
@@ -69,10 +71,50 @@ loaded_par=load('../orig_params_prefilter');
 if max(abs((M_.params-loaded_par.orig_params)./loaded_par.orig_params))>0.03
     error('Parameter estimates do not match')
 end
-loaded_par_full=load('orig_params');
+loaded_par_full=load('../orig_params');
 y_forecast_100_periods=loaded_par_full.orig_params(strmatch('const_y',loaded_par_full.param_names,'exact'))+(options_.first_obs+options_.nobs-1+options_.forecast)*loaded_par_full.orig_params(strmatch('g_y',loaded_par_full.param_names,'exact'));
 p_forecast_100_periods=loaded_par_full.orig_params(strmatch('const_p',loaded_par_full.param_names,'exact'))+(options_.first_obs+options_.nobs-1+options_.forecast)*loaded_par_full.orig_params(strmatch('g_p',loaded_par_full.param_names,'exact'));
 
+
+if max(abs(oo_.SmoothedVariables.Mean.Y_obs-Y_obs'))>1e-5 ||...
+    max(abs(oo_.SmoothedVariables.Mean.P_obs-P_obs'))>1e-5 || ...
+    max(abs(oo_.SmoothedVariables.Mean.junk2-junk2'))>1e-5
+    error('Smoothed Variables are wrong')
+end
+
+if max(abs(oo_.UpdatedVariables.Mean.Y_obs-Y_obs'))>1e-5 ||...
+    max(abs(oo_.UpdatedVariables.Mean.P_obs-P_obs'))>1e-5 || ...
+    max(abs(oo_.UpdatedVariables.Mean.junk2-junk2'))>1e-5
+    error('Updated Variables are wrong')
+end
+
+if mean(abs(oo_.FilteredVariables.Mean.Y_obs(1:end-1)-Y_obs(2:end)'))>1e-3 ||...
+    mean(abs(oo_.FilteredVariables.Mean.P_obs(1:end-1)-P_obs(2:end)'))>1e-3 
+    error('Filtered Variables are wrong')
+end
+
+if abs(corr(oo_.FilteredVariables.Mean.Y_obs(2:end-1)-Y_obs(3:end)',oo_.FilteredVariables.Mean.Y_obs(1:end-2)-Y_obs(2:end-1)'))>2e-2 ||...
+    abs(corr(oo_.FilteredVariables.Mean.P_obs(2:end-1)-P_obs(3:end)',oo_.FilteredVariables.Mean.P_obs(1:end-2)-P_obs(2:end-1)'))>2e-2 ||...
+    abs(corr(oo_.FilteredVariables.Mean.junk2(2:end-1)-junk2(3:end)',oo_.FilteredVariables.Mean.junk2(1:end-2)-junk2(2:end-1)'))>2e-2 
+    error('Filtered Variables are wrong')
+end
+
+if max(abs(squeeze(oo_.FilteredVariablesKStepAhead(1,1,2:end-(options_.nk-1)))-oo_.FilteredVariables.Mean.P_obs))>1e-5 ||...
+    max(abs(squeeze(oo_.FilteredVariablesKStepAhead(1,2,2:end-(options_.nk-1)))-oo_.FilteredVariables.Mean.Y_obs))>1e-5 ||...
+    max(abs(squeeze(oo_.FilteredVariablesKStepAhead(1,3,2:end-(options_.nk-1)))-oo_.FilteredVariables.Mean.junk2))>1e-5 
+    error('FilteredVariablesKStepAhead is wrong')
+end
+   
+if max(abs(squeeze(oo_.FilteredVariablesKStepAhead(1,1,2:end-(options_.nk-1)))-oo_.FilteredVariables.Mean.P_obs))>1e-5 ||...
+    max(abs(squeeze(oo_.FilteredVariablesKStepAhead(1,2,2:end-(options_.nk-1)))-oo_.FilteredVariables.Mean.Y_obs))>1e-5 ||...
+    max(abs(squeeze(oo_.FilteredVariablesKStepAhead(1,3,2:end-(options_.nk-1)))-oo_.FilteredVariables.Mean.junk2))>1e-5 ||...
+    max(abs(squeeze(oo_.FilteredVariablesKStepAhead(2,1,3:end-options_.nk))-oo_.FilteredVariables.Mean.P_obs(3:end)))>1e-2 ||...
+    max(abs(squeeze(oo_.FilteredVariablesKStepAhead(2,2,3:end-options_.nk))-oo_.FilteredVariables.Mean.Y_obs(3:end)))>1e-2 ||...
+    mean(squeeze(oo_.FilteredVariablesKStepAhead(2,3,3:end-options_.nk)))>1e-1 
+    error('FilteredVariablesKStepAhead is wrong')
+end
+
+            
 if abs(oo_.PointForecast.Mean.Y_obs(end)- y_forecast_100_periods)>1e-4 || abs(oo_.PointForecast.Mean.P_obs(end)- p_forecast_100_periods)>5e-4
     error('Mean Point Forecasts do not match')
 end

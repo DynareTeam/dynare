@@ -64,7 +64,7 @@ nvn=myinputs.nvn;
 naK=myinputs.naK;
 horizon=myinputs.horizon;
 iendo=myinputs.iendo;
-IdObs=myinputs.IdObs;
+IdObs=myinputs.IdObs; %index of observables
 if horizon
     i_last_obs=myinputs.i_last_obs;
     MAX_nforc1=myinputs.MAX_nforc1;
@@ -170,7 +170,7 @@ for b=fpar:B
         [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK,junk1,junk2,junk3,junk4,junk5,trend_addition] = ...
             DsgeSmoother(deep,gend,Y,data_index,missing_value);
 
-        if options_.loglinear
+        if options_.loglinear %reads values from smoother results, which are in dr-order and put them into declaration order
             stock_smooth(dr.order_var,:,irun(1)) = alphahat(1:endo_nbr,:)+ ...
                 repmat(log(SteadyState(dr.order_var)),1,gend);
             stock_update(dr.order_var,:,irun(1)) = alphatilde(1:endo_nbr,:)+ ...
@@ -181,16 +181,45 @@ for b=fpar:B
             stock_update(dr.order_var,:,irun(1)) = alphatilde(1:endo_nbr,:)+ ...
                 repmat(SteadyState(dr.order_var),1,gend);
         end
+        %% Compute constant for observables
+        if options_.prefilter == 1 %as mean is taken after log transformation, no distinction is needed here
+            constant_part=repmat(mean_varobs',1,gend);
+        elseif options_.prefilter == 0 && options_.loglinear == 1 %logged steady state must be used
+            constant_part=repmat(log(SteadyState(IdObs)),1,gend);
+        elseif options_.prefilter == 0 && options_.loglinear == 0 %unlogged steady state must be used
+            constant_part=repmat(SteadyState(IdObs),1,gend);
+        end
         %add trend to observables
-        stock_smooth(IdObs,:,irun(1))=stock_smooth(IdObs,:,irun(1))+trend_addition;
-        stock_update(IdObs,:,irun(1))=stock_update(IdObs,:,irun(1))+trend_addition; 
-
+        if options_.prefilter
+            %do correction for prefiltering for observed variables
+            if options_.loglinear
+                mean_correction=-repmat(log(SteadyState(IdObs)),1,gend)+constant_part;
+            else
+                mean_correction=-repmat(SteadyState(IdObs),1,gend)+constant_part;
+            end
+            %smoothed variables are E_T(y_t) so no trend shift is required
+            stock_smooth(IdObs,:,irun(1))=stock_smooth(IdObs,:,irun(1))+trend_addition+mean_correction;
+            %updated variables are E_t(y_t) so no trend shift is required
+            stock_update(IdObs,:,irun(1))=stock_update(IdObs,:,irun(1))+trend_addition+mean_correction;         
+        else
+            stock_smooth(IdObs,:,irun(1))=stock_smooth(IdObs,:,irun(1))+trend_addition;
+            stock_update(IdObs,:,irun(1))=stock_update(IdObs,:,irun(1))+trend_addition; 
+        end
         stock_innov(:,:,irun(2))  = etahat;
         if nvn
             stock_error(:,:,irun(3))  = epsilonhat;
         end
         if naK
+            %filtered variable E_t(y_t+k) requires to shift trend by k periods
+            %write percentage deviation of variables into declaration order
             stock_filter_step_ahead(:,dr.order_var,:,irun(4)) = aK(options_.filter_step_ahead,1:endo_nbr,:);
+            
+            %now add trend and constant to filtered variables
+            for ii=1:length(options_.filter_step_ahead)
+                stock_filter_step_ahead(ii,IdObs,:,irun(4)) = squeeze(stock_filter_step_ahead(ii,IdObs,:,irun(4)))...
+                +repmat(constant_part(:,1),1,gend+max(options_.filter_step_ahead))... %constant
+                +[trend_addition repmat(trend_addition(:,end),1,max(options_.filter_step_ahead))+trend_coeff*[1:max(options_.filter_step_ahead)]]; %trend
+            end
         end
 
         if horizon
