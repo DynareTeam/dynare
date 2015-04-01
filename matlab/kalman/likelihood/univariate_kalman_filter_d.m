@@ -110,7 +110,8 @@ dLIK = Inf;                % Default value of the log likelihood.
 oldK = Inf;
 llik = zeros(smpl,pp);
 
-newRank = rank(Pinf,kalman_tol);
+crit1 = 1.e-6;
+newRank = rank(Pinf,crit1);
 l2pi = log(2*pi);
 
 while newRank && (t<=last)
@@ -138,7 +139,7 @@ while newRank && (t<=last)
         end
     end
     if newRank
-        oldRank = rank(Pinf,kalman_tol);
+        oldRank = rank(Pinf,crit1);
     else
         oldRank = 0;
     end
@@ -146,7 +147,7 @@ while newRank && (t<=last)
     Pstar = T*Pstar*T'+QQ;
     Pinf  = T*Pinf*T';
     if newRank
-        newRank = rank(Pinf,kalman_tol);
+        newRank = rank(Pinf,crit1);
     end
     if oldRank ~= newRank
         disp('univariate_diffuse_kalman_filter:: T does influence the rank of Pinf!')
