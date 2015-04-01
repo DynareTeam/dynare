@@ -1,8 +1,15 @@
-function [Z,ST,R1,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,qz_criterium)
-% function [Z,ST,QT,R1,Pstar,Pinf] = schur_statespace(mf,T,R,Q,qz_criterium)
+function [Z,ST,R1,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,qz_criterium, restrict_columns)
+% function [Z,ST,QT,R1,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,qz_criterium, restrict_columns)
 % Kitagawa transformation of state space system with a quasi-triangular
-% transition matrix with unit roots at the top. Computation of Pstar and
-% Pinf for Durbin and Koopman Diffuse filter
+% transition matrix with unit roots at the top, but excluding zero columns of the transition matrix. 
+% Computation of Pstar and Pinf for Durbin and Koopman Diffuse filter
+%
+% The transformed state space is 
+%     y = [ss; z; x];
+%     s = static variables (zero columns of T)
+%     z = unit roots
+%     x = stable roots
+%     ss = s - z = stationarized static variables
 % 
 % INPUTS 
 %   mf           [integer]    vector of indices of observed variables in
@@ -44,6 +51,20 @@ function [Z,ST,R1,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,qz_c
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
+np = size(T,1);
+if nargin == 6,
+    indx = restrict_columns;
+    indx0=find(~ismember([1:np],indx));
+else
+    indx=(find(max(abs(T))>0));
+    indx0=(find(max(abs(T))==0));
+end
+T0=T(indx0,indx); %static variables vs. dynamic ones
+R0=R(indx0,:); % matrix of shocks for static variables
+
+% perform Kitagawa transformation only for non-zero columns of T
+T=T(indx,indx);
+R=R(indx,:);
 np = size(T,1);
 [QT,ST] = schur(T);
 e1 = abs(ordeig(ST)) > 2-qz_criterium;
@@ -93,14 +114,40 @@ if i == nk+1
     Pstar(nk1,nk1)=(B(nk1,nk1)+c)/(1-ST(nk1,nk1)*ST(nk1,nk1));
 end
 
-Z = QT(mf,:);
 R1 = QT'*R;
+ST1=ST;
+
+% now I recover stationarized static variables
+% using 
+% ss = s-z and
+% z-z(-1) (growth rates of unit roots) only depends on stationary variables
+np0=length(indx0);
+Pstar = blkdiag(zeros(np0),Pstar);
+ST = [zeros(length(Pstar),length(indx0)) [T0*QT ;ST]];
+R1 = [R0; R1];
+ST0=ST;
+ST0(:,1:np0+nk)=0;
+ST0(np0+1:np0+nk,:)=0;
+ST0(1:np0,np0+nk+1:end) = ST(1:np0,np0+nk+1:end)-ST(1:np0,np0+1:np0+nk)*ST(np0+1:np0+nk,np0+nk+1:end);
+R10 = R1;
+R10(np0+1:np0+nk,:)=0;
+R10(1:np0,:) = R1(1:np0,:)-ST(1:np0,np0+1:np0+nk)*R1(np0+1:np0+nk,:);
+Pstar = ...
+     ST0*Pstar*ST0'+ ...
+         R10*Q*R10';
+QT = blkdiag(eye(np0),QT);
+QT(1:np0,np0+1:np0+nk) = QT(1:np0,np0+1:np0+nk)+ST(1:np0,np0+1:np0+nk);
+% reorder QT entries 
+QT([indx0(:); indx(:)],:) = QT; 
+Z = QT(mf,:);
+ST(1:np0,:) = ST0(1:np0,:);
+R1(1:np0,:) = R10(1:np0,:);
 
 % stochastic trends with no influence on observed variables are
 % arbitrarily initialized to zero
 Pinf = zeros(np,np);
 Pinf(1:nk,1:nk) = eye(nk);
-[QQ,RR,EE] = qr(Z*ST(:,1:nk),0);
+[QQ,RR,EE] = qr(Z*ST(:,1+np0:nk+np0),0);
 k = find(abs(diag([RR; zeros(nk-size(Z,1),size(RR,2))])) < 1e-8);
 if length(k) > 0
     k1 = EE(:,k);
@@ -108,3 +155,5 @@ if length(k) > 0
     dd(k1) = zeros(length(k1),1);
     Pinf(1:nk,1:nk) = diag(dd);
 end
+Pinf = blkdiag(zeros(np0),Pinf);
+

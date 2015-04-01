@@ -59,8 +59,9 @@ dlik = zeros(smpl,1);      % Initialization of the vector gathering the densitie
 dLIK = Inf;                % Default value of the log likelihood.
 oldK = Inf;
 s    = 0;
+crit1=1.e-6;
 
-while rank(Pinf,kalman_tol) && (t<=last)
+while rank(Pinf,crit1) && (t<=last)
     s = t-start+1;
     v = Y(:,t)-Z*a;
     Finf  = Z*Pinf*Z';

@@ -66,13 +66,14 @@ t    = start;              % Initialization of the time index.
 dlik = zeros(smpl,1);      % Initialization of the vector gathering the densities.
 dLIK = Inf;                % Default value of the log likelihood.
 oldK = Inf;
+crit1=1.e-6;
 
 if isequal(H,0)
     H = zeros(pp,pp);
 end
 s = 0;
 
-while rank(Pinf,kalman_tol) && (t<=last)
+while rank(Pinf,crit1) && (t<=last)
     s = t-start+1;
     d_index = data_index{t};
     if isempty(d_index)
