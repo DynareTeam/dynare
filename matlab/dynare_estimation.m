@@ -28,7 +28,7 @@ function oo_recursive_=dynare_estimation(var_list,dname)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global options_ oo_ M_
+global options_ oo_ M_ dataset_
 
 oo_recursive_={};
 
@@ -97,14 +97,6 @@ end
 
 if nnobs > 1 && horizon > 0
     mh_replic = options_.mh_replic;
-    rawdata = read_variables(options_.datafile,options_.varobs,[],options_.xls_sheet,options_.xls_range);
-    gend = options_.nobs;
-    data_plot_end_point=min(options_.first_obs+gend-1+horizon,size(rawdata,1)); %compute last observation that can be plotted
-    rawdata = rawdata(options_.first_obs:data_plot_end_point,:);
-    % Take the log of the variables if needed
-    if options_.loglinear && ~options_.logdata   % and if the data are not in logs, then...
-        rawdata = log(rawdata);
-    end
 
     endo_names = M_.endo_names;
     n_varobs = length(options_.varobs);
@@ -132,11 +124,12 @@ if nnobs > 1 && horizon > 0
             IdObs(j,1) = iobs;
         end
     end
-
+    
+    gend = dataset_.nobs;
     time_offset=min(3,gend-1); %for observables, plot 3 previous periods unless data is shorter
     k = time_offset+min(nobs(end)-nobs(1)+horizon, ...
-              size(rawdata,1)-nobs(1));
-    data2 = rawdata(end-k+1:end,:);
+              size(dataset_.data,1)-nobs(1));
+    data2 = dataset_.data(end-k+1:end,:);
     [nbplt,nr,nc,lr,lc,nstar] = pltorg(nvar);
     m = 1;
     plot_index=0;
