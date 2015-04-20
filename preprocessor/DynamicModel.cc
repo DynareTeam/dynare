@@ -2399,7 +2399,7 @@ DynamicModel::writeOutput(ostream &output, const string &basename, bool block_de
 
   /* Say if static and dynamic models differ (because of [static] and [dynamic]
      equation tags) */
-  output << "M_.static_and_dynamic_models_differ = "
+  output << "M_.static_dynamic_models_differ = "
          << (static_only_equations.size() > 0 ? "1" : "0")
          << ";" << endl;
 
