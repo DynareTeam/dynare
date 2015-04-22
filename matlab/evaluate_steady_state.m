@@ -247,7 +247,7 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
     end
 
     % If some equations are tagged [static] or [dynamic], verify consistency
-    if M.static_and_dynamic_models_differ
+    if M.static_dynamic_models_differ
         % Evaluate residual of *dynamic* model using the steady state
         % computed on the *static* one
         z = repmat(ys,1,M.maximum_lead + M.maximum_lag + 1);
