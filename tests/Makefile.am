@@ -219,6 +219,7 @@ MODFILES = \
 	optimizers/fs2000_101.mod \
 	optimizers/fs2000_102.mod \
 	optimizers/fs2000_w.mod \
+	diffentiate_forward_vars/RBC_differentiate_forward \ 
 	reporting/example1.mod
 
 XFAIL_MODFILES = ramst_xfail.mod \
