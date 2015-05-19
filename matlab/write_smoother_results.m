@@ -8,10 +8,10 @@ function [oo_, yf]=write_smoother_results(M_,oo_,options_,bayestopt_,dataset_,da
 %   options_        [structure]     storing the options
 %   bayestopt_      [structure]     storing information about priors
 %   dataset_        [structure]     storing the dataset
-%   atT             [double]    (m*T) matrix, smoothed endogenous variables.
+%   atT             [double]    (m*T) matrix, smoothed endogenous variables (a_{t|T})
 %   innov           [double]    (r*T) matrix, smoothed structural shocks (r>n is the umber of shocks).
 %   measurement_error [double]  (n*T) matrix, smoothed measurement errors.
-%   updated_variables [double]  (m*T) matrix, one step ahead filtered (endogenous) variables.   
+%   updated_variables [double]  (m*T) matrix, updated (endogenous) variables (a_{t|T})
 %   ys              [double]    (m*1) vector specifying the steady state level of each endogenous variable.
 %   trend_coeff     [double]    (n*1) vector, parameters specifying the slope of the trend associated to each observed variable.
 %   aK              [double]    (K,n,T+K) array, k (k=1,...,K) steps ahead filtered (endogenous) variables.

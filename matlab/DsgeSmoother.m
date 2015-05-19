@@ -9,10 +9,10 @@ function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,de
 %   o missing_value 1 if missing values, 0 otherwise
 %  
 % OUTPUTS 
-%   o alphahat      [double]  (m*T) matrix, smoothed endogenous variables.
+%   o alphahat      [double]  (m*T) matrix, smoothed endogenous variables (a_{t|T})
 %   o etahat        [double]  (r*T) matrix, smoothed structural shocks (r>n is the umber of shocks).
 %   o epsilonhat    [double]  (n*T) matrix, smoothed measurement errors.
-%   o ahat          [double]  (m*T) matrix, one step ahead filtered (endogenous) variables.
+%   o ahat          [double]  (m*T) matrix, updated (endogenous) variables (a_{t|t})
 %   o SteadyState   [double]  (m*1) vector specifying the steady state level of each endogenous variable.
 %   o trend_coeff   [double]  (n*1) vector, parameters specifying the slope of the trend associated to each observed variable.
 %   o aK            [double]  (K,n,T+K) array, k (k=1,...,K) steps ahead filtered (endogenous) variables.
