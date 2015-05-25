@@ -131,7 +131,7 @@ end;
 
 varobs gp_obs gy_obs;
 
-estimation(order=1, datafile='../fsdat_simul', nobs=192, loglinear, mh_replic=2000, mh_nblocks=1,smoother, mh_jscale=0.8);
+estimation(order=1, datafile='../fsdat_simul', nobs=192, loglinear, mh_replic=2000, mh_nblocks=1,smoother, mh_jscale=0.8,consider_all_endogenous);
 
 ex_=[];
 for shock_iter=1:M_.exo_nbr
@@ -156,11 +156,11 @@ iorder=1;
 % end
 y_=simult_(y0,dr,ex_,iorder);
 
-fsdat_simul;
+fsdat_simul_logged;
 
-if mean(abs(y_(strmatch('gy_obs',M_.endo_names,'exact'),:)'-log(gy_obs(1:options_.nobs))))>1e-3 ||...
+if mean(abs(y_(strmatch('gy_obs',M_.endo_names,'exact'),:)'-gy_obs(1:options_.nobs)))>1e-3 ||...
     mean(abs(y_(strmatch('gy_obs',M_.endo_names,'exact'),:)'-oo_.SmoothedVariables.Mean.gy_obs))>1e-3 ||...
-    mean(abs(y_(strmatch('gp_obs',M_.endo_names,'exact'),:)'-log(gp_obs(1:options_.nobs))))>1e-3 ||...
+    mean(abs(y_(strmatch('gp_obs',M_.endo_names,'exact'),:)'-gp_obs(1:options_.nobs)))>1e-3 ||...
     mean(abs(y_(strmatch('gp_obs',M_.endo_names,'exact'),:)'-oo_.SmoothedVariables.Mean.gp_obs))>1e-3 
 error('Smoother is wrong')
 end
