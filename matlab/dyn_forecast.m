@@ -37,8 +37,8 @@ function info = dyn_forecast(var_list,task,dataset_info)
 global options_ oo_ M_
 
 if nargin<3 && options_.prefilter
-    error('The prefiltering option is not allow without providing a dataset')
-else
+    error('The prefiltering option is not allowed without providing a dataset')
+elseif nargin==3 
     mean_varobs=dataset_info.descriptive.mean';
 end
     
