@@ -364,8 +364,8 @@ switch minimizer_algorithm
     [opt_par_values,fval,exitflag,output] = simulannealbnd(func,start_par_value,bounds(:,1),bounds(:,2),optim_options);
   otherwise
     if ischar(minimizer_algorithm)
-        if exist(options_.mode_compute)
-            [opt_par_values, fval, exitflag] = feval(options_.mode_compute,objective_function,start_par_value,varargin{:});
+        if exist(minimizer_algorithm)
+            [opt_par_values, fval, exitflag] = feval(minimizer_algorithm,objective_function,start_par_value,varargin{:});
         else
             error('No minimizer with the provided name detected.')
         end
