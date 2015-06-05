@@ -181,6 +181,7 @@ MODFILES = \
 	deterministic_simulations/rbc_det_exo_lag_2b.mod \
 	deterministic_simulations/rbc_det_exo_lag_2c.mod \
 	deterministic_simulations/sim_several_leads_lags.mod \
+	deterministic_simulations/lola_solve_one_boundary.mod \
 	walsh.mod \
 	measurement_errors/fs2000_corr_me_ml_mcmc/fs2000_corr_ME.mod \
 	trend_var/fs2000_nonstationary.mod \
@@ -365,6 +366,7 @@ EXTRA_DIST = \
 	steady_state/walsh1_old_ss_steadystate.m \
 	data/test.xls \
 	analytic_derivatives/fsdat_simul.m \
+	deterministic_simulations/lola_data.mat \
 	fs2000/fs2000a_steadystate.m \
 	fs2000/fsdat_simul.m \
 	k_order_perturbation/run_fs2000kplusplus.m \
