@@ -61,6 +61,11 @@ SigmaeStatement::determineMatrixForm(const matrix_t &matrix) throw (MatrixFormEx
 void
 SigmaeStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
 {
+}
+
+void
+SigmaeStatement::writeM_Output(ostream &output, const string &basename, bool minimal_workspace)
+{
   size_t ic, ic1, ir, ir1;
 
   output << "M_.Sigma_e = [..." << endl;

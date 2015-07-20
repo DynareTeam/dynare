@@ -85,6 +85,11 @@ ShocksStatement::ShocksStatement(bool overwrite_arg,
 void
 ShocksStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
 {
+}
+
+void
+ShocksStatement::writeM_Output(ostream &output, const string &basename, bool minimal_workspace)
+{
   output << "%" << endl
          << "% SHOCKS instructions" << endl
          << "%" << endl;

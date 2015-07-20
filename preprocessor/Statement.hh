@@ -137,6 +137,7 @@ public:
     \param basename is the name of the modfile (without extension) which can be used to build auxiliary files
   */
   virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const = 0;
+  virtual void writeM_Output(ostream &output, const string &basename, bool minimal_workspace);
   virtual void writeCOutput(ostream &output, const string &basename);
 };
 
@@ -147,6 +148,7 @@ private:
 public:
   NativeStatement(const string &native_statement_arg);
   virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const;
+  virtual void writeM_Output(ostream &output, const string &basename, bool minimal_workspace);
 };
 
 class VerbatimStatement : public Statement

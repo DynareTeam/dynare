@@ -1601,7 +1601,7 @@ StaticModel::writeStaticBlockMFSFile(const string &basename) const
 }
 
 void
-StaticModel::writeOutput(ostream &output, bool block) const
+StaticModel::writeM_Output(ostream &output, bool block) const
 {
   if (!block)
     return;

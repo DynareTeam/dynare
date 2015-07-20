@@ -78,6 +78,7 @@ public:
                   const covar_and_corr_shocks_t &corr_shocks_arg,
                   const SymbolTable &symbol_table_arg);
   virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const;
+  virtual void writeM_Output(ostream &output, const string &basename, bool minimal_workspace);
   virtual void checkPass(ModFileStructure &mod_file_struct, WarningConsolidation &warnings);
 };
 

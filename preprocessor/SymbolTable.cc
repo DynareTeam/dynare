@@ -173,6 +173,32 @@ SymbolTable::getID(SymbolType type, int tsid) const throw (UnknownTypeSpecificID
 void
 SymbolTable::writeOutput(ostream &output) const throw (NotYetFrozenException)
 {
+  if (param_nbr() > 0)
+    for (int id = 1; id < param_nbr(); id++)
+      if (getName(param_ids[id]) == "dsge_prior_weight")
+        output << "options_.dsge_var = 1;" << endl;
+
+  if (observedVariablesNbr() > 0)
+    {
+      int ic = 1;
+      output << "options_.varobs = cell(1);" << endl;
+      for (vector<int>::const_iterator it = varobs.begin();
+           it != varobs.end(); it++)
+        {
+          output << "options_.varobs(" << ic << ")  = {'" << getName(*it) << "'};" << endl;
+          ic++;
+        }
+      output << "options_.varobs_id = [ ";
+      for (vector<int>::const_iterator it = varobs.begin();
+           it != varobs.end(); it++)
+        output << getTypeSpecificID(*it)+1 << " ";
+      output << " ];"  << endl;
+    }
+}
+
+void
+SymbolTable::writeM_Output(ostream &output) const throw (NotYetFrozenException)
+{
   if (!frozen)
     throw NotYetFrozenException();
 
@@ -218,14 +244,9 @@ SymbolTable::writeOutput(ostream &output) const throw (NotYetFrozenException)
       output << "M_.param_names_tex = '" << getTeXName(param_ids[0]) << "';" << endl;
       output << "M_.param_names_long = '" << getLongName(param_ids[0]) << "';" << endl;
       for (int id = 1; id < param_nbr(); id++)
-        {
-          output << "M_.param_names = char(M_.param_names, '" << getName(param_ids[id]) << "');" << endl
-                 << "M_.param_names_tex = char(M_.param_names_tex, '" << getTeXName(param_ids[id]) << "');" << endl
-                 << "M_.param_names_long = char(M_.param_names_long, '" << getLongName(param_ids[id]) << "');" << endl;
-
-          if (getName(param_ids[id]) == "dsge_prior_weight")
-            output << "options_.dsge_var = 1;" << endl;
-        }
+        output << "M_.param_names = char(M_.param_names, '" << getName(param_ids[id]) << "');" << endl
+               << "M_.param_names_tex = char(M_.param_names_tex, '" << getTeXName(param_ids[id]) << "');" << endl
+               << "M_.param_names_long = char(M_.param_names_long, '" << getLongName(param_ids[id]) << "');" << endl;
     }
 
   output << "M_.exo_det_nbr = " << exo_det_nbr() << ";" << endl
@@ -275,23 +296,6 @@ SymbolTable::writeOutput(ostream &output) const throw (NotYetFrozenException)
            it != predetermined_variables.end(); it++)
         output << getTypeSpecificID(*it)+1 << " ";
       output << "];" << endl;
-    }
-
-  if (observedVariablesNbr() > 0)
-    {
-      int ic = 1;
-      output << "options_.varobs = cell(1);" << endl;
-      for (vector<int>::const_iterator it = varobs.begin();
-           it != varobs.end(); it++)
-	{
-	  output << "options_.varobs(" << ic << ")  = {'" << getName(*it) << "'};" << endl;
-	  ic++;
-	}
-      output << "options_.varobs_id = [ ";
-      for (vector<int>::const_iterator it = varobs.begin();
-           it != varobs.end(); it++)
-        output << getTypeSpecificID(*it)+1 << " ";
-      output << " ];"  << endl;
     }
 }
 

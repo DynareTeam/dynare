@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2012 Dynare Team
+ * Copyright (C) 2003-2015 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -152,7 +152,7 @@ public:
   StaticModel(SymbolTable &symbol_table_arg, NumericalConstants &num_constants, ExternalFunctionsTable &external_functions_table_arg);
 
   //! Writes information on block decomposition when relevant
-  void writeOutput(ostream &output, bool block) const;
+  void writeM_Output(ostream &output, bool block) const;
 
   //! Execute computations (variable sorting + derivation)
   /*!

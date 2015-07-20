@@ -58,6 +58,7 @@ private:
 public:
   SigmaeStatement(const matrix_t &matrix_arg) throw (MatrixFormException);
   virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const;
+  virtual void writeM_Output(ostream &output, const string &basename, bool minimal_workspace);
 };
 
 #endif

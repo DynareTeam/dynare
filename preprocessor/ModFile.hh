@@ -152,6 +152,7 @@ public:
                         , bool cygwin, bool msvc
 #endif
                         ) const;
+  void writeM_(ofstream &M_OutputFile, const string &basename) const;
   // Functions located in ExternalFiles.cc
   void writeExternalFiles(const string &basename, FileOutputType output, LanguageOutputType language) const;
   void writeExternalFilesC(const string &basename, FileOutputType output) const;

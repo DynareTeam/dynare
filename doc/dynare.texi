@@ -698,12 +698,15 @@ and the processing instructions, as described in @ref{The Model file}.
 
 @code{dynare} begins by launching the preprocessor on the @file{.mod}
 file.  By default (unless @code{use_dll} option has been given to
-@code{model}), the preprocessor creates three intermediary files:
+@code{model}), the preprocessor creates four intermediary files:
 
 @table @file
 
 @item @var{FILENAME}.m
 Contains variable declarations, and computing tasks
+
+@item @var{FILENAME}_M_.m
+Defines the model structure
 
 @item @var{FILENAME}_dynamic.m
 @vindex M_.lead_lag_incidence

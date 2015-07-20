@@ -2310,7 +2310,7 @@ DynamicModel::writeDynamicModel(ostream &DynamicOutput, bool use_dll) const
 }
 
 void
-DynamicModel::writeOutput(ostream &output, const string &basename, bool block_decomposition, bool byte_code, bool use_dll, int order, bool estimation_present) const
+DynamicModel::writeM_Output(ostream &output, const string &basename, bool block_decomposition, bool byte_code, bool use_dll, int order, bool estimation_present) const
 {
   /* Writing initialisation for M_.lead_lag_incidence matrix
      M_.lead_lag_incidence is a matrix with as many columns as there are
@@ -2844,19 +2844,14 @@ DynamicModel::writeOutput(ostream &output, const string &basename, bool block_de
          << "M_.maximum_lead = " << max_lead << ";" << endl;
 
   output << "M_.maximum_endo_lag = " << max_endo_lag << ";" << endl
-         << "M_.maximum_endo_lead = " << max_endo_lead << ";" << endl
-         << "oo_.steady_state = zeros(" << symbol_table.endo_nbr() << ", 1);" << endl;
+         << "M_.maximum_endo_lead = " << max_endo_lead << ";" << endl;
 
   output << "M_.maximum_exo_lag = " << max_exo_lag << ";" << endl
-         << "M_.maximum_exo_lead = " << max_exo_lead << ";" << endl
-         << "oo_.exo_steady_state = zeros(" << symbol_table.exo_nbr() << ", 1);" << endl;
+         << "M_.maximum_exo_lead = " << max_exo_lead << ";" << endl;
 
   if (symbol_table.exo_det_nbr())
-    {
-      output << "M_.maximum_exo_det_lag = " << max_exo_det_lag << ";" << endl
-             << "M_.maximum_exo_det_lead = " << max_exo_det_lead << ";" << endl
-             << "oo_.exo_det_steady_state = zeros(" << symbol_table.exo_det_nbr() << ", 1);" << endl;
-    }
+    output << "M_.maximum_exo_det_lag = " << max_exo_det_lag << ";" << endl
+           << "M_.maximum_exo_det_lead = " << max_exo_det_lead << ";" << endl;
 
   output << "M_.params = NaN(" << symbol_table.param_nbr() << ", 1);" << endl;
 
@@ -2876,6 +2871,16 @@ DynamicModel::writeOutput(ostream &output, const string &basename, bool block_de
     output << "M_.NNZDerivatives(2) = -1;" << endl
            << "M_.NNZDerivatives(3) = -1;" << endl;
 
+}
+
+void
+DynamicModel::writeOutput(ostream &output) const
+{
+  output << "oo_.steady_state = zeros(" << symbol_table.endo_nbr() << ", 1);" << endl
+         << "oo_.exo_steady_state = zeros(" << symbol_table.exo_nbr() << ", 1);" << endl;
+
+  if (symbol_table.exo_det_nbr())
+    output << "oo_.exo_det_steady_state = zeros(" << symbol_table.exo_det_nbr() << ", 1);" << endl;
 }
 
 map<pair<int, pair<int, int > >, expr_t>

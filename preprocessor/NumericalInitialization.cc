@@ -44,6 +44,13 @@ void
 InitParamStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
 {
   int id = symbol_table.getTypeSpecificID(symb_id) + 1;
+  output << symbol_table.getName(symb_id) << " = M_.params( " << id << " );\n";
+}
+
+void
+InitParamStatement::writeM_Output(ostream &output, const string &basename, bool minimal_workspace)
+{
+  int id = symbol_table.getTypeSpecificID(symb_id) + 1;
   output << "M_.params( " << id << " ) = ";
   param_value->writeOutput(output);
   output << ";" << endl;
@@ -271,6 +278,57 @@ HistValStatement::checkPass(ModFileStructure &mod_file_struct, WarningConsolidat
 void
 HistValStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
 {
+  for (hist_values_t::const_iterator it = hist_values.begin();
+       it != hist_values.end(); it++)
+    {
+      int symb_id = it->first.first;
+      int lag = it->first.second;
+      const expr_t expression = it->second;
+
+      SymbolType type = symbol_table.getType(symb_id);
+
+      // For a lag greater than 1 on endo, or for any exo, lookup for auxiliary variable
+      if ((type == eEndogenous && lag < 0) || type == eExogenous)
+        {
+          try
+            {
+              // This function call must remain the 1st statement in this block
+              symb_id = symbol_table.searchAuxiliaryVars(symb_id, lag);
+              lag = 0;
+              type = eEndogenous;
+            }
+          catch (SymbolTable::SearchFailedException &e)
+            {
+              if (type == eEndogenous)
+                {
+                  cerr << "HISTVAL: internal error of Dynare, please contact the developers";
+                  exit(EXIT_FAILURE);
+                }
+              // We don't fail for exogenous, because they are not replaced by
+              // auxiliary variables in deterministic mode.
+            }
+        }
+
+      int tsid = symbol_table.getTypeSpecificID(symb_id) + 1;
+
+      if (type == eExogenous)
+        {
+          output << "oo_.exo_simul( M_.maximum_lag + " << lag << ", " << tsid << " ) = ";
+          expression->writeOutput(output);
+          output << ";" << endl;
+        }
+      else if (type != eExogenousDet)
+        {
+          output << "oo_.exo_det_simul( M_.maximum_lag + " << lag  << ", " << tsid << " ) = ";
+          expression->writeOutput(output);
+          output << ";" << endl;
+        }
+    }
+}
+
+void
+HistValStatement::writeM_Output(ostream &output, const string &basename, bool minimal_workspace)
+{
   output << "%" << endl
          << "% HISTVAL instructions" << endl
          << "%" << endl
@@ -310,14 +368,11 @@ HistValStatement::writeOutput(ostream &output, const string &basename, bool mini
       int tsid = symbol_table.getTypeSpecificID(symb_id) + 1;
 
       if (type == eEndogenous)
-        output << "M_.endo_histval( " << tsid << ", M_.maximum_endo_lag + " << lag << ") = ";
-      else if (type == eExogenous)
-        output << "oo_.exo_simul( M_.maximum_lag + " << lag << ", " << tsid << " ) = ";
-      else if (type != eExogenousDet)
-        output << "oo_.exo_det_simul( M_.maximum_lag + " << lag  << ", " << tsid << " ) = ";
-
-      expression->writeOutput(output);
-      output << ";" << endl;
+        {
+          output << "M_.endo_histval( " << tsid << ", M_.maximum_endo_lag + " << lag << ") = ";
+          expression->writeOutput(output);
+          output << ";" << endl;
+        }
     }
 }
 
@@ -438,7 +493,6 @@ LoadParamsAndSteadyStateStatement::writeOutput(ostream &output, const string &ba
       switch (symbol_table.getType(it->first))
         {
         case eParameter:
-          output << "M_.params";
           break;
         case eEndogenous:
           output << "oo_.steady_state";
@@ -453,9 +507,47 @@ LoadParamsAndSteadyStateStatement::writeOutput(ostream &output, const string &ba
           cerr << "ERROR: Unsupported variable type for " << symbol_table.getName(it->first) << " in load_params_and_steady_state" << endl;
           exit(EXIT_FAILURE);
         }
-
       int tsid = symbol_table.getTypeSpecificID(it->first) + 1;
-      output << "(" << tsid << ") = " << it->second << ";" << endl;
+
+      switch (symbol_table.getType(it->first))
+        {
+        case eParameter:
+          break;
+        default:
+          output << "(" << tsid << ") = " << it->second << ";" << endl;
+        }
+    }
+}
+
+void
+LoadParamsAndSteadyStateStatement::writeM_Output(ostream &output, const string &basename, bool minimal_workspace)
+{
+  for (map<int, string>::const_iterator it = content.begin();
+       it != content.end(); it++)
+    {
+      switch (symbol_table.getType(it->first))
+        {
+        case eParameter:
+          output << "M_.params";
+          break;
+        case eEndogenous:
+        case eExogenous:
+        case eExogenousDet:
+          break;
+        default:
+          cerr << "ERROR: Unsupported variable type for " << symbol_table.getName(it->first) << " in load_params_and_steady_state" << endl;
+          exit(EXIT_FAILURE);
+        }
+      int tsid = symbol_table.getTypeSpecificID(it->first) + 1;
+
+      switch (symbol_table.getType(it->first))
+        {
+        case eParameter:
+          output << "(" << tsid << ") = " << it->second << ";" << endl;
+          break;
+        default:
+          break;
+        }
     }
 }
 
