@@ -113,7 +113,7 @@ for i=bayestopt_.smoother_saved_var_list'
         constant_current_variable=repmat((ys(i1)),gend,1);
     end
     oo_.SmoothedVariables.(deblank(M_.endo_names(i1,:)))=atT(i,:)'+constant_current_variable;
-    if options_.nk > 0 && ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file))
+    if ~isempty(options_.nk) && options_.nk > 0 && ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file))
         oo_.FilteredVariables.(deblank(M_.endo_names(i1,:)))=squeeze(aK(1,i,2:end-(options_.nk-1)));
     end
     oo_.UpdatedVariables.(deblank(M_.endo_names(i1,:)))=updated_variables(i,:)'+constant_current_variable;
@@ -123,7 +123,7 @@ end
 for pos_iter=1:length(bayestopt_.mf)
     oo_.Smoother.Constant.(deblank(M_.endo_names(bayestopt_.mfys(pos_iter),:)))=constant_part(pos_iter,:);
     oo_.SmoothedVariables.(deblank(M_.endo_names(bayestopt_.mfys(pos_iter),:)))=yf(pos_iter,:)';   
-    if options_.nk > 0 && ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file))
+    if ~isempty(options_.nk) && options_.nk > 0 && ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file))
         %filtered variable E_t(y_t+1) requires to shift trend by 1 period
         oo_.FilteredVariables.(deblank(M_.endo_names(bayestopt_.mfys(pos_iter),:)))=...
             squeeze(aK(1,bayestopt_.mf(pos_iter),2:end-(options_.nk-1)))...
