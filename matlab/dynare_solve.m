@@ -86,11 +86,11 @@ if options.solve_algo == 0
             error('You can''t use solve_algo=0 since you don''t have MATLAB''s Optimization Toolbox')
         end
     end
-    options4fsolve=optimset('fsolve');
-    options4fsolve.MaxFunEvals = 50000;
-    options4fsolve.MaxIter = options.steady.maxit;
-    options4fsolve.TolFun = tolf;
-    options4fsolve.Display = 'iter';
+    options=optimset('fsolve');
+    options.MaxFunEvals = 50000;
+    options.MaxIter = options_.steady.maxit;
+    options.TolFun = tolf;
+    options.Display = 'off';
     if jacobian_flag
         options4fsolve.Jacobian = 'on';
     else

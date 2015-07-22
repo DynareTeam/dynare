@@ -158,9 +158,9 @@ for iter = 1:options_.simul.maxit
 
     if endogenous_terminal_period && iter>1
         dy = ZERO;
-        dy(1:i_rows(end)) = -A(1:i_rows(end),1:i_rows(end))\res(1:i_rows(end));
+        dy(1:i_rows(end)) = -lin_solve( A(1:i_rows(end),1:i_rows(end)), res(1:i_rows(end)) );
     else
-        dy = -A\res;
+        dy = -lin_solve( A, res );
     end
 
     Y(i_upd) =   Y(i_upd) + dy;

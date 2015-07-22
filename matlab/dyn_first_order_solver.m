@@ -185,14 +185,14 @@ if task ~= 1 && (DynareOptions.dr_cycle_reduction || DynareOptions.dr_logarithmi
                    'coefficient matrix for current variables isn''t invertible'])
         end
     end  
-    if DynareOptions.gpu
-        gpuArray(A1);
-        gpuArray(B1);
-        gpuArray(C1);
-    end
     A1 = [aa(row_indx,index_m ) zeros(ndynamic,nfwrd)];
     B1 = [aa(row_indx,index_0m) aa(row_indx,index_0p) ];
     C1 = [zeros(ndynamic,npred) aa(row_indx,index_p)];
+    if DynareOptions.gpu
+        A1 = gpuArray(A1);
+        B1 = gpuArray(B1);
+        C1 = gpuArray(C1);
+    end
     if DynareOptions.dr_cycle_reduction == 1
         [ghx, info] = cycle_reduction(A1, B1, C1, DynareOptions.dr_cycle_reduction_tol);
     else

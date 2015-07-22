@@ -166,6 +166,8 @@ mex/build/matlab/run_m2html.m
 
 # Windows
 /windows/dynare-version.nsi
+*.asv
+*.exe
 
 # Estimation DLL tests
 /mex/sources/estimation/tests/test-dr
@@ -200,3 +202,6 @@ mex/build/matlab/run_m2html.m
 # Reporting
 *synctex.gz
 tests/reporting/tmpRepDir
+
+# From KDiff3
+*.orig

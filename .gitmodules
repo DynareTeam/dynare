@@ -15,7 +15,7 @@
 	url = https://github.com/DynareTeam/m-unit-tests.git
 [submodule "matlab/particles"]
 	path = matlab/particles
-	url = https://github.com/DynareTeam/particles.git
+	url = https://github.com/tholden/particles.git
 [submodule "matlab/modules/dates"]
 	path = matlab/modules/dates
 	url = https://github.com/DynareTeam/dates.git

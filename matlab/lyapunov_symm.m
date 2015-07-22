@@ -71,13 +71,15 @@ if method == 3
         else
             max_it_fp = 300;
         end;
-        at = a';
+        aPower = a;
         %fixed point iterations
         while evol > tol && it_fp < max_it_fp;
             X_old = X;
-            X = a * X * at + b;
-            evol = max(sum(abs(X - X_old))); %norm_1
-            %evol = max(sum(abs(X - X_old)')); %norm_inf
+            X = aPower * X * aPower' + X;
+            % X = a * X * a' + b;
+            aPower = aPower * aPower;
+            evol = full(max(sum(abs(X - X_old)))); %norm_1
+            %evol = full(max(sum(abs(X - X_old)'))); %norm_inf
             it_fp = it_fp + 1;
         end;
         if debug
@@ -87,6 +89,7 @@ if method == 3
             disp(['lyapunov_symm:: convergence not achieved in solution of Lyapunov equation after ' int2str(it_fp) ' iterations, switching method from 3 to 0']);
             method1 = 0;
             method = 0;
+            third_argument = 1 + 1e-6;
         else
             method1 = 3;
             x = X;
@@ -127,6 +130,8 @@ if size(a,1) == 1
 end
 
 if method<2
+    a = full(a);
+    b = full(b);
     [U,T] = schur(a);
     e1 = abs(ordeig(T)) > 2-qz_criterium;
     k = sum(e1);       % Number of unit roots. 

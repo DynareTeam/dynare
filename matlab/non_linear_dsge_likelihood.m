@@ -127,6 +127,9 @@ persistent init_flag
 persistent restrict_variables_idx observed_variables_idx state_variables_idx mf0 mf1
 persistent sample_size number_of_state_variables number_of_observed_variables number_of_structural_innovations
 
+global options_
+options_ = DynareOptions;
+
 % Initialization of the returned arguments.
 fval            = [];
 ys              = [];

@@ -32,8 +32,15 @@ function dynare_estimation_1(var_list_,dname)
 global M_ options_ oo_ estim_params_ bayestopt_ dataset_ dataset_info
 
 % Set particle filter flag.
-if options_.order > 1
-    if options_.particle.status && options_.order==2  
+
+if ~isfield( options_, 'non_central_approximation' )
+    options_.non_central_approximation = 0;
+end
+if ~isfield( options_, 'gaussian_approximation' )
+    options_.gaussian_approximation = 0;
+end
+if options_.order > 1 && ( options_.non_central_approximation == 0 ) && ( options_.gaussian_approximation == 0 )
+    if options_.particle.status && options_.order==2
         skipline()
         disp('Estimation using a non linear filter!')
         skipline()
@@ -69,7 +76,7 @@ if options_.order > 1
 end
 
 if ~options_.dsge_var
-    if options_.particle.status
+    if options_.particle.status && ~( options_.non_central_approximation || options_.gaussian_approximation )
         objective_function = str2func('non_linear_dsge_likelihood');
         if strcmpi(options_.particle.filter_algorithm, 'sis')
             options_.particle.algorithm = 'sequential_importance_particle_filter';
@@ -497,7 +504,7 @@ end
 
 if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape ...
                                                       > 0) && options_.load_mh_file)) ...
-    || ~options_.smoother ) && options_.partial_information == 0  % to be fixed
+    || ~options_.smoother ) && ( options_.partial_information == 0 ) && ( options_.gaussian_approximation == 0 )% to be fixed
     %% ML estimation, or posterior mode without metropolis-hastings or metropolis without bayesian smooth variable
     [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp] = DsgeSmoother(xparam1,dataset_.nobs,transpose(dataset_.data),dataset_info.missing.aindex,dataset_info.missing.state);
     oo_.Smoother.SteadyState = ys;

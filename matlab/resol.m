@@ -93,6 +93,24 @@ function [dr,info,M,options,oo] = resol(check_flag,M,options,oo)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
+if isfield( options, 'original_order' )
+    options.order = max( options.order, options.original_order );
+    options.k_order_solver = 1;
+    options.pruning = 1;
+end
+if isfield( options, 'underlying_order' )
+    options.order = max( options.order, options.underlying_order );
+    options.k_order_solver = 1;
+    options.pruning = 1;
+end
+if isfield( options, 'gaussian_approximation' ) && options.gaussian_approximation
+    options.order = 2; % only order 2 is supported for this at present
+end
+if isfield( M, 'original_M' )
+    M = M.original_M;
+    oo.dr = oo.original_dr;
+end
+
 if isfield(oo,'dr');
     dr = oo.dr;
 end
@@ -141,3 +159,12 @@ else
     [dr,info] = stochastic_solvers(dr,check_flag,M,options,oo);
 end
 oo.dr = dr;
+
+if info(1)
+    return
+end
+if isfield( options, 'non_central_approximation' ) && options.non_central_approximation
+    [ info, M, options, oo ] = non_central_approximation( M, options, oo );
+elseif isfield( options, 'gaussian_approximation' ) && options.gaussian_approximation
+    [ info, M, options, oo ] = gaussian_approximation( M, options, oo );
+end
