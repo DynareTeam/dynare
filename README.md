@@ -7,6 +7,8 @@
 
 # Dynare
 
+[![Join the chat at https://gitter.im/DynareTeam/dynare](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/DynareTeam/dynare?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Described on the homepage: <http://www.dynare.org/>
 
 Most users should use the precompiled package available for your OS, also
