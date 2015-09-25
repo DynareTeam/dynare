@@ -366,6 +366,8 @@ else
     xparam1 = bayestopt_.p5;
     idNaN = isnan(xparam1);
     xparam1(idNaN) = bayestopt_.p1(idNaN);
+    outside_bound_pars=find(xparam1 < bounds.lb | xparam1 > bounds.ub);
+    xparam1(outside_bound_pars) = bayestopt_.p1(outside_bound_pars);
 end
 
 if ~options_.cova_compute
