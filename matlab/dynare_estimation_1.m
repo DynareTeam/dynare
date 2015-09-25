@@ -427,15 +427,15 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
         end
         options_.analytic_derivation = ana_deriv_old;
     end
+    %% Here I discard first mh_drop percent of the draws:
+    CutSample(M_, options_, estim_params_);
     if options_.mh_posterior_mode_estimation
-        CutSample(M_, options_, estim_params_);
         return
     else
         if ~options_.nodiagnostic && options_.mh_replic>0
             oo_= McMCDiagnostics(options_, estim_params_, M_,oo_);
         end
-        %% Here I discard first mh_drop percent of the draws:
-        CutSample(M_, options_, estim_params_);
+
         %% Estimation of the marginal density from the Mh draws:
         if options_.mh_replic
             [marginal,oo_] = marginal_density(M_, options_, estim_params_, oo_);
