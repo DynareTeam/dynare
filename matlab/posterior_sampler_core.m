@@ -108,7 +108,9 @@ end
 %
 
 sampler_options.xparam1 = xparam1;
-sampler_options.proposal_covariance_Cholesky_decomposition = d*diag(bayestopt_.jscale);
+if ~isempty(d),
+    sampler_options.proposal_covariance_Cholesky_decomposition = d*diag(bayestopt_.jscale);
+end
 
 block_iter=0;
 
