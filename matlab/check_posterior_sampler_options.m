@@ -73,6 +73,10 @@ if strcmp(options_.posterior_sampling_method,'slice')
    
     if options_.load_mh_file,
         posterior_sampler_options.slice_initialize_with_mode = 0;
+    else
+        if ~posterior_sampler_options.slice_initialize_with_mode,
+            posterior_sampler_options.invhess=[];
+        end
     end    
 
     if posterior_sampler_options.rotated,
