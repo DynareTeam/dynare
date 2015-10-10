@@ -375,13 +375,11 @@ if ~isfield(options_,'trend_coeffs') % No!
 else% Yes!
     bayestopt_.with_trend = 1;
     bayestopt_.trend_coeff = {};
-    trend_coeffs = options_.trend_coeffs;
-    nt = length(trend_coeffs);
     for i=1:options_.number_of_observed_variables
-        if i > length(trend_coeffs)
+        if i > length(options_.trend_coeffs)
             bayestopt_.trend_coeff{i} = '0';
         else
-            bayestopt_.trend_coeff{i} = trend_coeffs{i};
+            bayestopt_.trend_coeff{i} = options_.trend_coeffs{i};
         end
     end
 end
@@ -530,11 +528,11 @@ end
 
 [dataset_, dataset_info, newdatainterfaceflag] = makedataset(options_, options_.dsge_var*options_.dsge_varlag, gsa_flag);
 
-% Set options_.nobs if needed
-if newdatainterfaceflag
+%set options for old interface from the ones for new interface
+if ~isempty(dataset_)
     options_.nobs = dataset_.nobs;
+    options_.first_obs=double(dataset_.init);
 end
-
 % setting steadystate_check_flag option
 if options_.diffuse_filter
     steadystate_check_flag = 0;
@@ -558,7 +556,7 @@ if info(1)
     print_info(info, 0, options_);
 end
 
-if all(abs(oo_.steady_state(bayestopt_.mfys))<1e-9)
+if (~options_.loglinear && all(abs(oo_.steady_state(bayestopt_.mfys))<1e-9)) || (options_.loglinear && all(abs(log(oo_.steady_state(bayestopt_.mfys)))<1e-9))
     options_.noconstant = 1;
 else
     options_.noconstant = 0;

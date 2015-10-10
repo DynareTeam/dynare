@@ -78,14 +78,16 @@ else
     if options_.logged_steady_state %if steady state was previously logged, undo this
         oo_.dr.ys=exp(oo_.dr.ys);
         oo_.steady_state=exp(oo_.steady_state);
+        options_.logged_steady_state=0;
     end
     [oo_.dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
 end
 
-if options_.loglinear && isfield(oo_.dr,'ys') %log steady state for correct display of decision rules and simulations
+if options_.loglinear && isfield(oo_.dr,'ys') && options_.logged_steady_state==0 %log steady state for correct display of decision rule    
     oo_.dr.ys=log(oo_.dr.ys);
     oo_.steady_state=log(oo_.steady_state);
-    options_old.logged_steady_state = 1;
+    options_old.logged_steady_state = 1; %make sure option is preserved outside of stoch_simul
+    options_.logged_steady_state=1; %set option for use in stoch_simul
 end
 if info(1)
     options_ = options_old;

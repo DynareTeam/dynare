@@ -1,4 +1,4 @@
-function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,decomp] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value)
+function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,decomp,trend_addition] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value)
 % Estimation of the smoothed variables and innovations. 
 % 
 % INPUTS 
@@ -9,10 +9,10 @@ function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,de
 %   o missing_value 1 if missing values, 0 otherwise
 %  
 % OUTPUTS 
-%   o alphahat      [double]  (m*T) matrix, smoothed endogenous variables.
+%   o alphahat      [double]  (m*T) matrix, smoothed endogenous variables (a_{t|T})
 %   o etahat        [double]  (r*T) matrix, smoothed structural shocks (r>n is the umber of shocks).
 %   o epsilonhat    [double]  (n*T) matrix, smoothed measurement errors.
-%   o ahat          [double]  (m*T) matrix, one step ahead filtered (endogenous) variables.
+%   o ahat          [double]  (m*T) matrix, updated (endogenous) variables (a_{t|t})
 %   o SteadyState   [double]  (m*1) vector specifying the steady state level of each endogenous variable.
 %   o trend_coeff   [double]  (n*1) vector, parameters specifying the slope of the trend associated to each observed variable.
 %   o aK            [double]  (K,n,T+K) array, k (k=1,...,K) steps ahead filtered (endogenous) variables.
@@ -23,7 +23,8 @@ function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,de
 %                       matrices (meaningless for periods 1:d)
 %   o decomp        4D array of shock decomposition of k-step ahead
 %                       filtered variables
-% 
+%   o trend_addition [double] (n_observed_series*T) pure trend component; stored in options_.varobs order         
+%  
 % ALGORITHM 
 %   Diffuse Kalman filter (Durbin and Koopman)       
 %
@@ -93,15 +94,10 @@ else
 end
 trend_coeff = zeros(vobs,1);
 if bayestopt_.with_trend == 1
-    trend_coeff = zeros(vobs,1);
-    t = options_.trend_coeffs;
-    for i=1:length(t)
-        if ~isempty(t{i})
-            trend_coeff(i) = evalin('base',t{i});
-        end
-    end
-    trend = constant*ones(1,gend)+trend_coeff*(1:gend);
+    [trend_addition, trend_coeff] =compute_trend_coefficients(M_,options_,vobs,gend);
+    trend = constant*ones(1,gend)+trend_addition;
 else
+    trend_addition=zeros(size(constant,1),gend);
     trend = constant*ones(1,gend);
 end
 start = options_.presample+1;

@@ -149,10 +149,12 @@ if info(1) > 0
     print_info(info, DynareOptions.noprint, DynareOptions)
 end
 
-if any(abs(DynareResults.steady_state(BayesInfo.mfys))>1e-9) && (DynareOptions.prefilter==1)
-    disp(['You are trying to estimate a model with a non zero steady state for the observed endogenous'])
-    disp(['variables using demeaned data!'])
-    error('You should change something in your mod file...')
+if DynareOptions.prefilter==1
+    if (~DynareOptions.loglinear && any(abs(DynareResults.steady_state(BayesInfo.mfys))>1e-9)) || (DynareOptions.loglinear && any(abs(log(DynareResults.steady_state(BayesInfo.mfys)))>1e-9))
+        disp(['You are trying to estimate a model with a non zero steady state for the observed endogenous'])
+        disp(['variables using demeaned data!'])
+        error('You should change something in your mod file...')
+    end
 end
 
 if ~isequal(DynareOptions.mode_compute,11)

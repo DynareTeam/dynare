@@ -24,7 +24,7 @@ function [gend, data] = read_data()
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global options_ bayestopt_
+global options_
 
 rawdata = read_variables(options_.datafile,options_.varobs,[],options_.xls_sheet,options_.xls_range);
 
@@ -36,8 +36,7 @@ if options_.loglinear == 1 & ~options_.logdata
   rawdata = log(rawdata);
 end
 if options_.prefilter == 1
-  bayestopt_.mean_varobs = mean(rawdata,1);
-  data = transpose(rawdata-ones(gend,1)*bayestopt_.mean_varobs);
+  data = transpose(rawdata-ones(gend,1)* mean(rawdata,1));
 else
   data = transpose(rawdata);
 end

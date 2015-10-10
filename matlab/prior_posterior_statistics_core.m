@@ -57,15 +57,16 @@ Y=myinputs.Y;
 data_index=myinputs.data_index;
 missing_value=myinputs.missing_value;
 varobs=myinputs.varobs;
+mean_varobs=myinputs.mean_varobs;
 irun=myinputs.irun;
 endo_nbr=myinputs.endo_nbr;
 nvn=myinputs.nvn;
 naK=myinputs.naK;
 horizon=myinputs.horizon;
 iendo=myinputs.iendo;
+IdObs=myinputs.IdObs; %index of observables
 if horizon
     i_last_obs=myinputs.i_last_obs;
-    IdObs=myinputs.IdObs;
     MAX_nforc1=myinputs.MAX_nforc1;
     MAX_nforc2=myinputs.MAX_nforc2;
 end
@@ -166,10 +167,10 @@ for b=fpar:B
 
     if run_smoother
         [dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
-        [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK] = ...
+        [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK,junk1,junk2,junk3,junk4,junk5,trend_addition] = ...
             DsgeSmoother(deep,gend,Y,data_index,missing_value);
 
-        if options_.loglinear
+        if options_.loglinear %reads values from smoother results, which are in dr-order and put them into declaration order
             stock_smooth(dr.order_var,:,irun(1)) = alphahat(1:endo_nbr,:)+ ...
                 repmat(log(SteadyState(dr.order_var)),1,gend);
             stock_update(dr.order_var,:,irun(1)) = alphatilde(1:endo_nbr,:)+ ...
@@ -180,22 +181,61 @@ for b=fpar:B
             stock_update(dr.order_var,:,irun(1)) = alphatilde(1:endo_nbr,:)+ ...
                 repmat(SteadyState(dr.order_var),1,gend);
         end
+        %% Compute constant for observables
+        if options_.prefilter == 1 %as mean is taken after log transformation, no distinction is needed here
+            constant_part=repmat(mean_varobs',1,gend);
+        elseif options_.prefilter == 0 && options_.loglinear == 1 %logged steady state must be used
+            constant_part=repmat(log(SteadyState(IdObs)),1,gend);
+        elseif options_.prefilter == 0 && options_.loglinear == 0 %unlogged steady state must be used
+            constant_part=repmat(SteadyState(IdObs),1,gend);
+        end
+        %add trend to observables
+        if options_.prefilter
+            %do correction for prefiltering for observed variables
+            if options_.loglinear
+                mean_correction=-repmat(log(SteadyState(IdObs)),1,gend)+constant_part;
+            else
+                mean_correction=-repmat(SteadyState(IdObs),1,gend)+constant_part;
+            end
+            %smoothed variables are E_T(y_t) so no trend shift is required
+            stock_smooth(IdObs,:,irun(1))=stock_smooth(IdObs,:,irun(1))+trend_addition+mean_correction;
+            %updated variables are E_t(y_t) so no trend shift is required
+            stock_update(IdObs,:,irun(1))=stock_update(IdObs,:,irun(1))+trend_addition+mean_correction;         
+        else
+            stock_smooth(IdObs,:,irun(1))=stock_smooth(IdObs,:,irun(1))+trend_addition;
+            stock_update(IdObs,:,irun(1))=stock_update(IdObs,:,irun(1))+trend_addition; 
+        end
         stock_innov(:,:,irun(2))  = etahat;
         if nvn
             stock_error(:,:,irun(3))  = epsilonhat;
         end
         if naK
+            %filtered variable E_t(y_t+k) requires to shift trend by k periods
+            %write percentage deviation of variables into declaration order
             stock_filter_step_ahead(:,dr.order_var,:,irun(4)) = aK(options_.filter_step_ahead,1:endo_nbr,:);
+            
+            %now add trend and constant to filtered variables
+            for ii=1:length(options_.filter_step_ahead)
+                stock_filter_step_ahead(ii,IdObs,:,irun(4)) = squeeze(stock_filter_step_ahead(ii,IdObs,:,irun(4)))...
+                +repmat(constant_part(:,1),1,gend+max(options_.filter_step_ahead))... %constant
+                +[trend_addition repmat(trend_addition(:,end),1,max(options_.filter_step_ahead))+trend_coeff*[1:max(options_.filter_step_ahead)]]; %trend
+            end
         end
 
         if horizon
             yyyy = alphahat(iendo,i_last_obs);
             yf = forcst2a(yyyy,dr,zeros(horizon,exo_nbr));
-            if options_.prefilter
-                yf(:,IdObs) = yf(:,IdObs)+repmat(bayestopt_.mean_varobs', ...
+            if options_.prefilter 
+                % add mean
+                yf(:,IdObs) = yf(:,IdObs)+repmat(mean_varobs, ...
                                                  horizon+maxlag,1);
+                % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
+                yf(:,IdObs) = yf(:,IdObs)+((options_.first_obs-1)+gend+[1-maxlag:horizon]')*trend_coeff'-...
+                             repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2)',length(1-maxlag:horizon),1); %center trend
+            else
+                % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
+                    yf(:,IdObs) = yf(:,IdObs)+((options_.first_obs-1)+gend+[1-maxlag:horizon]')*trend_coeff';                
             end
-            yf(:,IdObs) = yf(:,IdObs)+(gend+[1-maxlag:horizon]')*trend_coeff';
             if options_.loglinear
                 yf = yf+repmat(log(SteadyState'),horizon+maxlag,1);
             else
@@ -203,11 +243,17 @@ for b=fpar:B
             end
             yf1 = forcst2(yyyy,horizon,dr,1);
             if options_.prefilter == 1
+                % add mean
                 yf1(:,IdObs,:) = yf1(:,IdObs,:)+ ...
-                    repmat(bayestopt_.mean_varobs',[horizon+maxlag,1,1]);
+                    repmat(mean_varobs,[horizon+maxlag,1,1]);
+                % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
+                yf1(:,IdObs) = yf1(:,IdObs)+((options_.first_obs-1)+gend+[1-maxlag:horizon]')*trend_coeff'-...
+                             repmat(mean(trend_coeff*[options_.first_obs:options_.first_obs+gend-1],2)',length(1-maxlag:horizon),1); %center trend
+            else
+               % add trend, taking into account that last point of sample is still included in forecasts and only cut off later
+               yf1(:,IdObs,:) = yf1(:,IdObs,:)+repmat(((options_.first_obs-1)+gend+[1-maxlag:horizon]')* ...
+                                                       trend_coeff',[1,1,1]);
             end
-            yf1(:,IdObs,:) = yf1(:,IdObs,:)+repmat((gend+[1-maxlag:horizon]')* ...
-                                                   trend_coeff',[1,1,1]);
             if options_.loglinear
                 yf1 = yf1 + repmat(log(SteadyState'),[horizon+maxlag,1,1]);
             else

@@ -44,7 +44,8 @@ Y = transpose(dataset.data);
 gend = dataset.nobs;
 data_index = dataset_info.missing.aindex;
 missing_value = dataset_info.missing.state;
-bayestopt_.mean_varobs = dataset_info.descriptive.mean';
+mean_varobs = dataset_info.descriptive.mean;
+
 
 nvx  = estim_params_.nvx;
 nvn  = estim_params_.nvn;
@@ -63,6 +64,7 @@ nvobs     = length(options_.varobs);
 iendo = 1:endo_nbr;
 horizon = options_.forecast;
 filtered_vars = options_.filtered_vars;
+IdObs    = bayestopt_.mfys;
 if horizon
     i_last_obs = gend+(1-M_.maximum_endo_lag:0);
 end
@@ -106,8 +108,6 @@ if horizon
     MAX_nforc1 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/8));
     MAX_nforc2 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/ ...
                             8));
-    IdObs    = bayestopt_.mfys;
-
 end
 MAX_momentsno = min(B,ceil(MaxNumberOfBytes/(get_moments_size(options_)*8)));
 
@@ -161,15 +161,16 @@ localVars.Y=Y;
 localVars.data_index=data_index;
 localVars.missing_value=missing_value;
 localVars.varobs=options_.varobs;
+localVars.mean_varobs=mean_varobs;
 localVars.irun=irun;
 localVars.endo_nbr=endo_nbr;
 localVars.nvn=nvn;
 localVars.naK=naK;
 localVars.horizon=horizon;
 localVars.iendo=iendo;
+localVars.IdObs=IdObs;
 if horizon
     localVars.i_last_obs=i_last_obs;
-    localVars.IdObs=IdObs;
     localVars.MAX_nforc1=MAX_nforc1;
     localVars.MAX_nforc2=MAX_nforc2;
 end

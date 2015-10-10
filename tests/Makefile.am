@@ -179,6 +179,11 @@ MODFILES = \
 	kalman/likelihood_from_dynare/fs2000_uncorr_ME.mod \
 	kalman/likelihood_from_dynare/fs2000_uncorr_ME_missing.mod \
 	second_order/burnside_1.mod \
+	kalman_filter_smoother/compare_results_simulation/fs2000_ML.mod \
+	kalman_filter_smoother/compare_results_simulation/fs2000_ML_loglinear.mod \
+	kalman_filter_smoother/compare_results_simulation/fs2000.mod \
+	kalman_filter_smoother/compare_results_simulation/fs2000_loglinear.mod \
+	second_order/burnside_1.mod \
 	second_order/ds1.mod \
 	second_order/ds2.mod \
 	ep/rbc.mod \
@@ -246,6 +251,30 @@ MODFILES = \
 	optimizers/fs2000_w.mod \
 	differentiate_forward_vars/RBC_differentiate_forward.mod \
 	TeX/fs2000_corr_ME.mod \
+	observation_trends_and_prefiltering/MCMC/Trend_loglin_no_prefilt_first_obs_MC.mod \
+	observation_trends_and_prefiltering/MCMC/Trend_loglin_prefilt_first_obs_MC.mod \
+	observation_trends_and_prefiltering/MCMC/Trend_loglinear_no_prefilter_MC.mod \
+	observation_trends_and_prefiltering/MCMC/Trend_loglinear_prefilter_MC.mod \
+	observation_trends_and_prefiltering/MCMC/Trend_no_prefilter_first_obs_MC.mod \
+	observation_trends_and_prefiltering/MCMC/Trend_no_prefilter_MC.mod \
+	observation_trends_and_prefiltering/MCMC/Trend_prefilter_first_obs_MC.mod \
+	observation_trends_and_prefiltering/MCMC/Trend_prefilter_MC.mod \
+	observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter.mod \
+	observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter_first_obs.mod \
+	observation_trends_and_prefiltering/ML/Trend_loglinear_prefilter.mod \
+	observation_trends_and_prefiltering/ML/Trend_loglinear_prefilter_first_obs.mod \
+	observation_trends_and_prefiltering/ML/Trend_no_prefilter.mod \
+	observation_trends_and_prefiltering/ML/Trend_no_prefilter_first_obs.mod \
+	observation_trends_and_prefiltering/ML/Trend_prefilter.mod \
+	observation_trends_and_prefiltering/ML/Trend_prefilter_first_obs.mod \
+	observation_trends_and_prefiltering/calib_smoother/Tr_no_prefilter_calib_smoother.mod \
+	observation_trends_and_prefiltering/calib_smoother/Tr_no_prefilt_first_obs_cal_smooth.mod \
+	observation_trends_and_prefiltering/calib_smoother/Tr_prefilter_calib_smoother.mod \
+	observation_trends_and_prefiltering/calib_smoother/Tr_prefilt_first_obs_cal_smooth.mod \
+	observation_trends_and_prefiltering/calib_smoother/Tr_no_prefilter_loglin_calib_smoother.mod \
+	observation_trends_and_prefiltering/calib_smoother/Tr_no_prefil_f_obs_loglin_cal_smoother.mod \
+	observation_trends_and_prefiltering/calib_smoother/Tr_prefilter_loglin_calib_smoother.mod \
+	observation_trends_and_prefiltering/calib_smoother/Tr_prefil_f_obs_loglin_cal_smoother.mod \
 	reporting/example1.mod
 
 XFAIL_MODFILES = ramst_xfail.mod \
@@ -442,6 +471,7 @@ EXTRA_DIST = \
 	kalman/likelihood_from_dynare/fsdat_simul_corr_ME_missing.m \
 	kalman/likelihood_from_dynare/fsdat_simul_uncorr_ME.m \
 	kalman/likelihood_from_dynare/fsdat_simul_uncorr_ME_missing.m \
+	kalman_filter_smoother/compare_results_simulation/fsdat_simul_logged.m \
 	identification/kim/kim2_steadystate.m \
 	identification/as2007/as2007_steadystate.m \
 	estimation/fsdat_simul.m \
@@ -451,7 +481,45 @@ EXTRA_DIST = \
 	shock_decomposition/fsdat_simul.m \
 	loglinear/results_exp.mat \
 	smoother2histval/fsdat_simul.m \
+	observation_trends_and_prefiltering/generate_trend_stationary_AR1.m \
+	observation_trends_and_prefiltering/AR1_trend_data_no_constant.mat \
+	observation_trends_and_prefiltering/AR1_trend_data_with_constant.mat \
+	observation_trends_and_prefiltering/Exp_AR1_trend_data_no_constant.mat \
+	observation_trends_and_prefiltering/Exp_AR1_trend_data_with_constant.mat \
+	observation_trends_and_prefiltering/orig_params.mat \
+	observation_trends_and_prefiltering/orig_params_prefilter.mat \
+	observation_trends_and_prefiltering/MCMC/MCMC_jump_covar.mat \
+	observation_trends_and_prefiltering/MCMC/MCMC_jump_covar_prefilter.mat \
+	observation_trends_and_prefiltering/MCMC/Trend_loglin_no_prefilt_first_obs_MC_mode.mat \
+	observation_trends_and_prefiltering/MCMC/Trend_loglin_prefilt_first_obs_MC_mode.mat \
+	observation_trends_and_prefiltering/MCMC/Trend_loglinear_no_prefilter_MC_mode.mat \
+	observation_trends_and_prefiltering/MCMC/Trend_loglinear_prefilter_MC_mode.mat \
+	observation_trends_and_prefiltering/MCMC/Trend_no_prefilter_first_obs_MC_mode.mat \
+	observation_trends_and_prefiltering/MCMC/Trend_no_prefilter_MC_mode.mat \
+	observation_trends_and_prefiltering/MCMC/Trend_prefilter_first_obs_MC_mode.mat \
+	observation_trends_and_prefiltering/MCMC/Trend_prefilter_MC_mode.mat \
+	observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter_mode.mat \
+	observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter_first_obs_mode.mat \
+	observation_trends_and_prefiltering/ML/Trend_loglinear_prefilter_mode.mat \
+	observation_trends_and_prefiltering/ML/Trend_loglinear_prefilter_first_obs_mode.mat \
+	observation_trends_and_prefiltering/ML/Trend_no_prefilter_mode.mat \
+	observation_trends_and_prefiltering/ML/Trend_no_prefilter_first_obs_mode.mat \
+	observation_trends_and_prefiltering/ML/Trend_prefilter_mode.mat \
+	observation_trends_and_prefiltering/ML/Trend_prefilter_first_obs_mode.mat \
 	optimal_policy/Ramsey/find_c.m \
+	optimal_policy/Ramsey/oo_ramsey_policy_initval.mat \
+	observation_trends_and_prefiltering/Trend_diagnostics_MCMC_common.inc \
+	observation_trends_and_prefiltering/Trend_diagnostics_calib_common.inc \
+	observation_trends_and_prefiltering/Trend_diagnostics_ML_common.inc \
+	observation_trends_and_prefiltering/Trend_exp_model_prefilter_common.inc \
+	observation_trends_and_prefiltering/Trend_exp_model_no_prefilter_common.inc \
+	observation_trends_and_prefiltering/Trend_model_prefilter_common.inc \
+	observation_trends_and_prefiltering/Trend_model_no_prefilter_common.inc \
+	observation_trends_and_prefiltering/Trend_exp_model_calib_prefilter_common.inc \
+	observation_trends_and_prefiltering/Trend_exp_model_calib_no_prefilter_common.inc \
+	observation_trends_and_prefiltering/Trend_model_calib_prefilter_common.inc \
+	observation_trends_and_prefiltering/Trend_model_calib_no_prefilter_common.inc \
+	observation_trends_and_prefiltering/Trend_load_data_common.inc 
 	optimal_policy/Ramsey/oo_ramsey_policy_initval.mat \
 	optimizers/optimizer_function_wrapper.m \
 	optimizers/fs2000.common.inc

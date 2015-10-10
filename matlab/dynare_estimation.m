@@ -73,6 +73,7 @@ end
 if options_.logged_steady_state
     oo_.dr.ys=exp(oo_.dr.ys);
     oo_.steady_state=exp(oo_.steady_state);
+    options_.logged_steady_state=0;
 end
 
 

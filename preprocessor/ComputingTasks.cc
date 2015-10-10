@@ -989,7 +989,7 @@ ObservationTrendsStatement::ObservationTrendsStatement(const trend_elements_t &t
 void
 ObservationTrendsStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
 {
-  output << "options_.trend_coeff_ = {};" << endl;
+  output << "options_.trend_coeff = {};" << endl;
 
   trend_elements_t::const_iterator it;
 
