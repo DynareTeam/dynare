@@ -80,7 +80,13 @@ nblck = options_.mh_nblck;
 nruns = ones(nblck,1)*options_.mh_replic;
 npar  = length(xparam1);
 MAX_nruns = ceil(options_.MaxNumberOfBytes/(npar+2)/8);
-d = chol(vv);
+[ d, notPosDef ] = chol(vv);
+if notPosDef
+    disp('WARNING: using diagonal of hessian only');
+    diagv = diag(vv);
+    diagv(diagv < 0.01) = 0.01;
+    d = diag(sqrt(diagv));
+end
 
 if ~options_.load_mh_file && ~options_.mh_recover
     % Here we start a new Metropolis-Hastings, previous draws are discarded.
