@@ -86,7 +86,7 @@ predetermined_variables k;
 
 parameters h            //consumption habits
            betta        //discount factor
-           gammma1      //capital utilization, linear term
+           //gammma1      //capital utilization, linear term
            gammma2      //capital utilization, quadratic term
            delta        //depreciation rate
            kappa        //capital adjustment costs parameter
@@ -99,7 +99,7 @@ parameters h            //consumption habits
            thetap       //Calvo parameter prices
            thetaw       //Calvo parameter wages
            alppha       //capital share
-           Rbar         //steady state interest rate
+           //Rbar         //steady state interest rate
            PIbar        //steady state inflation
            gammmaR      //interest smoothing coefficient Taylor rule
            gammmaPI     //feedback coefficient to inflation monetary policy rule
@@ -109,7 +109,7 @@ parameters h            //consumption habits
            rhophi       //autocorrelation labor disutility shock
            Lambdamu  	//steady state growth rate of investmentment-specific technology
            LambdaA      //steady state neutral technology growth 
-           Lambdax      //steady state growth rate of investment
+           //Lambdax      //steady state growth rate of investment
            LambdaYd     //steady state growth rate of output
            sigma_d      //standard deviation preference shock
            sigma_phi    //standard deviation labor disutility shock
@@ -177,6 +177,11 @@ FV(2006), p. 20, section 3.2.
 */
 
 model; 
+
+# gammma1 = exp(LambdaYd)*exp(Lambdamu)/betta-(1-delta);
+# Rbar = 1+(PI*exp(LambdaYd)/betta-1);
+# Lambdax = exp(LambdaYd);
+
 //1. FOC consumption
 d*(c-h*c(-1)*mu_z^(-1))^(-1)-h*betta*d(+1)*(c(+1)*mu_z(+1)-h*c)^(-1)=lambda;
 //2. Euler equation
@@ -241,6 +246,43 @@ var epsphi; stderr exp(sigma_phi);
 var epsmu_I; stderr exp(sigma_mu);
 var epsA; stderr exp(sigma_A);
 var epsm; stderr exp(sigma_m);
+end;
+
+
+// Note: these initial values are enough for Dynare's built-in steady state
+// algorithm to solve the model. If you have the MATLAB Optimization Toolbox,
+// you can use the NK_baseline_steadystate.m file, which might work faster.
+// If you don't, then rename that auxiliary file so it's not used.
+
+initval;
+PI = PIbar;
+u = 1;
+q = 1;
+d = 1;
+phi = 1;
+mu_z = exp(LambdaYd);
+mu_I = exp(Lambdamu);
+mu_A = exp(LambdaA);
+r = exp(LambdaYd)*exp(Lambdamu)/betta-(1-delta);
+PIstar = ((1-thetap*PI^(-(1-epsilon)*(1-chi)))/(1-thetap))^(1/(1-epsilon));
+PIstarw = ((1-thetaw*PI^(-(1-chiw)*(1-eta))*mu_z^(-(1-eta)))/(1-thetaw))^(1/(1-eta));
+mc = (epsilon-1)/epsilon*(1-betta*thetap*PI^((1-chi)*epsilon))/(1-betta*thetap*PI^(-(1-epsilon)*(1-chi)))*PIstar;
+w = (1-alppha)*(mc*(alppha/r)^alppha)^(1/(1-alppha));
+wstar = w*PIstarw;
+vp = (1-thetap)/(1-thetap*PI^((1-chi)*epsilon))*PIstar^(-epsilon);
+vw = (1-thetaw)/(1-thetaw*PI^((1-chiw)*eta)*mu_z^eta)*PIstarw^(-eta);
+ld = 0.8;
+l = vw*ld;
+k = alppha/(1-alppha)*w/r*mu_z*mu_I*ld;
+x = (1-(1-delta)*(mu_z*mu_I)^(-1))*k;
+yd = (mu_A/mu_z*k^alppha*ld^(1-alppha)-Phi)/vp;
+c = (mu_A*mu_z^(-1)*vp^(-1)*(alppha/(1-alppha)*w/r*mu_z*mu_I)^alppha-(alppha/(1-alppha)*w/r*mu_z*mu_I)*(1-(1-delta)*(mu_z*mu_I)^(-1)))*ld-vp^(-1)*Phi;
+lambda = (1-h*betta*mu_z^(-1))*(1-h/mu_z)^(-1)/c;
+F = yd-1/(1-alppha)*w*ld;
+f = (eta-1)/eta*wstar*PIstarw^(-eta)*lambda*ld/(1-betta*thetaw*mu_z^(eta-1)*PI^(-(1-chiw)*(1-eta)));
+g1 = lambda*mc*yd/(1-betta*thetap*PI^((1-chi)*epsilon));
+g2 = epsilon/(epsilon-1)*g1;
+R = 1+(PI*exp(LambdaYd)/betta-1);
 end;
 
 steady;
