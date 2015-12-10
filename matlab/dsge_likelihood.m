@@ -210,7 +210,7 @@ H = Model.H;
 
 % Test if Q is positive definite.
 if ~issquare(Q) || EstimatedParameters.ncx || isfield(EstimatedParameters,'calibrated_covariances')
-    [Q_is_positive_definite, penalty] = ispd(Q);
+    [Q_is_positive_definite, penalty] = ispd(Q(EstimatedParameters.Sigma_e_entries_to_check_for_positive_definiteness,EstimatedParameters.Sigma_e_entries_to_check_for_positive_definiteness));
     if ~Q_is_positive_definite
         fval = objective_function_penalty_base+penalty;
         exit_flag = 0;
@@ -231,7 +231,7 @@ end
 
 % Test if H is positive definite.
 if ~issquare(H) || EstimatedParameters.ncn || isfield(EstimatedParameters,'calibrated_covariances_ME')
-    [H_is_positive_definite, penalty] = ispd(H);
+    [H_is_positive_definite, penalty] = ispd(H(EstimatedParameters.H_entries_to_check_for_positive_definiteness,EstimatedParameters.H_entries_to_check_for_positive_definiteness));
     if ~H_is_positive_definite
         fval = objective_function_penalty_base+penalty;
         exit_flag = 0;
