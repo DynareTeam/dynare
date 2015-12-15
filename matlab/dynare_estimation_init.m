@@ -571,3 +571,28 @@ else
         error('The option "prefilter" is inconsistent with the non-zero mean measurement equations in the model.')
     end
 end
+
+%% get the non-zero rows and columns of Sigma_e and H
+
+H_non_zero_rows=find(~all(M_.H==0,1));
+H_non_zero_columns=find(~all(M_.H==0,2));
+if ~isequal(H_non_zero_rows,H_non_zero_columns')
+    error('Measurement error matrix not symmetric')
+end
+if isfield(estim_params_,'nvn_observable_correspondence')
+    estim_params_.H_entries_to_check_for_positive_definiteness=union(H_non_zero_rows,estim_params_.nvn_observable_correspondence(:,1));
+else
+    estim_params_.H_entries_to_check_for_positive_definiteness=H_non_zero_rows;
+end
+
+Sigma_e_non_zero_rows=find(~all(M_.Sigma_e==0,1));
+Sigma_e_non_zero_columns=find(~all(M_.Sigma_e==0,2));
+if ~isequal(Sigma_e_non_zero_rows,Sigma_e_non_zero_columns')
+    error('Structual error matrix not symmetric')
+end
+if ~isempty(estim_params_.var_exo)
+    estim_params_.Sigma_e_entries_to_check_for_positive_definiteness=union(Sigma_e_non_zero_rows,estim_params_.var_exo(:,1));
+else
+    estim_params_.Sigma_e_entries_to_check_for_positive_definiteness=Sigma_e_non_zero_rows;
+end
+
