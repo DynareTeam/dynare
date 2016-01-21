@@ -1,4 +1,4 @@
-\input texinfo
+﻿\input texinfo
 @c %**start of header
 @setfilename dynare.info
 @documentencoding UTF-8
@@ -2674,7 +2674,7 @@ Specifies the correlation of two variables.
 In an estimation context, it is also possible to specify variances and
 covariances on endogenous variables: in that case, these values are
 interpreted as the calibration of the measurement errors on these
-variables. This requires the @code{var_obs}-command to be specified before the @code{shocks}-block.
+variables. This requires the @code{varobs}-command to be specified before the @code{shocks}-block.
 
 Here is an example:
 
