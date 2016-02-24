@@ -100,7 +100,8 @@ License: GPL-3+
 
 Files: matlab/missing/strjoin/strjoin.m
 Copyright: 2007 Muthiah Annamalai <muthiah.annamalai@uta.edu>
-           2013 Dynare Team
+           2013-2015 Ben Abbott
+           2015 Dynare Team
 License: GPL-3+
 
 Files: matlab/missing/corrcoef/corrcoef.m matlab/missing/corrcoef/sumskipnan.m
