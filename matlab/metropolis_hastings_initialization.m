@@ -37,7 +37,7 @@ function [ ix2, ilogpo2, ModelName, MetropolisFolder, fblck, fline, npar, nblck,
 % SPECIAL REQUIREMENTS
 %   None.
 
-% Copyright (C) 2006-2015 Dynare Team
+% Copyright (C) 2006-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -111,6 +111,12 @@ if ~options_.load_mh_file && ~options_.mh_recover
     fprintf(fidlog,['  Number of blocks...............: ' int2str(nblck) '\n']);
     fprintf(fidlog,['  Number of simulations per block: ' int2str(nruns(1)) '\n']);
     fprintf(fidlog,' \n');
+    for j=1:nblck
+        % we set a different seed for the random generator for each block then we record the corresponding random generator state (vector)
+        set_dynare_seed(options_.DynareRandomStreams.seed+j);
+        % record.Seeds keeps a vector of the random generator state and not the scalar seed despite its name
+        [InitialSeeds(j).Unifor,InitialSeeds(j).Normal] = get_dynare_random_generator_state();
+    end
     % Find initial values for the nblck chains...
     if nblck > 1% Case 1: multiple chains
         fprintf(fidlog,['  Initial values of the parameters:\n']);
@@ -198,12 +204,7 @@ if ~options_.load_mh_file && ~options_.mh_recover
     record.MhDraws(1,2) = AnticipatedNumberOfFiles;
     record.MhDraws(1,3) = AnticipatedNumberOfLinesInTheLastFile;
     record.AcceptanceRatio = zeros(1,nblck);
-    for j=1:nblck
-        % we set a different seed for the random generator for each block then we record the corresponding random generator state (vector)
-        set_dynare_seed(options_.DynareRandomStreams.seed+j);
-        % record.Seeds keeps a vector of the random generator state and not the scalar seed despite its name
-        [record.InitialSeeds(j).Unifor,record.InitialSeeds(j).Normal] = get_dynare_random_generator_state();
-    end
+    record.InitialSeeds=InitialSeeds;
     record.InitialParameters = ix2;
     record.InitialLogPost = ilogpo2;
     record.LastParameters = zeros(nblck,npar);
@@ -369,7 +370,7 @@ elseif options_.mh_recover
     % Correct initial conditions.
     if NumberOfSavedMhFiles
         load([BaseName '_mh' int2str(NumberOfSavedMhFiles) '_blck' int2str(fblck) '.mat']);
-        ilogpo2(fblck) = logpo2(end);
+        ilogpo2(fblck) = logpo2(end); %#ok<COLND>
         ix2(fblck,:) = x2(end,:);
     end
 end
