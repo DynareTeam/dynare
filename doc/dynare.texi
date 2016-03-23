@@ -6394,6 +6394,18 @@ more details.
 @item filter_step_ahead = [@var{INTEGER1}:@var{INTEGER2}]
 @xref{filter_step_ahead}.
 
+@item prefilter = @var{INTEGER}
+@xref{prefilter}.
+
+@item loglinear
+@xref{loglinear}.
+
+@item first_obs = @var{INTEGER}
+@xref{first_obs}.
+
+@item filter_decomposition
+@xref{filter_decomposition} 
+
 @end table
 
 @end deffn
