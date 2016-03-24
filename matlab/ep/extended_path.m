@@ -204,7 +204,7 @@ while (t <= sample_size)
     end
     % Set period index.
     t = t+1;
-   
+    info_convergence=1;
     if replic_nbr > 1 && ep.parallel_1
         parfor k = 1:replic_nbr
             exo_simul = repmat(oo_.exo_steady_state',periods+2,1);
@@ -212,12 +212,13 @@ while (t <= sample_size)
             exo_simul(2,:) = exo_simul_(M_.maximum_lag+t,:) + ...
                 shocks((t-2)*replic_nbr+k,:);
             initial_conditions = results{k}(:,t-1);
-            [results{k}(:,t), info_convergence] = extended_path_core(ep.periods,endo_nbr,exo_nbr,positive_var_indx, ...
+            [results{k}(:,t), tmp_info_convergence] = extended_path_core(ep.periods,endo_nbr,exo_nbr,positive_var_indx, ...
                                                               exo_simul,ep.init,initial_conditions,...
                                                               maximum_lag,maximum_lead,steady_state, ...
                                                               ep.verbosity,bytecode_flag,ep.stochastic.order,...
                                                               M_.params,pfm,ep.stochastic.algo,ep.solve_algo,ep.stack_solve_algo,...
                                                               options_.lmmcp,options_,oo_);
+            info_convergence = min(tmp_info_convergence, info_convergence);                                              
         end
     else
         for k = 1:replic_nbr
