@@ -5618,8 +5618,11 @@ Note that the nonstationary variables in the model must be integrated processes 
 
 @item selected_variables_only
 @anchor{selected_variables_only}
-Only run the smoother on the variables listed just after the
-@code{estimation} command. This options is incompatible with requesting classical frequentist forecasts and will be overridden in this case. Default: run the smoother on all the
+Only run the classical smoother on the variables listed just after the
+@code{estimation} command. This options is incompatible with requesting classical 
+frequentist forecasts and will be overridden in this case. When using Bayesian estimation,
+the smoother is by default only run on the declared endogenous variables.
+Default: run the smoother on all the
 declared endogenous variables.
 
 @item cova_compute = @var{INTEGER}
