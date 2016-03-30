@@ -5957,7 +5957,13 @@ non-requested variables will be simply left out in this order.
 
 @defvr {MATLAB/Octave variable} oo_.FilteredVariablesKStepAheadVariances
 Variable set by the @code{estimation} command, if it is used with the
-@code{filter_step_ahead} option. It is a 4 dimensional array where the k-steps are stored along the first dimension, while the fourth dimension of the array provides the observation for which the forecast has been made. The second and third dimension provide the respective variables. For example, if @code{filter_step_ahead=[1 2 4]} and @code{nobs=200}, the element (3,4,5,204) stores the four period ahead forecast error covariance between variable 4 and variable 5, computed at time t=200 for time t=204. Padding with zeros is analogous to @code{oo_.FilteredVariablesKStepAhead}. 
+@code{filter_step_ahead} option. It is a 4 dimensional array where the k-steps 
+are stored along the first dimension, while the fourth dimension of the array 
+provides the observation for which the forecast has been made. The second and third 
+dimension provide the respective variables. 
+For example, if @code{filter_step_ahead=[1 2 4]} and @code{nobs=200}, the element (3,4,5,204) 
+stores the four period ahead forecast error covariance between variable 4 and variable 5, 
+computed at time t=200 for time t=204. Padding with zeros and variable ordering is analogous to @code{oo_.FilteredVariablesKStepAhead}. 
 @end defvr
 
 @defvr {MATLAB/Octave variable} oo_.Filtered_Variables_X_step_ahead
@@ -5968,6 +5974,18 @@ Variable set by the @code{estimation} command, if it is used with the @code{filt
 The nth entry stores the k-step ahead filtered variable computed at time n for time n+k.
 @end defvr
 
+@defvr {MATLAB/Octave variable} oo_.FilteredVariablesShockDecomposition
+Variable set by the @code{estimation} command, if it is used with the
+@code{filter_step_ahead} option. The k-steps are stored along the rows while the columns 
+indicate the respective variables.  The third dimension corresponds to the shocks in declaration order. 
+The fourth dimension of the array provides the
+observation for which the forecast has been made. For example, if @code{filter_step_ahead=[1 2 4]} 
+and @code{nobs=200}, the element (3,5,2,204) stores the contribution of the second shock to the 
+four period ahead filtered value of variable 5 (in deviations from the mean) computed at time t=200 for time t=204. The periods at the beginning 
+and end of the sample for which no forecasts can be made, e.g. entries (1,5,1) and 
+(1,5,204) in the example, are set to zero. Padding with zeros and variable ordering is analogous to 
+@code{oo_.FilteredVariablesKStepAhead}. 
+@end defvr
 
 
 @defvr {MATLAB/Octave variable} oo_.PosteriorIRF.dsge
