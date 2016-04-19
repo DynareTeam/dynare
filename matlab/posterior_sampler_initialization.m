@@ -113,7 +113,7 @@ if ~options_.load_mh_file && ~options_.mh_recover
     fprintf(fidlog,' \n');
     % Find initial values for the nblck chains...
     if isempty(d),
-        prior_draw(1);
+        prior_draw(bayestopt_,options_.prior_trunc);
     end
     if nblck > 1% Case 1: multiple chains
         fprintf(fidlog,['  Initial values of the parameters:\n']);
@@ -126,7 +126,7 @@ if ~options_.load_mh_file && ~options_.mh_recover
             trial = 1;
             while validate == 0 && trial <= 10
                 if isempty(d),
-                    candidate = prior_draw(0);
+                    candidate = prior_draw();
                 else
                     candidate = rand_multivariate_normal( transpose(xparam1), d * options_.mh_init_scale, npar);
                 end
