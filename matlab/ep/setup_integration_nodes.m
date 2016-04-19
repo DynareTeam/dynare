@@ -26,7 +26,7 @@ function [nodes,weights,nnodes] = setup_integration_nodes(EpOptions,pfm)
             nodes = kron(eye(pfm.stochastic_order),transpose(pfm.Omega))*nodes;
             weights = weights;
             nnodes = length(weights);
-          case 'UT_2p+1'
+          case 'Unscented'
             p = pfm.number_of_shocks;
             k = EpOptions.ut.k;
             C = sqrt(pfm.number_of_shocks + k)*pfm.Omega';
