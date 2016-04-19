@@ -49,7 +49,12 @@ if flag
         options.lmmcp = olmmcp;
         options.solve_algo = solve_algo;
         options.stack_solve_algo = stack_solve_algo;
-        [tmp,flag] = perfect_foresight_solver_core(M,options,oo);
+        [tmp, maxerror] = perfect_foresight_solver_core(M, options, oo);
+        if maxerror>options.dynatol.f
+            flag = false;
+        else
+            flag = true;
+        end
         if ~flag && ~options.no_homotopy
             exo_orig = oo.exo_simul;
             endo_simul = repmat(steady_state,1,periods+1);
