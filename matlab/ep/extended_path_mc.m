@@ -36,7 +36,7 @@ function Simulations = extended_path_mc(initialconditions, samplesize, replic, e
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-[initialconditions, innovations, pfm, ep, verbosity, DynareOptions] = ...
+[initialconditions, innovations, pfm, ep, verbosity, DynareOptions, DynareResults] = ...
     extended_path_initialization(initialconditions, samplesize, exogenousvariables, DynareOptions, DynareModel, DynareResults);
 
 % Check the dimension of the first input argument

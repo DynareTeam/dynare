@@ -1,4 +1,4 @@
-function [initial_conditions, innovations, pfm, ep, verbosity, DynareOptions] = extended_path_initialization(initial_conditions, sample_size, exogenousvariables, DynareOptions, DynareModel, DynareResults)
+function [initial_conditions, innovations, pfm, ep, verbosity, DynareOptions, DynareResults] = extended_path_initialization(initial_conditions, sample_size, exogenousvariables, DynareOptions, DynareModel, DynareResults)
 
 % Initialization of the extended path routines.
 %
