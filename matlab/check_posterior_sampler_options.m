@@ -41,7 +41,7 @@ if ~strcmp(posterior_sampler_options.posterior_sampling_method,'slice')
         error('I Cannot start the MCMC because the Hessian of the posterior kernel at the mode was not computed.')
     end
     if options_.load_mh_file && options_.use_mh_covariance_matrix,
-        invhess = compute_mh_covariance_matrix;
+        [junk, invhess] = compute_mh_covariance_matrix;
         posterior_sampler_options.invhess = invhess;
     end
     posterior_sampler_options.parallel_bar_refresh_rate=50;
@@ -61,7 +61,7 @@ if strcmp(options_.posterior_sampling_method,'slice')
     posterior_sampler_options.save_tmp_file=1;
     posterior_sampler_options = set_default_option(posterior_sampler_options,'rotated',0);
     posterior_sampler_options = set_default_option(posterior_sampler_options,'slice_initialize_with_mode',0);
-    posterior_sampler_options = set_default_option(posterior_sampler_options,'use_slice_covariance_matrix',0);
+    posterior_sampler_options = set_default_option(posterior_sampler_options,'use_mh_covariance_matrix',0);
     posterior_sampler_options = set_default_option(posterior_sampler_options,'WR',[]);
     if ~isfield(posterior_sampler_options,'mode'),
         posterior_sampler_options.mode = [];
@@ -70,7 +70,28 @@ if strcmp(options_.posterior_sampling_method,'slice')
     end
     posterior_sampler_options = set_default_option(posterior_sampler_options,'mode_files',[]);
     posterior_sampler_options = set_default_option(posterior_sampler_options,'W1',0.8*(bounds.ub-bounds.lb));
-   
+
+    if ~isempty(options_.optim_opt)
+        options_list = read_key_value_string(options_.optim_opt);
+        for i=1:rows(options_list)
+            switch options_list{i,1}
+              case 'rotated'
+                posterior_sampler_options.rotated = options_list{i,2};
+              case 'mode'
+                posterior_sampler_options.mode = options_list{i,2};
+              case 'mode_files'
+                posterior_sampler_options.mode_files = options_list{i,2};
+              case 'slice_initialize_with_mode'
+                posterior_sampler_options.slice_initialize_with_mode = options_list{i,2};
+              case 'initial_step_size'
+                posterior_sampler_options.W1 = options_list{i,2}*(bounds.ub-bounds.lb);
+              case 'use_mh_covariance_matrix'
+                posterior_sampler_options.use_mh_covariance_matrix = options_list{i,2};
+              otherwise
+                warning(['slice_sampler: Unknown option (' options_list{i,1} ')!'])
+            end
+        end
+    end
     if options_.load_mh_file,
         posterior_sampler_options.slice_initialize_with_mode = 0;
     else
@@ -80,9 +101,9 @@ if strcmp(options_.posterior_sampling_method,'slice')
     end    
 
     if posterior_sampler_options.rotated,
-        if isempty(posterior_sampler_options.mode_files) && ~isfield(posterior_sampler_options,'mode'), % rotated unimodal
+        if isempty(posterior_sampler_options.mode_files) && isempty(posterior_sampler_options.mode), % rotated unimodal
                 
-            if ~options_.cova_compute && ~(options_.load_mh_file && options_.use_mh_covariance_matrix)
+            if ~options_.cova_compute && ~(options_.load_mh_file && posterior_sampler_options.use_mh_covariance_matrix)
                 skipline()
                 disp('I cannot start rotated slice sampler because')
                 disp('there is no previous MCMC to load ')
@@ -92,8 +113,8 @@ if strcmp(options_.posterior_sampling_method,'slice')
             if isempty(invhess)
                 error('oops! This error should not occur, please contact developers.')
             end                
-            if options_.load_mh_file && posterior_sampler_options.use_slice_covariance_matrix,
-                invhess = compute_mh_covariance_matrix;
+            if options_.load_mh_file && posterior_sampler_options.use_mh_covariance_matrix,
+                [junk, invhess] = compute_mh_covariance_matrix;
                 posterior_sampler_options.invhess = invhess;
             end
             [V1 D]=eig(invhess);
