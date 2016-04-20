@@ -72,3 +72,5 @@ varobs gp_obs gy_obs;
 
 options_.posterior_sampling_method = 'slice';
 estimation(order=1,datafile=fsdat_simul,nobs=192,loglinear,mh_replic=50,mh_nblocks=2,mh_drop=0.2,mode_compute=0,cova_compute=0);
+// continue with rotated slice
+estimation(order=1,datafile=fsdat_simul,nobs=192,loglinear,mh_replic=100,mh_nblocks=2,mh_drop=0.5,load_mh_file,mode_compute=0,optim=('rotated',1,'use_mh_covariance_matrix',1));
