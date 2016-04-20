@@ -6,6 +6,7 @@ MODFILES = \
 	estimation/fs2000_calibrated_covariance.mod \
 	estimation/fs2000_model_comparison.mod \
 	estimation/fs2000_fast.mod \
+	estimation/fs2000_slice.mod \
 	estimation/MH_recover/fs2000_recover.mod \
 	estimation/MH_recover/fs2000_recover_2.mod \
 	estimation/MH_recover/fs2000_recover_3.mod \
@@ -112,7 +113,6 @@ MODFILES = \
 	fs2000/fs2000_analytic_derivation.mod \
 	fs2000/fs2000_missing_data.mod \
 	fs2000/fs2000_sd.mod \
-	fs2000/fs2000_slice.mod \
 	fs2000/fs2000_dseries_a.mod \
 	fs2000/fs2000_dseries_b.mod \
 	homotopy/homotopy1_test.mod \
