@@ -112,6 +112,7 @@ MODFILES = \
 	fs2000/fs2000_analytic_derivation.mod \
 	fs2000/fs2000_missing_data.mod \
 	fs2000/fs2000_sd.mod \
+	fs2000/fs2000_slice.mod \
 	fs2000/fs2000_dseries_a.mod \
 	fs2000/fs2000_dseries_b.mod \
 	homotopy/homotopy1_test.mod \
