@@ -1,6 +1,6 @@
-function [ ix2, ilogpo2, ModelName, MetropolisFolder, fblck, fline, npar, nblck, nruns, NewFile, MAX_nruns, d ] = ...
+function [ ix2, ilogpo2, ModelName, MetropolisFolder, FirstBlock, FirstLine, npar, NumberOfBlocks, nruns, NewFile, MAX_nruns, d ] = ...
     posterior_sampler_initialization(TargetFun, xparam1, vv, mh_bounds,dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,oo_)
-%function [ ix2, ilogpo2, ModelName, MetropolisFolder, fblck, fline, npar, nblck, nruns, NewFile, MAX_nruns, d ] = ...
+% function [ ix2, ilogpo2, ModelName, MetropolisFolder, FirstBlock, FirstLine, npar, NumberOfBlocks, nruns, NewFile, MAX_nruns, d ] = ...
 %     metropolis_hastings_initialization(TargetFun, xparam1, vv, mh_bounds,dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,oo_)
 % Metropolis-Hastings initialization.
 % 
@@ -19,16 +19,16 @@ function [ ix2, ilogpo2, ModelName, MetropolisFolder, fblck, fline, npar, nblck,
 %   o oo_                   outputs structure
 %  
 % OUTPUTS 
-%   o ix2                   [double]   (nblck*npar) vector of starting points for different chains
-%   o ilogpo2               [double]   (nblck*1) vector of initial posterior values for different chains
+%   o ix2                   [double]   (NumberOfBlocks*npar) vector of starting points for different chains
+%   o ilogpo2               [double]   (NumberOfBlocks*1) vector of initial posterior values for different chains
 %   o ModelName             [string]    name of the mod-file
 %   o MetropolisFolder      [string]    path to the Metropolis subfolder
-%   o fblck                 [scalar]    number of the first MH chain to be run (not equal to 1 in case of recovery)   
-%   o fline                 [double]   (nblck*1) vector of first draw in each chain (not equal to 1 in case of recovery)   
+%   o FirstBlock            [scalar]    number of the first MH chain to be run (not equal to 1 in case of recovery)   
+%   o FirstLine             [double]   (NumberOfBlocks*1) vector of first draw in each chain (not equal to 1 in case of recovery)   
 %   o npar                  [scalar]    number of parameters estimated
-%   o nblck                 [scalar]    Number of MCM chains requested   
-%   o nruns                 [double]   (nblck*1) number of draws in each chain 
-%   o NewFile               [scalar]    (nblck*1) vector storing the number
+%   o NumberOfBlocks        [scalar]    Number of MCM chains requested   
+%   o nruns                 [double]   (NumberOfBlocks*1) number of draws in each chain 
+%   o NewFile               [scalar]    (NumberOfBlocks*1) vector storing the number
 %                                       of the first MH-file to created for each chain when saving additional
 %                                       draws
 %   o MAX_nruns             [scalar]    maximum number of draws in each MH-file on the harddisk
@@ -59,10 +59,10 @@ ix2 = [];
 ilogpo2 = [];
 ModelName = []; 
 MetropolisFolder = [];
-fblck = [];
-fline = [];
+FirstBlock = [];
+FirstLine = [];
 npar = [];
-nblck = [];
+NumberOfBlocks = [];
 nruns = [];
 NewFile = [];
 MAX_nruns = [];
@@ -76,15 +76,15 @@ end
 MetropolisFolder = CheckPath('metropolis',M_.dname);
 BaseName = [MetropolisFolder filesep ModelName];
 
-nblck = options_.mh_nblck;
-nruns = ones(nblck,1)*options_.mh_replic;
+NumberOfBlocks = options_.mh_nblck;
+nruns = ones(NumberOfBlocks,1)*options_.mh_replic;
 npar  = length(xparam1);
 MAX_nruns = ceil(options_.MaxNumberOfBytes/(npar+2)/8);
 d = chol(vv);
 
 if ~options_.load_mh_file && ~options_.mh_recover
     % Here we start a new Metropolis-Hastings, previous draws are discarded.
-    if nblck > 1
+    if NumberOfBlocks > 1
         disp('Estimation::mcmc: Multiple chains mode.')
     else
         disp('Estimation::mcmc: One Chain mode.')
@@ -108,19 +108,20 @@ if ~options_.load_mh_file && ~options_.mh_recover
     fprintf(fidlog,' \n\n');
     fprintf(fidlog,'%% Session 1.\n');
     fprintf(fidlog,' \n');
-    fprintf(fidlog,['  Number of blocks...............: ' int2str(nblck) '\n']);
+    fprintf(fidlog,['  Number of blocks...............: ' int2str(NumberOfBlocks) '\n']);
     fprintf(fidlog,['  Number of simulations per block: ' int2str(nruns(1)) '\n']);
     fprintf(fidlog,' \n');
-    % Find initial values for the nblck chains...
     if isempty(d),
         prior_draw(bayestopt_,options_.prior_trunc);
     end
-    if nblck > 1% Case 1: multiple chains
+    % Find initial values for the NumberOfBlocks chains...
+    if NumberOfBlocks > 1% Case 1: multiple chains
+        set_dynare_seed('default');
         fprintf(fidlog,['  Initial values of the parameters:\n']);
         disp('Estimation::mcmc: Searching for initial values...')
-        ix2 = zeros(nblck,npar);
-        ilogpo2 = zeros(nblck,1);
-        for j=1:nblck
+        ix2 = zeros(NumberOfBlocks,npar);
+        ilogpo2 = zeros(NumberOfBlocks,1);
+        for j=1:NumberOfBlocks
             validate    = 0;
             init_iter   = 0;
             trial = 1;
@@ -130,7 +131,7 @@ if ~options_.load_mh_file && ~options_.mh_recover
                 else
                     candidate = rand_multivariate_normal( transpose(xparam1), d * options_.mh_init_scale, npar);
                 end
-                if all(candidate(:) > mh_bounds.lb) && all(candidate(:) < mh_bounds.ub) 
+                if all(candidate(:) >= mh_bounds.lb) && all(candidate(:) <= mh_bounds.ub) 
                     ix2(j,:) = candidate;
                     ilogpo2(j) = - feval(TargetFun,ix2(j,:)',dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,mh_bounds,oo_);
                     if ~isfinite(ilogpo2(j)) % if returned log-density is
@@ -163,6 +164,7 @@ if ~options_.load_mh_file && ~options_.mh_recover
             end
             if trial > 10 && ~validate
                 disp(['Estimation::mcmc: I''m unable to find a starting value for block ' int2str(j)])
+                fclose(fidlog);
                 return
             end
         end
@@ -172,7 +174,7 @@ if ~options_.load_mh_file && ~options_.mh_recover
     else% Case 2: one chain (we start from the posterior mode)
         fprintf(fidlog,['  Initial values of the parameters:\n']);
         candidate = transpose(xparam1(:));%
-        if all(candidate(:) > mh_bounds.lb) && all(candidate(:) < mh_bounds.ub) 
+        if all(candidate(:) >= mh_bounds.lb) && all(candidate(:) <= mh_bounds.ub) 
             ix2 = candidate;
             ilogpo2 = - feval(TargetFun,ix2',dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,mh_bounds,oo_);
             disp('Estimation::mcmc: Initialization at the posterior mode.')
@@ -185,14 +187,15 @@ if ~options_.load_mh_file && ~options_.mh_recover
         else
             disp('Estimation::mcmc: Initialization failed...')
             disp('Estimation::mcmc: The posterior mode lies outside the prior bounds.')
+            fclose(fidlog);
             return
         end
         fprintf(fidlog,' \n');
     end
     fprintf(fidlog,' \n');
-    fblck = 1;
-    fline = ones(nblck,1);
-    NewFile = ones(nblck,1);
+    FirstBlock = 1;
+    FirstLine = ones(NumberOfBlocks,1);
+    NewFile = ones(NumberOfBlocks,1);
     % Delete the mh-history files
     delete_mh_history_files(MetropolisFolder, ModelName);
     %  Create a new record structure
@@ -200,14 +203,15 @@ if ~options_.load_mh_file && ~options_.mh_recover
     AnticipatedNumberOfFiles = ceil(nruns(1)/MAX_nruns);
     AnticipatedNumberOfLinesInTheLastFile = nruns(1) - (AnticipatedNumberOfFiles-1)*MAX_nruns;
     record.Sampler = options_.posterior_sampling_method;
-    record.Nblck = nblck;
+    record.Nblck = NumberOfBlocks;
     record.MhDraws = zeros(1,3);
     record.MhDraws(1,1) = nruns(1);
     record.MhDraws(1,2) = AnticipatedNumberOfFiles;
     record.MhDraws(1,3) = AnticipatedNumberOfLinesInTheLastFile;
-    record.AcceptanceRatio = zeros(1,nblck);
-    record.FunctionEvalPerIteration = NaN(1,nblck);
-    for j=1:nblck
+    record.MAX_nruns=MAX_nruns;
+    record.AcceptanceRatio = zeros(1,NumberOfBlocks);
+    record.FunctionEvalPerIteration = NaN(1,NumberOfBlocks);
+    for j=1:NumberOfBlocks
         % we set a different seed for the random generator for each block then we record the corresponding random generator state (vector)
         set_dynare_seed(options_.DynareRandomStreams.seed+j);
         % record.Seeds keeps a vector of the random generator state and not the scalar seed despite its name
@@ -215,8 +219,8 @@ if ~options_.load_mh_file && ~options_.mh_recover
     end
     record.InitialParameters = ix2;
     record.InitialLogPost = ilogpo2;
-    record.LastParameters = zeros(nblck,npar);
-    record.LastLogPost = zeros(nblck,1);
+    record.LastParameters = zeros(NumberOfBlocks,npar);
+    record.LastLogPost = zeros(NumberOfBlocks,1);
     record.LastFileNumber = AnticipatedNumberOfFiles ;
     record.LastLineNumber = AnticipatedNumberOfLinesInTheLastFile;
     record.MCMCConcludedSuccessfully = 0;
@@ -228,7 +232,7 @@ if ~options_.load_mh_file && ~options_.mh_recover
     fprintf(fidlog,['    Expected number of files per block.......: ' int2str(AnticipatedNumberOfFiles) '.\n']);
     fprintf(fidlog,['    Expected number of lines in the last file: ' int2str(AnticipatedNumberOfLinesInTheLastFile) '.\n']);
     fprintf(fidlog,['\n']);
-    for j = 1:nblck,
+    for j = 1:NumberOfBlocks,
         fprintf(fidlog,['    Initial state of the Gaussian random number generator for chain number ',int2str(j),':\n']);
         for i=1:length(record.InitialSeeds(j).Normal)
             fprintf(fidlog,['      ' num2str(record.InitialSeeds(j).Normal(i)') '\n']);
@@ -256,30 +260,30 @@ elseif options_.load_mh_file && ~options_.mh_recover
     fprintf(fidlog,'\n');
     fprintf(fidlog,['%% Session ' int2str(length(record.MhDraws(:,1))+1) '.\n']);
     fprintf(fidlog,' \n');
-    fprintf(fidlog,['  Number of blocks...............: ' int2str(nblck) '\n']);
+    fprintf(fidlog,['  Number of blocks...............: ' int2str(NumberOfBlocks) '\n']);
     fprintf(fidlog,['  Number of simulations per block: ' int2str(nruns(1)) '\n']);
     fprintf(fidlog,' \n');
     past_number_of_blocks = record.Nblck;
-    if past_number_of_blocks ~= nblck
+    if past_number_of_blocks ~= NumberOfBlocks
         disp('Estimation::mcmc: The specified number of blocks doesn''t match with the previous number of blocks!')
-        disp(['Estimation::mcmc: You declared ' int2str(nblck) ' blocks, but the previous number of blocks was ' int2str(past_number_of_blocks) '.'])
+        disp(['Estimation::mcmc: You declared ' int2str(NumberOfBlocks) ' blocks, but the previous number of blocks was ' int2str(past_number_of_blocks) '.'])
         disp(['Estimation::mcmc: I will run the Metropolis-Hastings with ' int2str(past_number_of_blocks) ' blocks.' ])
-        nblck = past_number_of_blocks;
-        options_.mh_nblck = nblck;
+        NumberOfBlocks = past_number_of_blocks;
+        options_.mh_nblck = NumberOfBlocks;
     end
     % I read the last line of the last mh-file for initialization of the new Metropolis-Hastings simulations:
     LastFileNumber = record.LastFileNumber;
     LastLineNumber = record.LastLineNumber;
     if LastLineNumber < MAX_nruns
-        NewFile = ones(nblck,1)*LastFileNumber;
-        fline = ones(nblck,1)*(LastLineNumber+1);
+        NewFile = ones(NumberOfBlocks,1)*LastFileNumber;
+        FirstLine = ones(NumberOfBlocks,1)*(LastLineNumber+1);
     else
-        NewFile = ones(nblck,1)*(LastFileNumber+1);
-        fline = ones(nblck,1);
+        NewFile = ones(NumberOfBlocks,1)*(LastFileNumber+1);
+        FirstLine = ones(NumberOfBlocks,1);
     end
     ilogpo2 = record.LastLogPost;
     ix2 = record.LastParameters;
-    fblck = 1;
+    FirstBlock = 1;
     NumberOfPreviousSimulations = sum(record.MhDraws(:,1),1);
     fprintf('Estimation::mcmc: I am writing a new mh-history file... ');
     record.MhDraws = [record.MhDraws;zeros(1,3)];
@@ -292,6 +296,7 @@ elseif options_.load_mh_file && ~options_.mh_recover
     record.MhDraws(end,1) = nruns(1);
     record.MhDraws(end,2) = AnticipatedNumberOfFiles;
     record.MhDraws(end,3) = AnticipatedNumberOfLinesInTheLastFile;
+    record.MAX_nruns = [record.MAX_nruns;MAX_nruns];
     record.InitialSeeds = record.LastSeeds;
     write_mh_history_file(MetropolisFolder, ModelName, record);
     fprintf('Done.\n')
@@ -302,83 +307,143 @@ elseif options_.mh_recover
     % The previous metropolis-hastings crashed before the end! I try to recover the saved draws...
     disp('Estimation::mcmc: Recover mode!')
     load_last_mh_history_file(MetropolisFolder, ModelName);
-    nblck = record.Nblck;% Number of "parallel" mcmc chains.
-    options_.mh_nblck = nblck;
+    NumberOfBlocks = record.Nblck;% Number of "parallel" mcmc chains.
+    options_.mh_nblck = NumberOfBlocks;
+    
+    %% check consistency of options
+    if record.MhDraws(end,1)~=options_.mh_replic
+        fprintf('\nEstimation::mcmc: You cannot specify a different mh_replic than in the chain you are trying to recover\n')
+        fprintf('Estimation::mcmc: I am resetting mh_replic to %u\n',record.MhDraws(end,1))
+        options_.mh_replic=record.MhDraws(end,1);
+        nruns = ones(NumberOfBlocks,1)*options_.mh_replic;
+    end    
+    
+    if ~isnan(record.MAX_nruns(end,1)) %field exists
+        if record.MAX_nruns(end,1)~=MAX_nruns
+            fprintf('\nEstimation::mcmc: You cannot specify a different MaxNumberOfBytes than in the chain you are trying to recover\n')
+            fprintf('Estimation::mcmc: I am resetting MAX_nruns to %u\n',record.MAX_nruns(end,1))
+            MAX_nruns=record.MAX_nruns(end,1);
+        end
+    end
+    %% do tentative initialization as if full last run of MCMC were to be redone
     if size(record.MhDraws,1) == 1
-        OldMh = 0;% The crashed metropolis was the first session.
+        OldMhExists = 0;% The crashed metropolis was the first session.
     else
-        OldMh = 1;% The crashed metropolis wasn't the first session.
+        OldMhExists = 1;% The crashed metropolis wasn't the first session.
     end
     % Default initialization:
-    if OldMh
+    if OldMhExists
         ilogpo2 = record.LastLogPost;
         ix2 = record.LastParameters;
     else
         ilogpo2 = record.InitialLogPost;
         ix2 = record.InitialParameters;
     end
-    % Set NewFile, a nblck*1 vector of integers, and fline (first line), a nblck*1 vector of integers.
-    if OldMh
+    % Set NewFile, a NumberOfBlocks*1 vector of integers, and FirstLine (first line), a NumberOfBlocks*1 vector of integers.
+    % Relevant for starting at the correct file and potentially filling a file from the previous run that was not yet full
+    if OldMhExists
         LastLineNumberInThePreviousMh = record.MhDraws(end-1,3);% Number of lines in the last mh files of the previous session.
         LastFileNumberInThePreviousMh = sum(record.MhDraws(1:end-1,2),1);% Number of mh files in the the previous sessions.
-        if LastLineNumberInThePreviousMh < MAX_nruns% Test if the last mh files of the previous session are not complete (yes)
-            NewFile = ones(nblck,1)*LastFileNumberInThePreviousMh;
-            fline = ones(nblck,1)*(LastLineNumberInThePreviousMh+1);
-        else% The last mh files of the previous session are complete.
-            NewFile = ones(nblck,1)*(LastFileNumberInThePreviousMh+1);
-            fline = ones(nblck,1);
+        %Test if the last mh files of the previous session were not full yet 
+        if LastLineNumberInThePreviousMh < MAX_nruns%not full 
+            %store starting point if whole chain needs to be redone
+            NewFile = ones(NumberOfBlocks,1)*LastFileNumberInThePreviousMh;
+            FirstLine = ones(NumberOfBlocks,1)*(LastLineNumberInThePreviousMh+1);
+            LastFileFullIndicator=0;
+        else% The last mh files of the previous session were full
+            %store starting point if whole chain needs to be redone
+            NewFile = ones(NumberOfBlocks,1)*(LastFileNumberInThePreviousMh+1);
+            FirstLine = ones(NumberOfBlocks,1);
+            LastFileFullIndicator=1;
         end
     else
         LastLineNumberInThePreviousMh = 0;
         LastFileNumberInThePreviousMh = 0;
-        NewFile = ones(nblck,1);
-        fline = ones(nblck,1);
+        NewFile = ones(NumberOfBlocks,1);
+        FirstLine = ones(NumberOfBlocks,1);
+        LastFileFullIndicator=1;
     end
-    % Set fblck (First block), an integer targeting the crashed mcmc chain.
-    fblck = 1;
+    
+    %% Now find out what exactly needs to be redone
+    % 1. Check if really something needs to be done 
     % How many mh files should we have ?
     ExpectedNumberOfMhFilesPerBlock = sum(record.MhDraws(:,2),1);
-    ExpectedNumberOfMhFiles = ExpectedNumberOfMhFilesPerBlock*nblck;
-    % I count the total number of saved mh files...
+    ExpectedNumberOfMhFiles = ExpectedNumberOfMhFilesPerBlock*NumberOfBlocks;
+    % How many mh files do we actually have ?
     AllMhFiles = dir([BaseName '_mh*_blck*.mat']);
     TotalNumberOfMhFiles = length(AllMhFiles);
-    % And I quit if I can't find a crashed mcmc chain. 
+    % Quit if no crashed mcmc chain can be found as there are as many files as expected
     if (TotalNumberOfMhFiles==ExpectedNumberOfMhFiles)
         disp('Estimation::mcmc: It appears that you don''t need to use the mh_recover option!')
         disp('                  You have to edit the mod file and remove the mh_recover option') 
         disp('                  in the estimation command')
         error('Estimation::mcmc: mh_recover option not required!')
     end
-    % I count the number of saved mh files per block.
-    NumberOfMhFilesPerBlock = zeros(nblck,1);
-    for b = 1:nblck
+    % 2. Something needs to be done; find out what
+    % Count the number of saved mh files per block.
+    NumberOfMhFilesPerBlock = zeros(NumberOfBlocks,1);
+    for b = 1:NumberOfBlocks
         BlckMhFiles = dir([BaseName '_mh*_blck' int2str(b) '.mat']);
         NumberOfMhFilesPerBlock(b) = length(BlckMhFiles);
     end
-    % Is there a chain with less mh files than expected ? 
-    while fblck <= nblck
-        if  NumberOfMhFilesPerBlock(fblck) < ExpectedNumberOfMhFilesPerBlock
-            disp(['Estimation::mcmc: Chain ' int2str(fblck) ' is not complete!'])
+    % Find FirstBlock (First block), an integer targeting the crashed mcmc chain.
+    FirstBlock = 1; %initialize
+    while FirstBlock <= NumberOfBlocks
+        if  NumberOfMhFilesPerBlock(FirstBlock) < ExpectedNumberOfMhFilesPerBlock
+            disp(['Estimation::mcmc: Chain ' int2str(FirstBlock) ' is not complete!'])
             break
-            % The mh_recover session will start from chain fblck.
+            % The mh_recover session will start from chain FirstBlock.
         else
-            disp(['Estimation::mcmc: Chain ' int2str(fblck) ' is complete!'])
+            disp(['Estimation::mcmc: Chain ' int2str(FirstBlock) ' is complete!'])
         end
-        fblck = fblck+1;
+        FirstBlock = FirstBlock+1;
     end
+    
+    %% 3. Overwrite default settings for 
     % How many mh-files are saved in this block?
-    NumberOfSavedMhFilesInTheCrashedBlck = NumberOfMhFilesPerBlock(fblck);
-    % Correct the number of saved mh files if the crashed Metropolis was not the first session (so
-    % that NumberOfSavedMhFilesInTheCrashedBlck is the number of saved mh files in the crashed chain 
-    % of the current session).  
-    if OldMh
-        NumberOfSavedMhFilesInTheCrashedBlck = NumberOfSavedMhFilesInTheCrashedBlck - LastFileNumberInThePreviousMh;
+    NumberOfSavedMhFilesInTheCrashedBlck = NumberOfMhFilesPerBlock(FirstBlock);
+    ExistingDrawsInLastMCFile=0; %initialize: no MCMC draws of current MCMC are in file from last run
+    % Check whether last present file is a file included in the last MCMC run
+    if ~LastFileFullIndicator 
+        if NumberOfSavedMhFilesInTheCrashedBlck==NewFile(FirstBlock) %only that last file exists, but no files from current MCMC
+            loaded_results=load([BaseName '_mh' int2str(NewFile(FirstBlock)) '_blck' int2str(FirstBlock) '.mat']);    
+            %check whether that last file was filled
+            if size(loaded_results.x2,1)==MAX_nruns %file is full
+                NewFile(FirstBlock)=NewFile(FirstBlock)+1; %set first file to be created to next one
+                FirstLine(FirstBlock) = 1; %use first line of next file
+                ExistingDrawsInLastMCFile=MAX_nruns-record.MhDraws(end-1,3);
+            else
+                ExistingDrawsInLastMCFile=0;
+            end
+        end
+    elseif LastFileFullIndicator 
+        ExistingDrawsInLastMCFile=0;
+        if NumberOfSavedMhFilesInTheCrashedBlck==NewFile(FirstBlock) %only the last file exists, but no files from current MCMC
+            NewFile(FirstBlock)=NewFile(FirstBlock)+1; %set first file to be created to next one
+        end
     end
-    NumberOfSavedMhFiles = NumberOfSavedMhFilesInTheCrashedBlck+LastFileNumberInThePreviousMh;
+%     % Correct the number of saved mh files if the crashed Metropolis was not the first session (so
+%     % that NumberOfSavedMhFilesInTheCrashedBlck is the number of saved mh files in the crashed chain 
+%     % of the current session).  
+%     if OldMhExists
+%         NumberOfSavedMhFilesInTheCrashedBlck = NumberOfSavedMhFilesInTheCrashedBlck - LastFileNumberInThePreviousMh;
+%     end
+%     NumberOfSavedMhFiles = NumberOfSavedMhFilesInTheCrashedBlck+LastFileNumberInThePreviousMh;
+    
     % Correct initial conditions.
-    if NumberOfSavedMhFiles
-        load([BaseName '_mh' int2str(NumberOfSavedMhFiles) '_blck' int2str(fblck) '.mat']);
-        ilogpo2(fblck) = logpo2(end);
-        ix2(fblck,:) = x2(end,:);
+    if NumberOfSavedMhFilesInTheCrashedBlck<ExpectedNumberOfMhFilesPerBlock
+        loaded_results=load([BaseName '_mh' int2str(NumberOfSavedMhFilesInTheCrashedBlck) '_blck' int2str(FirstBlock) '.mat']);
+        ilogpo2(FirstBlock) = loaded_results.logpo2(end);
+        ix2(FirstBlock,:) = loaded_results.x2(end,:);
+        nruns(FirstBlock)=nruns(FirstBlock)-ExistingDrawsInLastMCFile-(NumberOfSavedMhFilesInTheCrashedBlck-LastFileNumberInThePreviousMh)*MAX_nruns;
+        %reset seed if possible
+        if isfield(loaded_results,'LastSeeds')
+            record.InitialSeeds(FirstBlock).Unifor=loaded_results.LastSeeds.(['file' int2str(NumberOfSavedMhFilesInTheCrashedBlck)]).Unifor;
+            record.InitialSeeds(FirstBlock).Normal=loaded_results.LastSeeds.(['file' int2str(NumberOfSavedMhFilesInTheCrashedBlck)]).Normal;
+        else
+            fprintf('Estimation::mcmc: You are trying to recover a chain generated with an older Dynare version.\n')
+            fprintf('Estimation::mcmc: I am using the default seeds to continue the chain.\n')
+        end
+        write_mh_history_file(MetropolisFolder, ModelName, record);
     end
 end
