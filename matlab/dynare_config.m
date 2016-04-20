@@ -83,6 +83,10 @@ if ~isoctave
         % Replacements for functions of the stats toolbox
         addpath([dynareroot '/missing/stats/'])
     end
+    if isempty(ver('econ')), 
+        % Replacements for functions of the econ toolbox
+        addpath([dynareroot '/missing/econ/'])
+    end
 end
 
 % ordeig() doesn't exist in Octave
