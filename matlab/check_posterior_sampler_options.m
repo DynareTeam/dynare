@@ -54,6 +54,13 @@ end
 
 % check specific options for slice sampler
 if strcmp(options_.posterior_sampling_method,'slice')
+    % by default, slice sampler should trigger 
+    % mode_compute=0 and
+    % mh_replic=100 (much smaller than the default mh_replic=20000 of RWMH)
+    % moreover slice must be associated to: 
+    %     options_.mh_posterior_mode_estimation = 0;
+    % this is done below, but perhaps preprocessing should do this?
+
     posterior_sampler_options.parallel_bar_refresh_rate=1;
     posterior_sampler_options.serial_bar_refresh_rate=1;
     posterior_sampler_options.parallel_bar_title='SLICE';
@@ -76,17 +83,62 @@ if strcmp(options_.posterior_sampling_method,'slice')
         for i=1:rows(options_list)
             switch options_list{i,1}
               case 'rotated'
+                % triggers rotated slice iterations using a covariance
+                % matrix from initial burn-in iterations
+                % must be associated with:
+                % <use_mh_covariance_matrix> or <slice_initialize_with_mode>
+                % default  = 0
                 posterior_sampler_options.rotated = options_list{i,2};
+                
               case 'mode'
-                posterior_sampler_options.mode = options_list{i,2};
+                % for multimodal posteriors, provide the list of modes as a
+                % matrix, ordered by column, i.e. [x1 x2 x3] for three
+                % modes x1 x2 x3
+                % MR note: not sure this is possible with the 
+                % read_key_value_string ???
+                % if this is not possible <mode_files> does to job in any case
+                % This will automatically trigger <rotated>
+                % default = []
+                tmp_mode = options_list{i,2};
+                for j=1:size(tmp_mode,2),
+                    posterior_sampler_options.mode(j).m = tmp_mode(:,j);
+                end
+                
               case 'mode_files'
+                % for multimodal posteriors provide a list of mode files,
+                % one per mode. With this info, the code will automatically
+                % set the <mode> option. The mode files need only to
+                % contain the xparam1 variable.
+                % This will automatically trigger <rotated>
+                % default = []
                 posterior_sampler_options.mode_files = options_list{i,2};
+                
               case 'slice_initialize_with_mode'
+                % the default for slice is to set mode_compute = 0 in the
+                % preprocessor and start the chain(s) from a random location in the prior. 
+                % This option first runs the optimizer and then starts the
+                % chain from the mode. Associated with optios <rotated>, it will
+                % use invhess from the mode to perform rotated slice
+                % iterations.
+                % default = 0
                 posterior_sampler_options.slice_initialize_with_mode = options_list{i,2};
+                
               case 'initial_step_size'
+                % sets the initial size of the interval in the STEPPING-OUT PROCEDURE
+                % the initial_step_size must be a real number in [0, 1],
+                % and it sets the size as a proportion of the prior bounds,
+                % i.e. the size will be initial_step_size*(UB-LB)
+                % slice sampler requires prior_truncation > 0!
+                % default = 0.8
                 posterior_sampler_options.W1 = options_list{i,2}*(bounds.ub-bounds.lb);
+                
               case 'use_mh_covariance_matrix'
+                % in association with <rotated> indicates to use the
+                % covariance matrix from previous iterations to define the
+                % rotated slice
+                % default = 0
                 posterior_sampler_options.use_mh_covariance_matrix = options_list{i,2};
+                
               otherwise
                 warning(['slice_sampler: Unknown option (' options_list{i,1} ')!'])
             end
