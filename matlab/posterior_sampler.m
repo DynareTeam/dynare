@@ -91,6 +91,7 @@ load_last_mh_history_file(MetropolisFolder, ModelName);
 
 if options_.TaRB.use_TaRB
     options_.silent_optimizer=1; %locally set optimizer to silent mode
+    sampler_options.posterior_sampling_method='tailored_random_block_metropolis_hastings';
 end
 
 localVars =   struct('TargetFun', TargetFun, ...
@@ -124,11 +125,7 @@ localVars =   struct('TargetFun', TargetFun, ...
 % single chain compute Random walk Metropolis-Hastings algorithm sequentially.
 
 if isnumeric(options_.parallel) || (nblck-fblck)==0,
-    if options_.TaRB.use_TaRB
-        fout = TaRB_metropolis_hastings_core(localVars, fblck, nblck, 0);
-    else
-        fout = posterior_sampler_core(localVars, fblck, nblck, 0);
-    end
+    fout = posterior_sampler_core(localVars, fblck, nblck, 0);
     record = fout.record;
     % Parallel in Local or remote machine.   
 else 

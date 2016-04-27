@@ -63,6 +63,88 @@ switch posterior_sampling_method
             par = last_draw;
             logpost = last_posterior;
         end
+    case 'tailored_random_block_metropolis_hastings'
+        options_=varargin{3};
+        bayestopt_=varargin{6};
+        npar=length(last_draw);
+        %% randomize indices for blocking in this iteration
+        global objective_function_penalty_base
+        indices=randperm(npar)';
+        blocks=[1; (1+cumsum((rand(length(indices)-1,1)>(1-options_.TaRB.new_block_probability))))];
+        nblocks=blocks(end,1); %get number of blocks this iteration
+        current_draw=last_draw'; %get starting point for current draw for updating
+        blocked_draws_counter=0;
+        accepted_draws_counter=0;
+        for block_iter=1:nblocks
+            blocked_draws_counter=blocked_draws_counter+1;
+            nxopt=length(indices(blocks==block_iter,1)); %get size of current block
+            par_start_current_block=current_draw(indices(blocks==block_iter,1));
+            [xopt_current_block, fval, exitflag, hess_mat_optimizer, options_, Scale] = dynare_minimize_objective(@TaRB_optimizer_wrapper,par_start_current_block,options_.TaRB.mode_compute,options_,[mh_bounds.lb(indices(blocks==block_iter,1),1) mh_bounds.ub(indices(blocks==block_iter,1),1)],bayestopt_.name,bayestopt_,[],...
+                current_draw,indices(blocks==block_iter,1),TargetFun,...% inputs for wrapper
+                varargin{:}); %inputs for objective           
+            objective_function_penalty_base=Inf; %reset penalty that may have been changed by optimizer
+            %% covariance for proposal density
+            hessian_mat = reshape(hessian('TaRB_optimizer_wrapper',xopt_current_block, ...
+                    options_.gstep,...
+                    current_draw,indices(blocks==block_iter,1),TargetFun,...% inputs for wrapper
+                    varargin{:}),nxopt,nxopt);
+            
+            if any(any(isnan(hessian_mat))) || any(any(isinf(hessian_mat)))
+                inverse_hessian_mat=eye(nxopt)*1e-4; %use diagonal
+            else
+                inverse_hessian_mat=inv(hessian_mat); %get inverse Hessian
+                if any(any((isnan(inverse_hessian_mat)))) || any(any((isinf(inverse_hessian_mat))))
+                    inverse_hessian_mat=eye(nxopt)*1e-4; %use diagonal
+                end               
+            end
+            [proposal_covariance_Cholesky_decomposition_upper,negeigenvalues]=chol(inverse_hessian_mat);            
+            %if not positive definite, use generalized Cholesky of Eskow/Schnabel
+            if negeigenvalues~=0 
+                proposal_covariance_Cholesky_decomposition_upper=chol_SE(inverse_hessian_mat,0);
+            end
+            proposal_covariance_Cholesky_decomposition_upper=proposal_covariance_Cholesky_decomposition_upper*diag(bayestopt_.jscale(indices(blocks==block_iter,1),:));
+            %get proposal draw
+            if strcmpi(sampler_options.proposal_distribution,'rand_multivariate_normal')
+                n = nxopt;
+            elseif strcmpi(sampler_options.proposal_distribution,'rand_multivariate_student')
+                n = options_.student_degrees_of_freedom;
+            end
+    
+            proposed_par = feval(sampler_options.proposal_distribution, xopt_current_block', proposal_covariance_Cholesky_decomposition_upper, n);
+            % check whether draw is valid and compute posterior
+            if all( proposed_par(:) > mh_bounds.lb(indices(blocks==block_iter,1),:) ) && all( proposed_par(:) < mh_bounds.ub(indices(blocks==block_iter,1),:) )
+                try
+                    logpost = - feval('TaRB_optimizer_wrapper', proposed_par(:),...
+                        current_draw,indices(blocks==block_iter,1),TargetFun,...% inputs for wrapper
+                        varargin{:});
+                catch
+                    logpost = -inf;
+                end
+            else
+                logpost = -inf;
+            end
+            %get ratio of proposal densities, required because proposal depends
+            %on current mode via Hessian and is thus not symmetric anymore
+            if strcmpi(sampler_options.proposal_distribution,'rand_multivariate_normal')
+                proposal_density_proposed_move_forward=multivariate_normal_pdf(proposed_par,xopt_current_block',proposal_covariance_Cholesky_decomposition_upper,n);
+                proposal_density_proposed_move_backward=multivariate_normal_pdf(par_start_current_block',xopt_current_block',proposal_covariance_Cholesky_decomposition_upper,n);
+            elseif strcmpi(sampler_options.proposal_distribution,'rand_multivariate_student')
+                proposal_density_proposed_move_forward=multivariate_student_pdf(proposed_par,xopt_current_block',proposal_covariance_Cholesky_decomposition_upper,n);
+                proposal_density_proposed_move_backward=multivariate_student_pdf(par_start_current_block',xopt_current_block',proposal_covariance_Cholesky_decomposition_upper,n);
+            end
+            accprob=logpost-last_posterior+ log(proposal_density_proposed_move_backward)-log(proposal_density_proposed_move_forward); %Formula (6), Chib/Ramamurthy
+
+            if (logpost > -inf) && (log(rand) < accprob)
+                current_draw(indices(blocks==block_iter,1))=proposed_par;
+                last_posterior=logpost;
+                accepted_draws_counter =accepted_draws_counter +1;
+            else %no updating 
+                %do nothing, keep old value
+            end
+        end
+        accepted=accepted_draws_counter/blocked_draws_counter;
+        par = current_draw;
+        neval=1;
     case 'independent_metropolis_hastings'
         neval = 1;
         ProposalFun = sampler_options.proposal_distribution;
