@@ -1,4 +1,4 @@
-function DynareOutput = simul_backward_nonlinear_model(initial_conditions, sample_size, DynareOptions, DynareModel, DynareOutput)
+function DynareOutput = simul_backward_nonlinear_model(initial_conditions, sample_size, DynareOptions, DynareModel, DynareOutput, innovations)
 
 %@info:
 %! @deftypefn {Function File} {@var{DynareOutput} =} simul_backward_nonlinear_model (@var{sample_size},@var{DynareOptions}, @var{DynareModel}, @var{DynareOutput})
@@ -55,31 +55,35 @@ if DynareModel.maximum_lead
     error(['simul_backward_nonlinear_model:: The specified model is not backward looking!'])
 end
 
-% Set the covariance matrix of the structural innovations.
-variances = diag(DynareModel.Sigma_e);
-number_of_shocks = length(DynareModel.Sigma_e);
-positive_var_indx = find(variances>0);
-effective_number_of_shocks = length(positive_var_indx);
-covariance_matrix = DynareModel.Sigma_e(positive_var_indx,positive_var_indx);
-covariance_matrix_upper_cholesky = chol(covariance_matrix);
+if nargin<6
+    % Set the covariance matrix of the structural innovations.
+    variances = diag(DynareModel.Sigma_e);
+    number_of_shocks = length(DynareModel.Sigma_e);
+    positive_var_indx = find(variances>0);
+    effective_number_of_shocks = length(positive_var_indx);
+    covariance_matrix = DynareModel.Sigma_e(positive_var_indx,positive_var_indx);
+    covariance_matrix_upper_cholesky = chol(covariance_matrix);
 
-% Set seed to its default state.
-if DynareOptions.bnlms.set_dynare_seed_to_default
-    set_dynare_seed('default');
+    % Set seed to its default state.
+    if DynareOptions.bnlms.set_dynare_seed_to_default
+        set_dynare_seed('default');
+    end
+
+    % Simulate structural innovations.
+    switch DynareOptions.bnlms.innovation_distribution
+      case 'gaussian'
+        DynareOutput.bnlms.shocks = randn(sample_size,effective_number_of_shocks)*covariance_matrix_upper_cholesky;
+      otherwise
+        error(['simul_backward_nonlinear_model:: ' DynareOption.bnlms.innovation_distribution ' distribution for the structural innovations is not (yet) implemented!'])
+    end
+
+    % Put the simulated innovations in DynareOutput.exo_simul.
+    DynareOutput.exo_simul = zeros(sample_size,number_of_shocks);
+    DynareOutput.exo_simul(:,positive_var_indx) = DynareOutput.bnlms.shocks;
+    DynareOutput.exo_simul = [zeros(1,number_of_shocks); DynareOutput.exo_simul];
+else
+    DynareOutput.exo_simul = innovations;
 end
-
-% Simulate structural innovations.
-switch DynareOptions.bnlms.innovation_distribution
-  case 'gaussian'
-      DynareOutput.bnlms.shocks = randn(sample_size,effective_number_of_shocks)*covariance_matrix_upper_cholesky;
-  otherwise
-    error(['simul_backward_nonlinear_model:: ' DynareOption.bnlms.innovation_distribution ' distribution for the structural innovations is not (yet) implemented!'])
-end
-
-% Put the simulated innovations in DynareOutput.exo_simul.
-DynareOutput.exo_simul = zeros(sample_size,number_of_shocks);
-DynareOutput.exo_simul(:,positive_var_indx) = DynareOutput.bnlms.shocks;
-DynareOutput.exo_simul = [zeros(1,number_of_shocks); DynareOutput.exo_simul];
 
 % Get usefull vector of indices.
 ny0 = nnz(DynareModel.lead_lag_incidence(2,:));
