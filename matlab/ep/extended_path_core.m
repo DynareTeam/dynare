@@ -1,8 +1,8 @@
-function [y, info_convergence] = extended_path_core(periods,endo_nbr,exo_nbr,positive_var_indx, ...
+function [y, info_convergence, endogenousvariablespaths] = extended_path_core(periods,endo_nbr,exo_nbr,positive_var_indx, ...
                                 exo_simul,init,initial_conditions,...
                                 steady_state, ...
-                                verbosity,bytecode_flag,order,M,pfm,algo,solve_algo,stack_solve_algo,...
-                                olmmcp,options,oo)
+                                debug,bytecode_flag,order,M,pfm,algo,solve_algo,stack_solve_algo,...
+                                olmmcp,options,oo,initialguess)
 
 % Copyright (C) 2016 Dynare Team
 %
@@ -25,19 +25,26 @@ ep = options.ep;
 if init% Compute first order solution (Perturbation)...
     endo_simul = simult_(initial_conditions,oo.dr,exo_simul(2:end,:),1);
 else
-    endo_simul = [initial_conditions repmat(steady_state,1,periods+1)];
+    if nargin==20 && ~isempty(initialguess)
+        % Note that the first column of initialguess should be equal to initial_conditions.
+        endo_simul = initialguess;
+    else
+        endo_simul = [initial_conditions repmat(steady_state,1,periods+1)];
+    end
 end
+
 oo.endo_simul = endo_simul;
-% Solve a perfect foresight model.
-% Keep a copy of endo_simul_1
-if verbosity
+
+if debug
     save ep_test_1 endo_simul exo_simul
 end
+
 if bytecode_flag && ~ep.stochastic.order
     [flag,tmp] = bytecode('dynamic',endo_simul,exo_simul, M_.params, endo_simul, periods);
 else
     flag = 1;
 end
+
 if flag
     if order == 0
         options.periods = periods;
