@@ -643,6 +643,8 @@ ModFile::writeOutputFiles(const string &basename, bool clear_all, bool clear_glo
 
   // Initialize M_.det_shocks
   mOutputFile << "M_.det_shocks = [];" << endl;
+  mOutputFile << "M_.det_exp_shocks = [];" << endl;
+  mOutputFile << "M_.det_unexp_shocks = [];" << endl;
 
   if (linear == 1)
     mOutputFile << "options_.linear = 1;" << endl;

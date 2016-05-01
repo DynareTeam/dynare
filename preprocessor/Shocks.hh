@@ -33,6 +33,12 @@ using namespace std;
 class AbstractShocksStatement : public Statement
 {
 public:
+  enum ShockType
+    {
+      None,
+      Expected,
+      Unexpected
+    };
   struct DetShockElement
   {
     int period1;
@@ -49,7 +55,7 @@ protected:
   const bool overwrite;
   const det_shocks_t det_shocks;
   const SymbolTable &symbol_table;
-  void writeDetShocks(ostream &output) const;
+  void writeDetShocks(ostream &output, ShockType type) const;
 
   AbstractShocksStatement(bool mshocks_arg, bool overwrite_arg,
                           const det_shocks_t &det_shocks_arg,
@@ -79,6 +85,24 @@ public:
                   const SymbolTable &symbol_table_arg);
   virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const;
   virtual void checkPass(ModFileStructure &mod_file_struct, WarningConsolidation &warnings);
+};
+
+class ExpShocksStatement : public AbstractShocksStatement
+{
+public:
+  ExpShocksStatement(bool overwrite_arg,
+                     const det_shocks_t &det_shocks_arg,
+                     const SymbolTable &symbol_table_arg);
+  virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const;
+};
+
+class UnexpShocksStatement : public AbstractShocksStatement
+{
+public:
+  UnexpShocksStatement(bool overwrite_arg,
+                       const det_shocks_t &det_shocks_arg,
+                       const SymbolTable &symbol_table_arg);
+  virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const;
 };
 
 class MShocksStatement : public AbstractShocksStatement

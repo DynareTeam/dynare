@@ -120,7 +120,7 @@ class ParsingDriver;
 %token <string_val> QUOTED_STRING
 %token QZ_CRITERIUM QZ_ZERO_THRESHOLD FULL DSGE_VAR DSGE_VARLAG DSGE_PRIOR_WEIGHT TRUNCATE
 %token RELATIVE_IRF REPLIC SIMUL_REPLIC RPLOT SAVE_PARAMS_AND_STEADY_STATE PARAMETER_UNCERTAINTY
-%token SHOCKS SHOCK_DECOMPOSITION SIGMA_E SIMUL SIMUL_ALGO SIMUL_SEED ENDOGENOUS_TERMINAL_PERIOD
+%token SHOCKS EXPECTED_SHOCKS UNEXPECTED_SHOCKS SHOCK_DECOMPOSITION SIGMA_E SIMUL SIMUL_ALGO SIMUL_SEED ENDOGENOUS_TERMINAL_PERIOD
 %token SMOOTHER SMOOTHER2HISTVAL SQUARE_ROOT_SOLVER STACK_SOLVE_ALGO STEADY_STATE_MODEL SOLVE_ALGO SOLVER_PERIODS
 %token STDERR STEADY STOCH_SIMUL SURPRISE SYLVESTER SYLVESTER_FIXED_POINT_TOL REGIMES REGIME
 %token TEX RAMSEY_MODEL RAMSEY_POLICY RAMSEY_CONSTRAINTS PLANNER_DISCOUNT DISCRETIONARY_POLICY DISCRETIONARY_TOL
@@ -208,6 +208,8 @@ statement : parameters
           | histval
           | init_param
           | shocks
+          | expected_shocks
+          | unexpected_shocks
           | mshocks
           | sigma_e
           | steady
@@ -804,6 +806,22 @@ shock_elem : det_shock_elem
 det_shock_elem : VAR symbol ';' PERIODS period_list ';' VALUES value_list ';'
                  { driver.add_det_shock($2, false); }
                ;
+
+expected_shocks : EXPECTED_SHOCKS ';' exp_shock_list END ';' { driver.end_exp_shocks(false); }
+                | EXPECTED_SHOCKS '(' OVERWRITE ')' ';' exp_shock_list END ';' { driver.end_exp_shocks(true); }
+                ;
+
+exp_shock_list : exp_shock_list det_shock_elem
+               | det_shock_elem
+               ;
+
+unexpected_shocks : UNEXPECTED_SHOCKS ';' unexp_shock_list END ';' { driver.end_unexp_shocks(false); }
+                  | EXPECTED_SHOCKS '(' OVERWRITE ')' ';' unexp_shock_list END ';' { driver.end_unexp_shocks(true); }
+                  ;
+
+unexp_shock_list : unexp_shock_list det_shock_elem
+                 | det_shock_elem
+                 ;
 
 svar_identification : SVAR_IDENTIFICATION {driver.begin_svar_identification();} ';' svar_identification_list END ';'
                       { driver.end_svar_identification(); }

@@ -333,6 +333,10 @@ public:
   void begin_model();
   //! Writes a shocks statement
   void end_shocks(bool overwrite);
+  //! Writes an expected shocks statement
+  void end_exp_shocks(bool overwrite);
+  //! Writes an unexpected shocks statement
+  void end_unexp_shocks(bool overwrite);
   //! Writes a mshocks statement
   void end_mshocks(bool overwrite);
   //! Adds a deterministic chock or a path element inside a conditional_forecast_paths block

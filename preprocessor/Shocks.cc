@@ -35,7 +35,7 @@ AbstractShocksStatement::AbstractShocksStatement(bool mshocks_arg,
 }
 
 void
-AbstractShocksStatement::writeDetShocks(ostream &output) const
+AbstractShocksStatement::writeDetShocks(ostream &output, ShockType type) const
 {
   int exo_det_length = 0;
 
@@ -51,8 +51,23 @@ AbstractShocksStatement::writeDetShocks(ostream &output) const
           const int &period2 = it->second[i].period2;
           const expr_t value = it->second[i].value;
 
-          output << "M_.det_shocks = [ M_.det_shocks;" << endl
-                 << "struct('exo_det'," << (int) exo_det
+          switch(type)
+            {
+            case None:
+              output << "M_.det_shocks = [ M_.det_shocks;" << endl;
+              break;
+            case Expected:
+              output << "M_.det_exp_shocks = [ M_.det_exp_shocks;" << endl;
+              break;
+            case Unexpected:
+              output << "M_.det_unexp_shocks = [ M_.det_unexp_shocks;" << endl;
+              break;
+            default:
+              cerr << "Shocks: this shouldn't happen." << endl;
+              exit(1);
+            }
+                
+          output << "struct('exo_det'," << (int) exo_det
                  << ",'exo_id'," << id
                  << ",'multiplicative'," << (int) mshocks
                  << ",'periods'," << period1 << ":" << period2
@@ -109,7 +124,7 @@ ShocksStatement::writeOutput(ostream &output, const string &basename, bool minim
 
     }
 
-  writeDetShocks(output);
+  writeDetShocks(output,None);
   writeVarAndStdShocks(output);
   writeCovarAndCorrShocks(output);
 
@@ -332,6 +347,48 @@ ShocksStatement::has_calibrated_measurement_errors() const
   return false;
 }
 
+ExpShocksStatement::ExpShocksStatement(bool overwrite_arg,
+                                 const det_shocks_t &det_shocks_arg,
+                                 const SymbolTable &symbol_table_arg) :
+  AbstractShocksStatement(false, overwrite_arg, det_shocks_arg, symbol_table_arg)
+{
+}
+
+void
+ExpShocksStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
+{
+  output << "%" << endl
+         << "% EXPECTED_SHOCKS instructions" << endl
+         << "%" << endl;
+
+  if (overwrite)
+    output << "M_.exp_det_shocks = [];" << endl;
+
+
+  writeDetShocks(output,Expected);
+}
+
+UnexpShocksStatement::UnexpShocksStatement(bool overwrite_arg,
+                                           const det_shocks_t &det_shocks_arg,
+                                           const SymbolTable &symbol_table_arg) :
+  AbstractShocksStatement(false, overwrite_arg, det_shocks_arg, symbol_table_arg)
+{
+}
+
+void
+UnexpShocksStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
+{
+  output << "%" << endl
+         << "% UNEXPECTED_SHOCKS instructions" << endl
+         << "%" << endl;
+
+  if (overwrite)
+    output << "M_.det_unexp_shocks = [];" << endl;
+
+
+  writeDetShocks(output,Unexpected);
+}
+
 MShocksStatement::MShocksStatement(bool overwrite_arg,
                                    const det_shocks_t &det_shocks_arg,
                                    const SymbolTable &symbol_table_arg) :
@@ -349,7 +406,7 @@ MShocksStatement::writeOutput(ostream &output, const string &basename, bool mini
   if (overwrite)
     output << "M_.det_shocks = [];" << endl;
 
-  writeDetShocks(output);
+  writeDetShocks(output,None);
 }
 
 ConditionalForecastPathsStatement::ConditionalForecastPathsStatement(const AbstractShocksStatement::det_shocks_t &paths_arg) :

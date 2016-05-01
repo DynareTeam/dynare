@@ -653,6 +653,28 @@ ParsingDriver::end_shocks(bool overwrite)
 }
 
 void
+ParsingDriver::end_exp_shocks(bool overwrite)
+{
+  mod_file->addStatement(new ExpShocksStatement(overwrite, det_shocks, mod_file->symbol_table));
+  det_shocks.clear();
+  var_shocks.clear();
+  std_shocks.clear();
+  covar_shocks.clear();
+  corr_shocks.clear();
+}
+
+void
+ParsingDriver::end_unexp_shocks(bool overwrite)
+{
+  mod_file->addStatement(new UnexpShocksStatement(overwrite, det_shocks, mod_file->symbol_table));
+  det_shocks.clear();
+  var_shocks.clear();
+  std_shocks.clear();
+  covar_shocks.clear();
+  corr_shocks.clear();
+}
+
+void
 ParsingDriver::end_mshocks(bool overwrite)
 {
   mod_file->addStatement(new MShocksStatement(overwrite, det_shocks, mod_file->symbol_table));

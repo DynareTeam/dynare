@@ -187,6 +187,8 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <INITIAL>endval {BEGIN DYNARE_BLOCK; return token::ENDVAL;}
 <INITIAL>histval {BEGIN DYNARE_BLOCK; return token::HISTVAL;}
 <INITIAL>shocks {BEGIN DYNARE_BLOCK; return token::SHOCKS;}
+<INITIAL>expected_shocks {BEGIN DYNARE_BLOCK; return token::EXPECTED_SHOCKS;}
+<INITIAL>unexpected_shocks {BEGIN DYNARE_BLOCK; return token::UNEXPECTED_SHOCKS;}
 <INITIAL>mshocks {BEGIN DYNARE_BLOCK; return token::MSHOCKS;}
 <INITIAL>estimated_params {BEGIN DYNARE_BLOCK; return token::ESTIMATED_PARAMS;}
  /* priors is an alias for estimated_params */

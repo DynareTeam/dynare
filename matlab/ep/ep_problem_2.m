@@ -51,7 +51,7 @@ for i = 1:order+1
         if i <= order && j == 1
             % first world, integrating future shocks
             if nargout > 1
-                A1 = sparse([],[],[],i*ny,dimension,nnzA*world_nbr);
+                A1 = sparse([],[],[],i*(1+(nnodes-1)*(i-1))*ny,dimension,nnzA*world_nbr);
             end
             for k=1:nnodes
                 if nargout > 1

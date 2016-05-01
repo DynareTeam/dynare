@@ -17,8 +17,6 @@ function [flag,endo_simul,err,y] = solve_stochastic_perfect_foresight_model_1(en
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global options_
-
 if nargin < 6
     homotopy_parameter = 1;
 else
@@ -141,13 +139,10 @@ pfm.i_cols_T = i_cols_T;
 pfm.i_upd_r = i_upd_r;
 pfm.i_upd_y = i_upd_y;
 
-options_.steady.maxit = 100;
 y = repmat(steady_state,block_nbr,1);
-old_options = options_;
-options_.solve_algo = options_.ep.solve_algo;
-options_.steady.maxit = options_.ep.maxit;
-[y,info] = dynare_solve(@ep_problem_2,y,options_,exo_simul,pfm);
-options_ = old_options;
+Options.solve_algo = Options.ep.solve_algo;
+Options.steady.maxit = Options.ep.maxit;
+[y,info] = dynare_solve(@ep_problem_2,y,Options,exo_simul,pfm);
 if info
     flag = 1;
     err = info;
