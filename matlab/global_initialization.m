@@ -464,6 +464,7 @@ options_.sub_draws = [];
 options_.use_mh_covariance_matrix = 0;
 options_.gradient_method = 2; %used by csminwel and newrat
 options_.gradient_epsilon = 1e-6; %used by csminwel and newrat
+options_.posterior_sampler_options = []; %extended set of options for individual posterior samplers
 options_.posterior_sampling_method = 'random_walk_metropolis_hastings';
 options_.proposal_distribution = 'rand_multivariate_normal';
 options_.student_degrees_of_freedom = 3;

@@ -72,7 +72,7 @@ skipline()
 try
     disp(sprintf('Log data density is %f.',oo_.MarginalDensity.ModifiedHarmonicMean))
 catch
-    [marginal,oo_] = marginal_density(M_, options_, estim_params_, oo_);
+    [marginal,oo_] = marginal_density(M_, options_, estim_params_, oo_, bayestopt_);
     disp(sprintf('Log data density is %f.',oo_.MarginalDensity.ModifiedHarmonicMean))
 end
 num_draws=NumberOfDraws*options_.mh_nblck;

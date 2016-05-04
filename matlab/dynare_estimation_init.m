@@ -590,3 +590,29 @@ else
     estim_params_.Sigma_e_entries_to_check_for_positive_definiteness=Sigma_e_non_zero_rows;
 end
 
+
+% slice posterior sampler does not require mode or hessian to run
+if strcmp(options_.posterior_sampling_method,'slice') 
+    options_.mh_posterior_mode_estimation=1;
+    options_.posterior_sampler_options = set_default_option(options_.posterior_sampler_options,'slice_initialize_with_mode',0);
+    
+    if options_.posterior_sampler_options.slice_initialize_with_mode  
+        if (isequal(options_.mode_compute,0) && isempty(options_.mode_file) )
+            skipline()
+            disp('You have specified the option "slice_initialize_with_mode"')
+            disp('to initialize the slice sampler using mode information')
+            disp('but no mode file nor posterior maximization is selected,')
+            error('The option "slice_initialize_with_mode" is inconsistent with mode_compute=0 or empty mode_file.')
+        else
+            options_.mh_posterior_mode_estimation=0;            
+        end
+    end
+    
+    if any(isinf(bounds.lb)) || any(isinf(bounds.ub)),
+            skipline()
+            disp('some priors are unbounded and prior_trunc is set to zero')
+            error('The option "slice" is inconsistent with prior_trunc=0.')        
+    end
+        
+end
+
