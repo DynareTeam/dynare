@@ -1132,7 +1132,7 @@ OsrStatement::writeOutput(ostream &output, const string &basename, bool minimal_
 
   options_list.writeOutput(output);
   symbol_list.writeOutput("var_list_", output);
-  output << "oo_.osr = osr(var_list_,osr_params_,M_.osr.variable_indices,M_.osr.variable_weights);" << endl;
+  output << "oo_.osr = osr(var_list_,M_.osr.param_names,M_.osr.variable_indices,M_.osr.variable_weights);" << endl;
 }
 
 OptimWeightsStatement::OptimWeightsStatement(const var_weights_t &var_weights_arg,
