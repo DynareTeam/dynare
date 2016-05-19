@@ -143,6 +143,7 @@ public:
   */
   virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const = 0;
   virtual void writeCOutput(ostream &output, const string &basename);
+  virtual void writeJuliaOutput(ostream &output, const string &basename);
 };
 
 class NativeStatement : public Statement

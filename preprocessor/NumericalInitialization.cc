@@ -52,6 +52,16 @@ InitParamStatement::writeOutput(ostream &output, const string &basename, bool mi
 }
 
 void
+InitParamStatement::writeJuliaOutput(ostream &output, const string &basename)
+{
+  int id = symbol_table.getTypeSpecificID(symb_id) + 1;
+  output << "model.params[ " << id << " ] = ";
+  param_value->writeOutput(output);
+  output << endl;
+  output << symbol_table.getName(symb_id) << " = model.params[ " << id << " ]" << endl;
+}
+
+void
 InitParamStatement::writeCOutput(ostream &output, const string &basename)
 {
   int id = symbol_table.getTypeSpecificID(symb_id);
