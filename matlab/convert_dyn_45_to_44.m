@@ -144,7 +144,7 @@ if isfield(oo_,'FilteredVariables')
 end
 
 %% resort fields that are in declaration order to decision rule order (previous undocumented behavior)
-if ~isempty(options_.nk) && options_.nk ~= 0
+if ~isempty(options_.nk) && options_.nk ~= 0 && ~isempty(bayestopt_)
     if ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file)) %no Bayesian estimation
         positions_in_decision_order=oo_.dr.inv_order_var(bayestopt_.smoother_var_list(bayestopt_.smoother_saved_var_list));
         if ~(options_.selected_variables_only && ~(options_.forecast > 0)) %happens only when selected_variables_only is not used
