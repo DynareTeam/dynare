@@ -173,3 +173,15 @@ if isfield(oo_,'posterior_std_at_mode')
     oo_.posterior_std=oo_.posterior_std_at_mode;
     oo_=rmfield(oo_,'posterior_std_at_mode');
 end
+
+
+%Deal with OSR
+if ~isempty(M_.osr.variable_weights)
+   evalin('base','optim_weights_=M_.osr.variable_weights')
+end
+if ~isempty(M_.osr.variable_indices)
+   evalin('base','obj_var_=M_.osr.variable_indices')
+end
+if ~isempty(M_.osr.param_names)
+   evalin('base','osr_params_=char(M_.osr.param_names)')
+end
