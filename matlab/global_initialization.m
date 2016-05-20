@@ -522,6 +522,12 @@ M_.xref2.endo = {};
 M_.xref2.exo = {};
 M_.xref2.exo_det = {};
 
+M_.osr.param_names={};
+M_.osr.param_indices=[];
+M_.osr.param_bounds=[];
+M_.osr.variable_weights=[];
+M_.osr.variable_indices =[];
+
 % homotopy for steady state
 options_.homotopy_mode = 0;
 options_.homotopy_steps = 1;
