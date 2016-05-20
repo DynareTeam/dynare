@@ -97,9 +97,15 @@ elseif isequal(options_.osr.opt_algo,6)
     error('OSR: OSR does not support opt_algo=6.')
 elseif isequal(options_.osr.opt_algo,10)
     error('OSR: OSR does not support opt_algo=10.')    
+elseif isequal(options_.osr.opt_algo,11)
+    error('OSR: OSR does not support opt_algo=11.')    
 else
+    
+if ~isempty(M_.osr.param_bounds) && ~(ismember(options_.osr.opt_algo,[1,2,5,9]) || ischar(options_.osr.opt_algo))
+    error('OSR: OSR with bounds on parameters requires a constrained optimizer, i.e. 1,2,5, or 9.')    
+end
 %%do actual optimization
-[p, f, exitflag] = dynare_minimize_objective(str2func('osr_obj'),t0,options_.osr.opt_algo,options_,[],cellstr(M_.param_names(i_params,:)),[],[], i_params,...
+[p, f, exitflag] = dynare_minimize_objective(str2func('osr_obj'),t0,options_.osr.opt_algo,options_,M_.osr.param_bounds,cellstr(M_.param_names(i_params,:)),[],[], i_params,...
                 inv_order_var(i_var),weights(i_var,i_var));
 end
 

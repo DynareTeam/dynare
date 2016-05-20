@@ -665,7 +665,7 @@ Dynare unusable.
 In order to give instructions to Dynare, the user has to write a
 @emph{model file} whose filename extension must be @file{.mod}. This
 file contains the description of the model and the computing tasks
-required by the user. Its contents is described in @ref{The Model file}.
+required by the user. Its contents are described in @ref{The Model file}.
 
 @menu
 * Dynare invocation::
@@ -7248,6 +7248,36 @@ end;
 osr_params gammax0 gammac0 gamma_y_ gamma_inf_; 
 osr y; 
 @end example
+
+
+@anchor{osr_params_bounds}
+@deffn Block osr_params_bounds ;
+
+This block declares lower and upper bounds for parameters in the optimal simple rule. If not specified
+the optimization is unconstrained.
+
+Each line has the following syntax:
+
+@example
+PARAMETER_NAME, LOWER_BOUND, UPPER_BOUND;
+@end example
+
+Note that the use of this block requires the use of a constrained optimizer, i.e. setting @ref{opt_algo} to 
+1,2,5, or 9.
+
+@examplehead
+
+@example
+
+osr_param_bounds;
+gamma_inf_, 0, 2.5;
+end;
+
+osr(solve_algo=9) y; 
+@end example
+
+@end deffn
+
 
 @defvr {MATLAB/Octave variable} oo_.osr.objective_function 
 After an execution of the @code{osr} command, this variable contains the value of
