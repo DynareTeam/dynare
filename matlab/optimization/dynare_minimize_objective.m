@@ -427,7 +427,7 @@ switch minimizer_algorithm
     elseif ~user_has_matlab_license('GADS_Toolbox')
         error('Optimization algorithm 2 requires the Global Optimization Toolbox')
     end
-    % Set default optimization options for fmincon.
+    % Set default optimization options for simulannealbnd.
     optim_options = saoptimset('display','iter','TolFun',1e-8);
     if ~isempty(options_.optim_opt)
         eval(['optim_options = saoptimset(optim_options,' options_.optim_opt ');']);
