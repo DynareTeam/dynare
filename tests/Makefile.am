@@ -33,9 +33,10 @@ MODFILES = \
 	example1_macroif.mod \
 	t_sgu_ex1.mod \
 	irfs/example1_unit_std.mod \
-	optimal_policy/osr_example.mod \
-	optimal_policy/osr_example_objective_correctness.mod \
-	optimal_policy/osr_example_obj_corr_non_stat_vars.mod \
+	optimal_policy/OSR/osr_example.mod \
+	optimal_policy/OSR/osr_example_objective_correctness.mod \
+	optimal_policy/OSR/osr_example_obj_corr_non_stat_vars.mod \
+	optimal_policy/OSR/osr_example_param_bounds.mod \
 	optimal_policy/OSR/osr_obj_corr_algo_1.mod \
 	optimal_policy/OSR/osr_obj_corr_algo_3.mod \
 	optimal_policy/OSR/osr_obj_corr_algo_4.mod \
