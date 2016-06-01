@@ -1,5 +1,5 @@
-function [fval,DLIK,Hess,exit_flag] = TaRB_optimizer_wrapper(optpar,par_vector,parameterindices,TargetFun,varargin)
-% function [fval,DLIK,Hess,exit_flag] = TaRB_optimizer_wrapper(optpar,par_vector,parameterindices,TargetFun,varargin)
+function [fval,info,exit_flag,DLIK,Hess,SteadyState,trend_coeff]  = TaRB_optimizer_wrapper(optpar,par_vector,parameterindices,TargetFun,varargin)
+% function [fval,info,exit_flag,DLIK,Hess,SteadyState,trend_coeff]  = TaRB_optimizer_wrapper(optpar,par_vector,parameterindices,TargetFun,varargin)
 % Wrapper function for target function used in TaRB algorithm; reassembles
 % full parameter vector before calling target function
 %
@@ -14,11 +14,14 @@ function [fval,DLIK,Hess,exit_flag] = TaRB_optimizer_wrapper(optpar,par_vector,p
 % 
 % OUTPUTS
 %   o fval       [scalar]   value of (minus) the likelihood.
+%   o info       [double]  (p*2) error code vector
+%   o exit_flag  [scalar]   equal to zero if the routine return with a penalty (one otherwise).
 %   o DLIK       [double]  (p*1) score vector of the likelihood.
 %   o Hess       [double]  (p*p) asymptotic Hessian matrix.
-%   o exit_flag  [scalar]   equal to zero if the routine return with a penalty (one otherwise).
+%   o SteadyState [double]  Vector of doubles, steady state level for the endogenous variables.
+%   o trend_coeff [double]  Matrix of doubles, coefficients of the deterministic trend in the measurement equation
 % 
-% Copyright (C) 2015 Dynare Team
+% Copyright (C) 2015-16 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -36,5 +39,5 @@ function [fval,DLIK,Hess,exit_flag] = TaRB_optimizer_wrapper(optpar,par_vector,p
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 par_vector(parameterindices,:)=optpar; %reassemble parameter
-[fval,DLIK,Hess,exit_flag] = feval(TargetFun,par_vector,varargin{:}); %call target function
+[fval,info,exit_flag,DLIK,Hess,SteadyState,trend_coeff] = feval(TargetFun,par_vector,varargin{:}); %call target function
 

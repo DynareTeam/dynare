@@ -154,7 +154,7 @@ if info(1)==0,
             dataset_ = dseries(oo_.endo_simul(options_.varobs_id,100+1:end)',dates('1Q1'), options_.varobs);            
             derivatives_info.no_DLIK=1;
             bounds = prior_bounds(bayestopt_, options_.prior_trunc);
-            [fval,DLIK,AHess,cost_flag,ys,trend_coeff,info,M_,options_,bayestopt_,oo_] = dsge_likelihood(params',dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,bounds,oo_,derivatives_info);
+            [fval,info,cost_flag,DLIK,AHess,ys,trend_coeff,M_,options_,bayestopt_,oo_] = dsge_likelihood(params',dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,bounds,oo_,derivatives_info);             
 %                 fval = DsgeLikelihood(xparam1,data_info,options_,M_,estim_params_,bayestopt_,oo_);
             options_.analytic_derivation = analytic_derivation;
             AHess=-AHess;

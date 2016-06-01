@@ -236,7 +236,7 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
             if options_.analytic_derivation && strcmp(func2str(objective_function),'dsge_likelihood'),
                 ana_deriv_old = options_.analytic_derivation;
                 options_.analytic_derivation = 2;
-                [junk1, junk2, hh] = feval(objective_function,xparam1, ...
+                [junk1, junk2,junk3, junk4, hh] = feval(objective_function,xparam1, ...
                     dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,bounds,oo_);
                 options_.analytic_derivation = ana_deriv_old;
             elseif ~isnumeric(options_.mode_compute) || ~(isequal(options_.mode_compute,5) && newratflag~=1), 

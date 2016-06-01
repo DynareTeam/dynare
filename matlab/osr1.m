@@ -77,7 +77,7 @@ inv_order_var = oo_.dr.inv_order_var;
 %extract unique entries of covariance
 i_var=unique(i_var);
 %% do initial checks
-[loss,vx,info,exit_flag]=osr_obj(t0,i_params,inv_order_var(i_var),weights(i_var,i_var));
+[loss,info,exit_flag,vx]=osr_obj(t0,i_params,inv_order_var(i_var),weights(i_var,i_var));
 if info~=0
    print_info(info, options_.noprint, options_);
 else

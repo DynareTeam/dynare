@@ -140,7 +140,7 @@ for plt = 1:nbplt,
         end
         for i=1:length(z)
             xx(kk) = z(i);
-            [fval, junk1, junk2, exit_flag] = feval(fun,xx,DynareDataset,DatasetInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults);
+            [fval, info, exit_flag] = feval(fun,xx,DynareDataset,DatasetInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults);
             if exit_flag
                 y(i,1) = fval;
             else

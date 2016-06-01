@@ -1,4 +1,4 @@
-function [fval,grad,hess,exit_flag,info,PHI,SIGMAu,iXX,prior] = dsge_var_likelihood(xparam1,DynareDataset,DynareInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults)
+function [fval,info,exit_flag,grad,hess,SteadyState,trend_coeff,PHI,SIGMAu,iXX,prior] = dsge_var_likelihood(xparam1,DynareDataset,DynareInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults)
 % Evaluates the posterior kernel of the bvar-dsge model.
 %
 % INPUTS
@@ -7,8 +7,16 @@ function [fval,grad,hess,exit_flag,info,PHI,SIGMAu,iXX,prior] = dsge_var_likelih
 %
 % OUTPUTS
 %   o fval          [double]     Value of the posterior kernel at xparam1.
-%   o cost_flag     [integer]    Zero if the function returns a penalty, one otherwise.
 %   o info          [integer]    Vector of informations about the penalty.
+%   o exit_flag     [integer]    Zero if the function returns a penalty, one otherwise.
+%   o grad          [double]     place holder for gradient of the likelihood 
+%                                currently not supported by dsge_var
+%   o hess          [double]     place holder for hessian matrix of the likelihood 
+%                                currently not supported by dsge_var
+%   o SteadyState   [double]     Steady state vector possibly recomputed
+%                                by call to dynare_resolve()
+%   o trend_coeff   [double]     place holder for trend coefficients,
+%                                currently not supported by dsge_var
 %   o PHI           [double]     Stacked BVAR-DSGE autoregressive matrices (at the mode associated to xparam1).
 %   o SIGMAu        [double]     Covariance matrix of the BVAR-DSGE (at the mode associated to xparam1).
 %   o iXX           [double]     inv(X'X).
@@ -45,6 +53,7 @@ PHI = [];
 SIGMAu = [];
 iXX = [];
 prior = [];
+trend_coeff=[];
 
 % Initialization of of the index for parameter dsge_prior_weight in Model.params.
 if isempty(dsge_prior_weight_idx)
@@ -271,7 +280,7 @@ if imag(fval)~=0
     return
 end
 
-if (nargout == 8)
+if (nargout == 10)
     if isinf(dsge_prior_weight)
         iXX = iGXX;
     else
@@ -279,7 +288,7 @@ if (nargout == 8)
     end
 end
 
-if (nargout==9)
+if (nargout==11)
     if isinf(dsge_prior_weight)
         iXX = iGXX;
     else

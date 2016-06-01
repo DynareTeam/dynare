@@ -1,4 +1,4 @@
-function [fval,ys,trend_coeff,exit_flag,info,Model,DynareOptions,BayesInfo,DynareResults] = non_linear_dsge_likelihood(xparam1,DynareDataset,DatasetInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults)
+function [fval,info,exit_flag,DLIK,Hess,ys,trend_coeff,Model,DynareOptions,BayesInfo,DynareResults] = non_linear_dsge_likelihood(xparam1,DynareDataset,DatasetInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults)
 % Evaluates the posterior kernel of a dsge model using a non linear filter.
 
 %@info:
@@ -31,14 +31,8 @@ function [fval,ys,trend_coeff,exit_flag,info,Model,DynareOptions,BayesInfo,Dynar
 %! @table @ @var
 %! @item fval
 %! Double scalar, value of (minus) the likelihood.
-%! @item exit_flag
-%! Integer scalar, equal to zero if the routine return with a penalty (one otherwise).
-%! @item ys
-%! Vector of doubles, steady state level for the endogenous variables.
-%! @item trend_coeffs
-%! Matrix of doubles, coefficients of the deterministic trend in the measurement equation.
 %! @item info
-%! Integer scalar, error code.
+%! Double vector, second entry stores penalty, first entry the error code.
 %! @table @ @code
 %! @item info==0
 %! No error.
@@ -81,6 +75,18 @@ function [fval,ys,trend_coeff,exit_flag,info,Model,DynareOptions,BayesInfo,Dynar
 %! @item info==45
 %! Likelihood is a complex valued number.
 %! @end table
+%! @item exit_flag
+%! Integer scalar, equal to zero if the routine return with a penalty (one otherwise).
+%! @item DLIK
+%! Vector of doubles, placeholder for score of the likelihood, currently
+%! not supported by non_linear_dsge_likelihood
+%! @item AHess
+%! Matrix of doubles, placeholder for asymptotic hessian matrix, currently
+%! not supported by non_linear_dsge_likelihood
+%! @item ys
+%! Vector of doubles, steady state level for the endogenous variables.
+%! @item trend_coeffs
+%! Matrix of doubles, coefficients of the deterministic trend in the measurement equation.
 %! @item Model
 %! Matlab's structure describing the model (initialized by dynare, see @ref{M_}).
 %! @item DynareOptions
@@ -132,6 +138,8 @@ fval            = [];
 ys              = [];
 trend_coeff     = [];
 exit_flag       = 1;
+DLIK            = [];
+Hess            = [];
 
 % Issue an error if loglinear option is used.
 if DynareOptions.loglinear

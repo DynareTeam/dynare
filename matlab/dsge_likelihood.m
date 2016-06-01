@@ -1,4 +1,4 @@
-function [fval,DLIK,Hess,exit_flag,SteadyState,trend_coeff,info,Model,DynareOptions,BayesInfo,DynareResults] = dsge_likelihood(xparam1,DynareDataset,DatasetInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults,derivatives_info)
+function [fval,info,exit_flag,DLIK,Hess,SteadyState,trend_coeff,Model,DynareOptions,BayesInfo,DynareResults] = dsge_likelihood(xparam1,DynareDataset,DatasetInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults,derivatives_info)
 % Evaluates the posterior kernel of a dsge model using the specified
 % kalman_algo; the resulting posterior includes the 2*pi constant of the
 % likelihood function
@@ -35,14 +35,8 @@ function [fval,DLIK,Hess,exit_flag,SteadyState,trend_coeff,info,Model,DynareOpti
 %! @table @ @var
 %! @item fval
 %! Double scalar, value of (minus) the likelihood.
-%! @item exit_flag
-%! Integer scalar, equal to zero if the routine return with a penalty (one otherwise).
-%! @item ys
-%! Vector of doubles, steady state level for the endogenous variables.
-%! @item trend_coeff
-%! Matrix of doubles, coefficients of the deterministic trend in the measurement equation.
 %! @item info
-%! Integer scalar, error code.
+%! Double vector, second entry stores penalty, first entry the error code.
 %! @table @ @code
 %! @item info==0
 %! No error.
@@ -91,6 +85,16 @@ function [fval,DLIK,Hess,exit_flag,SteadyState,trend_coeff,info,Model,DynareOpti
 %! @item info==48
 %! Posterior kernel is a complex valued number (logged prior density is complex).
 %! @end table
+%! @item exit_flag
+%! Integer scalar, equal to zero if the routine return with a penalty (one otherwise).
+%! @item DLIK
+%! Vector of doubles, score of the likelihood.
+%! @item AHess
+%! Matrix of doubles, asymptotic hessian matrix.
+%! @item SteadyState
+%! Vector of doubles, steady state level for the endogenous variables.
+%! @item trend_coeff
+%! Matrix of doubles, coefficients of the deterministic trend in the measurement equation.
 %! @item Model
 %! Matlab's structure describing the model (initialized by dynare, see @ref{M_}).
 %! @item DynareOptions
@@ -99,10 +103,6 @@ function [fval,DLIK,Hess,exit_flag,SteadyState,trend_coeff,info,Model,DynareOpti
 %! Matlab's structure describing the priors (initialized by dynare, see @ref{bayesopt_}).
 %! @item DynareResults
 %! Matlab's structure gathering the results (initialized by dynare, see @ref{oo_}).
-%! @item DLIK
-%! Vector of doubles, score of the likelihood.
-%! @item AHess
-%! Matrix of doubles, asymptotic hessian matrix.
 %! @end table
 %! @sp 2
 %! @strong{This function is called by:}

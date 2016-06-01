@@ -1,4 +1,4 @@
-function [loss,vx,info,exit_flag]=osr_obj(x,i_params,i_var,weights)
+function [loss,info,exit_flag,vx,junk]=osr_obj(x,i_params,i_var,weights)
 % objective function for optimal simple rules (OSR)
 % INPUTS
 %   x                         vector           values of the parameters
@@ -9,13 +9,15 @@ function [loss,vx,info,exit_flag]=osr_obj(x,i_params,i_var,weights)
 %
 % OUTPUTS
 %   loss                      scalar           loss function returned to solver
-%   vx                        vector           variances of the endogenous variables
 %   info                      vector           info vector returned by resol
 %   exit_flag                 scalar           exit flag returned to solver
+%   vx                        vector           variances of the endogenous variables
+%   junk                      empty            dummy output for conformable
+%                                              header
 %
 % SPECIAL REQUIREMENTS
 %   none
-% Copyright (C) 2005-2013 Dynare Team
+% Copyright (C) 2005-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
