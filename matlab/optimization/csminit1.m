@@ -1,24 +1,28 @@
-function [fhat,xhat,fcount,retcode] = csminit1(fcn,x0,f0,g0,badg,H0,Verbose,varargin)
-% [fhat,xhat,fcount,retcode] = csminit1(fcn,x0,f0,g0,badg,H0,varargin)
+function [fhat,xhat,fcount,retcode] = csminit1(fcn,x0,penalty,f0,g0,badg,H0,Verbose,varargin)
+% [fhat,xhat,fcount,retcode] = csminit1(fcn,x0,penalty,f0,g0,badg,H0,Verbose,varargin)
 % 
 % Inputs: 
-%   fcn:    [string]        string naming the objective function to be minimized
-%   x0:     [npar by 1]     initial value of the parameter vector
-%   g0:     [npar by 1]     initial value of the gradient vector
-%   H0:     [npar by npar]  initial value for the inverse Hessian.  Must be positive definite.
-%   varargin:               Optional additional inputs that get handed off to fcn each
-%                           time it is called.
+%   fcn:        [string]        string naming the objective function to be minimized
+%   x0:         [npar by 1]     initial value of the parameter vector
+%   penalty:    [scalar]        variable penalty in case of failure of objective function
+%   f0:         [scalar]        initial value of the fucntion
+%   g0:         [npar by 1]     initial value of the gradient vector
+%   badg        [scalar]        indicator for problem in gradient computation
+%   H0:         [npar by npar]  initial value for the inverse Hessian.  Must be positive definite.
+%   Verbose:    [scalar]        indicator for verbose computations
+%   varargin:                   Optional additional inputs that get handed off to fcn each
+%                               time it is called.
 
 % Outputs:
-%   fhat:   [scalar]        function value at minimum
-%   xhat:   [npar by 1]     parameter vector at minimum
-%   fcount  [scalar]        function iteration count upon termination
-%   retcode    [scalar]    0: normal step
-%                           1: zero gradient.
-%                           5: largest step still improves too fast.
-%                           2,4: back and forth adjustment of stepsize didn't finish.  
-%                           3: smallest stepsize still improves too slow
-%                           6: no improvement found
+%   fhat:       [scalar]        function value at minimum
+%   xhat:       [npar by 1]     parameter vector at minimum
+%   fcount      [scalar]        function iteration count upon termination
+%   retcode     [scalar]        0: normal step
+%                               1: zero gradient.
+%                               5: largest step still improves too fast.
+%                               2,4: back and forth adjustment of stepsize didn't finish.  
+%                               3: smallest stepsize still improves too slow
+%                               6: no improvement found
 %---------------------
 % Modified 7/22/96 to omit variable-length P list, for efficiency and compilation.
 % Places where the number of P's need to be altered or the code could be returned to
@@ -34,7 +38,7 @@ function [fhat,xhat,fcount,retcode] = csminit1(fcn,x0,f0,g0,badg,H0,Verbose,vara
 % http://sims.princeton.edu/yftp/optimize/mfiles/csminit.m
 % 
 % Copyright (C) 1993-2007 Christopher Sims
-% Copyright (C) 2008-2015 Dynare Team
+% Copyright (C) 2008-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -137,7 +141,7 @@ else
             dxtest=x0+dx*lambda;
         end
         % home
-        f = feval(fcn,dxtest,varargin{:});
+        f = penalty_objective_function(dxtest,fcn,penalty,varargin{:});
         %ARGLIST
         %f = feval(fcn,dxtest,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13);
         % f = feval(fcn,x0+dx*lambda,P1,P2,P3,P4,P5,P6,P7,P8);

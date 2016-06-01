@@ -1,10 +1,10 @@
-function [g, badg] = numgrad2(fcn,f0,x,epsilon,varargin)
+function [g, badg] = numgrad2(fcn,f0,x,penalty,epsilon,varargin)
 
 % Original file downloaded from:
 % http://sims.princeton.edu/yftp/optimize/mfiles/numgrad.m
 
 % Copyright (C) 1993-2007 Christopher Sims
-% Copyright (C) 2008-2014 Dynare Team
+% Copyright (C) 2008-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -33,11 +33,11 @@ for i=1:n
     xiold = x(i);
     if right_derivative
         x(i) = x(i)+h;
-        fh = feval(fcn, x, varargin{:});
+        fh = penalty_objective_function(x, fcn, penalty, varargin{:});
         g0 = (fh-f0)/h;
     else
         x(i) = x(i)-h;
-        fh = feval(fcn, x, varargin{:});
+        fh = penalty_objective_function(x, fcn, penalty, varargin{:});
         g0 = (f0-fh)/h;
     end
     if abs(g0)< 1e15

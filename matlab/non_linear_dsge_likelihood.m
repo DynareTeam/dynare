@@ -32,7 +32,7 @@ function [fval,info,exit_flag,DLIK,Hess,ys,trend_coeff,Model,DynareOptions,Bayes
 %! @item fval
 %! Double scalar, value of (minus) the likelihood.
 %! @item info
-%! Double vector, second entry stores penalty, first entry the error code.
+%! Double vector, fourth entry stores penalty, first entry the error code.
 %! @table @ @code
 %! @item info==0
 %! No error.
@@ -127,7 +127,6 @@ function [fval,info,exit_flag,DLIK,Hess,ys,trend_coeff,Model,DynareOptions,Bayes
 % AUTHOR(S) stephane DOT adjemian AT univ DASH lemans DOT fr
 %           frederic DOT karame AT univ DASH lemans DOT fr
 
-global objective_function_penalty_base
 % Declaration of the penalty as a persistent variable.
 persistent init_flag
 persistent restrict_variables_idx observed_variables_idx state_variables_idx mf0 mf1
@@ -153,18 +152,20 @@ end
 % Return, with endogenous penalty, if some parameters are smaller than the lower bound of the prior domain.
 if (DynareOptions.mode_compute~=1) && any(xparam1<BoundsInfo.lb)
     k = find(xparam1(:) < BoundsInfo.lb);
-    fval = objective_function_penalty_base+sum((BoundsInfo.lb(k)-xparam1(k)).^2);
+    fval = Inf;
     exit_flag = 0;
-    info = 41;
+    info(1) = 41;
+    info(4) = sum((BoundsInfo.lb(k)-xparam1(k)).^2);
     return
 end
 
 % Return, with endogenous penalty, if some parameters are greater than the upper bound of the prior domain.
 if (DynareOptions.mode_compute~=1) && any(xparam1>BoundsInfo.ub)
     k = find(xparam1(:)>BoundsInfo.ub);
-    fval = objective_function_penalty_base+sum((xparam1(k)-BoundsInfo.ub(k)).^2);
+    fval = Inf;
     exit_flag = 0;
-    info = 42;
+    info(1) = 42;
+    info(4) = sum((xparam1(k)-BoundsInfo.ub(k)).^2);
     return
 end
 
@@ -176,18 +177,20 @@ H = Model.H;
 if ~issquare(Q) || EstimatedParameters.ncx || isfield(EstimatedParameters,'calibrated_covariances')
     [Q_is_positive_definite, penalty] = ispd(Q(EstimatedParameters.Sigma_e_entries_to_check_for_positive_definiteness,EstimatedParameters.Sigma_e_entries_to_check_for_positive_definiteness));
     if ~Q_is_positive_definite
-        fval = objective_function_penalty_base+penalty;
+        fval = Inf;
         exit_flag = 0;
-        info = 43;
+        info(1) = 43;
+        info(4) = penalty;
         return
     end
     if isfield(EstimatedParameters,'calibrated_covariances')
         correct_flag=check_consistency_covariances(Q);
         if ~correct_flag
             penalty = sum(Q(EstimatedParameters.calibrated_covariances.position).^2);
-            fval = objective_function_penalty_base+penalty;
+            fval = Inf;
             exit_flag = 0;
-            info = 71;
+            info(1) = 71;
+            info(4) = penalty;
             return
         end
     end
@@ -197,18 +200,20 @@ end
 if ~issquare(H) || EstimatedParameters.ncn || isfield(EstimatedParameters,'calibrated_covariances_ME')
     [H_is_positive_definite, penalty] = ispd(H(EstimatedParameters.H_entries_to_check_for_positive_definiteness,EstimatedParameters.H_entries_to_check_for_positive_definiteness));
     if ~H_is_positive_definite
-        fval = objective_function_penalty_base+penalty;
+        fval = Inf;
         exit_flag = 0;
-        info = 44;
+        info(1) = 44;
+        info(4) = penalty;
         return
     end
     if isfield(EstimatedParameters,'calibrated_covariances_ME')
         correct_flag=check_consistency_covariances(H);
         if ~correct_flag
             penalty = sum(H(EstimatedParameters.calibrated_covariances_ME.position).^2);
-            fval = objective_function_penalty_base+penalty;
+            fval = Inf;
             exit_flag = 0;
-            info = 72;
+            info(1) = 72;
+            info(4) = penalty;
             return
         end
     end
@@ -222,14 +227,21 @@ end
 % Linearize the model around the deterministic sdteadystate and extract the matrices of the state equation (T and R).
 [T,R,SteadyState,info,Model,DynareOptions,DynareResults] = dynare_resolve(Model,DynareOptions,DynareResults,'restrict');
 
-if info(1) == 1 || info(1) == 2 || info(1) == 5 || info(1) == 25 || info(1) == 10 || info(1) == 7 || info(1) == 9
-    fval = objective_function_penalty_base+1;
-    exit_flag = 0;
-    return
-elseif info(1) == 3 || info(1) == 4 || info(1)==6 ||info(1) == 19 || info(1) == 20 || info(1) == 21
-    fval = objective_function_penalty_base+info(2);
-    exit_flag = 0;
-    return
+if info(1)
+    if info(1) == 3 || info(1) == 4 || info(1) == 5 || info(1)==6 ||info(1) == 19 ...
+            info(1) == 20 || info(1) == 21 || info(1) == 23 || info(1) == 26 || ...
+            info(1) == 81 || info(1) == 84 ||  info(1) == 85
+        %meaningful second entry of output that can be used
+        fval = Inf;
+        info(4) = info(2);
+        exit_flag = 0;
+        return
+    else
+        fval = Inf;
+        info(4) = 0.1;
+        exit_flag = 0;
+        return
+    end
 end
 
 % Define a vector of indices for the observed variables. Is this really usefull?...
@@ -321,13 +333,15 @@ DynareOptions.warning_for_steadystate = 0;
 LIK = feval(DynareOptions.particle.algorithm,ReducedForm,Y,start,DynareOptions.particle,DynareOptions.threads);
 set_dynare_random_generator_state(s1,s2);
 if imag(LIK)
-    info = 46;
-    likelihood = objective_function_penalty_base;
-    exit_flag  = 0;
+    likelihood = Inf;
+    info(1) = 46;
+    info(4) = 0.1;
+    exit_flag = 0;
 elseif isnan(LIK)
-    info = 45;
-    likelihood = objective_function_penalty_base;
-    exit_flag  = 0;
+    likelihood = Inf;
+    info(1) = 45;
+    info(4) = 0.1;
+    exit_flag = 0;
 else
     likelihood = LIK;
 end
@@ -339,15 +353,17 @@ lnprior = priordens(xparam1(:),BayesInfo.pshape,BayesInfo.p6,BayesInfo.p7,BayesI
 fval    = (likelihood-lnprior);
 
 if isnan(fval)
-    info = 47;
-    fval = objective_function_penalty_base + 100;
+    fval = Inf;
+    info(1) = 47;
+    info(4) = 0.1;
     exit_flag = 0;
     return
 end
 
 if imag(fval)~=0
-    info = 48;
-    fval = objective_function_penalty_base + 100;
+    fval = Inf;
+    info(1) = 48;
+    info(4) = 0.1;
     exit_flag = 0;
     return
 end

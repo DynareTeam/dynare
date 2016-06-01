@@ -1,4 +1,4 @@
-function [g, badg] = numgrad3(fcn,f0,x,epsilon,varargin)
+function [g, badg] = numgrad3(fcn,f0,x,penalty,epsilon,varargin)
 % Computes the gradient of the objective function fcn using a three points
 % formula if possible.
 %
@@ -11,7 +11,7 @@ function [g, badg] = numgrad3(fcn,f0,x,epsilon,varargin)
 % http://sims.princeton.edu/yftp/optimize/mfiles/numgrad.m
 
 % Copyright (C) 1993-2007 Christopher Sims
-% Copyright (C) 2008-2014 Dynare Team
+% Copyright (C) 2008-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -38,9 +38,9 @@ badg=0;
 for i=1:n
     xiold = x(i);
     x(i) = xiold+h;
-    f1 = feval(fcn, x, varargin{:});
+    f1 = penalty_objective_function(x, fcn, penalty, varargin{:});
     x(i) = xiold-h;
-    f2 = feval(fcn, x, varargin{:});
+    f2 = penalty_objective_function(x, fcn, penalty, varargin{:});
     g0 = (f1-f2)/H;
     if abs(g0)< 1e15
         g(i)=g0;

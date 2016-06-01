@@ -28,8 +28,7 @@ function [fOutVar,nBlockPerCPU, totCPU] = masterParallel(Parallel,fBlock,nBlock,
 % The number of parallelized threads will be equal to (nBlock-fBlock+1).
 %
 % Treatment of global variables:
-%   Global variables used within the called function (e.g.
-%   objective_function_penalty_base) are wrapped and passed by storing their 
+%   Global variables used within the called function are wrapped and passed by storing their 
 %   values at the start of the parallel computation in a file via
 %   storeGlobalVars.m. This file is then loaded in the separate,
 %   independent slave Matlab sessions. By keeping them separate, no

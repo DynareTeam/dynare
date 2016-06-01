@@ -1,5 +1,5 @@
 function [xparam1, hh, gg, fval, igg] = newrat(func0, x, bounds, analytic_derivation, ftol0, nit, flagg, Verbose, Save_files, varargin)
-%  [xparam1, hh, gg, fval, igg] = newrat(func0, x, hh, gg, igg, ftol0, nit, flagg, varargin)
+%  [xparam1, hh, gg, fval, igg] = newrat(func0, x, bounds, analytic_derivation, ftol0, nit, flagg, Verbose, Save_files, varargin)
 %
 %  Optimiser with outer product gradient and with sequences of univariate steps
 %  uses Chris Sims subroutine for line search
@@ -30,7 +30,7 @@ function [xparam1, hh, gg, fval, igg] = newrat(func0, x, bounds, analytic_deriva
 %  varargin{1} --> DynareResults
 
 
-% Copyright (C) 2004-2014 Dynare Team
+% Copyright (C) 2004-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -47,8 +47,8 @@ function [xparam1, hh, gg, fval, igg] = newrat(func0, x, bounds, analytic_deriva
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global objective_function_penalty_base
-
+% initialize variable penalty    
+penalty = 1e8;
 
 icount=0;
 nx=length(x);
@@ -62,17 +62,22 @@ htol=htol_base;
 htol0=htol_base;
 gibbstol=length(varargin{6}.pshape)/50; %25;
 
+% force fcn, grad to function handle
+if ischar(func0)
+    func0 = str2func(func0);
+end
+
 % func0 = str2func([func2str(func0),'_hh']);
 % func0 = func0;
-[fval0,gg,hh]=feval(func0,x,varargin{:});
+[fval0,exit_flag,gg,hh]=penalty_objective_function(x,func0,penalty,varargin{:});
 fval=fval0;
 
 % initialize mr_gstep and mr_hessian
 
 outer_product_gradient=1;
 if isempty(hh)
-    mr_hessian(1,x,[],[],[],varargin{:});
-    [dum, gg, htol0, igg, hhg, h1]=mr_hessian(0,x,func0,flagit,htol,varargin{:});
+    mr_hessian(1,x,[],[],[],[],varargin{:});
+    [dum, gg, htol0, igg, hhg, h1]=mr_hessian(0,x,func0,penalty,flagit,htol,varargin{:});
     if isempty(dum),
         outer_product_gradient=0;
         igg = 1e-4*eye(nx);
@@ -110,7 +115,7 @@ if max(eig(hh))<0
     pause
 end
 if Save_files
-    save m1.mat x hh g hhg igg fval0
+    save('m1.mat','x','hh','g','hhg','igg','fval0')
 end
 
 igrad=1;
@@ -124,12 +129,12 @@ while norm(gg)>gtol && check==0 && jit<nit
     jit=jit+1;
     tic1 = tic;
     icount=icount+1;
-    objective_function_penalty_base = fval0(icount);
+    penalty = fval0(icount);
     disp_verbose([' '],Verbose)
     disp_verbose(['Iteration ',num2str(icount)],Verbose)
-    [fval,x0,fc,retcode] = csminit1(func0,xparam1,fval0(icount),gg,0,H,Verbose,varargin{:});
+    [fval,x0,fc,retcode] = csminit1(func0,xparam1,penalty,fval0(icount),gg,0,H,Verbose,varargin{:});
     if igrad
-        [fval1,x01,fc,retcode1] = csminit1(func0,x0,fval,gg,0,inx,Verbose,varargin{:});
+        [fval1,x01,fc,retcode1] = csminit1(func0,x0,penalty,fval,gg,0,inx,Verbose,varargin{:});
         if (fval-fval1)>1
             disp_verbose('Gradient step!!',Verbose)
         else
@@ -148,10 +153,10 @@ while norm(gg)>gtol && check==0 && jit<nit
         end
         iggx=eye(length(gg));
         iggx(find(ig),find(ig)) = inv( hhx(find(ig),find(ig)) );
-        [fvala,x0,fc,retcode] = csminit1(func0,x0,fval,ggx,0,iggx,Verbose,varargin{:});
+        [fvala,x0,fc,retcode] = csminit1(func0,x0,penalty,fval,ggx,0,iggx,Verbose,varargin{:});
     end
     x0 = check_bounds(x0,bounds);
-    [fvala, x0, ig] = mr_gstep(h1,x0,bounds,func0,htol0,Verbose,Save_files,varargin{:});
+    [fvala, x0, ig] = mr_gstep(h1,x0,bounds,func0,penalty,htol0,Verbose,Save_files,varargin{:});
     x0 = check_bounds(x0,bounds);
     nig=[nig ig];
     disp_verbose('Sequence of univariate steps!!',Verbose)
@@ -159,7 +164,7 @@ while norm(gg)>gtol && check==0 && jit<nit
     if (fval0(icount)-fval)<ftol && flagit==0
         disp_verbose('Try diagonal Hessian',Verbose)
         ihh=diag(1./(diag(hhg)));
-        [fval2,x0,fc,retcode2] = csminit1(func0,x0,fval,gg,0,ihh,Verbose,varargin{:});
+        [fval2,x0,fc,retcode2] = csminit1(func0,x0,penalty,fval,gg,0,ihh,Verbose,varargin{:});
         x0 = check_bounds(x0,bounds);
         if (fval-fval2)>=ftol
             disp_verbose('Diagonal Hessian successful',Verbose)
@@ -169,7 +174,7 @@ while norm(gg)>gtol && check==0 && jit<nit
     if (fval0(icount)-fval)<ftol && flagit==0
         disp_verbose('Try gradient direction',Verbose)
         ihh0=inx.*1.e-4;
-        [fval3,x0,fc,retcode3] = csminit1(func0,x0,fval,gg,0,ihh0,Verbose,varargin{:});
+        [fval3,x0,fc,retcode3] = csminit1(func0,x0,penalty,fval,gg,0,ihh0,Verbose,varargin{:});
         x0 = check_bounds(x0,bounds);
         if (fval-fval3)>=ftol
             disp_verbose('Gradient direction successful',Verbose)
@@ -183,14 +188,14 @@ while norm(gg)>gtol && check==0 && jit<nit
         disp_verbose('No further improvement is possible!',Verbose)
         check=1;
         if analytic_derivation,
-            [fvalx,gg,hh]=feval(func0,xparam1,varargin{:});
+            [fvalx,exit_flag,gg,hh]=penalty_objective_function(xparam1,func0,penalty,varargin{:});
             hhg=hh;
             H = inv(hh);
         else
         if flagit==2
             hh=hh0;
         elseif flagg>0
-            [dum, gg, htol0, igg, hhg,h1]=mr_hessian(0,xparam1,func0,flagg,ftol0,varargin{:});
+            [dum, gg, htol0, igg, hhg,h1]=mr_hessian(0,xparam1,func0,penalty,flagg,ftol0,varargin{:});
             if flagg==2
                 hh = reshape(dum,nx,nx);
                 ee=eig(hh);
@@ -223,14 +228,14 @@ while norm(gg)>gtol && check==0 && jit<nit
         if norm(x(:,icount)-xparam1)>1.e-12 && analytic_derivation==0,
             try
                 if Save_files
-                    save m1.mat x fval0 nig -append
+                    save('m1.mat','x','fval0','nig','-append')
                 end
             catch
                 if Save_files
-                    save m1.mat x fval0 nig
+                    save('m1.mat','x','fval0','nig')
                 end
             end
-            [dum, gg, htol0, igg, hhg, h1]=mr_hessian(0,xparam1,func0,flagit,htol,varargin{:});
+            [dum, gg, htol0, igg, hhg, h1]=mr_hessian(0,xparam1,func0,penalty,flagit,htol,varargin{:});
             if isempty(dum),
                 outer_product_gradient=0;
             end
@@ -258,7 +263,7 @@ while norm(gg)>gtol && check==0 && jit<nit
                 H = igg;
             end
         elseif analytic_derivation,
-            [fvalx,gg,hh]=feval(func0,xparam1,varargin{:});
+            [fvalx,exit_flag,gg,hh]=penalty_objective_function(xparam1,func0,penalty,varargin{:});
             hhg=hh;
             H = inv(hh);
         end
@@ -274,12 +279,12 @@ while norm(gg)>gtol && check==0 && jit<nit
         disp_verbose(['Elapsed time for iteration ',num2str(t),' s.'],Verbose)
         g(:,icount+1)=gg;
         if Save_files
-            save m1.mat x hh g hhg igg fval0 nig H
+            save('m1.mat','x','hh','g','hhg','igg','fval0','nig','H')
         end
     end
 end
 if Save_files
-    save m1.mat x hh g hhg igg fval0 nig
+    save('m1.mat','x','hh','g','hhg','igg','fval0','nig')
 end
 if ftol>ftol0
     skipline()

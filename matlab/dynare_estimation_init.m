@@ -49,8 +49,6 @@ function [dataset_, dataset_info, xparam1, hh, M_, options_, oo_, estim_params_,
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global objective_function_penalty_base
-
 hh = [];
 
 if isempty(gsa_flag)
@@ -383,9 +381,6 @@ else% Yes!
         end
     end
 end
-
-% Set the "size" of penalty.
-objective_function_penalty_base = 1e8;
 
 % Get informations about the variables of the model.
 dr = set_state_space(oo_.dr,M_,options_);

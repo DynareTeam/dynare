@@ -40,7 +40,7 @@ global M_ oo_ options_ optimal_Q_ it_
 junk = [];
 exit_flag = 1;
 vx = [];
-info=0;
+info=zeros(4,1);
 loss=[];
 % set parameters of the policiy rule
 M_.params(i_params) = x;
@@ -49,42 +49,18 @@ M_.params(i_params) = x;
 it_ = M_.maximum_lag+1;
 [dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
 
-switch info(1)
-  case 1
-    loss = 1e8;
-    return
-  case 2
-    loss = 1e8*min(1e3,info(2));
-    return
-  case 3
-    loss = 1e8*min(1e3,info(2));
-    return
-  case 4
-    loss = 1e8*min(1e3,info(2));
-    return
-  case 5
-    loss = 1e8;
-    return
-  case 6
-    loss = 1e8*min(1e3,info(2));
-    return
-  case 7
-    loss = 1e8*min(1e3);
-    return
-  case 8
-    loss = 1e8*min(1e3,info(2));
-    return
-  case 9
-    loss = 1e8*min(1e3,info(2));
-    return   
-  case 20
-    loss = 1e8*min(1e3,info(2));
-    return
-  otherwise
-    if info(1)~=0
-      loss = 1e8;
-      return;
-    end  
+if info(1)
+    if info(1) == 3 || info(1) == 4 || info(1) == 5 || info(1)==6 ||info(1) == 19 ...
+            info(1) == 20 || info(1) == 21 || info(1) == 23 || info(1) == 26 || ...
+            info(1) == 81 || info(1) == 84 ||  info(1) == 85
+        loss = 1e8;
+        info(4)=info(2);
+        return
+    else
+        loss = 1e8;
+        info(4)=0.1;        
+        return
+    end
 end
 
 vx = get_variance_of_endogenous_variables(dr,i_var);

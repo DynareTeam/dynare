@@ -1,5 +1,5 @@
-function [hessian_mat, gg, htol1, ihh, hh_mat0, hh1] = mr_hessian(init,x,func,hflag,htol0,varargin)
-%  [hessian_mat, gg, htol1, ihh, hh_mat0, hh1] = mr_hessian(init,x,func,hflag,htol0,varargin)
+function [hessian_mat, gg, htol1, ihh, hh_mat0, hh1] = mr_hessian(init,x,func,penalty,hflag,htol0,varargin)
+%  [hessian_mat, gg, htol1, ihh, hh_mat0, hh1] = mr_hessian(init,x,func,penalty,hflag,htol0,varargin)
 %
 %  numerical gradient and Hessian, with 'automatic' check of numerical
 %  error
@@ -33,7 +33,7 @@ function [hessian_mat, gg, htol1, ihh, hh_mat0, hh1] = mr_hessian(init,x,func,hf
 
 
 
-% Copyright (C) 2004-2014 Dynare Team
+% Copyright (C) 2004-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -60,7 +60,7 @@ if init
     return
 end
 
-[f0, ff0]=feval(func,x,varargin{:});
+[f0,exit_flag, ff0]=penalty_objective_function(x,func,penalty,varargin{:});
 h2=varargin{7}.ub-varargin{7}.lb;
 hmax=varargin{7}.ub-x;
 hmax=min(hmax,x-varargin{7}.lb);
@@ -94,7 +94,7 @@ while i<n
     hcheck=0;
     xh1(i)=x(i)+h1(i);
     try
-        [fx, ffx]=feval(func,xh1,varargin{:});
+        [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
     catch
         fx=1.e8;
     end
@@ -115,7 +115,7 @@ while i<n
             h1(i) = max(h1(i),1.e-10);
             xh1(i)=x(i)+h1(i);
             try
-                [fx, ffx]=feval(func,xh1,varargin{:});
+                [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
             catch
                 fx=1.e8;
             end
@@ -124,14 +124,14 @@ while i<n
             h1(i)= htol/abs(dx(it))*h1(i);
             xh1(i)=x(i)+h1(i);
             try
-                [fx, ffx]=feval(func,xh1,varargin{:});
+                [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
             catch
                 fx=1.e8;
             end
             while (fx-f0)==0
                 h1(i)= h1(i)*2;
                 xh1(i)=x(i)+h1(i);
-                [fx, ffx]=feval(func,xh1,varargin{:});
+                [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
                 ic=1;
             end
         end
@@ -152,7 +152,7 @@ while i<n
         end
     end
     xh1(i)=x(i)-h1(i);
-    [fx, ffx]=feval(func,xh1,varargin{:});
+    [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
     f_1(:,i)=fx;
     if outer_product_gradient,
         if any(isnan(ffx)) || isempty(ffx),
@@ -193,8 +193,8 @@ if outer_product_gradient,
                 xh1(j)=x(j)+h_1(j);
                 xh_1(i)=x(i)-h1(i);
                 xh_1(j)=x(j)-h_1(j);
-                temp1 = feval(func,xh1,varargin{:});
-                temp2 = feval(func,xh_1,varargin{:});
+                temp1 = penalty_objective_function(xh1,func,penalty,varargin{:});
+                temp2 = penalty_objective_function(xh_1,func,penalty,varargin{:});
                 hessian_mat(:,(i-1)*n+j)=-(-temp1 -temp2+temp(:,i)+temp(:,j))./(2*h1(i)*h_1(j));
                 xh1(i)=x(i);
                 xh1(j)=x(j);

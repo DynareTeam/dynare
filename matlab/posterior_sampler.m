@@ -54,11 +54,6 @@ function posterior_sampler(TargetFun,ProposalFun,xparam1,sampler_options,mh_boun
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-
-% In Metropolis, we set penalty to Inf so as to reject all parameter sets triggering an error during target density computation
-global objective_function_penalty_base
-objective_function_penalty_base = Inf;
-
 vv = sampler_options.invhess;
 % Initialization of the sampler
 [ ix2, ilogpo2, ModelName, MetropolisFolder, fblck, fline, npar, nblck, nruns, NewFile, MAX_nruns, d ] = ...

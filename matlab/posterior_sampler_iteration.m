@@ -68,7 +68,6 @@ switch posterior_sampling_method
         bayestopt_=varargin{6};
         npar=length(last_draw);
         %% randomize indices for blocking in this iteration
-        global objective_function_penalty_base
         indices=randperm(npar)';
         blocks=[1; (1+cumsum((rand(length(indices)-1,1)>(1-sampler_options.new_block_probability))))];
         nblocks=blocks(end,1); %get number of blocks this iteration
@@ -82,7 +81,6 @@ switch posterior_sampling_method
             [xopt_current_block, fval, exitflag, hess_mat_optimizer, options_, Scale] = dynare_minimize_objective(@TaRB_optimizer_wrapper,par_start_current_block,sampler_options.mode_compute,options_,[mh_bounds.lb(indices(blocks==block_iter,1),1) mh_bounds.ub(indices(blocks==block_iter,1),1)],bayestopt_.name,bayestopt_,[],...
                 current_draw,indices(blocks==block_iter,1),TargetFun,...% inputs for wrapper
                 varargin{:}); %inputs for objective           
-            objective_function_penalty_base=Inf; %reset penalty that may have been changed by optimizer
             %% covariance for proposal density
             hessian_mat = reshape(hessian('TaRB_optimizer_wrapper',xopt_current_block, ...
                     options_.gstep,...

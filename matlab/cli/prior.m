@@ -40,7 +40,7 @@ if isempty(varargin) || ( isequal(length(varargin), 1) && isequal(varargin{1},'h
     return
 end
 
-global options_ M_ estim_params_ bayestopt_ oo_ objective_function_penalty_base
+global options_ M_ estim_params_ bayestopt_ oo_ 
 
 donesomething = false;
 

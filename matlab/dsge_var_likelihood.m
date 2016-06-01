@@ -42,13 +42,12 @@ function [fval,info,exit_flag,grad,hess,SteadyState,trend_coeff,PHI,SIGMAu,iXX,p
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global objective_function_penalty_base
 persistent dsge_prior_weight_idx
 
 grad=[];
 hess=[];
 exit_flag = [];
-info = [];
+info = zeros(4,1);
 PHI = [];
 SIGMAu = [];
 iXX = [];
@@ -92,18 +91,20 @@ exit_flag = 1;
 % Return, with endogenous penalty, if some dsge-parameters are smaller than the lower bound of the prior domain.
 if DynareOptions.mode_compute ~= 1 && any(xparam1 < BoundsInfo.lb)
     k = find(xparam1 < BoundsInfo.lb);
-    fval = objective_function_penalty_base+sum((BoundsInfo.lb(k)-xparam1(k)).^2);
+    fval = Inf;
     exit_flag = 0;
-    info = 41;
+    info(1) = 41;
+    info(4)= sum((BoundsInfo.lb(k)-xparam1(k)).^2);
     return;
 end
 
 % Return, with endogenous penalty, if some dsge-parameters are greater than the upper bound of the prior domain.
 if DynareOptions.mode_compute ~= 1 && any(xparam1 > BoundsInfo.ub)
     k = find(xparam1 > BoundsInfo.ub);
-    fval = objective_function_penalty_base+sum((xparam1(k)-BoundsInfo.ub(k)).^2);
+    fval = Inf;
     exit_flag = 0;
-    info = 42;
+    info(1) = 42;
+    info(4) = sum((xparam1(k)-BoundsInfo.ub(k)).^2);
     return;
 end
 
@@ -124,11 +125,12 @@ dsge_prior_weight = Model.params(dsge_prior_weight_idx);
 
 % Is the dsge prior proper?
 if dsge_prior_weight<(NumberOfParameters+NumberOfObservedVariables)/NumberOfObservations;
-    fval = objective_function_penalty_base+abs(NumberOfObservations*dsge_prior_weight-(NumberOfParameters+NumberOfObservedVariables));
+    fval = Inf;
     exit_flag = 0;
-    info = 51;
+    info(1) = 51;
     info(2)=dsge_prior_weight;
     info(3)=(NumberOfParameters+NumberOfObservedVariables)/DynareDataset.nobs;
+    info(4)=abs(NumberOfObservations*dsge_prior_weight-(NumberOfParameters+NumberOfObservedVariables));
     return
 end
 
@@ -141,17 +143,21 @@ end
 [T,R,SteadyState,info,Model,DynareOptions,DynareResults] = dynare_resolve(Model,DynareOptions,DynareResults,'restrict');
 
 % Return, with endogenous penalty when possible, if dynare_resolve issues an error code (defined in resol).
-if info(1) == 1 || info(1) == 2 || info(1) == 5 || info(1) == 7 || info(1) == 8 || ...
-            info(1) == 22 || info(1) == 24 || info(1) == 25 || info(1) == 10
-    fval = objective_function_penalty_base+1;
-    info = info(1);
-    exit_flag = 0;
-    return
-elseif info(1) == 3 || info(1) == 4 || info(1) == 6 || info(1) == 19 || info(1) == 20 || info(1) == 21
-    fval = objective_function_penalty_base+info(2);
-    info = info(1);
-    exit_flag = 0;
-    return
+if info(1)
+    if info(1) == 3 || info(1) == 4 || info(1) == 5 || info(1)==6 ||info(1) == 19 ...
+            info(1) == 20 || info(1) == 21 || info(1) == 23 || info(1) == 26 || ...
+            info(1) == 81 || info(1) == 84 ||  info(1) == 85
+        %meaningful second entry of output that can be used
+        fval = Inf;
+        info(4) = info(2);
+        exit_flag = 0;
+        return
+    else
+        fval = Inf;
+        info(4) = 0.1;
+        exit_flag = 0;
+        return
+    end
 end
 
 % Define the mean/steady state vector.
@@ -218,8 +224,9 @@ if ~isinf(dsge_prior_weight)% Evaluation of the likelihood of the dsge-var model
     SIGMAu = tmp0 - tmp1*tmp2*tmp1'; clear('tmp0');
     [SIGMAu_is_positive_definite, penalty] = ispd(SIGMAu);
     if ~SIGMAu_is_positive_definite
-        fval = objective_function_penalty_base + penalty;
-        info = 52;
+        fval = Inf;
+        info(1) = 52;
+        info(4) = penalty;
         exit_flag = 0;
         return;
     end
@@ -249,15 +256,17 @@ else% Evaluation of the likelihood of the dsge-var model when the dsge prior wei
 end
 
 if isnan(lik)
-    info = 45;
-    fval = objective_function_penalty_base + 100;
+    fval = Inf;
+    info(1) = 45;
+    info(4) = 0.1;
     exit_flag = 0;
     return
 end
 
 if imag(lik)~=0
-    info = 46;
-    fval = objective_function_penalty_base + 100;
+    fval = Inf;
+    info(1) = 46;
+    info(4) = 0.1;
     exit_flag = 0;
     return
 end
@@ -267,15 +276,17 @@ lnprior = priordens(xparam1,BayesInfo.pshape,BayesInfo.p6,BayesInfo.p7,BayesInfo
 fval = (lik-lnprior);
 
 if isnan(fval)
-    info = 47;
-    fval = objective_function_penalty_base + 100;
+    fval = Inf;
+    info(1) = 47;
+    info(4) = 0.1;
     exit_flag = 0;
     return
 end
 
 if imag(fval)~=0
-    info = 48;
-    fval = objective_function_penalty_base + 100;
+    fval = Inf;
+    info(1) = 48;
+    info(4) = 0.1;
     exit_flag = 0;
     return
 end
