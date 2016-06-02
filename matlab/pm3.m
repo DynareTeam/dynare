@@ -86,6 +86,8 @@ fprintf(['Estimation::mcmc: ' tit1 '\n']);
 stock1 = zeros(n1,n2,B);
 k = 0;
 filter_step_ahead_indicator=0;
+filter_covar_indicator=0;
+
 for file = 1:ifil
     load([DirectoryName '/' M_.fname var_type int2str(file)]);
     if strcmp(var_type,'_filter_step_ahead')
@@ -100,10 +102,22 @@ for file = 1:ifil
         end
         stock = squeeze(stock(1,:,1+1:1+n2,:)); %1 step ahead starts at entry 2
     end
-    k = k(end)+(1:size(stock,3));
-    stock1(:,:,k) = stock;
+    if strcmp(var_type,'_filter_covar')
+        if file==1 %on first run, initialize variable for storing filter_step_ahead
+            stock1_filter_covar=NaN(n1,n2,size(stock,3),B); 
+        end
+        filter_covar_indicator=1;
+    end
+    if ~strcmp(var_type,'_filter_covar')
+        k = k(end)+(1:size(stock,3));
+        stock1(:,:,k) = stock;
+    else
+        k = k(end)+(1:size(stock,4));
+    end
     if filter_step_ahead_indicator
         stock1_filter_step_ahead(:,:,k,:) = stock_filter_step_ahead;
+    elseif filter_covar_indicator
+        stock1_filter_covar(:,:,:,k) = stock;
     end
 end
 clear stock
@@ -119,8 +133,30 @@ if filter_step_ahead_indicator
         Density_filter_step_ahead = zeros(options_.estimation.moments_posterior_density.gridpoints,2,filter_steps,nvar,n2);
     end
 end
+if filter_covar_indicator
+    draw_dimension=4;
+    oo_.FilterCovariance.Mean = squeeze(mean(stock1_filter_covar,draw_dimension));
+    oo_.FilterCovariance.Median = squeeze(median(stock1_filter_covar,draw_dimension));
+    oo_.FilterCovariance.var = squeeze(var(stock1_filter_covar,0,draw_dimension));
+    if size(stock1_filter_covar,draw_dimension)>2
+        hpd_interval = quantile(stock1_filter_covar,[(1-options_.mh_conf_sig)/2 (1-options_.mh_conf_sig)/2+options_.mh_conf_sig],draw_dimension);
+    else
+        size_matrix=size(stock1_filter_covar);
+        hpd_interval=NaN([size_matrix(1:3),2]);
+    end
+    if size(stock1_filter_covar,draw_dimension)>9
+        post_deciles =quantile(stock1_filter_covar,[0.1:0.1:0.9],draw_dimension);
+    else
+        size_matrix=size(stock1_filter_covar);
+        post_deciles=NaN([size_matrix(1:3),9]);
+    end
+    oo_.FilterCovariance.post_deciles=post_deciles;
+    oo_.FilterCovariance.HPDinf=squeeze(hpd_interval(:,:,:,1));
+    oo_.FilterCovariance.HPDsup=squeeze(hpd_interval(:,:,:,2));
+    fprintf(['Estimation::mcmc: ' tit1 ', done!\n']);
+    return
+end
 
-tmp =zeros(B,1);
 for i = 1:nvar
     for j = 1:n2
         if options_.estimation.moments_posterior_density.indicator

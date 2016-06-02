@@ -53,17 +53,14 @@ ncx  = estim_params_.ncx;
 ncn  = estim_params_.ncn;
 np   = estim_params_.np ;
 npar = nvx+nvn+ncx+ncn+np;
-offset = npar-np;
 naK = length(options_.filter_step_ahead);
 
 MaxNumberOfBytes=options_.MaxNumberOfBytes;
 endo_nbr=M_.endo_nbr;
 exo_nbr=M_.exo_nbr;
 meas_err_nbr=length(M_.Correlation_matrix_ME);
-nvobs     = length(options_.varobs);
 iendo = 1:endo_nbr;
 horizon = options_.forecast;
-filtered_vars = options_.filtered_vars;
 IdObs    = bayestopt_.mfys;
 if horizon
     i_last_obs = gend+(1-M_.maximum_endo_lag:0);
@@ -106,10 +103,13 @@ end
 
 if horizon
     MAX_nforc1 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/8));
-    MAX_nforc2 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/ ...
-                            8));
+    MAX_nforc2 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/8));
 end
 MAX_momentsno = min(B,ceil(MaxNumberOfBytes/(get_moments_size(options_)*8)));
+
+if options_.filter_covariance
+    MAX_filter_covariance = min(B,ceil(MaxNumberOfBytes/(endo_nbr^2*(gend+1))/8));
+end
 
 varlist = options_.varlist;
 if isempty(varlist)
@@ -123,39 +123,26 @@ for i=1:nvar
     end
 end
 
-irun = ones(7,1);
-ifil = zeros(7,1);
+n_variables_to_fill=8;
 
+irun = ones(n_variables_to_fill,1);
+ifil = zeros(n_variables_to_fill,1);
 
-stock_param = zeros(MAX_nruns, npar);
-stock_logpo = zeros(MAX_nruns,1);
-stock_ys = zeros(MAX_nruns,endo_nbr);
 run_smoother = 0;
-if options_.smoother
-    stock_smooth = zeros(endo_nbr,gend,MAX_nsmoo);
-    stock_innov  = zeros(exo_nbr,gend,B);
-    stock_error = zeros(nvobs,gend,MAX_nerro);
-    stock_update = zeros(endo_nbr,gend,MAX_nsmoo);
+if options_.smoother || options_.forecast || options_.filter_step_ahead
     run_smoother = 1;
 end
 
-if options_.filter_step_ahead
-    stock_filter_step_ahead = zeros(naK,endo_nbr,gend+ ...
-                                    options_.filter_step_ahead(end),MAX_naK);
-    run_smoother = 1;
+filter_covariance=0;
+if options_.filter_covariance
+    filter_covariance=1;
 end
-if options_.forecast
-    stock_forcst_mean = zeros(endo_nbr,horizon,MAX_nforc1);
-    stock_forcst_point = zeros(endo_nbr,horizon,MAX_nforc2);
-    run_smoother = 1;
-end
-
-
 
 % Store the variable mandatory for local/remote parallel computing.
 
 localVars.type=type;
 localVars.run_smoother=run_smoother;
+localVars.filter_covariance=filter_covariance;
 localVars.gend=gend;
 localVars.Y=Y;
 localVars.data_index=data_index;
@@ -182,6 +169,9 @@ localVars.MAX_nerro = MAX_nerro;
 if naK
     localVars.MAX_naK=MAX_naK;
 end
+if options_.filter_covariance
+    localVars.MAX_filter_covariance = MAX_filter_covariance;
+end
 localVars.MAX_nruns=MAX_nruns;
 localVars.MAX_momentsno = MAX_momentsno;
 localVars.ifil=ifil;
@@ -189,6 +179,7 @@ localVars.DirectoryName = DirectoryName;
 
 if strcmpi(type,'posterior'),
     b=0;
+    logpost=NaN(B,1);
     while b<=B
         b = b + 1;
         [x(b,:), logpost(b,1)] = GetOneDraw(type);
@@ -206,7 +197,7 @@ if isnumeric(options_.parallel),
     % Parallel execution!
 else
     [nCPU, totCPU, nBlockPerCPU] = distributeJobs(options_.parallel, 1, B);
-    ifil=zeros(7,totCPU);
+    ifil=zeros(n_variables_to_fill,totCPU);
     for j=1:totCPU-1,
         if run_smoother
             nfiles = ceil(nBlockPerCPU(j)/MAX_nsmoo);
@@ -227,6 +218,10 @@ else
             ifil(6,j+1) =ifil(6,j)+nfiles;
             nfiles = ceil(nBlockPerCPU(j)/MAX_nforc2);
             ifil(7,j+1) =ifil(7,j)+nfiles;
+        end
+        if options_.filter_covariance
+            nfiles = ceil(nBlockPerCPU(j)/MAX_filter_covariance);
+            ifil(8,j+1) =ifil(8,j)+nfiles;
         end
     end
     localVars.ifil = ifil;
@@ -296,9 +291,15 @@ if options_.forecast
     pm3(endo_nbr,horizon,ifil(6),B,'Forecasted variables (mean)',...
         '',varlist,M_.endo_names_tex,M_.endo_names,...
         varlist,'MeanForecast',DirectoryName,'_forc_mean');
-    pm3(endo_nbr,horizon,ifil(6),B,'Forecasted variables (point)',...
+    pm3(endo_nbr,horizon,ifil(7),B,'Forecasted variables (point)',...
         '',varlist,M_.endo_names_tex,M_.endo_names,...
         varlist,'PointForecast',DirectoryName,'_forc_point');
+end
+
+if options_.filter_covariance
+    pm3(endo_nbr,endo_nbr,ifil(8),B,'Filtered covariances',...
+        '',varlist,M_.endo_names_tex,M_.endo_names,...
+        varlist,'FilterCovariance',DirectoryName,'_filter_covar');
 end
 
 

@@ -52,6 +52,7 @@ end
 
 type=myinputs.type;
 run_smoother=myinputs.run_smoother;
+filter_covariance=myinputs.filter_covariance;
 gend=myinputs.gend;
 Y=myinputs.Y;
 data_index=myinputs.data_index;
@@ -72,6 +73,9 @@ if horizon
 end
 if naK
     MAX_naK=myinputs.MAX_naK;
+end
+if filter_covariance
+   MAX_filter_covariance=myinputs.MAX_filter_covariance;
 end
 
 exo_nbr=myinputs.exo_nbr;
@@ -127,6 +131,7 @@ if RemoteFlag==1,
     OutputFileName_param = {};
     OutputFileName_forc_mean = {};
     OutputFileName_forc_point = {};
+    OutputFileName_filter_covar ={};
     % OutputFileName_moments = {};
 end
 
@@ -149,6 +154,9 @@ end
 stock_param = NaN(MAX_nruns,size(myinputs.x,2));
 stock_logpo = NaN(MAX_nruns,1);
 stock_ys = NaN(MAX_nruns,endo_nbr);
+if filter_covariance
+    stock_filter_covariance = zeros(endo_nbr,endo_nbr,gend+1,MAX_filter_covariance);
+end
 
 for b=fpar:B
     if strcmpi(type,'prior')
@@ -167,9 +175,9 @@ for b=fpar:B
 
     if run_smoother
         [dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
-        [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK,junk1,junk2,junk3,junk4,junk5,trend_addition] = ...
+        [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK,junk1,junk2,P,junk4,junk5,trend_addition] = ...
             DsgeSmoother(deep,gend,Y,data_index,missing_value);
-
+                
         if options_.loglinear %reads values from smoother results, which are in dr-order and put them into declaration order
             stock_smooth(dr.order_var,:,irun(1)) = alphahat(1:endo_nbr,:)+ ...
                 repmat(log(SteadyState(dr.order_var)),1,gend);
@@ -263,6 +271,9 @@ for b=fpar:B
             stock_forcst_mean(:,:,irun(6)) = yf(maxlag+1:end,:)';
             stock_forcst_point(:,:,irun(7)) = yf1(maxlag+1:end,:)';
         end
+        if filter_covariance
+            stock_filter_covariance(dr.order_var,dr.order_var,:,irun(8)) = P;
+        end
     else
         [T,R,SteadyState,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_);
     end
@@ -270,7 +281,8 @@ for b=fpar:B
     stock_logpo(irun(5),1) = logpo;
     stock_ys(irun(5),:) = SteadyState';
 
-    irun = irun +  ones(7,1);
+
+    irun = irun +  ones(8,1);
 
 
     if run_smoother && (irun(1) > MAX_nsmoo || b == B),
@@ -348,6 +360,17 @@ for b=fpar:B
         end
         irun(7) = 1;
     end
+    
+    if run_smoother && filter_covariance && (irun(8) > MAX_filter_covariance || b == B)
+        stock = stock_filter_covariance(:,:,:,1:irun(8)-1);
+        ifil(8) = ifil(8) + 1;
+        save([DirectoryName '/' M_.fname '_filter_covar' int2str(ifil(8)) '.mat'],'stock');
+        if RemoteFlag==1,
+            OutputFileName_filter_covar = [OutputFileName_filter_covar; {[DirectoryName filesep], [M_.fname '_filter_covar' int2str(ifil(8)) '.mat']}];
+        end
+        irun(8) = 1;
+    end
+
     dyn_waitbar((b-fpar+1)/(B-fpar+1),h);
 end
 
@@ -360,7 +383,8 @@ if RemoteFlag==1,
                         OutputFileName_filter_step_ahead;
                         OutputFileName_param;
                         OutputFileName_forc_mean;
-                        OutputFileName_forc_point];
+                        OutputFileName_forc_point
+                        OutputFileName_filter_covar];
 end
 
 dyn_waitbar_close(h);

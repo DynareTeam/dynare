@@ -5809,8 +5809,8 @@ recursions as described by @cite{Herbst, 2015}. This setting is only used with
 
 @item filter_covariance
 @anchor{filter_covariance} Saves the series of one step ahead error of
-forecast covariance matrices in @ref{oo_.Smoother.Variance}. Not available 
-with Metropolis.
+forecast covariance matrices. With Metropolis, they are saved in @ref{oo_.FilterCovariance},
+otherwise in @ref{oo_.Smoother.Variance}.
 
 @item filter_step_ahead = [@var{INTEGER1}:@var{INTEGER2}]
 See below.
@@ -6285,6 +6285,23 @@ After an estimation with Metropolis, fields are of the form:
 @example
 @code{oo_.UpdatedVariables.@var{MOMENT_NAME}.@var{VARIABLE_NAME}}
 @end example
+@end defvr
+
+@defvr {MATLAB/Octave variable} oo_.FilterCovariance
+@anchor{oo_.FilterCovariance}
+Three-dimensional array set by the @code{estimation} command if used with the
+@code{smoother} and Metropolis, if the @code{filter_covariance} option
+has been requested.
+Contains the series of one-step ahead forecast error covariance matrices
+from the Kalman smoother. The @code{M_.endo_nbr} times @code{M_.endo_nbr} times
+@code{T+1} array contains the variables in declaration order along the first 
+two dimensions. The third dimension of the array provides the
+observation for which the forecast has been made.
+Fields are of the form:
+@example
+@code{oo_.FilterCovariance.@var{MOMENT_NAME}}
+@end example
+Note that density estimation is not supported.
 @end defvr
 
 @defvr {MATLAB/Octave variable} oo_.Smoother.Variance
