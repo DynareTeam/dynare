@@ -28,7 +28,7 @@ function [oo_, yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,da
 % Outputs:
 %   oo_             [structure] storing the results:
 %                   oo_.Smoother.SteadyState: Steady states (declaration order)
-%                   oo_.Smoother.TrendCoeffs: trend coefficients (order of options_.varobs)
+%                   oo_.Smoother.TrendCoeffs: trend coefficients, with NaN where no trend applies (declaration order)
 %                   oo_.Smoother.Variance: one-step ahead forecast error variance (declaration order)
 %                   oo_.Smoother.Constant: structure storing the constant term of the smoother
 %                   oo_.Smoother.Trend: structure storing the trend term of the smoother
@@ -77,7 +77,9 @@ end
 oo_.Smoother.SteadyState = ys;
 
 %% write trend coefficients and trend
-oo_.Smoother.TrendCoeffs = trend_coeff; %are in order of options_.varobs
+oo_.Smoother.TrendCoeffs = zeros(size(ys));
+
+oo_.Smoother.TrendCoeffs(options_.varobs_id)=trend_coeff; %are in order of options_.varobs
 
 if ~isempty(Trend)
     for var_iter=1:size(options_.varobs,2)
