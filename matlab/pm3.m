@@ -83,7 +83,6 @@ if options_.estimation.moments_posterior_density.indicator
     Density = zeros(options_.estimation.moments_posterior_density.gridpoints,2,n2,nvar);
 end
 fprintf(['Estimation::mcmc: ' tit1 '\n']);
-stock1 = zeros(n1,n2,B);
 k = 0;
 filter_step_ahead_indicator=0;
 filter_covar_indicator=0;
@@ -93,6 +92,7 @@ for file = 1:ifil
     if strcmp(var_type,'_filter_step_ahead')
         if file==1 %on first run, initialize variable for storing filter_step_ahead
             stock1_filter_step_ahead=NaN(n1,n2,B,length(options_.filter_step_ahead)); 
+            stock1 = zeros(n1,n2,B);
         end
         filter_step_ahead_indicator=1;
         stock_filter_step_ahead=zeros(n1,n2,size(stock,4),length(options_.filter_step_ahead));
@@ -101,23 +101,29 @@ for file = 1:ifil
             stock_filter_step_ahead(:,:,:,ii)=stock(ii,:,1+K_step_ahead:n2+K_step_ahead,:);
         end
         stock = squeeze(stock(1,:,1+1:1+n2,:)); %1 step ahead starts at entry 2
-    end
-    if strcmp(var_type,'_filter_covar')
-        if file==1 %on first run, initialize variable for storing filter_step_ahead
-            stock1_filter_covar=NaN(n1,n2,size(stock,3),B); 
-        end
-        filter_covar_indicator=1;
-    end
-    if ~strcmp(var_type,'_filter_covar')
         k = k(end)+(1:size(stock,3));
         stock1(:,:,k) = stock;
-    else
-        k = k(end)+(1:size(stock,4));
-    end
-    if filter_step_ahead_indicator
         stock1_filter_step_ahead(:,:,k,:) = stock_filter_step_ahead;
-    elseif filter_covar_indicator
+    elseif strcmp(var_type,'_filter_covar')
+        if file==1 %on first run, initialize variable for storing filter_step_ahead
+            stock1_filter_covar=NaN(n1,n2,size(stock,3),B);
+        end
+        filter_covar_indicator=1;
+        k = k(end)+(1:size(stock,4));
         stock1_filter_covar(:,:,:,k) = stock;
+    elseif strcmp(var_type,'_trend_coeff')
+        if file==1 %on first run, initialize variable for storing filter_step_ahead
+            stock1_filter_step_ahead=NaN(n1,n2,B,length(options_.filter_step_ahead));
+            stock1 = zeros(n1,B);
+        end
+        k = k(end)+(1:size(stock,2));
+        stock1(:,k) = stock;
+    else
+        if file==1 %on first run, initialize variable for storing filter_step_ahead
+            stock1 = zeros(n1,n2,B);
+        end
+        k = k(end)+(1:size(stock,3));
+        stock1(:,:,k) = stock;
     end
 end
 clear stock
@@ -157,30 +163,43 @@ if filter_covar_indicator
     return
 end
 
-for i = 1:nvar
-    for j = 1:n2
+if strcmp(var_type,'_trend_coeff') %two dimensional arrays
+    for i = 1:nvar
         if options_.estimation.moments_posterior_density.indicator
-            [Mean(j,i),Median(j,i),Var(j,i),HPD(:,j,i),Distrib(:,j,i),Density(:,:,j,i)] = ...
-                posterior_moments(squeeze(stock1(SelecVariables(i),j,:)),1,options_.mh_conf_sig,options_.estimation.moments_posterior_density);            
+            [Mean(1,i),Median(1,i),Var(1,i),HPD(:,1,i),Distrib(:,1,i),Density(:,:,1,i)] = ...
+                posterior_moments(squeeze(stock1(SelecVariables(i),:)),1,options_.mh_conf_sig,options_.estimation.moments_posterior_density);
         else
-            [Mean(j,i),Median(j,i),Var(j,i),HPD(:,j,i),Distrib(:,j,i)] = ...
-                posterior_moments(squeeze(stock1(SelecVariables(i),j,:)),0,options_.mh_conf_sig);
+            [Mean(1,i),Median(1,i),Var(1,i),HPD(:,1,i),Distrib(:,1,i)] = ...
+                posterior_moments(squeeze(stock1(SelecVariables(i),:)),0,options_.mh_conf_sig);
         end
-        if filter_step_ahead_indicator
+    end
+else %three dimensional arrays
+    for i = 1:nvar
+        for j = 1:n2
             if options_.estimation.moments_posterior_density.indicator
-                for K_step = 1:length(options_.filter_step_ahead)
-                    [Mean_filter_step_ahead(K_step,i,j),Median_filter_step_ahead(K_step,i,j),Var_filter_step_ahead(K_step,i,j),HPD_filter_step_ahead(:,K_step,i,j),Distrib_filter_step_ahead(:,K_step,i,j),Density_filter_step_ahead(:,:,K_step,i,j) ] = ...
-                        posterior_moments(squeeze(stock1_filter_step_ahead(SelecVariables(i),j,:,K_step)),1,options_.mh_conf_sig,options_.estimation.moments_posterior_density);
-                end
+                [Mean(j,i),Median(j,i),Var(j,i),HPD(:,j,i),Distrib(:,j,i),Density(:,:,j,i)] = ...
+                    posterior_moments(squeeze(stock1(SelecVariables(i),j,:)),1,options_.mh_conf_sig,options_.estimation.moments_posterior_density);
             else
-                for K_step = 1:length(options_.filter_step_ahead)
-                    [Mean_filter_step_ahead(K_step,i,j),Median_filter_step_ahead(K_step,i,j),Var_filter_step_ahead(K_step,i,j),HPD_filter_step_ahead(:,K_step,i,j),Distrib_filter_step_ahead(:,K_step,i,j)] = ...
-                        posterior_moments(squeeze(stock1_filter_step_ahead(SelecVariables(i),j,:,K_step)),0,options_.mh_conf_sig);
+                [Mean(j,i),Median(j,i),Var(j,i),HPD(:,j,i),Distrib(:,j,i)] = ...
+                    posterior_moments(squeeze(stock1(SelecVariables(i),j,:)),0,options_.mh_conf_sig);
+            end
+            if filter_step_ahead_indicator
+                if options_.estimation.moments_posterior_density.indicator
+                    for K_step = 1:length(options_.filter_step_ahead)
+                        [Mean_filter_step_ahead(K_step,i,j),Median_filter_step_ahead(K_step,i,j),Var_filter_step_ahead(K_step,i,j),HPD_filter_step_ahead(:,K_step,i,j),Distrib_filter_step_ahead(:,K_step,i,j),Density_filter_step_ahead(:,:,K_step,i,j) ] = ...
+                            posterior_moments(squeeze(stock1_filter_step_ahead(SelecVariables(i),j,:,K_step)),1,options_.mh_conf_sig,options_.estimation.moments_posterior_density);
+                    end
+                else
+                    for K_step = 1:length(options_.filter_step_ahead)
+                        [Mean_filter_step_ahead(K_step,i,j),Median_filter_step_ahead(K_step,i,j),Var_filter_step_ahead(K_step,i,j),HPD_filter_step_ahead(:,K_step,i,j),Distrib_filter_step_ahead(:,K_step,i,j)] = ...
+                            posterior_moments(squeeze(stock1_filter_step_ahead(SelecVariables(i),j,:,K_step)),0,options_.mh_conf_sig);
+                    end
                 end
             end
         end
     end
 end
+
 clear stock1
 if filter_step_ahead_indicator %write matrices corresponding to ML
     clear stock1_filter_step_ahead
@@ -194,31 +213,51 @@ if filter_step_ahead_indicator %write matrices corresponding to ML
     oo_.FilteredVariablesKStepAheadVariances=FilteredVariablesKStepAheadVariances;
 end
 
-for i = 1:nvar
-    name = deblank(names1(SelecVariables(i),:));
-    oo_.(name3).Mean.(name) = Mean(:,i);
-    oo_.(name3).Median.(name) = Median(:,i);
-    oo_.(name3).Var.(name) = Var(:,i);
-    oo_.(name3).deciles.(name) = Distrib(:,:,i);
-    oo_.(name3).HPDinf.(name) = HPD(1,:,i)';
-    oo_.(name3).HPDsup.(name) = HPD(2,:,i)';
-    if options_.estimation.moments_posterior_density.indicator
-        oo_.(name3).density.(name) = Density(:,:,:,i);
+if strcmp(var_type,'_trend_coeff') || strcmp(var_type,'_smoothed_trend') || strcmp(var_type,'_smoothed_trend')
+    for i = 1:nvar
+        name = deblank(names1(SelecVariables(i),:));
+        oo_.Smoother.(name3).Mean.(name) = Mean(:,i);
+        oo_.Smoother.(name3).Median.(name) = Median(:,i);
+        oo_.Smoother.(name3).Var.(name) = Var(:,i);
+        oo_.Smoother.(name3).deciles.(name) = Distrib(:,:,i);
+        oo_.Smoother.(name3).HPDinf.(name) = HPD(1,:,i)';
+        oo_.Smoother.(name3).HPDsup.(name) = HPD(2,:,i)';
+        if options_.estimation.moments_posterior_density.indicator
+            oo_.Smoother.(name3).density.(name) = Density(:,:,:,i);
+        end
     end
-    if filter_step_ahead_indicator
-        for K_step = 1:length(options_.filter_step_ahead)
-            name4=['Filtered_Variables_',num2str(K_step),'_step_ahead'];
-            oo_.(name4).Mean.(name) = squeeze(Mean_filter_step_ahead(K_step,i,:));
-            oo_.(name4).Median.(name) = squeeze(Median_filter_step_ahead(K_step,i,:));
-            oo_.(name4).Var.(name) = squeeze(Var_filter_step_ahead(K_step,i,:));
-            oo_.(name4).deciles.(name) = squeeze(Distrib_filter_step_ahead(:,K_step,i,:));
-            oo_.(name4).HPDinf.(name) = squeeze(HPD_filter_step_ahead(1,K_step,i,:));
-            oo_.(name4).HPDsup.(name) = squeeze(HPD_filter_step_ahead(2,K_step,i,:));
-            if options_.estimation.moments_posterior_density.indicator
-                oo_.(name4).density.(name) = squeeze(Density_filter_step_ahead(:,:,K_step,i,:));
+else
+    for i = 1:nvar
+        name = deblank(names1(SelecVariables(i),:));
+        oo_.(name3).Mean.(name) = Mean(:,i);
+        oo_.(name3).Median.(name) = Median(:,i);
+        oo_.(name3).Var.(name) = Var(:,i);
+        oo_.(name3).deciles.(name) = Distrib(:,:,i);
+        oo_.(name3).HPDinf.(name) = HPD(1,:,i)';
+        oo_.(name3).HPDsup.(name) = HPD(2,:,i)';
+        if options_.estimation.moments_posterior_density.indicator
+            oo_.(name3).density.(name) = Density(:,:,:,i);
+        end
+        if filter_step_ahead_indicator
+            for K_step = 1:length(options_.filter_step_ahead)
+                name4=['Filtered_Variables_',num2str(K_step),'_step_ahead'];
+                oo_.(name4).Mean.(name) = squeeze(Mean_filter_step_ahead(K_step,i,:));
+                oo_.(name4).Median.(name) = squeeze(Median_filter_step_ahead(K_step,i,:));
+                oo_.(name4).Var.(name) = squeeze(Var_filter_step_ahead(K_step,i,:));
+                oo_.(name4).deciles.(name) = squeeze(Distrib_filter_step_ahead(:,K_step,i,:));
+                oo_.(name4).HPDinf.(name) = squeeze(HPD_filter_step_ahead(1,K_step,i,:));
+                oo_.(name4).HPDsup.(name) = squeeze(HPD_filter_step_ahead(2,K_step,i,:));
+                if options_.estimation.moments_posterior_density.indicator
+                    oo_.(name4).density.(name) = squeeze(Density_filter_step_ahead(:,:,K_step,i,:));
+                end
             end
         end
-    end    
+    end
+end
+
+if strcmp(var_type,'_trend_coeff') || max(max(abs(Mean(:,:))))<=10^(-6) || all(all(isnan(Mean)))
+    fprintf(['Estimation::mcmc: ' tit1 ', done!\n']);
+    return %not do plots
 end
 %%
 %% 	Finally I build the plots.

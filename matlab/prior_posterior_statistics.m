@@ -93,6 +93,9 @@ end
 
 MAX_nruns = min(B,ceil(MaxNumberOfBytes/(npar+2)/8));
 MAX_nsmoo = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*gend)/8));
+MAX_n_smoothed_constant = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*gend)/8));
+MAX_n_smoothed_trend = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*gend)/8));
+MAX_n_trend_coeff = min(B,ceil(MaxNumberOfBytes/endo_nbr/8));
 MAX_ninno = min(B,ceil(MaxNumberOfBytes/(exo_nbr*gend)/8));
 MAX_nerro = min(B,ceil(MaxNumberOfBytes/(size(options_.varobs,1)*gend)/8));
 
@@ -123,7 +126,7 @@ for i=1:nvar
     end
 end
 
-n_variables_to_fill=8;
+n_variables_to_fill=11;
 
 irun = ones(n_variables_to_fill,1);
 ifil = zeros(n_variables_to_fill,1);
@@ -172,6 +175,9 @@ end
 if options_.filter_covariance
     localVars.MAX_filter_covariance = MAX_filter_covariance;
 end
+localVars.MAX_n_smoothed_constant=MAX_n_smoothed_constant;
+localVars.MAX_n_smoothed_trend=MAX_n_smoothed_trend;
+localVars.MAX_n_trend_coeff=MAX_n_trend_coeff;
 localVars.MAX_nruns=MAX_nruns;
 localVars.MAX_momentsno = MAX_momentsno;
 localVars.ifil=ifil;
@@ -223,6 +229,14 @@ else
             nfiles = ceil(nBlockPerCPU(j)/MAX_filter_covariance);
             ifil(8,j+1) =ifil(8,j)+nfiles;
         end
+        if run_smoother
+            nfiles = ceil(nBlockPerCPU(j)/MAX_n_trend_coeff);
+            ifil(9,j+1) =ifil(9,j)+nfiles;  
+            nfiles = ceil(nBlockPerCPU(j)/MAX_n_smoothed_constant);
+            ifil(10,j+1) =ifil(10,j)+nfiles;  
+            nfiles = ceil(nBlockPerCPU(j)/MAX_n_smoothed_trend);
+            ifil(11,j+1) =ifil(11,j)+nfiles;  
+        end
     end
     localVars.ifil = ifil;
     globalVars = struct('M_',M_, ...
@@ -264,6 +278,16 @@ if options_.smoother
     pm3(exo_nbr,gend,ifil(2),B,'Smoothed shocks',...
         '',M_.exo_names,M_.exo_names_tex,M_.exo_names,...
         M_.exo_names,'SmoothedShocks',DirectoryName,'_inno');
+    pm3(endo_nbr,1,ifil(9),B,'Trend_coefficients',...
+    '',M_.endo_names(1:M_.orig_endo_nbr,:),M_.endo_names_tex,M_.endo_names,...
+        varlist,'TrendCoeff',DirectoryName,'_trend_coeff');
+    pm3(endo_nbr,gend,ifil(10),B,'Smoothed constant',...
+        '',M_.endo_names(1:M_.orig_endo_nbr, :),M_.endo_names_tex,M_.endo_names,...
+        varlist,'Constant',DirectoryName,'_smoothed_constant');
+    pm3(endo_nbr,gend,ifil(11),B,'Smoothed trend',...
+        '',M_.endo_names(1:M_.orig_endo_nbr, :),M_.endo_names_tex,M_.endo_names,...
+        varlist,'Trend',DirectoryName,'_smoothed_trend');
+
     if nvn
         for obs_iter=1:length(options_.varobs)        
             meas_error_names{obs_iter,1}=['SE_EOBS_' M_.endo_names(strmatch(options_.varobs{obs_iter},M_.endo_names,'exact'),:)];

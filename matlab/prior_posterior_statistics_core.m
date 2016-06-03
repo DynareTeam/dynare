@@ -15,7 +15,11 @@ function myoutput=prior_posterior_statistics_core(myinputs,fpar,B,whoiam, ThisMa
 %                          _filter_step_ahead;
 %                          _param;
 %                          _forc_mean;
-%                          _forc_point
+%                          _forc_point;
+%                          _filter_covar;
+%                          _trend_coeff;
+%                          _smoothed_trend;
+%                          _smoothed_constant;
 %
 % ALGORITHM
 %   Portion of prior_posterior.m function.
@@ -77,11 +81,13 @@ end
 if filter_covariance
    MAX_filter_covariance=myinputs.MAX_filter_covariance;
 end
-
 exo_nbr=myinputs.exo_nbr;
 maxlag=myinputs.maxlag;
 MAX_nsmoo=myinputs.MAX_nsmoo;
 MAX_ninno=myinputs.MAX_ninno;
+MAX_n_smoothed_constant=myinputs.MAX_n_smoothed_constant;
+MAX_n_smoothed_trend=myinputs.MAX_n_smoothed_trend;
+MAX_n_trend_coeff=myinputs.MAX_n_trend_coeff;
 MAX_nerro = myinputs.MAX_nerro;
 MAX_nruns=myinputs.MAX_nruns;
 MAX_momentsno = myinputs.MAX_momentsno;
@@ -132,6 +138,9 @@ if RemoteFlag==1,
     OutputFileName_forc_mean = {};
     OutputFileName_forc_point = {};
     OutputFileName_filter_covar ={};
+    OutputFileName_trend_coeff = {};
+    OutputFileName_smoothed_trend = {};
+    OutputFileName_smoothed_constant = {};
     % OutputFileName_moments = {};
 end
 
@@ -140,6 +149,9 @@ if run_smoother
   stock_smooth=NaN(endo_nbr,gend,MAX_nsmoo);
   stock_update=NaN(endo_nbr,gend,MAX_nsmoo);
   stock_innov=NaN(M_.exo_nbr,gend,MAX_ninno);
+  stock_smoothed_constant=NaN(endo_nbr,gend,MAX_n_smoothed_constant);
+  stock_smoothed_trend=NaN(endo_nbr,gend,MAX_n_smoothed_trend);
+  stock_trend_coeff = zeros(endo_nbr,MAX_n_trend_coeff);
   if horizon
       stock_forcst_mean= NaN(endo_nbr,horizon,MAX_nforc1);
       stock_forcst_point = NaN(endo_nbr,horizon,MAX_nforc2);
@@ -177,18 +189,23 @@ for b=fpar:B
         [dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
         [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK,junk1,junk2,P,junk4,junk5,trend_addition] = ...
             DsgeSmoother(deep,gend,Y,data_index,missing_value);
-                
+        
+        stock_trend_coeff(options_.varobs_id,irun(9))=trend_coeff;
+        stock_smoothed_trend(IdObs,:,irun(11))=trend_addition;
         if options_.loglinear %reads values from smoother results, which are in dr-order and put them into declaration order
+            constant_part=repmat(log(SteadyState(dr.order_var)),1,gend);
             stock_smooth(dr.order_var,:,irun(1)) = alphahat(1:endo_nbr,:)+ ...
-                repmat(log(SteadyState(dr.order_var)),1,gend);
+                constant_part;
             stock_update(dr.order_var,:,irun(1)) = alphatilde(1:endo_nbr,:)+ ...
-                repmat(log(SteadyState(dr.order_var)),1,gend);
+                constant_part;
         else
+            constant_part=repmat(SteadyState(dr.order_var),1,gend);
             stock_smooth(dr.order_var,:,irun(1)) = alphahat(1:endo_nbr,:)+ ...
-                repmat(SteadyState(dr.order_var),1,gend);
+                constant_part;
             stock_update(dr.order_var,:,irun(1)) = alphatilde(1:endo_nbr,:)+ ...
-                repmat(SteadyState(dr.order_var),1,gend);
-        end
+                constant_part;
+        end       
+        stock_smoothed_constant(dr.order_var,:,irun(10))=constant_part;
         %% Compute constant for observables
         if options_.prefilter == 1 %as mean is taken after log transformation, no distinction is needed here
             constant_part=repmat(mean_varobs',1,gend);
@@ -205,6 +222,7 @@ for b=fpar:B
             else
                 mean_correction=-repmat(SteadyState(IdObs),1,gend)+constant_part;
             end
+            stock_smoothed_constant(IdObs,:,irun(10))=stock_smoothed_constant(IdObs,:,irun(10))+mean_correction;
             %smoothed variables are E_T(y_t) so no trend shift is required
             stock_smooth(IdObs,:,irun(1))=stock_smooth(IdObs,:,irun(1))+trend_addition+mean_correction;
             %updated variables are E_t(y_t) so no trend shift is required
@@ -282,7 +300,7 @@ for b=fpar:B
     stock_ys(irun(5),:) = SteadyState';
 
 
-    irun = irun +  ones(8,1);
+    irun = irun +  ones(11,1);
 
 
     if run_smoother && (irun(1) > MAX_nsmoo || b == B),
@@ -370,6 +388,39 @@ for b=fpar:B
         end
         irun(8) = 1;
     end
+    
+    irun_index=9;
+    if run_smoother && (irun(irun_index) > MAX_n_trend_coeff || b == B)
+        stock = stock_trend_coeff(:,1:irun(irun_index)-1);
+        ifil(irun_index) = ifil(irun_index) + 1;
+        save([DirectoryName '/' M_.fname '_trend_coeff' int2str(ifil(irun_index)) '.mat'],'stock');
+        if RemoteFlag==1,
+            OutputFileName_trend_coeff = [OutputFileName_trend_coeff; {[DirectoryName filesep], [M_.fname '_trend_coeff' int2str(ifil(irun_index)) '.mat']}];
+        end
+        irun(irun_index) = 1;
+    end
+    
+    irun_index=10;
+    if run_smoother && (irun(irun_index) > MAX_n_smoothed_constant || b == B)
+        stock = stock_smoothed_constant(:,:,1:irun(irun_index)-1);
+        ifil(irun_index) = ifil(irun_index) + 1;
+        save([DirectoryName '/' M_.fname '_smoothed_constant' int2str(ifil(irun_index)) '.mat'],'stock');
+        if RemoteFlag==1,
+            OutputFileName_smoothed_constant = [OutputFileName_smoothed_constant; {[DirectoryName filesep], [M_.fname '_smoothed_constant' int2str(ifil(irun_index)) '.mat']}];
+        end
+        irun(irun_index) = 1;
+    end
+
+    irun_index=11;
+    if run_smoother && (irun(irun_index) > MAX_n_smoothed_trend || b == B)
+        stock = stock_smoothed_trend(:,:,1:irun(irun_index)-1);
+        ifil(irun_index) = ifil(irun_index) + 1;
+        save([DirectoryName '/' M_.fname '_smoothed_trend' int2str(ifil(irun_index)) '.mat'],'stock');
+        if RemoteFlag==1,
+            OutputFileName_smoothed_trend = [OutputFileName_smoothed_trend; {[DirectoryName filesep], [M_.fname '_smoothed_trend' int2str(ifil(irun_index)) '.mat']}];
+        end
+        irun(irun_index) = 1;
+    end
 
     dyn_waitbar((b-fpar+1)/(B-fpar+1),h);
 end
@@ -384,7 +435,10 @@ if RemoteFlag==1,
                         OutputFileName_param;
                         OutputFileName_forc_mean;
                         OutputFileName_forc_point
-                        OutputFileName_filter_covar];
+                        OutputFileName_filter_covar
+                        OutputFileName_trend_coeff
+                        OutputFileName_smoothed_trend
+                        OutputFileName_smoothed_constant];
 end
 
 dyn_waitbar_close(h);
