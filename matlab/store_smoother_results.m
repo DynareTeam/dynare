@@ -28,7 +28,7 @@ function [oo_, yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,da
 % Outputs:
 %   oo_             [structure] storing the results:
 %                   oo_.Smoother.SteadyState: Steady states (declaration order)
-%                   oo_.Smoother.TrendCoeffs: trend coefficients, with NaN where no trend applies (declaration order)
+%                   oo_.Smoother.TrendCoeffs: trend coefficients, with zeros where no trend applies (declaration order)
 %                   oo_.Smoother.Variance: one-step ahead forecast error variance (declaration order)
 %                   oo_.Smoother.Constant: structure storing the constant term of the smoother
 %                   oo_.Smoother.Trend: structure storing the trend term of the smoother
@@ -82,6 +82,11 @@ oo_.Smoother.TrendCoeffs = zeros(size(ys));
 oo_.Smoother.TrendCoeffs(options_.varobs_id)=trend_coeff; %are in order of options_.varobs
 
 if ~isempty(Trend)
+    for var_iter=1:M_.endo_nbr
+        if isempty(strmatch(deblank(M_.endo_names(var_iter,:)),options_.varobs,'exact'))
+            oo_.Smoother.Trend.(deblank(M_.endo_names(var_iter,:))) = zeros(gend,1);
+        end
+    end
     for var_iter=1:size(options_.varobs,2)
         oo_.Smoother.Trend.(deblank(options_.varobs{1,var_iter})) = Trend(var_iter,:)';
     end
@@ -137,6 +142,7 @@ for i_endo_in_bayestopt_smoother_varlist=bayestopt_.smoother_saved_var_list'
     elseif options_.loglinear == 0 %unlogged steady state must be used
         constant_current_variable=repmat((ys(i_endo_declaration_order)),gend,1);
     end
+    oo_.Smoother.Constant.(deblank(M_.endo_names(i_endo_declaration_order,:)))=constant_current_variable;
     oo_.SmoothedVariables.(deblank(M_.endo_names(i_endo_declaration_order,:)))=atT(i_endo_in_dr,:)'+constant_current_variable;
     if ~isempty(options_.nk) && options_.nk > 0 && ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file))
         oo_.FilteredVariables.(deblank(M_.endo_names(i_endo_declaration_order,:)))=squeeze(aK(1,i_endo_in_dr,2:end-(options_.nk-1)));
@@ -146,7 +152,7 @@ end
     
 %% Add trend and constant for observed variables
 for pos_iter=1:length(bayestopt_.mf)
-    oo_.Smoother.Constant.(deblank(M_.endo_names(bayestopt_.mfys(pos_iter),:)))=constant_part(pos_iter,:);
+    oo_.Smoother.Constant.(deblank(M_.endo_names(bayestopt_.mfys(pos_iter),:)))=constant_part(pos_iter,:)';
     if ismember(bayestopt_.mf(pos_iter),bayestopt_.smoother_var_list(bayestopt_.smoother_saved_var_list))
         oo_.SmoothedVariables.(deblank(M_.endo_names(bayestopt_.mfys(pos_iter),:)))=yf(pos_iter,:)';   
         if ~isempty(options_.nk) && options_.nk > 0 

@@ -6338,7 +6338,7 @@ smoother in order of declaration of the observed variables.
 @defvr {MATLAB/Octave variable} oo_.Smoother.Trend
 Variable set by the @code{estimation} command (if used with the
 @code{smoother} option), or by the @code{calib_smoother} command.
-Contains the trend component of the observed variables used in the
+Contains the trend component of the variables used in the
 smoother.
 
 Fields are of the form:
@@ -6351,7 +6351,8 @@ Fields are of the form:
 Variable set by the @code{estimation} command (if used with the
 @code{smoother} option), or by the @code{calib_smoother} command.
 Contains the constant part of the endogenous variables used in the
-smoother.
+smoother, accounting e.g. for the data mean when using the @code{prefilter}
+option.
 
 Fields are of the form:
 @example
