@@ -107,9 +107,10 @@ switch task
         trend_coeffs = [];
         for i=1:length(var_obs)
             tmp = strmatch(var_obs{i},endo_names(i_var,:),'exact');
+            trend_var_index=strmatch(var_obs{i},M.endo_names,'exact');
             if ~isempty(tmp)
                 i_var_obs = [ i_var_obs; tmp];
-                trend_coeffs = [trend_coeffs; oo.Smoother.TrendCoeffs(i)];
+                trend_coeffs = [trend_coeffs; oo.Smoother.TrendCoeffs(trend_var_index)];
             end
         end
         if ~isempty(trend_coeffs) 
