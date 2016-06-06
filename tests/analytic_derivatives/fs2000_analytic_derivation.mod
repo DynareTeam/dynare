@@ -82,8 +82,8 @@ varobs gp_obs gy_obs;
 options_.solve_tolf = 1e-12;
 
 estimation(order=1,mode_compute=5,analytic_derivation,kalman_algo=1,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
-estimation(order=1,mode_compute=5,analytic_derivation,kalman_algo=2,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
-estimation(order=1,mode_compute=4,analytic_derivation,kalman_algo=1,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
-estimation(order=1,mode_compute=4,analytic_derivation,kalman_algo=2,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
+estimation(order=1,mode_compute=5,mode_file=fs2000_analytic_derivation_mode,analytic_derivation,kalman_algo=2,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
+estimation(order=1,mode_compute=4,mode_file=fs2000_analytic_derivation_mode,analytic_derivation,kalman_algo=1,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
+estimation(order=1,mode_compute=4,mode_file=fs2000_analytic_derivation_mode,analytic_derivation,kalman_algo=2,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
 //estimation(order=1,mode_compute=5,analytic_derivation,kalman_algo=3,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
 //estimation(order=1,mode_compute=5,analytic_derivation,kalman_algo=4,datafile=fsdat_simul,nobs=192,mh_replic=0,mh_nblocks=2,mh_jscale=0.8);
