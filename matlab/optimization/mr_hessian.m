@@ -1,37 +1,48 @@
-function [hessian_mat, gg, htol1, ihh, hh_mat0, hh1] = mr_hessian(init,x,func,penalty,hflag,htol0,varargin)
-%  [hessian_mat, gg, htol1, ihh, hh_mat0, hh1] = mr_hessian(init,x,func,penalty,hflag,htol0,varargin)
-%
+function [hessian_mat, gg, htol1, ihh, hh_mat0, hh1, hess_info] = mr_hessian(x,func,penalty,hflag,htol0,hess_info,varargin)
+% function [hessian_mat, gg, htol1, ihh, hh_mat0, hh1, hess_info] = mr_hessian(x,func,penalty,hflag,htol0,hess_info,varargin)
 %  numerical gradient and Hessian, with 'automatic' check of numerical
 %  error
 %
 % adapted from Michel Juillard original routine hessian.m
 %
-%  func =  function handle. The function must give two outputs:
-%    - the log-likelihood AND the single contributions at times t=1,...,T
-%    of the log-likelihood to compute outer product gradient
-%  x = parameter values
-%  hflag = 0, Hessian computed with outer product gradient, one point
-%  increments for partial derivatives in gradients
-%  hflag = 1, 'mixed' Hessian: diagonal elements computed with numerical second order derivatives
-%             with correlation structure as from outer product gradient;
-%             two point evaluation of derivatives for partial derivatives
-%             in gradients
-%  hflag = 2, full numerical Hessian, computes second order partial derivatives
-%          uses Abramowitz and Stegun (1965) formulas 25.3.24 and 25.3.27
-%          p. 884.
-%  htol0 = 'precision' of increment of function values for numerical
-%  derivatives
-%
-%  varargin{1} --> DynareDataset
-%  varargin{2} --> DatasetInfo
-%  varargin{3} --> DynareOptions
-%  varargin{4} --> Model
-%  varargin{5} --> EstimatedParameters
-%  varargin{6} --> BayesInfo
-%  varargin{7} --> BayesInfo
-%  varargin{8} --> DynareResults
-
-
+% Inputs:
+%  - func               function handle. The function must give two outputs:
+%                       the log-likelihood AND the single contributions at times t=1,...,T
+%                       of the log-likelihood to compute outer product gradient
+%  - x                  parameter values
+%  - penalty            penalty due to error code
+%  - hflag              0: Hessian computed with outer product gradient, one point
+%                           increments for partial derivatives in gradients
+%                       1: 'mixed' Hessian: diagonal elements computed with numerical second order derivatives
+%                           with correlation structure as from outer product gradient;
+%                           two point evaluation of derivatives for partial derivatives
+%                           in gradients
+%                       2: full numerical Hessian, computes second order partial derivatives
+%                           uses Abramowitz and Stegun (1965) formulas 25.3.24 and 25.3.27
+%                           p. 884.
+%  - htol0              'precision' of increment of function values for numerical
+%                       derivatives
+%  - hess_info              structure storing the step sizes for
+%                           computation of Hessian
+%  - varargin               other inputs:
+%                           varargin{1} --> DynareDataset
+%                           varargin{2} --> DatasetInfo
+%                           varargin{3} --> DynareOptions
+%                           varargin{4} --> Model
+%                           varargin{5} --> EstimatedParameters
+%                           varargin{6} --> BayesInfo
+%                           varargin{7} --> Bounds
+%                           varargin{8} --> DynareResults
+% 
+% Outputs
+%  - hessian_mat        hessian
+%  - gg                 Jacobian
+%  - htol1              updated 'precision' of increment of function values for numerical
+%                       derivatives
+%  - ihh                inverse outer product with modified std's
+%  - hh_mat0            outer product hessian with modified std's
+%  - hh1                updated hess_info.h1
+%  - hess_info          structure with updated step length
 
 % Copyright (C) 2004-2016 Dynare Team
 %
@@ -50,15 +61,7 @@ function [hessian_mat, gg, htol1, ihh, hh_mat0, hh1] = mr_hessian(init,x,func,pe
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-persistent h1 htol
-
 n=size(x,1);
-if init
-    gstep_=varargin{3}.gstep;
-    htol = 1.e-4;
-    h1=varargin{3}.gradient_epsilon*ones(n,1);
-    return
-end
 
 [f0,exit_flag, ff0]=penalty_objective_function(x,func,penalty,varargin{:});
 h2=varargin{7}.ub-varargin{7}.lb;
@@ -71,10 +74,10 @@ else
 end
 
 
-h1 = min(h1,0.5.*hmax);
+hess_info.h1 = min(hess_info.h1,0.5.*hmax);
 
-if htol0<htol
-    htol=htol0;
+if htol0<hess_info.htol
+    hess_info.htol=htol0;
 end
 xh1=x;
 f1=zeros(size(f0,1),n);
@@ -86,13 +89,13 @@ if outer_product_gradient
 end
 
 i=0;
-hhtol=htol*ones(n,1);
+hhtol=hess_info.htol*ones(n,1);
 while i<n
     i=i+1;
-    htol=hhtol(i);
-    h10=h1(i);
+    hess_info.htol=hhtol(i);
+    h10=hess_info.h1(i);
     hcheck=0;
-    xh1(i)=x(i)+h1(i);
+    xh1(i)=x(i)+hess_info.h1(i);
     try
         [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
     catch
@@ -102,43 +105,43 @@ while i<n
     dx=(fx-f0);
     ic=0;
     icount = 0;
-    h0=h1(i);
-    while (abs(dx(it))<0.5*htol || abs(dx(it))>(3*htol)) && icount<10 && ic==0
+    h0=hess_info.h1(i);
+    while (abs(dx(it))<0.5*hess_info.htol || abs(dx(it))>(3*hess_info.htol)) && icount<10 && ic==0
         icount=icount+1;
-        if abs(dx(it))<0.5*htol
+        if abs(dx(it))<0.5*hess_info.htol
             if abs(dx(it)) ~= 0,
-                h1(i)=min(max(1.e-10,0.3*abs(x(i))), 0.9*htol/abs(dx(it))*h1(i));
+                hess_info.h1(i)=min(max(1.e-10,0.3*abs(x(i))), 0.9*hess_info.htol/abs(dx(it))*hess_info.h1(i));
             else
-                h1(i)=2.1*h1(i);
+                hess_info.h1(i)=2.1*hess_info.h1(i);
             end
-            h1(i) = min(h1(i),0.5*hmax(i));
-            h1(i) = max(h1(i),1.e-10);
-            xh1(i)=x(i)+h1(i);
+            hess_info.h1(i) = min(hess_info.h1(i),0.5*hmax(i));
+            hess_info.h1(i) = max(hess_info.h1(i),1.e-10);
+            xh1(i)=x(i)+hess_info.h1(i);
             try
                 [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
             catch
                 fx=1.e8;
             end
         end
-        if abs(dx(it))>(3*htol)
-            h1(i)= htol/abs(dx(it))*h1(i);
-            xh1(i)=x(i)+h1(i);
+        if abs(dx(it))>(3*hess_info.htol)
+            hess_info.h1(i)= hess_info.htol/abs(dx(it))*hess_info.h1(i);
+            xh1(i)=x(i)+hess_info.h1(i);
             try
                 [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
             catch
                 fx=1.e8;
             end
             while (fx-f0)==0
-                h1(i)= h1(i)*2;
-                xh1(i)=x(i)+h1(i);
+                hess_info.h1(i)= hess_info.h1(i)*2;
+                xh1(i)=x(i)+hess_info.h1(i);
                 [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
                 ic=1;
             end
         end
         it=it+1;
         dx(it)=(fx-f0);
-        h0(it)=h1(i);
-        if (h1(i)<1.e-12*min(1,h2(i)) && h1(i)<0.5*hmax(i))
+        h0(it)=hess_info.h1(i);
+        if (hess_info.h1(i)<1.e-12*min(1,h2(i)) && hess_info.h1(i)<0.5*hmax(i))
             ic=1;
             hcheck=1;
         end
@@ -151,7 +154,7 @@ while i<n
             ff1=ffx;
         end
     end
-    xh1(i)=x(i)-h1(i);
+    xh1(i)=x(i)-hess_info.h1(i);
     [fx,exit_flag,ffx]=penalty_objective_function(xh1,func,penalty,varargin{:});
     f_1(:,i)=fx;
     if outer_product_gradient,
@@ -160,42 +163,42 @@ while i<n
         else
             ff_1=ffx;
         end
-        ggh(:,i)=(ff1-ff_1)./(2.*h1(i));
+        ggh(:,i)=(ff1-ff_1)./(2.*hess_info.h1(i));
     end
     xh1(i)=x(i);
-    if hcheck && htol<1
-        htol=min(1,max(min(abs(dx))*2,htol*10));
-        h1(i)=h10;
-        hhtol(i) = htol;
+    if hcheck && hess_info.htol<1
+        hess_info.htol=min(1,max(min(abs(dx))*2,hess_info.htol*10));
+        hess_info.h1(i)=h10;
+        hhtol(i) = hess_info.htol;
         i=i-1;
     end
 end
 
-h_1=h1;
+h_1=hess_info.h1;
 xh1=x;
 xh_1=xh1;
 
-gg=(f1'-f_1')./(2.*h1);
+gg=(f1'-f_1')./(2.*hess_info.h1);
 
 if outer_product_gradient,
     if hflag==2
-        gg=(f1'-f_1')./(2.*h1);
+        gg=(f1'-f_1')./(2.*hess_info.h1);
         hessian_mat = zeros(size(f0,1),n*n);
         for i=1:n
             if i > 1
                 k=[i:n:n*(i-1)];
                 hessian_mat(:,(i-1)*n+1:(i-1)*n+i-1)=hessian_mat(:,k);
             end
-            hessian_mat(:,(i-1)*n+i)=(f1(:,i)+f_1(:,i)-2*f0)./(h1(i)*h_1(i));
+            hessian_mat(:,(i-1)*n+i)=(f1(:,i)+f_1(:,i)-2*f0)./(hess_info.h1(i)*h_1(i));
             temp=f1+f_1-f0*ones(1,n);
             for j=i+1:n
-                xh1(i)=x(i)+h1(i);
+                xh1(i)=x(i)+hess_info.h1(i);
                 xh1(j)=x(j)+h_1(j);
-                xh_1(i)=x(i)-h1(i);
+                xh_1(i)=x(i)-hess_info.h1(i);
                 xh_1(j)=x(j)-h_1(j);
                 temp1 = penalty_objective_function(xh1,func,penalty,varargin{:});
                 temp2 = penalty_objective_function(xh_1,func,penalty,varargin{:});
-                hessian_mat(:,(i-1)*n+j)=-(-temp1 -temp2+temp(:,i)+temp(:,j))./(2*h1(i)*h_1(j));
+                hessian_mat(:,(i-1)*n+j)=-(-temp1 -temp2+temp(:,i)+temp(:,j))./(2*hess_info.h1(i)*h_1(j));
                 xh1(i)=x(i);
                 xh1(j)=x(j);
                 xh_1(i)=x(i);
@@ -207,7 +210,7 @@ if outer_product_gradient,
     elseif hflag==1
         hessian_mat = zeros(size(f0,1),n*n);
         for i=1:n
-            dum = (f1(:,i)+f_1(:,i)-2*f0)./(h1(i)*h_1(i));
+            dum = (f1(:,i)+f_1(:,i)-2*f0)./(hess_info.h1(i)*h_1(i));
             if dum>eps
                 hessian_mat(:,(i-1)*n+i)=dum;
             else
@@ -216,10 +219,10 @@ if outer_product_gradient,
         end
     end
 
-    gga=ggh.*kron(ones(size(ff1)),2.*h1');  % re-scaled gradient
+    gga=ggh.*kron(ones(size(ff1)),2.*hess_info.h1');  % re-scaled gradient
     hh_mat=gga'*gga;  % rescaled outer product hessian
     hh_mat0=ggh'*ggh;  % outer product hessian
-    A=diag(2.*h1);  % rescaling matrix
+    A=diag(2.*hess_info.h1);  % rescaling matrix
     % igg=inv(hh_mat);  % inverted rescaled outer product hessian
     ihh=A'*(hh_mat\A);  % inverted outer product hessian
     if hflag>0 && min(eig(reshape(hessian_mat,n,n)))>0
@@ -257,7 +260,7 @@ if outer_product_gradient,
         ihh=hh_mat0;
         hessian_mat=hh_mat0(:);
     end
-    hh1=h1;
+    hh1=hess_info.h1;
     save hess.mat hessian_mat
 else
     hessian_mat=[];

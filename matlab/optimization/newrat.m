@@ -1,34 +1,43 @@
-function [xparam1, hh, gg, fval, igg] = newrat(func0, x, bounds, analytic_derivation, ftol0, nit, flagg, Verbose, Save_files, varargin)
-%  [xparam1, hh, gg, fval, igg] = newrat(func0, x, bounds, analytic_derivation, ftol0, nit, flagg, Verbose, Save_files, varargin)
+function [xparam1, hh, gg, fval, igg, hess_info] = newrat(func0, x, bounds, analytic_derivation, ftol0, nit, flagg, Verbose, Save_files, hess_info, varargin)
+%  [xparam1, hh, gg, fval, igg, hess_info] = newrat(func0, x, bounds, analytic_derivation, ftol0, nit, flagg, Verbose, Save_files, hess_info, varargin)
 %
 %  Optimiser with outer product gradient and with sequences of univariate steps
 %  uses Chris Sims subroutine for line search
 %
-%  func0 = name of the function
-%  there must be a version of the function called [func0,'_hh.m'], that also
-%  gives as second OUTPUT the single contributions at times t=1,...,T
-%    of the log-likelihood to compute outer product gradient
-%
-%  x = starting guess
-%  analytic_derivation = 1 if analytic derivs
-%  ftol0 = ending criterion for function change
-%  nit = maximum number of iterations
-%
-%  In each iteration, Hessian is computed with outer product gradient.
-%  for final Hessian (to start Metropolis):
-%  flagg = 0, final Hessian computed with outer product gradient
-%  flagg = 1, final 'mixed' Hessian: diagonal elements computed with numerical second order derivatives
-%             with correlation structure as from outer product gradient,
-%  flagg = 2, full numerical Hessian
-%
-%  varargin{1} --> DynareDataset
-%  varargin{2} --> DatasetInfo
-%  varargin{3} --> DynareOptions
-%  varargin{4} --> Model
-%  varargin{5} --> EstimatedParameters
-%  varargin{6} --> BayesInfo
-%  varargin{1} --> DynareResults
-
+%  Inputs:
+%  - func0                  name of the function that also outputs the single contributions at times t=1,...,T
+%                           of the log-likelihood to compute outer product gradient
+%  - x                      starting guess
+%  - analytic_derivation    1 if analytic derivatives, 0 otherwise
+%  - ftol0                  termination criterion for function change
+%  - nit                    maximum number of iterations
+%  - flagg                  Indicator how to compute final Hessian (In each iteration, Hessian is computed with outer product gradient)  
+%                           0: final Hessian computed with outer product gradient
+%                           1: final 'mixed' Hessian: diagonal elements computed with 
+%                               numerical second order derivatives with correlation structure 
+%                               as from outer product gradient
+%                           2: full numerical Hessian
+%  - Verbose                1 if explicit output is requested
+%  - Save_files             1 if intermediate output is to be saved 
+%  - hess_info              structure storing the step sizes for
+%                           computation of Hessian
+%  - varargin               other inputs:
+%                           varargin{1} --> DynareDataset
+%                           varargin{2} --> DatasetInfo
+%                           varargin{3} --> DynareOptions
+%                           varargin{4} --> Model
+%                           varargin{5} --> EstimatedParameters
+%                           varargin{6} --> BayesInfo
+%                           varargin{7} --> Bounds
+%                           varargin{8} --> DynareResults
+% 
+% Outputs
+% - xparam1                 parameter vector at optimum
+% - hh                      hessian
+% - gg                      gradient
+% - fval                    function value
+% - igg                     inverted outer product hessian
+% - hess_info               structure with updated step length
 
 % Copyright (C) 2004-2016 Dynare Team
 %
@@ -76,8 +85,7 @@ fval=fval0;
 
 outer_product_gradient=1;
 if isempty(hh)
-    mr_hessian(1,x,[],[],[],[],varargin{:});
-    [dum, gg, htol0, igg, hhg, h1]=mr_hessian(0,x,func0,penalty,flagit,htol,varargin{:});
+    [dum, gg, htol0, igg, hhg, h1, hess_info]=mr_hessian(x,func0,penalty,flagit,htol,hess_info,varargin{:});
     if isempty(dum),
         outer_product_gradient=0;
         igg = 1e-4*eye(nx);
@@ -195,7 +203,7 @@ while norm(gg)>gtol && check==0 && jit<nit
         if flagit==2
             hh=hh0;
         elseif flagg>0
-            [dum, gg, htol0, igg, hhg,h1]=mr_hessian(0,xparam1,func0,penalty,flagg,ftol0,varargin{:});
+            [dum, gg, htol0, igg, hhg, h1, hess_info]=mr_hessian(xparam1,func0,penalty,flagg,ftol0,hess_info,varargin{:});
             if flagg==2
                 hh = reshape(dum,nx,nx);
                 ee=eig(hh);
@@ -235,7 +243,7 @@ while norm(gg)>gtol && check==0 && jit<nit
                     save('m1.mat','x','fval0','nig')
                 end
             end
-            [dum, gg, htol0, igg, hhg, h1]=mr_hessian(0,xparam1,func0,penalty,flagit,htol,varargin{:});
+            [dum, gg, htol0, igg, hhg, h1, hess_info]=mr_hessian(xparam1,func0,penalty,flagit,htol,hess_info,varargin{:});
             if isempty(dum),
                 outer_product_gradient=0;
             end

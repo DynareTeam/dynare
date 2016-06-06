@@ -1,5 +1,5 @@
-function [opt_par_values,fval,exitflag,hessian_mat,options_,Scale]=dynare_minimize_objective(objective_function,start_par_value,minimizer_algorithm,options_,bounds,parameter_names,prior_information,Initial_Hessian,varargin)
-
+function [opt_par_values,fval,exitflag,hessian_mat,options_,Scale,new_rat_hess_info]=dynare_minimize_objective(objective_function,start_par_value,minimizer_algorithm,options_,bounds,parameter_names,prior_information,Initial_Hessian,varargin)
+% function [opt_par_values,fval,exitflag,hessian_mat,options_,Scale,new_rat_hess_info]=dynare_minimize_objective(objective_function,start_par_value,minimizer_algorithm,options_,bounds,parameter_names,prior_information,Initial_Hessian,new_rat_hess_info,varargin)
 % Calls a minimizer
 %
 % INPUTS
@@ -11,6 +11,7 @@ function [opt_par_values,fval,exitflag,hessian_mat,options_,Scale]=dynare_minimi
 %   parameter_names     [n_params by 1] cell array          strings containing the parameters names   
 %   prior_information   [matlab structure]                  Dynare prior information structure (bayestopt_) provided for algorithm 6
 %   Initial_Hessian     [n_params by n_params] matrix       initial hessian matrix provided for algorithm 6
+%   new_rat_hess_info   [matlab structure]                  step size info used by algorith 5
 %   varargin            [cell array]                        Input arguments for objective function
 %    
 % OUTPUTS
@@ -25,7 +26,7 @@ function [opt_par_values,fval,exitflag,hessian_mat,options_,Scale]=dynare_minimi
 %   none.
 %  
 % 
-% Copyright (C) 2014-2015 Dynare Team
+% Copyright (C) 2014-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -59,7 +60,7 @@ Scale=[];
 exitflag=1;
 fval=NaN;
 opt_par_values=NaN(size(start_par_value));
-
+new_rat_hess_info=[];
 
 switch minimizer_algorithm
   case 1
@@ -244,7 +245,10 @@ switch minimizer_algorithm
         Save_files = 0; 
         Verbose = 0;
     end    
-    [opt_par_values,hessian_mat,gg,fval,invhess] = newrat(objective_function,start_par_value,bounds,analytic_grad,crit,nit,0,Verbose, Save_files,varargin{:});
+    hess_info.gstep=options_.gstep;
+    hess_info.htol = 1.e-4;
+    hess_info.h1=options_.gradient_epsilon*ones(n_params,1);
+    [opt_par_values,hessian_mat,gg,fval,invhess,new_rat_hess_info] = newrat(objective_function,start_par_value,bounds,analytic_grad,crit,nit,0,Verbose, Save_files,hess_info,varargin{:});
     %hessian_mat is the plain outer product gradient Hessian
   case 6
     [opt_par_values, hessian_mat, Scale, fval] = gmhmaxlik(objective_function, start_par_value, ...

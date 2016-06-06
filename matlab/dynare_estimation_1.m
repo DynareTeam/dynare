@@ -242,7 +242,7 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
             elseif ~isnumeric(options_.mode_compute) || ~(isequal(options_.mode_compute,5) && newratflag~=1), 
                 % with flag==0, we force to use the hessian from outer
                 % product gradient of optimizer 5
-                hh = reshape(hessian(objective_function,xparam1, ...
+                hh = reshape(penalty_hessian(objective_function,xparam1,fval, ...
                     options_.gstep,dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,bounds,oo_),nx,nx);
             elseif isnumeric(options_.mode_compute) && isequal(options_.mode_compute,5)
                 % other numerical hessian options available with optimizer 5
@@ -269,7 +269,7 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
                 if compute_hessian,
                     crit = options_.newrat.tolerance.f;
                     newratflag = newratflag>0;
-                    hh = reshape(mr_hessian(0,xparam1,objective_function,newratflag,crit,dataset_, dataset_info, options_,M_,estim_params_,bayestopt_,bounds,oo_), nx, nx);
+                    hh = reshape(mr_hessian(xparam1,objective_function,newratflag,crit,new_rat_hess_info,dataset_, dataset_info, options_,M_,estim_params_,bayestopt_,bounds,oo_), nx, nx);
                 end
                 options_.kalman_algo = kalman_algo0;
             end
