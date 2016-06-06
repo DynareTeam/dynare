@@ -221,7 +221,7 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
         end
     end
     
-    [xparam1, fval, exitflag, hh, options_, Scale] = dynare_minimize_objective(objective_function,xparam1,options_.mode_compute,options_,[bounds.lb bounds.ub],bayestopt_.name,bayestopt_,hh,dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,bounds,oo_);
+    [xparam1, fval, exitflag, hh, options_, Scale, new_rat_hess_info] = dynare_minimize_objective(objective_function,xparam1,options_.mode_compute,options_,[bounds.lb bounds.ub],bayestopt_.name,bayestopt_,hh,dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,bounds,oo_);
     fprintf('\nFinal value of minus the log posterior (or likelihood):%f \n', fval);
 
     if isnumeric(options_.mode_compute) && options_.mode_compute==5 && options_.analytic_derivation==-1 %reset options changed by newrat
@@ -269,7 +269,7 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
                 if compute_hessian,
                     crit = options_.newrat.tolerance.f;
                     newratflag = newratflag>0;
-                    hh = reshape(mr_hessian(xparam1,objective_function,newratflag,crit,new_rat_hess_info,dataset_, dataset_info, options_,M_,estim_params_,bayestopt_,bounds,oo_), nx, nx);
+                    hh = reshape(mr_hessian(xparam1,objective_function,fval,newratflag,crit,new_rat_hess_info,dataset_, dataset_info, options_,M_,estim_params_,bayestopt_,bounds,oo_), nx, nx);
                 end
                 options_.kalman_algo = kalman_algo0;
             end
@@ -322,7 +322,7 @@ if ~options_.mh_posterior_mode_estimation && options_.cova_compute
         disp('=> posterior variance of the estimated parameters are not positive.')
         disp('You should try to change the initial values of the parameters using')
         disp('the estimated_params_init block, or use another optimization routine.')
-        params_at_bound=find(xparam1==bounds.ub | xparam1==bounds.lb);
+        params_at_bound=find(abs(xparam1-bounds.ub)<1.e-10 | abs(xparam1-bounds.lb)<1.e-10);
         if ~isempty(params_at_bound)
             for ii=1:length(params_at_bound)
             params_at_bound_name{ii,1}=get_the_name(params_at_bound(ii),0,M_,estim_params_,options_);
@@ -339,6 +339,7 @@ if ~options_.mh_posterior_mode_estimation && options_.cova_compute
             fprintf('   - Change the optimization bounds.\n')
             fprintf('   - Use a different mode_compute like 6 or 9.\n')
             fprintf('   - Check whether the parameters estimated are identified.\n')
+            fprintf('   - Check prior shape (e.g. Inf density at bound(s)).\n')
             fprintf('   - Increase the informativeness of the prior.\n')
         end
         warning('The results below are most likely wrong!');

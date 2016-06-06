@@ -261,7 +261,7 @@ while ~done
             elseif ischar(grad),
                 [gh, badgh] = grad(xh,varargin{:});
             else
-                [junkh,cost_flag,gh] = penalty_objective_function(x1,penalty,varargin{:});
+                [junkh,cost_flag,gh] = penalty_objective_function(x1,fcn,penalty,varargin{:});
                 badgh = ~cost_flag;
             end
         end
