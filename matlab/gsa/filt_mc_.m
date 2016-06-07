@@ -169,7 +169,7 @@ if ~loadSA,
             rmse_mode = sqrt(mean((yobs(istart:end,:)-y0(istart:end,:)).^2));
             r2_mode = 1-sum((yobs(istart:end,:)-y0(istart:end,:)).^2)./sum(yobs(istart:end,:).^2);
         end
-        y0=yss*0;
+        y0=-yss;
         nbb=0;
         for j=1:length(filfilt),
             load([DirectoryName filesep M_.fname '_filter_step_ahead',num2str(j),'.mat']);

@@ -237,14 +237,26 @@ for b=fpar:B
         end
         if naK
             %filtered variable E_t(y_t+k) requires to shift trend by k periods
-            %write percentage deviation of variables into declaration order
-            stock_filter_step_ahead(:,dr.order_var,:,irun(4)) = aK(options_.filter_step_ahead,1:endo_nbr,:);
+            %write variables into declaration order
+            if options_.loglinear %reads values from smoother results, which are in dr-order and put them into declaration order
+                constant_part=repmat(log(SteadyState(dr.order_var))',[length(options_.filter_step_ahead),1,gend+max(options_.filter_step_ahead)])
+            else
+                constant_part=repmat(SteadyState(dr.order_var)',[length(options_.filter_step_ahead),1,gend+max(options_.filter_step_ahead)]);
+            end       
+
+            stock_filter_step_ahead(:,dr.order_var,:,irun(4)) = aK(options_.filter_step_ahead,1:endo_nbr,:) + ...
+                constant_part;
             
-            %now add trend and constant to filtered variables
+            %now add trend to observables
             for ii=1:length(options_.filter_step_ahead)
-                stock_filter_step_ahead(ii,IdObs,:,irun(4)) = squeeze(stock_filter_step_ahead(ii,IdObs,:,irun(4)))...
-                +repmat(constant_part(:,1),1,gend+max(options_.filter_step_ahead))... %constant
-                +[trend_addition repmat(trend_addition(:,end),1,max(options_.filter_step_ahead))+trend_coeff*[1:max(options_.filter_step_ahead)]]; %trend
+                if options_.prefilter
+                    stock_filter_step_ahead(ii,IdObs,:,irun(4)) = squeeze(stock_filter_step_ahead(ii,IdObs,:,irun(4)))...
+                        +repmat(mean_correction(:,1),1,gend+max(options_.filter_step_ahead))... %constant correction
+                        +[trend_addition repmat(trend_addition(:,end),1,max(options_.filter_step_ahead))+trend_coeff*[1:max(options_.filter_step_ahead)]]; %trend
+                else
+                    stock_filter_step_ahead(ii,IdObs,:,irun(4)) = squeeze(stock_filter_step_ahead(ii,IdObs,:,irun(4)))...
+                        +[trend_addition repmat(trend_addition(:,end),1,max(options_.filter_step_ahead))+trend_coeff*[1:max(options_.filter_step_ahead)]]; %trend
+                end
             end
         end
 
@@ -434,10 +446,10 @@ if RemoteFlag==1,
                         OutputFileName_filter_step_ahead;
                         OutputFileName_param;
                         OutputFileName_forc_mean;
-                        OutputFileName_forc_point
-                        OutputFileName_filter_covar
-                        OutputFileName_trend_coeff
-                        OutputFileName_smoothed_trend
+                        OutputFileName_forc_point;
+                        OutputFileName_filter_covar;
+                        OutputFileName_trend_coeff;
+                        OutputFileName_smoothed_trend;
                         OutputFileName_smoothed_constant];
 end
 

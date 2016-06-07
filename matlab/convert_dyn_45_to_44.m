@@ -147,8 +147,13 @@ end
 if ~isempty(options_.nk) && options_.nk ~= 0 && ~isempty(bayestopt_)
     if ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file)) %no Bayesian estimation
         positions_in_decision_order=oo_.dr.inv_order_var(bayestopt_.smoother_var_list(bayestopt_.smoother_saved_var_list));
+            if  options_.loglinear == 1 %logged steady state must be used
+                constant_all_variables=log(oo_.dr.ys(bayestopt_.smoother_var_list(bayestopt_.smoother_saved_var_list)));
+            elseif options_.loglinear == 0 %unlogged steady state must be used
+                constant_all_variables=oo_.dr.ys(bayestopt_.smoother_var_list(bayestopt_.smoother_saved_var_list));
+            end
         if ~(options_.selected_variables_only && ~(options_.forecast > 0)) %happens only when selected_variables_only is not used
-            oo_.FilteredVariablesKStepAhead(:,positions_in_decision_order,:)=oo_.FilteredVariablesKStepAhead;
+            oo_.FilteredVariablesKStepAhead(:,positions_in_decision_order,:)=oo_.FilteredVariablesKStepAhead-constant_all_variables;
             if ~isempty(PK) %get K-step ahead variances
                 oo_.FilteredVariablesKStepAheadVariances(:,positions_in_decision_order,positions_in_decision_order,:)=oo_.FilteredVariablesKStepAheadVariances;
             end

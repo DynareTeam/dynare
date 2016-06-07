@@ -120,9 +120,16 @@ end
 %get indices of smoothed variables
 i_endo_in_bayestopt_smoother_varlist = bayestopt_.smoother_saved_var_list;
 i_endo_in_dr_matrices=bayestopt_.smoother_var_list(i_endo_in_bayestopt_smoother_varlist);
-if ~isempty(options_.nk) && options_.nk ~= 0 
-    %write deviations from steady state, add constant for observables later
-    oo_.FilteredVariablesKStepAhead = aK(options_.filter_step_ahead,i_endo_in_dr_matrices,:);    
+if ~isempty(options_.nk) && options_.nk ~= 0
+    %% Compute constant
+    i_endo_declaration_order = oo_.dr.order_var(i_endo_in_dr_matrices); %get indices of smoothed variables in name vector
+    if  options_.loglinear == 1 %logged steady state must be used
+        constant_all_variables=repmat(log(ys(i_endo_declaration_order))',[length(options_.filter_step_ahead),1,gend+max(options_.filter_step_ahead)]);
+    elseif options_.loglinear == 0 %unlogged steady state must be used
+        constant_all_variables=repmat((ys(i_endo_declaration_order))',[length(options_.filter_step_ahead),1,gend+max(options_.filter_step_ahead)]);
+    end
+    % add constant
+    oo_.FilteredVariablesKStepAhead = aK(options_.filter_step_ahead,i_endo_in_dr_matrices,:)+constant_all_variables;
     if ~isempty(PK) %get K-step ahead variances
         oo_.FilteredVariablesKStepAheadVariances = ...
             PK(options_.filter_step_ahead,i_endo_in_dr_matrices,i_endo_in_dr_matrices,:);
@@ -145,7 +152,7 @@ for i_endo_in_bayestopt_smoother_varlist=bayestopt_.smoother_saved_var_list'
     oo_.Smoother.Constant.(deblank(M_.endo_names(i_endo_declaration_order,:)))=constant_current_variable;
     oo_.SmoothedVariables.(deblank(M_.endo_names(i_endo_declaration_order,:)))=atT(i_endo_in_dr,:)'+constant_current_variable;
     if ~isempty(options_.nk) && options_.nk > 0 && ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file))
-        oo_.FilteredVariables.(deblank(M_.endo_names(i_endo_declaration_order,:)))=squeeze(aK(1,i_endo_in_dr,2:end-(options_.nk-1)));
+        oo_.FilteredVariables.(deblank(M_.endo_names(i_endo_declaration_order,:)))=squeeze(aK(1,i_endo_in_dr,2:end-(options_.nk-1)))+constant_current_variable;
     end
     oo_.UpdatedVariables.(deblank(M_.endo_names(i_endo_declaration_order,:)))=updated_variables(i_endo_in_dr,:)'+constant_current_variable;
 end
