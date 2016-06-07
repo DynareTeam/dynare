@@ -1,10 +1,11 @@
-function xparam = get_posterior_parameters(type)
+function xparam = get_posterior_parameters(type,field1)
 
 % function xparam = get_posterior_parameters(type)
 % Selects (estimated) parameters (posterior mode or posterior mean).
 % 
 % INPUTS 
 %   o type       [char]     = 'mode' or 'mean'.
+%   o field_1    [char]     optional field like 'mle_'.
 %  
 % OUTPUTS 
 %   o xparam     vector of estimated parameters  
@@ -12,7 +13,7 @@ function xparam = get_posterior_parameters(type)
 % SPECIAL REQUIREMENTS
 %   None.
 
-% Copyright (C) 2006-2013 Dynare Team
+% Copyright (C) 2006-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -31,6 +32,9 @@ function xparam = get_posterior_parameters(type)
 
 global estim_params_ oo_ options_ M_ 
 
+if nargin<2
+    field1='posterior_';
+end
 nvx = estim_params_.nvx;
 nvn = estim_params_.nvn;
 ncx = estim_params_.ncx;
@@ -43,7 +47,7 @@ m = 1;
 for i=1:nvx
     k1 = estim_params_.var_exo(i,1);
     name1 = deblank(M_.exo_names(k1,:));
-    xparam(m) = eval(['oo_.posterior_' type '.shocks_std.' name1]);
+    xparam(m) = oo_.([field1 type]).shocks_std.(name1);
     M_.Sigma_e(k1,k1) = xparam(m)^2;
     m = m+1;
 end
@@ -51,7 +55,7 @@ end
 for i=1:nvn
     k1 = estim_params_.nvn_observable_correspondence(i,1);
     name1 = options_.varobs{k1};
-    xparam(m) = eval(['oo_.posterior_' type '.measurement_errors_std.' name1]);
+    xparam(m) = oo_.([field1 type]).measurement_errors_std.(name1);
     m = m+1;
 end
 
@@ -60,7 +64,7 @@ for i=1:ncx
     k2 = estim_params_.corrx(i,2);
     name1 = deblank(M_.exo_names(k1,:));
     name2 = deblank(M_.exo_names(k2,:));
-    xparam(m) = eval(['oo_.posterior_' type '.shocks_corr.' name1 '_' name2]);
+    xparam(m) = oo_.([field1 type]).shocks_corr.([name1 '_' name2]);
     M_.Sigma_e(k1,k2) = xparam(m);
     M_.Sigma_e(k2,k1) = xparam(m);
     m = m+1;
@@ -71,7 +75,7 @@ for i=1:ncn
     k2 = estim_params_.corrn_observable_correspondence(i,2);
     name1 = options_.varobs{k1};
     name2 = options_.varobs{k2};
-    xparam(m) = eval(['oo_.posterior_' type '.measurement_errors_corr.' name1 '_' name2]);
+    xparam(m) = oo_.([field1 type]).measurement_errors_corr.([name1 '_' name2]);
     m = m+1;
 end
 
@@ -79,8 +83,8 @@ FirstDeep = m;
 
 for i=1:np
     name1 = deblank(M_.param_names(estim_params_.param_vals(i,1),:));
-    xparam(m) = eval(['oo_.posterior_' type '.parameters.' name1]);
-    assignin('base',name1,xparam(m));% Useless with version 4 (except maybe for users)
+    xparam(m) = oo_.([field1 type]).parameters.(name1);
+    %assignin('base',name1,xparam(m));% Useless with version 4 (except maybe for users)
     m = m+1;
 end
 

@@ -2,7 +2,7 @@ function [oo_, Smoothed_variables_declaration_order_deviation_form]=evaluate_smo
 % Evaluate the smoother at parameters.
 %
 % INPUTS
-%    o parameters  a string ('posterior mode','posterior mean','posterior median','prior mode','prior mean') or a vector of values for
+%    o parameters  a string ('posterior mode','posterior mean','posterior median','prior mode','prior mean','mle_mode') or a vector of values for
 %                  the (estimated) parameters of the model.
 %    o var_list    subset of endogenous variables
 %
@@ -71,6 +71,8 @@ if ischar(parameters)
         parameters = get_posterior_parameters('mean');
       case 'posterior_median'
         parameters = get_posterior_parameters('median');
+      case 'mle_mode'
+        parameters = get_posterior_parameters('mode','mle_');
       case 'prior_mode'
         parameters = bayestopt_.p5(:);
       case 'prior_mean'

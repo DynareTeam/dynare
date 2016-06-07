@@ -54,7 +54,9 @@ parameter_set = options_.parameter_set;
 if isempty(parameter_set)
     if isfield(oo_,'posterior_mean')
         parameter_set = 'posterior_mean';
-    elseif isfield(oo_,'posterior_mode')
+    elseif isfield(oo_,'mle_mode') 
+        parameter_set = 'mle_mode';
+    elseif isfield(oo_,'posterior') 
         parameter_set = 'posterior_mode';
     else
         error(['shock_decomposition: option parameter_set is not specified ' ...

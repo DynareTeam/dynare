@@ -161,3 +161,6 @@ end
 % hold on
 % plot(y_(strmatch('gp_obs',M_.endo_names,'exact'),:),'r--')
 
+
+shock_decomposition;
+

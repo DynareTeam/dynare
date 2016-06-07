@@ -6627,11 +6627,11 @@ model).
 
 @item parameter_set = @var{PARAMETER_SET}
 Specify the parameter set to use for running the smoother. The
-@var{PARAMETER_SET} can take one of the following five values:
+@var{PARAMETER_SET} can take one of the following seven values:
 @code{calibration}, @code{prior_mode}, @code{prior_mean},
 @code{posterior_mode}, @code{posterior_mean},
-@code{posterior_median}. Default value: @code{posterior_mean} if
-Metropolis has been run, else @code{posterior_mode}.
+@code{posterior_median}, @code{mle_mode}. Default value: @code{posterior_mean} if
+Metropolis has been run, @code{mle_mode} if MLE has been run.
 
 @item datafile = @var{FILENAME}
 @xref{datafile}. Useful when computing the shock decomposition on a

@@ -567,6 +567,7 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <DYNARE_STATEMENT>posterior_mode {return token::POSTERIOR_MODE; }
 <DYNARE_STATEMENT>posterior_mean {return token::POSTERIOR_MEAN; }
 <DYNARE_STATEMENT>posterior_median {return token::POSTERIOR_MEDIAN; }
+<DYNARE_STATEMENT>mle_mode {return token::MLE_MODE; }
 <DYNARE_STATEMENT>k_order_solver {return token::K_ORDER_SOLVER; }
 <DYNARE_STATEMENT>filter_covariance {return token::FILTER_COVARIANCE; }
 <DYNARE_STATEMENT>filter_decomposition {return token::FILTER_DECOMPOSITION; }
