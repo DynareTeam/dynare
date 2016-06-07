@@ -164,3 +164,13 @@ end
 
 shock_decomposition;
 
+conditional_forecast_paths;
+var gy_obs;
+periods  1  2  3:5;
+values   0.01 -0.02 0;
+var gp_obs;
+periods 1:5;
+values  0.05;
+end;
+
+conditional_forecast(parameter_set=mle_mode, controlled_varexo=(e_a,e_m));

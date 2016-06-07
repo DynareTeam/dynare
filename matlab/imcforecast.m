@@ -46,7 +46,13 @@ function imcforecast(constrained_paths, constrained_vars, options_cond_fcst)
 global options_ oo_ M_ bayestopt_
 
 if ~isfield(options_cond_fcst,'parameter_set') || isempty(options_cond_fcst.parameter_set)
-    options_cond_fcst.parameter_set = 'posterior_mode';
+    if isfield(oo_,'posterior_mode')
+        options_cond_fcst.parameter_set = 'posterior_mode';
+    elseif isfield(oo_,'mle_mode')
+        options_cond_fcst.parameter_set = 'mle_mode';
+    else
+        error('No valid parameter set found')
+    end
 end
 
 if ~isfield(options_cond_fcst,'replic') || isempty(options_cond_fcst.replic)
@@ -82,6 +88,9 @@ if estimated_model
           case 'posterior_median'
             xparam = get_posterior_parameters('median');
             graph_title='Posterior Median';
+          case 'mle_mode'
+            xparam = get_posterior_parameters('mode','mle_');
+            graph_title='ML Mode';
           case 'prior_mode'
             xparam = bayestopt_.p5(:);
             graph_title='Prior Mode';
