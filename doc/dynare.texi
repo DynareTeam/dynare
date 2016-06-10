@@ -809,7 +809,8 @@ Activate the @code{nograph} option (@pxref{nograph}), so that Dynare will not pr
 graph
 
 @item nointeractive
-Instructs Dynare to not request user input
+@anchor{nointeractive}
+Instructs Dynare to not request user input.
 
 @item nopathchange
 By default Dynare will change Matlab/Octave's path if
@@ -5118,13 +5119,24 @@ This  can  be  done  in  the  @ref{estimated_params}- block.
 Note that @code{mode_compute=6} will tune the scale parameter to achieve an acceptance rate of 
 @ref{AcceptanceRateTarget}. The resulting scale parameter will be saved into a file
 named @file{@var{MODEL_FILENAME}_mh_scale.mat}. This file can be loaded in subsequent runs
-via the @code{posterior_sampler_options}-option @code{scale_file}. Both @code{mode_compute=6}
+via the @code{posterior_sampler_options}-option @ref{scale_file}. Both @code{mode_compute=6}
 and @code{scale_file} will overwrite any value specified in @code{estimated_params} with the tuned value.  
 Default: @code{0.2}
 
 @item mh_init_scale = @var{DOUBLE}
 The scale to be used for drawing the initial value of the
-Metropolis-Hastings chain. Default: 2*@code{mh_scale}
+Metropolis-Hastings chain. Generally, the starting points should be overdispersed
+for the @cite{Brooks and Gelman (1998)}-convergence diagnostics to be meaningful. Default: 2*@code{mh_jscale}. 
+It is important to keep in mind that @code{mh_init_scale} is set at the beginning of 
+Dynare execution, i.e. the default will not take into account potential changes in
+@ref{mh_jscale} introduced by either @code{mode_compute=6} or the 
+@code{posterior_sampler_options}-option @ref{scale_file}. 
+If @code{mh_init_scale} is too wide during initalization of the posterior sampler so that 100 tested draws 
+are inadmissible (e.g. Blanchard-Kahn conditions are always violated), Dynare will request user input 
+of a new @code{mh_init_scale} value with which the next 100 draws will be drawn and tested. 
+If the @ref{nointeractive}-option has been invoked, the program will instead automatically decrease 
+@code{mh_init_scale} by 10 percent after 100 futile draws and try another 100 draws. This iterative 
+procedure will take place at most 10 times, at which point Dynare will abort with an error message.
 
 @item mh_recover
 @anchor{mh_recover} Attempts to recover a Metropolis-Hastings
