@@ -5106,15 +5106,21 @@ The fraction of initially generated parameter vectors to be dropped as a burnin 
 
 @item mh_jscale = @var{DOUBLE}
 @anchor{mh_jscale}  The scale  parameter of  the jumping  distribution's
-covariance matrix (Metropolis-Hastings algorithm).  The default value is
-rarely satisfactory.  This  option must be tuned to  obtain, ideally, an
-acceptance  ratio  of  25%-33%  in  the  Metropolis-Hastings  algorithm.
+covariance matrix (Metropolis-Hastings or TaRB-algorithm).  The default value is
+rarely satisfactory. This option must be tuned to obtain, ideally, an
+acceptance ratio of 25%-33%.
 Basically,  the  idea  is  to  increase  the  variance  of  the  jumping
-distribution if the acceptance ratio is  too high, and decrease the same
-variance if the  acceptance ratio is too low. In  some situations in may
-help to  consider parameter  specific values  for this  scale parameter,
-this  can  be  done  in  the  @ref{estimated_params}  block. Default:
-@code{0.2}
+distribution if the acceptance ratio is too high, and decrease the same
+variance if the acceptance ratio is too low. In some situations it may
+help to consider parameter-specific values for this scale parameter. 
+This  can  be  done  in  the  @ref{estimated_params}- block.  
+
+Note that @code{mode_compute=6} will tune the scale parameter to achieve an acceptance rate of 
+@ref{AcceptanceRateTarget}. The resulting scale parameter will be saved into a file
+named @file{@var{MODEL_FILENAME}_mh_scale.mat}. This file can be loaded in subsequent runs
+via the @code{posterior_sampler_options}-option @code{scale_file}. Both @code{mode_compute=6}
+and @code{scale_file} will overwrite any value specified in @code{estimated_params} with the tuned value.  
+Default: @code{0.2}
 
 @item mh_init_scale = @var{DOUBLE}
 The scale to be used for drawing the initial value of the
@@ -5401,6 +5407,7 @@ Available options are:
 @table @code
 
 @item 'AcceptanceRateTarget'
+@anchor{AcceptanceRateTarget}
 A real number between zero and one. The scale parameter of the jumping distribution is adjusted so that the effective acceptance rate matches the value of option @code{'AcceptanceRateTarget'}. Default: @code{1.0/3.0}
 
 @item 'InitialCovarianceMatrix'
@@ -5628,7 +5635,7 @@ Specifies the statistical distribution used for the proposal density.
 
 @table @code
 @item 'rand_multivariate_normal'
-Use a multivariate normal distribution
+Use a multivariate normal distribution. This is the default.
 
 @item 'rand_multivariate_student'
 Use a multivariate student distribution
@@ -5637,12 +5644,17 @@ Use a multivariate student distribution
 
 @item 'student_degrees_of_freedom'
 @anchor{student_degrees_of_freedom}
-Specifies the degrees of freedom to be used with the multivariate student distribution
+Specifies the degrees of freedom to be used with the multivariate student distribution. Default: 3
 
 @item 'use_mh_covariance_matrix'
 @anchor{use_mh_covariance_matrix}
 Indicates to use the covariance matrix of the draws from a previous MCMC run to define the 
-covariance of the proposal distribution. Requires the @ref{load_mh_file}-option to be specified.
+covariance of the proposal distribution. Requires the @ref{load_mh_file}-option to be specified. Default: 0
+
+@item 'scale_file'
+@anchor{scale_file}
+Provides the name of a @file{_mh_scale.mat}-file storing the tuned scale factor from a 
+previous run of @code{mode_compute=6}
 
 @end table
 
@@ -5696,6 +5708,9 @@ TaRB Metropolis-Hastings algorithm. @xref{mode_compute}. Default: @code{4}.
 @item optim = (@var{NAME}, @var{VALUE}, ...)
 Specifies the options for the mode-finder used in the TaRB 
 Metropolis-Hastings algorithm. @xref{optim}. 
+
+@item 'scale_file'
+@xref{scale_file}.
 
 @end table
 
@@ -6050,10 +6065,12 @@ Sets the method for approximating the particle distribution. Possible values for
 
 @customhead{Note}
 
-If no @code{mh_jscale} parameter is used in estimated_params, the
-procedure uses @code{mh_jscale} for all parameters. If
+If no @code{mh_jscale} parameter is used for a parameter in @code{estimated_params}, 
+the procedure uses @code{mh_jscale} for all parameters. If
 @code{mh_jscale} option isn't set, the procedure uses @code{0.2} for
-all parameters.
+all parameters. Note that if @code{mode_compute=6} is used or the @code{posterior_sampler_option} 
+called @code{scale_file} is specified, the values set in @code{estimated_params}
+will be overwritten.
 
 @outputhead
 

@@ -59,7 +59,7 @@ bayestopt_.p5 = zeros(nvx+nvn+ncx+ncn+np,1); % prior mode
 bayestopt_.p6 = []; % first hyper-parameter (\alpha for the BETA and GAMMA distributions, s for the INVERSE GAMMAs, expectation for the GAUSSIAN distribution, lower bound for the UNIFORM distribution).
 bayestopt_.p7 = []; % second hyper-parameter (\beta for the BETA and GAMMA distributions, \nu for the INVERSE GAMMAs, standard deviation for the GAUSSIAN distribution, upper bound for the UNIFORM distribution).
 
-bayestopt_.jscale = [];
+bayestopt_.jscale = []; %jscale might subsequently be overwritten by mode_compute=6 or check_posterior_sampler_options
 bayestopt_.name = {};
 if nvx
     xparam1 = estim_params_.var_exo(:,2);

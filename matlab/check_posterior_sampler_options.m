@@ -82,7 +82,19 @@ if init,
                             % default = 0
                             posterior_sampler_options.use_mh_covariance_matrix = options_list{i,2};
                             options_.use_mh_covariance_matrix = options_list{i,2};
-                            
+                        case 'scale_file'
+                            % load optimal_mh_scale parameter if previous run was with mode_compute=6
+                            % will overwrite jscale from set_prior.m
+                            if exist(options_list{i,2},'file') || exist([options_list{i,2},'.mat'],'file')
+                                tmp = load(options_list{i,2},'Scale');
+                                global bayestopt_
+                                bayestopt_.mh_jscale = tmp.Scale;
+                                options_.mh_jscale = tmp.Scale;
+                                bayestopt_.jscale = ones(size(bounds.lb,1),1)*tmp.Scale;
+%                                 options_.mh_init_scale = 2*options_.mh_jscale;
+                            else
+                                error('initial_estimation_checks:: The specified mh_scale_file does not exist.')
+                            end
                         otherwise
                             warning(['rwmh_sampler: Unknown option (' options_list{i,1} ')!'])
                     end
@@ -134,6 +146,19 @@ if init,
                                 error('check_posterior_sampler_options:: The tarb new_block_probability must be between 0 and 1!')
                             else
                                 posterior_sampler_options.new_block_probability=options_list{i,2};
+                            end
+                        case 'scale_file'
+                            % load optimal_mh_scale parameter if previous run was with mode_compute=6
+                            % will overwrite jscale from set_prior.m
+                            if exist(options_list{i,2},'file') || exist([options_list{i,2},'.mat'],'file')
+                                tmp = load(options_list{i,2},'Scale');
+                                global bayestopt_
+                                bayestopt_.mh_jscale = tmp.Scale;
+                                options_.mh_jscale = tmp.Scale;
+                                bayestopt_.jscale = ones(size(bounds.lb,1),1)*tmp.Scale;
+%                                 options_.mh_init_scale = 2*options_.mh_jscale;
+                            else
+                                error('initial_estimation_checks:: The specified scale_file does not exist.')
                             end
                             
                         otherwise

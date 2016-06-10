@@ -136,19 +136,6 @@ pnames = ['     '; 'beta '; 'gamm '; 'norm '; 'invg '; 'unif '; 'invg2'; '     '
 
 dr = oo_.dr;
 
-% load optimal_mh_scale parameter if previous run was with mode_compute=6
-mh_scale_fname = [M_.fname '_optimal_mh_scale_parameter.mat'];
-if exist(mh_scale_fname)
-    if options_.mode_compute == 0
-        tmp = load(mh_scale_fname,'Scale');
-        bayestopt_.mh_jscale = tmp.Scale;
-        clear tmp;
-    else
-        % remove the file if mode_compute ~= 0
-        delete(mh_scale_fname)
-    end
-end
-
 if ~isempty(estim_params_)
     M_ = set_all_parameters(xparam1,estim_params_,M_);
 end
