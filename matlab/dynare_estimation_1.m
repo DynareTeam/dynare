@@ -353,10 +353,11 @@ if options_.mode_check.status == 1 && ~options_.mh_posterior_mode_estimation
     options_.analytic_derivation = ana_deriv_old;
 end
 
-oo_.posterior.optimization.mode = xparam1;
+oo_.posterior.optimization.mode = [];
 oo_.posterior.optimization.Variance = [];
 invhess=[];
 if ~options_.mh_posterior_mode_estimation
+    oo_.posterior.optimization.mode = xparam1;
     if options_.cova_compute
         invhess = inv(hh);
         stdh = sqrt(diag(invhess));
