@@ -491,39 +491,6 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
     [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend] = DsgeSmoother(xparam1,dataset_.nobs,transpose(dataset_.data),dataset_info.missing.aindex,dataset_info.missing.state);
     [oo_,yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend);
 
-%    oo_.Smoother.SteadyState = ys;
-%    oo_.Smoother.TrendCoeffs = trend_coeff;
-%    oo_.Smoother.Trend = Trend;
-%    oo_.Smoother.Variance = P;
-%    i_endo = bayestopt_.smoother_saved_var_list;
-%    if ~isempty(options_.nk) && options_.nk ~= 0 && (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file)))
-%        oo_.FilteredVariablesKStepAhead = aK(options_.filter_step_ahead, ...
-%                                             i_endo,:);
-%        if isfield(options_,'kalman_algo')
-%            if ~isempty(PK)
-%                oo_.FilteredVariablesKStepAheadVariances = ...
-%                    PK(options_.filter_step_ahead,i_endo,i_endo,:);
-%            end
-%            if ~isempty(decomp)
-%                oo_.FilteredVariablesShockDecomposition = ...
-%                    decomp(options_.filter_step_ahead,i_endo,:,:);
-%            end
-%        end
-%    end
-%    for i=bayestopt_.smoother_saved_var_list'
-%        i1 = dr.order_var(bayestopt_.smoother_var_list(i));
-%        eval(['oo_.SmoothedVariables.' deblank(M_.endo_names(i1,:)) ' = ' ...
-%                            'atT(i,:)'';']);
-%        if ~isempty(options_.nk) && options_.nk > 0 && ~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.pshape> 0) && options_.load_mh_file))
-%            eval(['oo_.FilteredVariables.' deblank(M_.endo_names(i1,:)) ...
-%                  ' = squeeze(aK(1,i,2:end-(options_.nk-1)));']);
-%        end
-%        eval(['oo_.UpdatedVariables.' deblank(M_.endo_names(i1,:)) ...
-%              ' = updated_variables(i,:)'';']);
-%    end
-%    for i=1:M_.exo_nbr
-%        eval(['oo_.SmoothedShocks.' deblank(M_.exo_names(i,:)) ' = innov(i,:)'';']);
-%    end
     if ~options_.nograph,
         [nbplt,nr,nc,lr,lc,nstar] = pltorg(M_.exo_nbr);
         if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
@@ -594,16 +561,6 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
             fclose(fidTeX);
         end
     end
-%     %%
-%     %%  Smooth observational errors...
-%     %%
-%     if options_.prefilter == 1 %as mean is taken after log transformation, no distinction is needed here
-%         yf = atT(bayestopt_.mf,:)+repmat(dataset_info.descriptive.mean',1,gend)+Trend;
-%     elseif options_.loglinear == 1
-%         yf = atT(bayestopt_.mf,:)+repmat(log(ys(bayestopt_.mfys)),1,gend)+Trend;
-%     else
-%         yf = atT(bayestopt_.mf,:)+repmat(ys(bayestopt_.mfys),1,gend)+Trend;
-%     end
     if nvn
         number_of_plots_to_draw = 0;
         index = [];
@@ -612,7 +569,6 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                 number_of_plots_to_draw = number_of_plots_to_draw + 1;
                 index = cat(1,index,i);
             end
-%             eval(['oo_.SmoothedMeasurementErrors.' options_.varobs{i} ' = measurement_error(i,:)'';']);
         end
         if ~options_.nograph
             [nbplt,nr,nc,lr,lc,nstar] = pltorg(number_of_plots_to_draw);
