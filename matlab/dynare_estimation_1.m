@@ -393,6 +393,12 @@ if any(bayestopt_.pshape > 0) && ~options_.mh_posterior_mode_estimation
         disp(sprintf('Log data density [Laplace approximation] is %f.',oo_.MarginalDensity.LaplaceApproximation))
         skipline()
     end
+    if options_.dsge_var
+        [junk1,junk2,junk3,junk4,junk5,junk6,junk7,oo_.dsge_var.posterior_mode.PHI_tilde,oo_.dsge_var.posterior_mode.SIGMA_u_tilde,oo_.dsge_var.posterior_mode.iXX,oo_.dsge_var.posterior_mode.prior] =...
+            feval(objective_function,xparam1,dataset_,dataset_info,options_,M_,estim_params_,bayestopt_,bounds,oo_);
+        clear('junk1','junk2','junk3','junk4','junk5','junk6','junk7');
+    end
+
 elseif ~any(bayestopt_.pshape > 0) && ~options_.mh_posterior_mode_estimation
     oo_=display_estimation_results_table(xparam1,stdh,M_,options_,estim_params_,bayestopt_,oo_,pnames,'Maximum Likelihood','mle');
 end

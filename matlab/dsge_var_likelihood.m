@@ -1,4 +1,4 @@
-function [fval,info,exit_flag,grad,hess,SteadyState,trend_coeff,PHI,SIGMAu,iXX,prior] = dsge_var_likelihood(xparam1,DynareDataset,DynareInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults)
+function [fval,info,exit_flag,grad,hess,SteadyState,trend_coeff,PHI_tilde,SIGMA_u_tilde,iXX,prior] = dsge_var_likelihood(xparam1,DynareDataset,DynareInfo,DynareOptions,Model,EstimatedParameters,BayesInfo,BoundsInfo,DynareResults)
 % Evaluates the posterior kernel of the bvar-dsge model.
 %
 % INPUTS
@@ -17,11 +17,23 @@ function [fval,info,exit_flag,grad,hess,SteadyState,trend_coeff,PHI,SIGMAu,iXX,p
 %                                by call to dynare_resolve()
 %   o trend_coeff   [double]     place holder for trend coefficients,
 %                                currently not supported by dsge_var
-%   o PHI           [double]     Stacked BVAR-DSGE autoregressive matrices (at the mode associated to xparam1).
-%   o SIGMAu        [double]     Covariance matrix of the BVAR-DSGE (at the mode associated to xparam1).
-%   o iXX           [double]     inv(X'X).
-%   o prior         [double]     a matlab structure describing the dsge-var prior.
+%   o PHI_tilde     [double]     Stacked BVAR-DSGE autoregressive matrices (at the mode associated to xparam1); 
+%                                formula (28), DS (2004)
+%   o SIGMA_u_tilde [double]     Covariance matrix of the BVAR-DSGE (at the mode associated to xparam1),
+%                                formula (29), DS (2004)
+%   o iXX           [double]     inv(lambda*T*Gamma_XX^*+ X'*X)
+%   o prior         [double]     a matlab structure describing the dsge-var prior
+%                                   - SIGMA_u_star: prior covariance matrix, formula (23), DS (2004)
+%                                   - PHI_star: prior autoregressive matrices, formula (22), DS (2004)
+%                                   - ArtificialSampleSize: number of artificial observations from the prior (T^* in DS (2004))
+%                                   - DF = prior.ArtificialSampleSize - NumberOfParameters - NumberOfObservedVariables;
+%                                   - iGXX_star: theoretical covariance of regressors ({\Gamma_{XX}^*}^{-1} in DS (2004))
 %
+% ALGORITHMS
+%   Follows the computations outlined in Del Negro/Schorfheide (2004):
+%   Priors from general equilibrium models for VARs, International Economic
+%   Review, 45(2), pp. 643-673 
+% 
 % SPECIAL REQUIREMENTS
 %   None.
 
@@ -44,12 +56,14 @@ function [fval,info,exit_flag,grad,hess,SteadyState,trend_coeff,PHI,SIGMAu,iXX,p
 
 persistent dsge_prior_weight_idx
 
+% Initialize some of the output arguments.
+fval = [];
+exit_flag = 1;
 grad=[];
 hess=[];
-exit_flag = [];
 info = zeros(4,1);
-PHI = [];
-SIGMAu = [];
+PHI_tilde = [];
+SIGMA_u_tilde = [];
 iXX = [];
 prior = [];
 trend_coeff=[];
@@ -83,10 +97,6 @@ mYY = evalin('base', 'mYY');
 mYX = evalin('base', 'mYX');
 mXY = evalin('base', 'mXY');
 mXX = evalin('base', 'mXX');
-
-% Initialize some of the output arguments.
-fval = [];
-exit_flag = 1;
 
 % Return, with endogenous penalty, if some dsge-parameters are smaller than the lower bound of the prior domain.
 if DynareOptions.mode_compute ~= 1 && any(xparam1 < BoundsInfo.lb)
@@ -217,12 +227,16 @@ assignin('base','GYY',GYY);
 assignin('base','GXX',GXX);
 assignin('base','GYX',GYX);
 
+iGXX = inv(GXX);
+PHI_star = iGXX*transpose(GYX); %formula (22), DS (2004)
+SIGMA_u_star=GYY - GYX*PHI_star; %formula (23), DS (2004)
 if ~isinf(dsge_prior_weight)% Evaluation of the likelihood of the dsge-var model when the dsge prior weight is finite.
-    tmp0 = dsge_prior_weight*NumberOfObservations*TheoreticalAutoCovarianceOfTheObservedVariables(:,:,1) + mYY ;
-    tmp1 = dsge_prior_weight*NumberOfObservations*GYX + mYX;
-    tmp2 = inv(dsge_prior_weight*NumberOfObservations*GXX+mXX);
-    SIGMAu = tmp0 - tmp1*tmp2*tmp1'; clear('tmp0');
-    [SIGMAu_is_positive_definite, penalty] = ispd(SIGMAu);
+    tmp0 = dsge_prior_weight*NumberOfObservations*TheoreticalAutoCovarianceOfTheObservedVariables(:,:,1) + mYY ;  %first term of square bracket in formula (29), DS (2004)
+    tmp1 = dsge_prior_weight*NumberOfObservations*GYX + mYX;        %first element of second term of square bracket in formula (29), DS (2004)
+    tmp2 = inv(dsge_prior_weight*NumberOfObservations*GXX+mXX);     %middle element of second term of square bracket in formula (29), DS (2004)
+    SIGMA_u_tilde = tmp0 - tmp1*tmp2*tmp1';                               %square bracket term in formula (29), DS (2004) 
+    clear('tmp0');
+    [SIGMAu_is_positive_definite, penalty] = ispd(SIGMA_u_tilde);
     if ~SIGMAu_is_positive_definite
         fval = Inf;
         info(1) = 52;
@@ -230,29 +244,32 @@ if ~isinf(dsge_prior_weight)% Evaluation of the likelihood of the dsge-var model
         exit_flag = 0;
         return;
     end
-    SIGMAu = SIGMAu / (NumberOfObservations*(1+dsge_prior_weight));
-    PHI = tmp2*tmp1'; clear('tmp1');
+    SIGMA_u_tilde = SIGMA_u_tilde / (NumberOfObservations*(1+dsge_prior_weight));   %prefactor of formula (29), DS (2004)
+    PHI_tilde = tmp2*tmp1';                                                   %formula (28), DS (2004)
+    clear('tmp1');
     prodlng1 = sum(gammaln(.5*((1+dsge_prior_weight)*NumberOfObservations- ...
                                NumberOfObservedVariables*NumberOfLags ...
-                               +1-(1:NumberOfObservedVariables)')));
+                               +1-(1:NumberOfObservedVariables)')));    %last term in numerator of third line of (A.2), DS (2004)
     prodlng2 = sum(gammaln(.5*(dsge_prior_weight*NumberOfObservations- ...
                                NumberOfObservedVariables*NumberOfLags ...
-                               +1-(1:NumberOfObservedVariables)')));
-    lik = .5*NumberOfObservedVariables*log(det(dsge_prior_weight*NumberOfObservations*GXX+mXX)) ...
-          + .5*((dsge_prior_weight+1)*NumberOfObservations-NumberOfParameters)*log(det((dsge_prior_weight+1)*NumberOfObservations*SIGMAu)) ...
-          - .5*NumberOfObservedVariables*log(det(dsge_prior_weight*NumberOfObservations*GXX)) ...
-          - .5*(dsge_prior_weight*NumberOfObservations-NumberOfParameters)*log(det(dsge_prior_weight*NumberOfObservations*(GYY-GYX*inv(GXX)*GYX'))) ...
-          + .5*NumberOfObservedVariables*NumberOfObservations*log(2*pi)  ...
-          - .5*log(2)*NumberOfObservedVariables*((dsge_prior_weight+1)*NumberOfObservations-NumberOfParameters) ...
-          + .5*log(2)*NumberOfObservedVariables*(dsge_prior_weight*NumberOfObservations-NumberOfParameters) ...
+                               +1-(1:NumberOfObservedVariables)')));    %last term in denominator of third line of (A.2), DS (2004)
+    %Compute minus log likelihood according to (A.2), DS (2004)
+    lik = .5*NumberOfObservedVariables*log(det(dsge_prior_weight*NumberOfObservations*GXX+mXX)) ... %first term in numerator of second line of (A.2), DS (2004)
+          + .5*((dsge_prior_weight+1)*NumberOfObservations-NumberOfParameters)*log(det((dsge_prior_weight+1)*NumberOfObservations*SIGMA_u_tilde)) ... %second term in numerator of second line of (A.2), DS (2004)
+          - .5*NumberOfObservedVariables*log(det(dsge_prior_weight*NumberOfObservations*GXX)) ... %first term in denominator of second line of (A.2), DS (2004)
+          - .5*(dsge_prior_weight*NumberOfObservations-NumberOfParameters)*log(det(dsge_prior_weight*NumberOfObservations*SIGMA_u_star)) ... %second term in denominator of second line of (A.2), DS (2004)
+          + .5*NumberOfObservedVariables*NumberOfObservations*log(2*pi)  ... %first term in numerator of third line of (A.2), DS (2004)
+          - .5*log(2)*NumberOfObservedVariables*((dsge_prior_weight+1)*NumberOfObservations-NumberOfParameters) ... %second term in numerator of third line of (A.2), DS (2004)
+          + .5*log(2)*NumberOfObservedVariables*(dsge_prior_weight*NumberOfObservations-NumberOfParameters) ... %first term in denominator of third line of (A.2), DS (2004)
           - prodlng1 + prodlng2;
 else% Evaluation of the likelihood of the dsge-var model when the dsge prior weight is infinite.
-    iGXX = inv(GXX);
-    SIGMAu = GYY - GYX*iGXX*transpose(GYX);
-    PHI = iGXX*transpose(GYX);
-    lik = NumberOfObservations * ( log(det(SIGMAu)) + NumberOfObservedVariables*log(2*pi) +  ...
-                   trace(inv(SIGMAu)*(mYY - transpose(mYX*PHI) - mYX*PHI + transpose(PHI)*mXX*PHI)/NumberOfObservations));
+    PHI_star = iGXX*transpose(GYX);
+    %Compute minus log likelihood according to (33), DS (2004) (where the last term in the trace operator has been multiplied out)
+    lik = NumberOfObservations * ( log(det(SIGMA_u_star)) + NumberOfObservedVariables*log(2*pi) +  ...
+                   trace(inv(SIGMA_u_star)*(mYY - transpose(mYX*PHI_star) - mYX*PHI_star + transpose(PHI_star)*mXX*PHI_star)/NumberOfObservations));
     lik = .5*lik;% Minus likelihood
+    SIGMA_u_tilde=SIGMA_u_star;
+    PHI_tilde=PHI_star;
 end
 
 if isnan(lik)
@@ -291,7 +308,7 @@ if imag(fval)~=0
     return
 end
 
-if (nargout == 10)
+if (nargout >= 10)
     if isinf(dsge_prior_weight)
         iXX = iGXX;
     else
@@ -300,15 +317,9 @@ if (nargout == 10)
 end
 
 if (nargout==11)
-    if isinf(dsge_prior_weight)
-        iXX = iGXX;
-    else
-        iXX = tmp2;
-    end
-    iGXX = inv(GXX);
-    prior.SIGMAstar = GYY - GYX*iGXX*GYX';
-    prior.PHIstar = iGXX*transpose(GYX);
+    prior.SIGMA_u_star = SIGMA_u_star; 
+    prior.PHI_star = PHI_star; 
     prior.ArtificialSampleSize = fix(dsge_prior_weight*NumberOfObservations);
     prior.DF = prior.ArtificialSampleSize - NumberOfParameters - NumberOfObservedVariables;
-    prior.iGXX = iGXX;
+    prior.iGXX_star = iGXX;
 end
