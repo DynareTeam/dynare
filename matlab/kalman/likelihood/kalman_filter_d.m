@@ -8,8 +8,10 @@ function [dLIK,dlik,a,Pstar] = kalman_filter_d(Y, start, last, a, Pinf, Pstar, k
 %    a           [double]      mm*1 vector, levels of the state variables.
 %    Pinf        [double]      mm*mm matrix used to initialize the covariance matrix of the state vector.
 %    Pstar       [double]      mm*mm matrix used to initialize the covariance matrix of the state vector.
-%    kalman_tol  [double]      scalar, tolerance parameter (rcond).
-%    riccati_tol [double]      scalar, tolerance parameter (riccati iteration).
+%    kalman_tol  [double]      scalar, tolerance parameter (rcond) of F_star.
+%    diffuse_kalman_tol [double]      scalar, tolerance parameter (rcond) of Pinf to signify end of diffuse filtering and Finf.
+%    riccati_tol [double]      scalar, tolerance parameter (riccati iteration); 
+%                              not used in this filter as usually diffuse phase will be left before convergence of filter to steady state.
 %    presample   [integer]     scalar, presampling if strictly positive.    
 %    T           [double]      mm*mm matrix, transition matrix in  the state equations.
 %    R           [double]      mm*rr matrix relating the structural innovations to the state vector.
@@ -28,10 +30,13 @@ function [dLIK,dlik,a,Pstar] = kalman_filter_d(Y, start, last, a, Pinf, Pstar, k
 %        
 % REFERENCES 
 %   See "Filtering and Smoothing of State Vector for Diffuse State Space
-%   Models", S.J. Koopman and J. Durbin (2003, in Journal of Time Series 
-%   Analysis, vol. 24(1), pp. 85-98). 
+%   Models", S.J. Koopman and J. Durbin (2003), in Journal of Time Series 
+%   Analysis, vol. 24(1), pp. 85-98. 
+%   and
+%   Durbin/Koopman (2012): "Time Series Analysis by State Space Methods", Oxford University Press,
+%   Second Edition, Ch. 5 and 7.2
 
-% Copyright (C) 2004-2013 Dynare Team
+% Copyright (C) 2004-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -62,48 +67,58 @@ s    = 0;
 
 while rank(Pinf,diffuse_kalman_tol) && (t<=last)
     s = t-start+1;
-    v = Y(:,t)-Z*a;
-    Finf  = Z*Pinf*Z';
-    if rcond(Finf) < diffuse_kalman_tol
-        if ~all(abs(Finf(:)) < diffuse_kalman_tol)
+    v = Y(:,t)-Z*a;                                                     %get prediction error v^(0) in (5.13) DK (2012)
+    Finf  = Z*Pinf*Z';                                                  % (5.7) in DK (2012)
+    %do case distinction based on whether F_{\infty,t} has full rank or 0 rank
+    if rcond(Finf) < diffuse_kalman_tol                                 %F_{\infty,t} = 0 
+        if ~all(abs(Finf(:)) < diffuse_kalman_tol)                      %rank-deficient but not rank 0
             % The univariate diffuse kalman filter should be used instead.
             return
-        else
-            Fstar  = Z*Pstar*Z' + H;
-            if rcond(Fstar) < kalman_tol
+        else                                                            %rank of F_{\infty,t} is 0
+            Fstar  = Z*Pstar*Z' + H;                                    % (5.7) in DK (2012)
+            if rcond(Fstar) < kalman_tol                                %F_{*} is singular
                 if ~all(abs(Fstar(:))<kalman_tol)
                     % The univariate diffuse kalman filter should be used.
                     return
-                else
+                else                                                    %rank 0
                     a = T*a;
                     Pstar = T*Pstar*transpose(T)+QQ;
-                    Pinf  = T*Pinf*transpose(T);
+                    Pinf  = T*Pinf*transpose(T);                        % (5.16) DK (2012)
                 end
             else
                 iFstar = inv(Fstar);
                 dFstar = det(Fstar);
-                Kstar  = Pstar*Z'*iFstar;
-                dlik(s)= log(dFstar) + v'*iFstar*v;
-                Pinf   = T*Pinf*transpose(T);
-                Pstar  = T*(Pstar-Pstar*Z'*Kstar')*T'+QQ;
-                a      = T*(a+Kstar*v);
+                Kstar  = Pstar*Z'*iFstar;                               %(5.15) of DK (2012) with Kstar=K^(0)*T^{-1}
+                dlik(s)= log(dFstar) + v'*iFstar*v;                     %set w_t to bottom case in bottom equation page 172, DK (2012)
+                Pinf   = T*Pinf*transpose(T);                           % (5.16) DK (2012)
+                Pstar  = T*(Pstar-Pstar*Z'*Kstar')*T'+QQ;               % (5.17) DK (2012)
+                a      = T*(a+Kstar*v);                                 % (5.13) DK (2012)
             end
         end
-    else
-        dlik(s)= log(det(Finf));
+    else                                                                %F_{\infty,t} positive definite
+        %To compare to DK (2012), this block makes use of the following transformation
+        %Kstar=K^{(1)}*T^{-1}=M_{*}*F^{(1)}+M_{\infty}*F^{(2)}
+        %     =P_{*}*Z'*F^{(1)}+P_{\infty}*Z'*((-1)*(F_{\infty}^{-1})*F_{*}*(F_{\infty}^{-1}))
+        %     =[P_{*}*Z'-Kinf*F_{*})]*F^{(1)}
+        %Make use of L^{0}'=(T-K^{(0)}*Z)'=(T-T*M_{\infty}*F^{(1)}*Z)'
+        %                  =(T-T*P_{\infty*Z'*F^{(1)}*Z)'=(T-T*Kinf*Z)'
+        %                  = (T*(I-*Kinf*Z))'=(I-Z'*Kinf')*T'
+        %P_{*}=T*P_{\infty}*L^{(1)}+T*P_{*}*L^{(0)}+RQR
+        %     =T*[(P_{\infty}*(-K^{(1)*Z}))+P_{*}*(I-Z'*Kinf')*T'+RQR]
+        dlik(s)= log(det(Finf));                                        %set w_t to top case in bottom equation page 172, DK (2012)
         iFinf  = inv(Finf);
-        Kinf   = Pinf*Z'*iFinf;
-        Fstar  = Z*Pstar*Z' + H;
-        Kstar  = (Pstar*Z'-Kinf*Fstar)*iFinf;
-        Pstar  = T*(Pstar-Pstar*Z'*Kinf'-Pinf*Z'*Kstar')*T'+QQ;
-        Pinf   = T*(Pinf-Pinf*Z'*Kinf')*T';
-        a      = T*(a+Kinf*v);
+        Kinf   = Pinf*Z'*iFinf;                                         %define Kinf=K_0*T^{-1} with M_{\infty}=Pinf*Z'
+        Fstar  = Z*Pstar*Z' + H;                                        %(5.7) DK(2012)
+        Kstar  = (Pstar*Z'-Kinf*Fstar)*iFinf;                           %(5.12) DK(2012)
+        Pstar  = T*(Pstar-Pstar*Z'*Kinf'-Pinf*Z'*Kstar')*T'+QQ;         %(5.14) DK(2012)
+        Pinf   = T*(Pinf-Pinf*Z'*Kinf')*T';                             %(5.14) DK(2012)
+        a      = T*(a+Kinf*v);                                          %(5.13) DK(2012)
     end
     t = t+1;
 end
 
 if t>last
-    warning(['There isn''t enough information to estimate the initial conditions of the nonstationary variables']);                   
+    warning(['kalman_filter_d: There isn''t enough information to estimate the initial conditions of the nonstationary variables. The diffuse Kalman filter never left the diffuse stage.']);                   
     dLIK = NaN;
     return
 end

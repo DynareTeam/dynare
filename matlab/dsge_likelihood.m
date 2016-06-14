@@ -326,11 +326,11 @@ end
 
 % Get needed informations for kalman filter routines.
 start = DynareOptions.presample+1;
-Z = BayesInfo.mf;
+Z = BayesInfo.mf;           %selector for observed variables
 no_missing_data_flag = ~DatasetInfo.missing.state;
-mm = length(T);
-pp = DynareDataset.vobs;
-rr = length(Q);
+mm = length(T);             %number of states
+pp = DynareDataset.vobs;    %number of observables
+rr = length(Q);             %number of shocks
 kalman_tol = DynareOptions.kalman_tol;
 diffuse_kalman_tol = DynareOptions.diffuse_kalman_tol;
 riccati_tol = DynareOptions.riccati_tol;
@@ -351,6 +351,7 @@ if (kalman_algo == 2) || (kalman_algo == 4)
             H = diag(H);
             mmm = mm;
         else
+            %Augment state vector (follows Section 6.4.3 of DK (2012))
             Z = [Z, eye(pp)];
             T = blkdiag(T,zeros(pp));
             Q = blkdiag(Q,H);

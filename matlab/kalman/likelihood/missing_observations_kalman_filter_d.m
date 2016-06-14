@@ -35,10 +35,14 @@ function [dLIK,dlik,a,Pstar] = missing_observations_kalman_filter_d(data_index,n
 %        
 % REFERENCES
 %   See "Filtering and Smoothing of State Vector for Diffuse State Space
-%   Models", S.J. Koopman and J. Durbin (2003, in Journal of Time Series 
-%   Analysis, vol. 24(1), pp. 85-98). 
+%   Models", S.J. Koopman and J. Durbin (2003), in Journal of Time Series 
+%   Analysis, vol. 24(1), pp. 85-98. 
+%   and
+%   Durbin/Koopman (2012): "Time Series Analysis by State Space Methods", Oxford University Press,
+%   Second Edition, Ch. 5 and 7.2
 
-% Copyright (C) 2004-2012 Dynare Team
+% 
+% Copyright (C) 2004-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -76,54 +80,57 @@ while rank(Pinf,diffuse_kalman_tol) && (t<=last)
     s = t-start+1;
     d_index = data_index{t};
     if isempty(d_index)
+        %no observations, propagate forward without updating based on
+        %observations
         a = T*a;
         Pstar = T*Pstar*transpose(T)+QQ;
         Pinf  = T*Pinf*transpose(T);
     else
-        ZZ = Z(d_index,:);
-        v  = Y(d_index,t)-ZZ*a;
-        Finf  = ZZ*Pinf*ZZ';
-        if rcond(Finf) < diffuse_kalman_tol
-            if ~all(abs(Finf(:)) < diffuse_kalman_tol)
+        ZZ = Z(d_index,:);                                                  %span selector matrix
+        v  = Y(d_index,t)-ZZ*a;                                             %get prediction error v^(0) in (5.13) DK (2012)         
+        Finf  = ZZ*Pinf*ZZ';                                                % (5.7) in DK (2012)
+        if rcond(Finf) < diffuse_kalman_tol                                 %F_{\infty,t} = 0 
+            if ~all(abs(Finf(:)) < diffuse_kalman_tol)                      %rank-deficient but not rank 0
                 % The univariate diffuse kalman filter should be used.
                 return
-            else
-                Fstar = ZZ*Pstar*ZZ' + H(d_index,d_index);
-                if rcond(Fstar) < kalman_tol
+            else                                                            %rank of F_{\infty,t} is 0
+                Fstar = ZZ*Pstar*ZZ' + H(d_index,d_index);                  % (5.7) in DK (2012)
+                if rcond(Fstar) < kalman_tol                                %F_{*} is singular
                     if ~all(abs(Fstar(:))<kalman_tol)
                         % The univariate diffuse kalman filter should be used.
                         return
-                    else
+                    else %rank 0
                         a = T*a;
                         Pstar = T*Pstar*transpose(T)+QQ;
-                        Pinf  = T*Pinf*transpose(T);
+                        Pinf  = T*Pinf*transpose(T);                        % (5.16) DK (2012)
                     end
                 else
                     iFstar = inv(Fstar);
                     dFstar = det(Fstar);
-                    Kstar  = Pstar*ZZ'*iFstar;
-                    dlik(s) = log(dFstar) + v'*iFstar*v + length(d_index)*log(2*pi);
-                    Pinf   = T*Pinf*transpose(T);
-                    Pstar  = T*(Pstar-Pstar*ZZ'*Kstar')*T'+QQ;
-                    a      = T*(a+Kstar*v);
+                    Kstar  = Pstar*ZZ'*iFstar;                              %(5.15) of DK (2012) with Kstar=K^(0)*T^{-1}
+                    dlik(s) = log(dFstar) + v'*iFstar*v + length(d_index)*log(2*pi);    %set w_t to bottom case in bottom equation page 172, DK (2012)
+                    Pinf   = T*Pinf*transpose(T);                           % (5.16) DK (2012)
+                    Pstar  = T*(Pstar-Pstar*ZZ'*Kstar')*T'+QQ;              % (5.17) DK (2012)
+                    a      = T*(a+Kstar*v);                                 % (5.13) DK (2012)
                 end
             end
         else
-            dlik(s) = log(det(Finf));
+            dlik(s) = log(det(Finf));                                       %set w_t to top case in bottom equation page 172, DK (2012)
             iFinf  = inv(Finf);
             Kinf   = Pinf*ZZ'*iFinf;
-            Fstar  = ZZ*Pstar*ZZ' + H(d_index,d_index);
-            Kstar  = (Pstar*ZZ'-Kinf*Fstar)*iFinf;
-            Pstar  = T*(Pstar-Pstar*ZZ'*Kinf'-Pinf*ZZ'*Kstar')*T'+QQ;
-            Pinf   = T*(Pinf-Pinf*ZZ'*Kinf')*T';
-            a      = T*(a+Kinf*v);
+            %see notes in kalman_filter_d.m for details of computations
+            Fstar  = ZZ*Pstar*ZZ' + H(d_index,d_index);                     %(5.7) DK(2012)
+            Kstar  = (Pstar*ZZ'-Kinf*Fstar)*iFinf;                          %(5.12) DK(2012)
+            Pstar  = T*(Pstar-Pstar*ZZ'*Kinf'-Pinf*ZZ'*Kstar')*T'+QQ;       %(5.14) DK(2012)
+            Pinf   = T*(Pinf-Pinf*ZZ'*Kinf')*T';                            %(5.14) DK(2012)
+            a      = T*(a+Kinf*v);                                          %(5.13) DK(2012)
         end
     end
     t  = t+1;
 end
 
 if t==(last+1)
-    warning(['There isn''t enough information to estimate the initial conditions of the nonstationary variables']);                   
+    warning(['kalman_filter_d: There isn''t enough information to estimate the initial conditions of the nonstationary variables. The diffuse Kalman filter never left the diffuse stage.']);                   
     dLIK = NaN;
     return
 end

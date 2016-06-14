@@ -80,6 +80,12 @@ function [dLIK, dlikk, a, Pstar, llik] = univariate_kalman_filter_d(data_index, 
 %! @ref{univariate_kalman_filter_ss}
 %! @end deftypefn
 %@eod:
+% 
+% Algorithm:
+% 
+%   Uses the diffuse univariate filter as described in Durbin/Koopman (2012): "Time
+%   Series Analysis by State Space Methods", Oxford University Press,
+%   Second Edition, Ch. 5, 6.4 + 7.2.5
 
 % Copyright (C) 2004-2016 Dynare Team
 %
@@ -119,23 +125,26 @@ while newRank && (t<=last)
     d_index = data_index{t};
     for i=1:length(d_index)
         Zi = Z(d_index(i),:);
-        prediction_error = Y(d_index(i),t) - Zi*a;
-        Fstar = Zi*Pstar*Zi' + H(d_index(i));
-        Finf  = Zi*Pinf*Zi';
+        prediction_error = Y(d_index(i),t) - Zi*a;      % nu_{t,i} in 6.13 in DK (2012) 
+        Fstar = Zi*Pstar*Zi' + H(d_index(i));           % F_{*,t} in 5.7 in DK (2012), relies on H being diagonal
+        Finf  = Zi*Pinf*Zi';                            % F_{\infty,t} in 5.7 in DK (2012), relies on H being diagonal 
         Kstar = Pstar*Zi';
-        if Finf>diffuse_kalman_tol && newRank
+        if Finf>diffuse_kalman_tol && newRank           % F_{\infty,t,i} = 0, use upper part of bracket on p. 175 DK (2012) for w_{t,i}
             Kinf   = Pinf*Zi';
             Kinf_Finf = Kinf/Finf;
             a         = a + Kinf_Finf*prediction_error;
             Pstar     = Pstar + Kinf*(Kinf_Finf'*(Fstar/Finf)) - Kstar*Kinf_Finf' - Kinf_Finf*Kstar';
             Pinf      = Pinf - Kinf*Kinf_Finf';
-            llik(s,d_index(i)) = log(Finf) + l2pi;
+            llik(s,d_index(i)) = log(Finf) + l2pi;      
             dlikk(s) = dlikk(s) + llik(s,d_index(i));
         elseif Fstar>kalman_tol
-            llik(s,d_index(i)) = log(Fstar) + prediction_error*prediction_error/Fstar + l2pi;
+            llik(s,d_index(i)) = log(Fstar) + (prediction_error*prediction_error/Fstar) + l2pi;
             dlikk(s) = dlikk(s) + llik(s,d_index(i));
             a = a+Kstar*(prediction_error/Fstar);
             Pstar = Pstar-Kstar*(Kstar'/Fstar);
+        else
+            % do nothing as a_{t,i+1}=a_{t,i} and P_{t,i+1}=P_{t,i}, see
+            % p. 157, DK (2012)
         end
     end
     if newRank

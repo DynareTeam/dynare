@@ -54,8 +54,10 @@ function [LIK,likk,a] = univariate_kalman_filter_ss(Y,start,last,a,P,kalman_tol,
 %! @sp 1
 %! @end deftypefn
 %@eod:
+% 
+% Algorithm: See univariate_kalman_filter.m
 
-% Copyright (C) 2011-2012 Dynare Team
+% Copyright (C) 2011-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -144,6 +146,9 @@ while t<=last
                 end
                 dlikk(s,:)=dlikk(s,:)+DLIKt';
             end
+        else
+            % do nothing as a_{t,i+1}=a_{t,i} and P_{t,i+1}=P_{t,i}, see
+            % p. 157, DK (2012)
         end
     end
     if analytic_derivation,        
