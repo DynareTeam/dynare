@@ -98,9 +98,6 @@ end;
 
 steady;
 
-//stoch_simul(periods=200, order=1);
-//datatomfile('fsdat_simul_uncorr_ME', char('gy_obs', 'gp_obs'));
-
 estimated_params;
 alp, 0.356;
 gam,  0.0085;
