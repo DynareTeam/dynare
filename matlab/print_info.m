@@ -116,6 +116,8 @@ if ~noprint
         error('Prior density is a complex number');
       case 49
         error('The model violates one (many) endogenous prior restriction(s)')
+      case 50
+        error('Likelihood is Inf')        
       case 51
         fprintf('\n The dsge_prior_weight is dsge_var=%5.4f, but must be at least %5.4f for the prior to be proper.\n',info(2),info(3));
         error('You are estimating a DSGE-VAR model, but the value of the dsge prior weight is too low!')

@@ -308,6 +308,14 @@ if imag(fval)~=0
     return
 end
 
+if isinf(fval)~=0
+    fval = Inf;
+    info(1) = 50;
+    info(4) = 0.1;
+    exit_flag = 0;
+    return
+end
+
 if (nargout >= 10)
     if isinf(dsge_prior_weight)
         iXX = iGXX;

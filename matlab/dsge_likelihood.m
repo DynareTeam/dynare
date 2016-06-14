@@ -660,7 +660,7 @@ end
 %------------------------------------------------------------------------------
 
 singularity_has_been_detected = false;
-
+% First test multivariate filter if specified; potentially abort and use univariate filter instead
 if ((kalman_algo==1) || (kalman_algo==3))% Multivariate Kalman Filter
     if no_missing_data_flag
         if DynareOptions.block
@@ -819,6 +819,14 @@ end
 if imag(LIK)~=0
     fval = Inf;
     info(1) = 46;
+    info(4) = 0.1;
+    exit_flag = 0;
+    return
+end
+
+if isinf(LIK)~=0
+    fval = Inf;
+    info(1) = 50;
     info(4) = 0.1;
     exit_flag = 0;
     return
