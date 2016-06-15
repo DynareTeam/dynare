@@ -132,3 +132,7 @@ fval_algo_2=oo_.likelihood_at_initial_parameters;
 options_.lik_init=1;
 estimation(kalman_algo=4,mode_file=fs2000_uncorr_ME_missing_mode,mode_compute=0,order=1,datafile=fsdat_simul_uncorr_ME_missing,smoother,filter_decomposition,forecast = 8,filtered_vars,filter_step_ahead=[1,3],irf=20) m P c e W R k d y gy_obs;
 fval_algo_4=oo_.likelihood_at_initial_parameters;
+
+if max(abs([fval_algo_2,fval_algo_3,fval_algo_4]-fval_algo_1))>1e-6
+    error('Likelihoods do not match')
+end
