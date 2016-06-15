@@ -10064,7 +10064,15 @@ a table in a file named @code{<<M_.fname>>_latex_parameters.tex}. The command wr
 of the parameters currently stored. Thus, if parameters are set or changed in the steady state 
 computation, the command should be called after a @code{steady}-command to make sure the 
 parameters were correctly updated. The long names can be used to add parameter descriptions. Requires the
-following @LaTeX{} packages: @code{longtable}
+following @LaTeX{} packages: @code{longtable, booktabs}
+@end deffn
+
+@deffn {MATLAB/Octave command} write_latex_prior_table ;
+
+Writes descriptive statistics about the prior distribution to
+a @LaTeX{} table in a file named @code{<<M_.fname>>_latex_priors_table.tex}. The command writes the prior
+definitions currently stored. Thus, the command must be invoked after a call to @code{estimation}. Requires the
+following @LaTeX{} packages: @code{longtable, booktabs}
 @end deffn
 
 @deffn {MATLAB/Octave command} collect_LaTeX_Files (@code{M_}) ;
