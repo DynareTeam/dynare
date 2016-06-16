@@ -187,10 +187,14 @@ if options_.analytic_derivation && options_.fast_kalman_filter
 end
 
 % fast kalman filter is only available with kalman_algo == 1,3
-if options_.fast_kalman_filter && ...
-        (options_.kalman_algo == 1 || options_.kalman_algo == 3)
-    error(['estimation option conflict: fast_kalman_filter is only available ' ...
-           'with kalman_algo = 1 or kalman_algo = 3'])
+if options_.fast_kalman_filter 
+    if (options_.kalman_algo == 1 || options_.kalman_algo == 3)
+        error(['estimation option conflict: fast_kalman_filter is only available ' ...
+            'with kalman_algo = 1 or kalman_algo = 3'])
+    elseif options_.block
+        error(['estimation option conflict: fast_kalman_filter is not available ' ...
+            'with block'])        
+    end
 end
 
 if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
