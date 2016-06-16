@@ -269,7 +269,7 @@ if kalman_algo == 2 || kalman_algo == 4
                 %now reset H to 0
                 H   = zeros(vobs,vobs);
             else
-                do nothing, state vector was already expanded
+                %do nothing, state vector was already expanded
             end
         end
         
