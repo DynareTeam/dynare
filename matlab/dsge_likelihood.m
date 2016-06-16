@@ -709,13 +709,11 @@ if ((kalman_algo==1) || (kalman_algo==3))% Multivariate Kalman Filter
                 kalman_algo = 4;
             end
         else
-            if isinf(LIK)
-                fval = Inf;
-                info(1) = 66;
-                info(4) = 0.1;
-                exit_flag = 0;
-                return
-            end
+            fval = Inf;
+            info(1) = 50;
+            info(4) = 0.1;
+            exit_flag = 0;
+            return
         end
     else
         if DynareOptions.lik_init==3
