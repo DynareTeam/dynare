@@ -136,6 +136,12 @@ if isequal(H,0)
     H = zeros(vobs,vobs);
 end
 
+Z = zeros(vobs,size(T,2));
+for i=1:vobs
+    Z(i,mf(i)) = 1;
+end
+
+expanded_state_vector_for_univariate_filter=0;
 kalman_algo = options_.kalman_algo;
 if options_.lik_init == 1               % Kalman filter
     if kalman_algo ~= 2
@@ -160,8 +166,19 @@ elseif options_.lik_init == 2           % Old Diffuse Kalman filter
 elseif options_.lik_init == 3           % Diffuse Kalman filter
     if kalman_algo ~= 4
         kalman_algo = 3;
+    else
+        if ~all(all(abs(H-diag(diag(H)))<1e-14))% ie, the covariance matrix is diagonal...
+            %Augment state vector (follows Section 6.4.3 of DK (2012))
+            expanded_state_vector_for_univariate_filter=1;
+            T  = blkdiag(T,zeros(vobs));
+            np    = size(T,1);
+            Q   = blkdiag(Q,H);
+            R  = blkdiag(R,eye(vobs));
+            H   = zeros(vobs,vobs);
+            Z   = [Z, eye(vobs)];
+        end
     end
-    [Z,ST,R1,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,options_.qz_criterium,oo_.dr.restrict_var_list);
+    [Ztmp,Stmp,Rtmp,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,options_.qz_criterium,oo_.dr.restrict_var_list);
     Pinf = QT*Pinf*QT';
     Pstar = QT*Pstar*QT';
 elseif options_.lik_init == 4           % Start from the solution of the Riccati equation.
@@ -214,10 +231,6 @@ end
 
 ST = T;
 R1 = R;
-Z = zeros(vobs,size(T,2));
-for i=1:vobs
-    Z(i,mf(i)) = 1;
-end
 
 if kalman_algo == 1 || kalman_algo == 3
     [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp] = missing_DiffuseKalmanSmootherH1_Z(ST, ...
@@ -236,17 +249,30 @@ if kalman_algo == 1 || kalman_algo == 3
 end
 
 if kalman_algo == 2 || kalman_algo == 4
-    if estim_params_.ncn
-        ST = [ zeros(vobs,vobs) Z; zeros(np,vobs) T];
-        ns = size(Q,1);
-        R1 = [ eye(vobs) zeros(vobs, ns); zeros(np,vobs) R];
-        Q = [H zeros(vobs,ns); zeros(ns,vobs) Q]; 
-        Z = [eye(vobs) zeros(vobs, np)];
-        if kalman_algo == 4
-            [Z,ST,R1,QT,Pstar,Pinf] = schur_statespace_transformation((1:vobs)',ST,R1,Q,options_.qz_criterium);
+        if ~all(all(abs(H-diag(diag(H)))<1e-14))% ie, the covariance matrix is diagonal...
+            if ~expanded_state_vector_for_univariate_filter
+                %Augment state vector (follows Section 6.4.3 of DK (2012))
+                expanded_state_vector_for_univariate_filter=1;
+                Z   = [Z, eye(vobs)];
+                ST  = blkdiag(ST,zeros(vobs));
+                np  = size(ST,1);
+                Q   = blkdiag(Q,H);
+                R1  = blkdiag(R,eye(vobs));
+                if kalman_algo == 4
+                    %recompute Schur state space transformation with
+                    %expanded state space
+                    [Ztmp,Ttmp,Rtmp,Qtmp,Pstar,Pinf] = schur_statespace_transformation(mf,ST,R1,Q,options_.qz_criterium);
+                else
+                    Pstar = blkdiag(Pstar,H);
+                    Pinf  = blkdiag(Pinf,zeros(vobs));                    
+                end
+                %now reset H to 0
+                H   = zeros(vobs,vobs);
+            else
+                do nothing, state vector was already expanded
+            end
         end
         
-    end
     [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp] = missing_DiffuseKalmanSmootherH3_Z(ST, ...
                                                       Z,R1,Q,diag(H), ...
                                                       Pinf,Pstar,data1,vobs,np,smpl,data_index, ...
@@ -255,13 +281,15 @@ if kalman_algo == 2 || kalman_algo == 4
 end
 
 
-if estim_params_.ncn && (kalman_algo == 2 || kalman_algo == 4)
+if expanded_state_vector_for_univariate_filter && (kalman_algo == 2 || kalman_algo == 4)
     % extracting measurement errors
     % removing observed variables from the state vector
-    k = vobs+(1:np);
+    k = (1:np-vobs);
     alphahat = alphahat(k,:);
     ahat = ahat(k,:);
     aK = aK(:,k,:,:);
+    epsilonhat=etahat(end-vobs+1:end,:);
+    etahat=etahat(1:end-vobs,:);    
     if ~isempty(PK)
         PK = PK(:,k,k,:);
     end
