@@ -115,7 +115,7 @@ while rank(Pinf,diffuse_kalman_tol) && (t<=last)
                 end
             end
         else
-            dlik(s) = log(det(Finf));                                       %set w_t to top case in bottom equation page 172, DK (2012)
+            dlik(s) = log(det(Finf))+length(d_index)*log(2*pi);             %set w_t to top case in bottom equation page 172, DK (2012)
             iFinf  = inv(Finf);
             Kinf   = Pinf*ZZ'*iFinf;
             %see notes in kalman_filter_d.m for details of computations
