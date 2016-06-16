@@ -105,7 +105,7 @@ end
 
 % fast kalman filter is only available with kalman_algo == 1,3
 if options_.fast_kalman_filter 
-    if (options_.kalman_algo == 1 || options_.kalman_algo == 3)
+    if ~(options_.kalman_algo == 1 || options_.kalman_algo == 3)
         error(['estimation option conflict: fast_kalman_filter is only available ' ...
             'with kalman_algo = 1 or kalman_algo = 3'])
     elseif options_.block
