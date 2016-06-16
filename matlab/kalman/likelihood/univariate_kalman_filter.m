@@ -37,7 +37,7 @@ function [LIK, lik,a,P] = univariate_kalman_filter(data_index,number_of_observat
 %! @item Q
 %! Matrix (@var{rr}*@var{rr}) of doubles, covariance matrix of the structural innovations (noise in the state equation).
 %! @item R
-%! Matrix (@var{mm}*@var{rr}) of doubles, second matrix of the state equation relating the structural innovations to the state variables.
+%! Matrix (@var{mm}*@var{rr}) of doubles, 
 %! @item H
 %! Vector (@var{pp}) of doubles, diagonal of covariance matrix of the measurement errors (corelation among measurement errors is handled by a model transformation).
 %! @item Z
