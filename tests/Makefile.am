@@ -436,6 +436,12 @@ observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter_first_obs.m.
 observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter_first_obs.o.trs: observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter.o.trs
 observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter.m.trs: observation_trends_and_prefiltering/ML/Trend_no_prefilter.m.trs
 observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter.o.trs: observation_trends_and_prefiltering/ML/Trend_no_prefilter.o.trs
+kalman/likelihood_from_dynare/fs2000_corr_ME.m.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.m.trs
+kalman/likelihood_from_dynare/fs2000_corr_ME.o.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.o.trs
+kalman/likelihood_from_dynare/fs2000_uncorr_ME_missing.m.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.m.trs
+kalman/likelihood_from_dynare/fs2000_uncorr_ME_missing.o.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.o.trs
+kalman/likelihood_from_dynare/fs2000_corr_ME_missing.m.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.m.trs
+kalman/likelihood_from_dynare/fs2000_corr_ME_missing.o.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.o.trs
 
 lmmcp/sw_newton.m.trs: lmmcp/sw_lmmcp.m.trs
 lmmcp/sw_newton.o.trs: lmmcp/sw_lmmcp.o.trs
@@ -524,12 +530,11 @@ EXTRA_DIST = \
 	ms-sbvar/archive-files/specification_2v2c.dat \
 	recursive/data_ca1.m \
 	kalman_filter_smoother/fsdat_simul.m \
-	kalman/likelihood_from_dynare/fsdat_simul_corr_ME_missing.m \
-	kalman/likelihood_from_dynare/fsdat_simul_uncorr_ME.m \
-	kalman/likelihood_from_dynare/fsdat_simul_uncorr_ME_missing.m \
 	kalman/lik_init/fs2000_common.inc \
 	kalman/lik_init/fs2000_ns_common.inc \
 	kalman_filter_smoother/compare_results_simulation/fsdat_simul_logged.m \
+	kalman/likelihood_from_dynare/fs2000_model.inc \
+	kalman/likelihood_from_dynare/fs2000_estimation_check.inc \
 	identification/kim/kim2_steadystate.m \
 	identification/as2007/as2007_steadystate.m \
 	estimation/fsdat_simul.m \
