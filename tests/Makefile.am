@@ -202,6 +202,10 @@ MODFILES = \
 	kalman/likelihood_from_dynare/fs2000_corr_ME_missing.mod \
 	kalman/likelihood_from_dynare/fs2000_uncorr_ME.mod \
 	kalman/likelihood_from_dynare/fs2000_uncorr_ME_missing.mod \
+	kalman/likelihood_from_dynare/fs2000ns_corr_ME.mod \
+	kalman/likelihood_from_dynare/fs2000ns_corr_ME_missing.mod \
+	kalman/likelihood_from_dynare/fs2000ns_uncorr_ME.mod \
+	kalman/likelihood_from_dynare/fs2000ns_uncorr_ME_missing.mod \
 	second_order/burnside_1.mod \
 	kalman_filter_smoother/compare_results_simulation/fs2000_ML.mod \
 	kalman_filter_smoother/compare_results_simulation/fs2000_ML_loglinear.mod \
@@ -436,12 +440,20 @@ observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter_first_obs.m.
 observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter_first_obs.o.trs: observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter.o.trs
 observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter.m.trs: observation_trends_and_prefiltering/ML/Trend_no_prefilter.m.trs
 observation_trends_and_prefiltering/ML/Trend_loglinear_no_prefilter.o.trs: observation_trends_and_prefiltering/ML/Trend_no_prefilter.o.trs
+
 kalman/likelihood_from_dynare/fs2000_corr_ME.m.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.m.trs
 kalman/likelihood_from_dynare/fs2000_corr_ME.o.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.o.trs
 kalman/likelihood_from_dynare/fs2000_uncorr_ME_missing.m.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.m.trs
 kalman/likelihood_from_dynare/fs2000_uncorr_ME_missing.o.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.o.trs
 kalman/likelihood_from_dynare/fs2000_corr_ME_missing.m.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.m.trs
 kalman/likelihood_from_dynare/fs2000_corr_ME_missing.o.trs: kalman/likelihood_from_dynare/fs2000_uncorr_ME.o.trs
+
+kalman/likelihood_from_dynare/fs2000ns_corr_ME.m.trs: kalman/likelihood_from_dynare/fs2000ns_uncorr_ME.m.trs
+kalman/likelihood_from_dynare/fs2000ns_corr_ME.o.trs: kalman/likelihood_from_dynare/fs2000ns_uncorr_ME.o.trs
+kalman/likelihood_from_dynare/fs2000ns_uncorr_ME_missing.m.trs: kalman/likelihood_from_dynare/fs2000ns_uncorr_ME.m.trs
+kalman/likelihood_from_dynare/fs2000ns_uncorr_ME_missing.o.trs: kalman/likelihood_from_dynare/fs2000ns_uncorr_ME.o.trs
+kalman/likelihood_from_dynare/fs2000ns_corr_ME_missing.m.trs: kalman/likelihood_from_dynare/fs2000ns_uncorr_ME.m.trs
+kalman/likelihood_from_dynare/fs2000ns_corr_ME_missing.o.trs: kalman/likelihood_from_dynare/fs2000ns_uncorr_ME.o.trs
 
 lmmcp/sw_newton.m.trs: lmmcp/sw_lmmcp.m.trs
 lmmcp/sw_newton.o.trs: lmmcp/sw_lmmcp.o.trs
@@ -535,6 +547,8 @@ EXTRA_DIST = \
 	kalman_filter_smoother/compare_results_simulation/fsdat_simul_logged.m \
 	kalman/likelihood_from_dynare/fs2000_model.inc \
 	kalman/likelihood_from_dynare/fs2000_estimation_check.inc \
+	kalman/likelihood_from_dynare/fs2000ns_model.inc \
+	kalman/likelihood_from_dynare/fs2000ns_estimation_check.inc \
 	identification/kim/kim2_steadystate.m \
 	identification/as2007/as2007_steadystate.m \
 	estimation/fsdat_simul.m \
