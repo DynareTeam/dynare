@@ -34,18 +34,35 @@ SmoothedMeasurementErrors(:,:,4)=cell2mat(struct2cell(oo_.SmoothedMeasurementErr
 SmoothedShocks(:,:,4)=cell2mat(struct2cell(oo_.SmoothedShocks));
 SmoothedVariables(:,:,4)=cell2mat(struct2cell(oo_.SmoothedVariables));
 
-if max(max(abs(SmoothedMeasurementErrors-repmat(SmoothedMeasurementErrors(:,:,1),1,1,4))))>1e-8
+
+%%Multivariate Fast Kalman Filter
+options_.lik_init=1;
+estimation(kalman_algo=1,fast_kalman_filter,mode_file=@{mode_file_name},mode_compute=0,order=1,datafile=@{data_file_name},smoother,filter_decomposition,forecast = 8,filtered_vars,filter_step_ahead=[1,3],irf=20) m P c e W R k d y gy_obs;
+fval_algo_5=oo_.likelihood_at_initial_parameters;
+SmoothedMeasurementErrors(:,:,5)=cell2mat(struct2cell(oo_.SmoothedMeasurementErrors));
+SmoothedShocks(:,:,5)=cell2mat(struct2cell(oo_.SmoothedShocks));
+SmoothedVariables(:,:,5)=cell2mat(struct2cell(oo_.SmoothedVariables));
+
+%%Multivariate Fast Kalman Filter
+options_.lik_init=1;
+estimation(kalman_algo=3,fast_kalman_filter,mode_file=@{mode_file_name},mode_compute=0,order=1,datafile=@{data_file_name},smoother,filter_decomposition,forecast = 8,filtered_vars,filter_step_ahead=[1,3],irf=20) m P c e W R k d y gy_obs;
+fval_algo_6=oo_.likelihood_at_initial_parameters;
+SmoothedMeasurementErrors(:,:,6)=cell2mat(struct2cell(oo_.SmoothedMeasurementErrors));
+SmoothedShocks(:,:,6)=cell2mat(struct2cell(oo_.SmoothedShocks));
+SmoothedVariables(:,:,6)=cell2mat(struct2cell(oo_.SmoothedVariables));
+
+if max(max(abs(SmoothedMeasurementErrors-repmat(SmoothedMeasurementErrors(:,:,1),1,1,6))))>1e-8
     error('SmoothedMeasurementErrors do not match')
 end
 
-if max(max(abs(SmoothedShocks-repmat(SmoothedShocks(:,:,1),1,1,4))))>1e-8
+if max(max(abs(SmoothedShocks-repmat(SmoothedShocks(:,:,1),1,1,6))))>1e-8
     error('SmoothedShocks do not match')
 end
 
-if max(max(abs(SmoothedVariables-repmat(SmoothedVariables(:,:,1),1,1,4))))>1e-8
+if max(max(abs(SmoothedVariables-repmat(SmoothedVariables(:,:,1),1,1,6))))>1e-8
     error('SmoothedVariables do not match')
 end
 
-if max(abs([fval_algo_2,fval_algo_3,fval_algo_4]-fval_algo_1))>1e-6
+if max(abs([fval_algo_2,fval_algo_3,fval_algo_4,fval_algo_5,fval_algo_6]-fval_algo_1))>1e-6
     error('Likelihoods do not match')
 end
