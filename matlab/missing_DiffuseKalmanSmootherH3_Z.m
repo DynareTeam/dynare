@@ -1,14 +1,14 @@
 function [alphahat,epsilonhat,etahat,a,P,aK,PK,decomp] = missing_DiffuseKalmanSmootherH3_Z(T,Z,R,Q,H,Pinf1,Pstar1,Y,pp,mm,smpl,data_index,nk,kalman_tol,diffuse_kalman_tol,decomp_flag)
 % function [alphahat,epsilonhat,etahat,a1,P,aK,PK,d,decomp] = missing_DiffuseKalmanSmootherH3_Z(T,Z,R,Q,H,Pinf1,Pstar1,Y,pp,mm,smpl,data_index,nk,kalman_tol,decomp_flag)
-% Computes the diffuse kalman smoother without measurement error, in the case of a singular var-cov matrix.
+% Computes the diffuse kalman smoother in the case of a singular var-cov matrix.
 % Univariate treatment of multivariate time series.
 %
 % INPUTS
-%    T:        mm*mm matrix
-%    Z:        pp*mm matrix  
-%    R:        mm*rr matrix
-%    Q:        rr*rr matrix
-%    H:        pp*1  vector of variance of measurement errors
+%    T:        mm*mm matrix     state transition matrix
+%    Z:        pp*mm matrix     selector matrix for observables in augmented state vector
+%    R:        mm*rr matrix     second matrix of the state equation relating the structural innovations to the state variables
+%    Q:        rr*rr matrix     covariance matrix of structural errors
+%    H:        pp*1             vector of variance of measurement errors
 %    Pinf1:    mm*mm diagonal matrix with with q ones and m-q zeros
 %    Pstar1:   mm*mm variance-covariance matrix with stationary variables
 %    Y:        pp*1 vector
@@ -41,8 +41,8 @@ function [alphahat,epsilonhat,etahat,a,P,aK,PK,decomp] = missing_DiffuseKalmanSm
 % 
 % SPECIAL REQUIREMENTS
 %   See "Filtering and Smoothing of State Vector for Diffuse State Space
-%   Models", S.J. Koopman and J. Durbin (2003, in Journal of Time Series 
-%   Analysis, vol. 24(1), pp. 85-98). 
+%   Models", S.J. Koopman and J. Durbin (2003), in Journal of Time Series 
+%   Analysis, vol. 24(1), pp. 85-98. 
 
 % Copyright (C) 2004-2016 Dynare Team
 %
@@ -65,6 +65,11 @@ function [alphahat,epsilonhat,etahat,a,P,aK,PK,decomp] = missing_DiffuseKalmanSm
 % New output argument aK: 1-step to nk-stpe ahed predictions)
 % New input argument nk: max order of predictions in aK
 
+
+if size(H,2)>1 
+    error('missing_DiffuseKalmanSmootherH3_Z:: H is not a vector. This must not happens')
+end
+    
 d = 0;
 decomp = [];
 spinf           = size(Pinf1);
@@ -72,7 +77,7 @@ spstar          = size(Pstar1);
 v               = zeros(pp,smpl);
 a               = zeros(mm,smpl);
 a1              = zeros(mm,smpl+1);
-aK          = zeros(nk,mm,smpl+nk);
+aK              = zeros(nk,mm,smpl+nk);
 
 Fstar           = zeros(pp,smpl);
 Finf            = zeros(pp,smpl);
