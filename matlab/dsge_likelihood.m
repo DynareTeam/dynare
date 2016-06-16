@@ -425,7 +425,16 @@ switch DynareOptions.lik_init
             else
                 %Augment state vector (follows Section 6.4.3 of DK (2012))
                 expanded_state_vector_for_univariate_filter=1;
-                Z = [Z, eye(pp)];
+                if Zflag
+                    Z1=Z;
+                else
+                    Z1=zeros(pp,size(T,2));
+                    for jz=1:length(Z)
+                        Z1(jz,Z(jz))=1;
+                    end
+                end
+                Z = [Z1, eye(pp)];
+                Zflag=1;
                 T = blkdiag(T,zeros(pp));
                 Q = blkdiag(Q,H);
                 R = blkdiag(R,eye(pp));
@@ -433,6 +442,7 @@ switch DynareOptions.lik_init
                 Pinf  = blkdiag(Pinf,zeros(pp));
                 H1 = zeros(pp,1);
                 mmm   = mm+pp;
+                
             end
         end
 
@@ -728,13 +738,19 @@ if (kalman_algo==2) || (kalman_algo==4)
             end
         else
             if ~expanded_state_vector_for_univariate_filter
-                Z = [Z, eye(pp)];
+                Z1=zeros(pp,size(T,2));
+                for jz=1:length(Z)
+                    Z1(jz,Z(jz))=1;
+                end
+                Z = [Z1, eye(pp)];
+                Zflag=1;
                 T = blkdiag(T,zeros(pp));
                 Q = blkdiag(Q,H);
                 R = blkdiag(R,eye(pp));
                 Pstar = blkdiag(Pstar,H);
                 Pinf  = blkdiag(Pinf,zeros(pp));
                 H1 = zeros(pp,1);
+                Zflag=1;
             end
             mmm   = mm+pp;
             if singularity_has_been_detected
