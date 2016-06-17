@@ -110,7 +110,7 @@ end
 P = cellfun(@(c)[dynareroot c], p, 'uni',false);
 
 % Add mex files folder
-P(end+1) = add_path_to_mex_files(dynareroot, false);
+P = [P; add_path_to_mex_files(dynareroot, false)'];
 
 addpath(P{:});
 
