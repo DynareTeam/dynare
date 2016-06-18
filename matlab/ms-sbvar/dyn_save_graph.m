@@ -57,7 +57,7 @@ function dyn_save_graph(dirname,graph_name,graph_formats,TeX,names,texnames,capt
             fprintf(fh,'\\psfrag{%s}[1][][0.5][0]{%s}\n',names{i},texnames{i});
         end
         fprintf(fh,'\\centering \n');
-        fprintf(fh,'\\includegraphics[scale=0.5]{%s}\n',graph_name);
+        fprintf(fh,'\\includegraphics[width=0.8\\textwidth]{%s}\n',graph_name);
         if caption
             fprintf(fh,'\\caption{%s}',caption);
         end

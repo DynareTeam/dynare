@@ -412,7 +412,7 @@ if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
                 figunumber = figunumber+1;
                 
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s/%s_Bayesian_IRF_%s_%d}\n',DirectoryName,M_.fname,deblank(tit(ii,:)),figunumber);
+                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s/%s_Bayesian_IRF_%s_%d}\n',DirectoryName,M_.fname,deblank(tit(ii,:)),figunumber);
                 if options_.relative_irf
                     fprintf(fidTeX,['\\caption{Bayesian relative IRF.}']);
                 else

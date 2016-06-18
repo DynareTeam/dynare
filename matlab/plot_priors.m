@@ -77,7 +77,7 @@ for plt = 1:nbplt,
             fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(jj,:)),deblank(TeXNAMES(jj,:)));
         end
         fprintf(fidTeX,'\\centering\n');
-        fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_Priors%s}\n',M_.fname,int2str(plt));
+        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_Priors%s}\n',M_.fname,int2str(plt));
         fprintf(fidTeX,'\\caption{Priors.}');
         fprintf(fidTeX,'\\label{Fig:Priors:%s}\n',int2str(plt));
         fprintf(fidTeX,'\\end{figure}\n');

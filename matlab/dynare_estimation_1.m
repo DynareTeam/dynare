@@ -559,7 +559,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                     fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(jj,:)),deblank(TeXNAMES(jj,:)));
                 end
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_SmoothedShocks%s}\n',M_.fname,int2str(plt));
+                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_SmoothedShocks%s}\n',M_.fname,int2str(plt));
                 fprintf(fidTeX,'\\caption{Smoothed shocks.}');
                 fprintf(fidTeX,'\\label{Fig:SmoothedShocks:%s}\n',int2str(plt));
                 fprintf(fidTeX,'\\end{figure}\n');
@@ -639,7 +639,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                         fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(jj,:)),deblank(TeXNAMES(jj,:)));
                     end
                     fprintf(fidTeX,'\\centering \n');
-                    fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_SmoothedObservationErrors%s}\n',M_.fname,int2str(plt));
+                    fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_SmoothedObservationErrors%s}\n',M_.fname,int2str(plt));
                     fprintf(fidTeX,'\\caption{Smoothed observation errors.}');
                     fprintf(fidTeX,'\\label{Fig:SmoothedObservationErrors:%s}\n',int2str(plt));
                     fprintf(fidTeX,'\\end{figure}\n');
@@ -714,7 +714,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                 fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(jj,:)),deblank(TeXNAMES(jj,:)));
             end
             fprintf(fidTeX,'\\centering \n');
-            fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_HistoricalAndSmoothedVariables%s}\n',M_.fname,int2str(plt));
+            fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_HistoricalAndSmoothedVariables%s}\n',M_.fname,int2str(plt));
             fprintf(fidTeX,'\\caption{Historical and smoothed variables.}');
             fprintf(fidTeX,'\\label{Fig:HistoricalAndSmoothedVariables:%s}\n',int2str(plt));
             fprintf(fidTeX,'\\end{figure}\n');

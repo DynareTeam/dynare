@@ -6,16 +6,15 @@ function pm3(n1,n2,ifil,B,tit1,tit2,tit3,tit_tex,names1,names2,name3,DirectoryNa
 %  n1           [scalar] size of first dimension of moment matrix
 %  n2           [scalar] size of second dimension of moment matrix
 %  ifil         [scalar] number of moment files to load
-%  B         [scalar] number of subdraws
+%  B            [scalar] number of subdraws
 %  tit1         [string] Figure title 
 %  tit2         [string] not used
 %  tit3         [string] Save name for figure
 %  tit_tex      [cell array] TeX-Names for Variables
-%  name1        [cell array] Names of variables subset selected for moments
-%  name2            [cell array] Names of all variables in the moment matrix from
-%                       which names1 is selected
-%  name3        [string] Name of the field in oo_ structure to be set
-%  name3        [string] Name of the field in oo_ structure to be set
+%  names1       [cell array] Names of all variables in the moment matrix from
+%                       which names2 is selected
+%  names2       [cell array] Names of variables subset selected for moments
+%  names3       [string] Name of the field in oo_ structure to be set
 %  DirectoryName [string] Name of the directory in which to save and from
 %                       where to read
 %  var_type     [string] suffix of the filename from which to load moment
@@ -351,7 +350,7 @@ if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
                 fprintf(fidTeX,['\\psfrag{%s}[1][][0.5][0]{%s}\n'],deblank(NAMES(jj,:)),deblank(TEXNAMES(jj,:)));
             end
             fprintf(fidTeX,'\\centering \n');
-            fprintf(fidTeX,['\\includegraphics[scale=0.5]{%s/Output/%s_' name3 '_%s}\n'],M_.dname,M_.fname,deblank(tit3(i,:)));
+            fprintf(fidTeX,['\\includegraphics[width=0.8\\textwidth]{%s/Output/%s_' name3 '_%s}\n'],M_.dname,M_.fname,deblank(tit3(i,:)));
             fprintf(fidTeX,'\\label{Fig:%s:%s}\n',name3,deblank(tit3(i,:)));
             fprintf(fidTeX,'\\caption{%s}\n',tit1);
             fprintf(fidTeX,'\\end{figure}\n');

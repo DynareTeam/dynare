@@ -108,7 +108,7 @@ if iplot && ~options_.nograph
                 fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
                 fprintf(fidTeX,'\\begin{figure}[H]\n');
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s}\n',strrep([dirname,filesep,fname_,'_',aname,'_SA_',int2str(i)],'\','/'));
+                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s}\n',strrep([dirname,filesep,fname_,'_',aname,'_SA_',int2str(i)],'\','/'));
                 fprintf(fidTeX,'\\caption{%s.}',atitle);
                 fprintf(fidTeX,'\\label{Fig:%s:%u}\n',atitle,i);
                 fprintf(fidTeX,'\\end{figure}\n\n');
@@ -123,7 +123,7 @@ if iplot && ~options_.nograph
                 fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
                 fprintf(fidTeX,'\\begin{figure}[H]\n');
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s}\n',strrep([dirname,filesep,fname_,'_',aname,'_SA'],'\','/'));
+                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s}\n',strrep([dirname,filesep,fname_,'_',aname,'_SA'],'\','/'));
                 fprintf(fidTeX,'\\caption{%s.}',atitle);
                 fprintf(fidTeX,'\\label{Fig:%s}\n',atitle);
                 fprintf(fidTeX,'\\end{figure}\n\n');

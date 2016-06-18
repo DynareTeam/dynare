@@ -527,7 +527,7 @@ if options.TeX && any(strcmp('eps',cellstr(options.graph_format)))
     fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
     fprintf(fidTeX,'\\begin{figure}[H]\n');
     fprintf(fidTeX,'\\centering \n');
-    fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s}\n',strrep(figpath,'\','/'));
+    fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s}\n',strrep(figpath,'\','/'));
     fprintf(fidTeX,'\\caption{%s.}',caption);
     fprintf(fidTeX,'\\label{Fig:%s:%s}\n',label_name,label_type);
     fprintf(fidTeX,'\\end{figure}\n\n');

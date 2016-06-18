@@ -112,7 +112,7 @@ for j=1:nvar
     if DynareOptions.TeX && any(strcmp('eps',cellstr(DynareOptions.graph_format)))
         fprintf(fidTeX,'\\begin{figure}[H]\n');
         fprintf(fidTeX,'\\centering \n');
-        fprintf(fidTeX,['\\includegraphics[scale=0.5]{%s_shock_decomposition_%s}\n'],DynareModel.fname,deblank(endo_names(i_var(j),:)));
+        fprintf(fidTeX,['\\includegraphics[width=0.8\\textwidth]{%s_shock_decomposition_%s}\n'],DynareModel.fname,deblank(endo_names(i_var(j),:)));
         fprintf(fidTeX,'\\label{Fig:shock_decomp:%s}\n',deblank(endo_names(i_var(j),:)));
         fprintf(fidTeX,'\\caption{Historical shock decomposition: $ %s $}\n',deblank(DynareModel.endo_names_tex(i_var(j),:)));
         fprintf(fidTeX,'\\end{figure}\n');

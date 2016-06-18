@@ -72,7 +72,7 @@ for j= 1:nvar
         if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
             fprintf(fidTeX,'\\begin{figure}[H]\n');
             fprintf(fidTeX,'\\centering \n');
-            fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s/graphs/forcst%d}\n',dname,n_fig);
+            fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s/graphs/forcst%d}\n',dname,n_fig);
             fprintf(fidTeX,'\\label{Fig:forcst:%d}\n',n_fig);
             fprintf(fidTeX,'\\caption{Mean forecasts and %2.0f%% confidence intervals}\n',options_.forecasts.conf_sig*100);
             fprintf(fidTeX,'\\end{figure}\n');
@@ -108,7 +108,7 @@ if m > 1
     if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
         fprintf(fidTeX,'\\begin{figure}[H]\n');
         fprintf(fidTeX,'\\centering \n');
-        fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s/graphs/forcst%d}\n',dname,n_fig);
+        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s/graphs/forcst%d}\n',dname,n_fig);
         fprintf(fidTeX,'\\label{Fig:forcst:%d}\n',n_fig);
         fprintf(fidTeX,'\\caption{Mean forecasts and %2.0f\\%% confidence intervals}\n',options_.forecasts.conf_sig*100);
         fprintf(fidTeX,'\\end{figure}\n');

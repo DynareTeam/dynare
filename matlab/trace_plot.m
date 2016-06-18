@@ -161,7 +161,7 @@ if options_.TeX
     
     fprintf(fid,'%-s\n','\begin{figure}[H]');
     fprintf(fid,'%-s\n','\centering');
-    fprintf(fid,'%-s\n',['  \includegraphics[scale=0.5]{',[M_.fname, '/graphs/TracePlot_' plot_name],'}\\']);
+    fprintf(fid,'%-s\n',['  \includegraphics[width=0.8\textwidth]{',[M_.fname, '/graphs/TracePlot_' plot_name],'}\\']);
     fprintf(fid,'%-s\n',['    \caption{',FigureName,'}']);
     fprintf(fid,'%-s\n','\end{figure}');
     fclose(fid);
