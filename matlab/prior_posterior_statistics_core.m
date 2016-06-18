@@ -16,6 +16,7 @@ function myoutput=prior_posterior_statistics_core(myinputs,fpar,B,whoiam, ThisMa
 %                          _param;
 %                          _forc_mean;
 %                          _forc_point;
+%                          _forc_point_ME;
 %                          _filter_covar;
 %                          _trend_coeff;
 %                          _smoothed_trend;
@@ -74,6 +75,9 @@ if horizon
     i_last_obs=myinputs.i_last_obs;
     MAX_nforc1=myinputs.MAX_nforc1;
     MAX_nforc2=myinputs.MAX_nforc2;
+    if ~isequal(M_.H,0)
+        MAX_nforc_ME=myinputs.MAX_nforc_ME;
+    end
 end
 if naK
     MAX_naK=myinputs.MAX_naK;
@@ -137,6 +141,7 @@ if RemoteFlag==1,
     OutputFileName_param = {};
     OutputFileName_forc_mean = {};
     OutputFileName_forc_point = {};
+    OutputFileName_forc_point_ME = {};
     OutputFileName_filter_covar ={};
     OutputFileName_trend_coeff = {};
     OutputFileName_smoothed_trend = {};
@@ -155,6 +160,9 @@ if run_smoother
   if horizon
       stock_forcst_mean= NaN(endo_nbr,horizon,MAX_nforc1);
       stock_forcst_point = NaN(endo_nbr,horizon,MAX_nforc2);
+      if ~isequal(M_.H,0)
+          stock_forcst_point_ME = NaN(length(varobs),horizon,MAX_nforc_ME);
+      end
   end
 end
 if nvn
@@ -300,6 +308,16 @@ for b=fpar:B
 
             stock_forcst_mean(:,:,irun(6)) = yf(maxlag+1:end,:)';
             stock_forcst_point(:,:,irun(7)) = yf1(maxlag+1:end,:)';
+            if ~isequal(M_.H,0)
+                ME_shocks=zeros(length(varobs),horizon);
+                i_exo_var = setdiff([1:length(varobs)],find(diag(M_.H) == 0));
+                nxs = length(i_exo_var);
+                chol_H = chol(M_.H(i_exo_var,i_exo_var));
+                if ~isempty(M_.H)
+                    ME_shocks(i_exo_var,:) = chol_H*randn(nxs,horizon);
+                end
+                stock_forcst_point_ME(:,:,irun(12)) = yf1(maxlag+1:end,IdObs)'+ME_shocks;
+            end
         end
         if filter_covariance
             stock_filter_covariance(dr.order_var,dr.order_var,:,irun(8)) = P;
@@ -312,7 +330,7 @@ for b=fpar:B
     stock_ys(irun(5),:) = SteadyState';
 
 
-    irun = irun +  ones(11,1);
+    irun = irun +  ones(12,1);
 
 
     if run_smoother && (irun(1) > MAX_nsmoo || b == B),
@@ -433,7 +451,18 @@ for b=fpar:B
         end
         irun(irun_index) = 1;
     end
-
+    
+    irun_index=12;
+    if run_smoother && horizon && ~isequal(M_.H,0) && (irun(irun_index) > MAX_nforc_ME ||  b == B)
+        stock = stock_forcst_point_ME(:,:,1:irun(irun_index)-1);
+        ifil(irun_index) = ifil(irun_index) + 1;
+        save([DirectoryName '/' M_.fname '_forc_point_ME' int2str(ifil(irun_index)) '.mat'],'stock');
+        if RemoteFlag==1,
+            OutputFileName_forc_point_ME = [OutputFileName_forc_point_ME; {[DirectoryName filesep], [M_.fname '_forc_point_ME' int2str(ifil(irun_index)) '.mat']}];
+        end
+        irun(irun_index) = 1;
+    end
+    
     dyn_waitbar((b-fpar+1)/(B-fpar+1),h);
 end
 
@@ -447,6 +476,7 @@ if RemoteFlag==1,
                         OutputFileName_param;
                         OutputFileName_forc_mean;
                         OutputFileName_forc_point;
+                        OutputFileName_forc_point_ME;
                         OutputFileName_filter_covar;
                         OutputFileName_trend_coeff;
                         OutputFileName_smoothed_trend;

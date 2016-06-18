@@ -107,6 +107,9 @@ end
 if horizon
     MAX_nforc1 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/8));
     MAX_nforc2 = min(B,ceil(MaxNumberOfBytes/((endo_nbr)*(horizon+maxlag))/8));
+    if ~isequal(M_.H,0)
+        MAX_nforc_ME = min(B,ceil(MaxNumberOfBytes/((size(options_.varobs,1))*(horizon+maxlag))/8));
+    end
 end
 MAX_momentsno = min(B,ceil(MaxNumberOfBytes/(get_moments_size(options_)*8)));
 
@@ -126,7 +129,7 @@ for i=1:nvar
     end
 end
 
-n_variables_to_fill=11;
+n_variables_to_fill=12;
 
 irun = ones(n_variables_to_fill,1);
 ifil = zeros(n_variables_to_fill,1);
@@ -163,6 +166,9 @@ if horizon
     localVars.i_last_obs=i_last_obs;
     localVars.MAX_nforc1=MAX_nforc1;
     localVars.MAX_nforc2=MAX_nforc2;
+    if ~isequal(M_.H,0)
+        localVars.MAX_nforc_ME = MAX_nforc_ME;
+    end
 end
 localVars.exo_nbr=exo_nbr;
 localVars.maxlag=maxlag;
@@ -224,6 +230,10 @@ else
             ifil(6,j+1) =ifil(6,j)+nfiles;
             nfiles = ceil(nBlockPerCPU(j)/MAX_nforc2);
             ifil(7,j+1) =ifil(7,j)+nfiles;
+            if ~isequal(M_.H,0)
+                nfiles = ceil(nBlockPerCPU(j)/MAX_nforc_ME);
+                ifil(12,j+1) =ifil(12,j)+nfiles;
+            end
         end
         if options_.filter_covariance
             nfiles = ceil(nBlockPerCPU(j)/MAX_filter_covariance);
@@ -318,6 +328,19 @@ if options_.forecast
     pm3(endo_nbr,horizon,ifil(7),B,'Forecasted variables (point)',...
         '',varlist,M_.endo_names_tex,M_.endo_names,...
         varlist,'PointForecast',DirectoryName,'_forc_point');
+    if ~isequal(M_.H,0)
+        texnames=[];
+        for obs_iter=1:length(options_.varobs)        
+            obs_names{obs_iter,1}=M_.endo_names(strmatch(options_.varobs{obs_iter},M_.endo_names,'exact'),:);
+            texnames{obs_iter,1}=M_.endo_names_tex(strmatch(options_.varobs{obs_iter},M_.endo_names,'exact'),:);
+        end
+        obs_names=char(obs_names);
+        texnames=char(texnames);
+        varlist_forecast_ME=intersect(options_.varobs,varlist);
+        pm3(meas_err_nbr,horizon,ifil(12),B,'Forecasted variables (point) with ME',...
+           '',char(varlist_forecast_ME),texnames,obs_names,...
+           char(varlist_forecast_ME),'PointForecastME',DirectoryName,'_forc_point_ME')    
+    end
 end
 
 if options_.filter_covariance

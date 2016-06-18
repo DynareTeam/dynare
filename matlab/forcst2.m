@@ -1,7 +1,8 @@
 function yf=forcst2(y0,horizon,dr,n)
 % function yf=forcst2(y0,horizon,dr,n)
 % 
-% computes forecasts based on first order model solution, given shocks drawn from the shock distribution
+% computes forecasts based on first order model solution, given shocks
+% drawn from the shock distribution, but not including measurement error
 % Inputs:
 %   - y0        [endo_nbr by maximum_endo_lag]          matrix of starting values
 %   - dr        [structure]                         structure with Dynare decision rules
@@ -11,7 +12,7 @@ function yf=forcst2(y0,horizon,dr,n)
 % Outputs:
 %   - yf        [horizon+ykmin_ by endo_nbr by n]   array of forecasts
 % 
-% Copyright (C) 2008-2015 Dynare Team
+% Copyright (C) 2008-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
