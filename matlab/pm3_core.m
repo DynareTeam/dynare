@@ -79,7 +79,9 @@ for i=fpar:nvar
         subplotnum = subplotnum+1;
         set(0,'CurrentFigure',hh);
         subplot(nn,nn,subplotnum);
-        plot([1 n2],[0 0],'-r','linewidth',0.5);
+        if ~(all(all(Distrib(:,:,i)))>0 || ~all(all(Distrib(:,:,i)))<0)
+            plot([1 n2],[0 0],'-r','linewidth',0.5);
+        end
         hold on
         for k = 1:9
             plot(1:n2,squeeze(Distrib(k,:,i)),'-g','linewidth',0.5);
@@ -89,6 +91,14 @@ for i=fpar:nvar
         hold off;
         name = deblank(varlist(i,:));
         title(name,'Interpreter','none')
+        yticklabels=get(gca,'yticklabel');
+        if size(char(yticklabels),2)>5 %make sure yticks do not screw up figure
+            yticks=get(gca,'ytick');
+            for ii=1:length(yticks)
+                yticklabels_new{ii,1}=sprintf('%4.3f',yticks(ii));
+            end
+            set(gca,'yticklabel',yticklabels_new)
+        end
     end
     
     if whoiam,
