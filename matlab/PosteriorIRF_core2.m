@@ -119,6 +119,7 @@ for i=fpar:npar,
                 box on
                 axis tight
                 xlim([1 options_.irf]);
+                remove_fractional_xticks;
                 hold off
             else
                 h1 = area(1:options_.irf,HPDIRF(:,2,j,i),'FaceColor',[.9 .9 .9],'BaseValue',min([min(HPDIRF(:,1,j,i)),min(HPDIRFdsgevar(:,1,j,i))])); %grey below HPDIsup and minimum of HPDIinf and HPDIRFdsgevar
@@ -132,6 +133,7 @@ for i=fpar:npar,
                 box on
                 axis tight
                 xlim([1 options_.irf]);
+                remove_fractional_xticks;
                 hold off
             end
             name = deblank(varlist(j,:));
