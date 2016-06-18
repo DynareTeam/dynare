@@ -127,7 +127,7 @@ switch task
 end 
 
 if M.exo_det_nbr == 0
-    [yf,int_width] = forcst(oo.dr,y0,horizon,var_list);
+    [yf,int_width] = forcst(oo.dr,y0,horizon,var_list,M,oo,options);
 else
     exo_det_length = size(oo.exo_det_simul,1)-M.maximum_lag;
     if horizon > exo_det_length
