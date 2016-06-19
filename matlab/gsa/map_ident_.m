@@ -104,7 +104,7 @@ if opt_gsa.load_ident_files==0,
       title(M_.exo_names(j,:),'interpreter','none')
       if mod(j,6)==0 | j==M_.exo_nbr,
         dyn_saveas(hh,[OutputDirectoryName,'/',fname_,'_vdec_exo_',int2str(ifig)],options_);  
-        create_TeX_loader(options_,[OutputDirectoryName,'/',fname_,'_vdec_exo_',int2str(ifig)],ifig,['Variance decomposition shocks'],'vdec_exo',options_.figures.textwidth*min(iplo/3))
+        create_TeX_loader(options_,[OutputDirectoryName,'/',fname_,'_vdec_exo_',int2str(ifig)],ifig,['Variance decomposition shocks'],'vdec_exo',options_.figures.textwidth*min(iplo/3,1))
       end
     end
   end
