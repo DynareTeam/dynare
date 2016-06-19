@@ -418,7 +418,7 @@ if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
                 else
                     fprintf(fidTeX,'\\caption{Bayesian IRF: Orthogonalized shock to $%s$.}\n',deblank(tit_TeX(ii,:)));
                 end
-                fprintf(fidTeX,'\\label{Fig:BayesianIRF:%s}\n',deblank(tit(ii,:)));
+                fprintf(fidTeX,'\\label{Fig:BayesianIRF:%s:%d}\n',deblank(tit(ii,:)),figunumber);
                 fprintf(fidTeX,'\\end{figure}\n');
                 fprintf(fidTeX,' \n');
                 

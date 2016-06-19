@@ -312,7 +312,7 @@ if options_.irf
                                 fprintf(fidTeX,['\\caption{Impulse response functions' ...
                                                 ' (orthogonalized shock to $%s$).}'],deblank(titTeX(i,:)));
                             end
-                            fprintf(fidTeX,'\\label{Fig:BayesianIRF:%s:%s}\n',deblank(tit(i,:)),int2str(fig));
+                            fprintf(fidTeX,'\\label{Fig:IRF:%s:%s}\n',deblank(tit(i,:)),int2str(fig));
                             fprintf(fidTeX,'\\end{figure}\n');
                             fprintf(fidTeX,' \n');
                         end
