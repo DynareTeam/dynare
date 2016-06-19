@@ -291,7 +291,7 @@ if ~isempty(indx_irf),
                 hold off,
                 axis([max(1,a(1)) a(2:4)])
                 box on,
-                set(gca,'xtick',sort(time_matrix{ij}))
+                %set(gca,'xtick',sort(time_matrix{ij}))
                 itmp = min(itmp);
                 title([endo_prior_restrictions.irf{itmp,1},' vs ',endo_prior_restrictions.irf{itmp,2}],'interpreter','none'),
             end
