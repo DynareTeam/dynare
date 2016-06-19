@@ -377,14 +377,14 @@ else
                 end
                 if options_.opt_gsa.ppost
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnprior',int2str(ifig)],options_);
-                    create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_post_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnprior')
+                    create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_post_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1))
                 else
                     if options_.opt_gsa.pprior
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnprior',int2str(ifig) ],options_);
-                        create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_prior_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnprior')
+                        create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_prior_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1))
                     else
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnprior',int2str(ifig) ],options_);
-                        create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_mc_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnprior')
+                        create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_mc_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1))
                     end
                 end
             end
@@ -422,14 +422,14 @@ else
                 end
                 if options_.opt_gsa.ppost
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnlik',int2str(ifig) ],options_);
-                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_post_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnprio')
+                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_post_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
                 else
                     if options_.opt_gsa.pprior
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnlik',int2str(ifig)],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_lnlik',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnlik')
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_lnlik',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnlik',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
                     else
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnlik',int2str(ifig) ],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_lnlik',int2str(ifig) ],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnlik')
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_lnlik',int2str(ifig) ],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnlik',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
                     end
                 end
             end
@@ -467,14 +467,14 @@ else
                 end
                 if options_.opt_gsa.ppost
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnpost',int2str(ifig) ],options_);
-                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_post_lnpost',int2str(ifig) ],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnpost')
+                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_post_lnpost',int2str(ifig) ],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
                 else
                     if options_.opt_gsa.pprior
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnpost',int2str(ifig)],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_lnpost',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnpost')
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_lnpost',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
                     else
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnpost',int2str(ifig)],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_lnpost',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnpost')
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_lnpost',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
                     end
                 end
             end
@@ -769,14 +769,14 @@ else
                 %set(findobj(get(h0,'children'),'type','text'),'interpreter','none')
                 if options_.opt_gsa.ppost
                     dyn_saveas(hh,[ OutDir filesep fname_ '_rmse_post_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],options_);
-                    create_TeX_loader(options_,[ OutDir filesep fname_ '_rmse_post_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_post_' deblank(vvarvecm(iy,:))])
+                    create_TeX_loader(options_,[ OutDir filesep fname_ '_rmse_post_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_post_' deblank(vvarvecm(iy,:))],1)
                 else
                     if options_.opt_gsa.pprior
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_' deblank(vvarvecm(iy,:)) '_' int2str(ix) ],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_' deblank(vvarvecm(iy,:)) '_' int2str(ix) ],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_prior_' deblank(vvarvecm(iy,:))])
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_' deblank(vvarvecm(iy,:)) '_' int2str(ix) ],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_prior_' deblank(vvarvecm(iy,:))],1)
                     else
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_mc_' deblank(vvarvecm(iy,:))])
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_mc_' deblank(vvarvecm(iy,:))],1)
                     end
                 end
             end
@@ -830,14 +830,14 @@ else
             %set(findobj(get(h0,'children'),'type','text'),'interpreter','none')
             if options_.opt_gsa.ppost
                 dyn_saveas(hh,[ OutDir filesep fname_ '_rmse_post_params_' int2str(ix)],options_);
-                create_TeX_loader(options_,[ OutDir filesep fname_ '_rmse_post_params_' int2str(ix)],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_post_params')
+                create_TeX_loader(options_,[ OutDir filesep fname_ '_rmse_post_params_' int2str(ix)],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_post_params',1)
             else
                 if options_.opt_gsa.pprior
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_params_' int2str(ix) ],options_);
-                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_params_' int2str(ix) ],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_prior_params')
+                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_params_' int2str(ix) ],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_prior_params',1)
                 else
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_params_' int2str(ix)],options_);
-                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_params_' int2str(ix)],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_mc_params')
+                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_params_' int2str(ix)],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_mc_params',1)
                 end
             end
         end
@@ -904,14 +904,17 @@ else
     
 end
 
-function []=create_TeX_loader(options_,figpath,label_number,caption,label_name)
+function []=create_TeX_loader(options_,figpath,label_number,caption,label_name,scale_factor)
+if nargin<6
+    scale_factor=1;
+end
 if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
     fidTeX = fopen([figpath '.tex'],'w');
     fprintf(fidTeX,'%% TeX eps-loader file generated by filt_mc_.m (Dynare).\n');
     fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
     fprintf(fidTeX,'\\begin{figure}[H]\n');
     fprintf(fidTeX,'\\centering \n');
-    fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s}\n',strrep(figpath,'\','/'));
+    fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s}\n',scale_factor,strrep(figpath,'\','/'));
     fprintf(fidTeX,'\\caption{%s.}',caption);
     fprintf(fidTeX,'\\label{Fig:%s:%u}\n',label_name,label_number);
     fprintf(fidTeX,'\\end{figure}\n\n');

@@ -350,7 +350,7 @@ if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
                 fprintf(fidTeX,['\\psfrag{%s}[1][][0.5][0]{%s}\n'],deblank(NAMES(jj,:)),deblank(TEXNAMES(jj,:)));
             end
             fprintf(fidTeX,'\\centering \n');
-            fprintf(fidTeX,['\\includegraphics[width=0.8\\textwidth]{%s/Output/%s_' name3 '_%s}\n'],M_.dname,M_.fname,deblank(tit3(i,:)));
+            fprintf(fidTeX,['\\includegraphics[width=%2.2f\\textwidth]{%s/Output/%s_' name3 '_%s}\n'],options_.figures.textwidth*min(subplotnum/nn,1),M_.dname,M_.fname,deblank(tit3(i,:)));
             fprintf(fidTeX,'\\label{Fig:%s:%s}\n',name3,deblank(tit3(i,:)));
             fprintf(fidTeX,'\\caption{%s}\n',tit1);
             fprintf(fidTeX,'\\end{figure}\n');

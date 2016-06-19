@@ -776,6 +776,9 @@ options_.mcppath.b = [];
 options_.mcppath.t = [];
 options_.mcppath.mu0 = [];
 
+%Figure options
+options_.figures.textwidth=0.8;
+
 % initialize persistent variables in priordens()
 priordens([],[],[],[],[],[],1);
 % initialize persistent variables in dyn_first_order_solver()

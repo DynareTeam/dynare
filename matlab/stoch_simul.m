@@ -272,7 +272,7 @@ if options_.irf
                             fprintf(fidTeX,['\\psfrag{%s}[1][][0.5][0]{$%s$}\n'],deblank(mylist(j,:)),deblank(mylistTeX(j,:)));
                         end
                         fprintf(fidTeX,'\\centering \n');
-                        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_IRF_%s}\n',M_.fname,deblank(tit(i,:)));
+                        fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s_IRF_%s}\n',options_.figures.textwidth*min(j/nc,1),M_.fname,deblank(tit(i,:)));
                         fprintf(fidTeX,'\\caption{Impulse response functions (orthogonalized shock to $%s$).}',titTeX(i,:));
                         fprintf(fidTeX,'\\label{Fig:IRF:%s}\n',deblank(tit(i,:)));
                         fprintf(fidTeX,'\\end{figure}\n');
@@ -304,7 +304,7 @@ if options_.irf
                                 fprintf(fidTeX,['\\psfrag{%s}[1][][0.5][0]{$%s$}\n'],deblank(mylist((fig-1)*nstar+j,:)),deblank(mylistTeX((fig-1)*nstar+j,:)));
                             end
                             fprintf(fidTeX,'\\centering \n');
-                            fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_IRF_%s%s}\n',M_.fname,deblank(tit(i,:)),int2str(fig));
+                            fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s_IRF_%s%s}\n',options_.figures.textwidth*min(plt/nc,1),M_.fname,deblank(tit(i,:)),int2str(fig));
                             if options_.relative_irf
                                 fprintf(fidTeX,['\\caption{Relative impulse response' ...
                                                 ' functions (orthogonalized shock to $%s$).}'],deblank(titTeX(i,:)));
@@ -337,7 +337,7 @@ if options_.irf
                             fprintf(fidTeX,['\\psfrag{%s}[1][][0.5][0]{$%s$}\n'],deblank(mylist((nbplt-1)*nstar+j,:)),deblank(mylistTeX((nbplt-1)*nstar+j,:)));
                         end
                         fprintf(fidTeX,'\\centering \n');
-                        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_IRF_%s%s}\n',M_.fname,deblank(tit(i,:)),int2str(nbplt));
+                        fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s_IRF_%s%s}\n',options_.figures.textwidth*min(m/lc,1),M_.fname,deblank(tit(i,:)),int2str(nbplt));
                         if options_.relative_irf
                             fprintf(fidTeX,['\\caption{Relative impulse response functions' ...
                                             ' (orthogonalized shock to $%s$).}'],deblank(titTeX(i,:)));

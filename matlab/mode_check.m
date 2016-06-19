@@ -192,7 +192,7 @@ for plt = 1:nbplt,
             fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(jj,:)),deblank(TeXNAMES(jj,:)));
         end
         fprintf(fidTeX,'\\centering \n');
-        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_CheckPlots%s}\n',Model.fname,int2str(plt));
+        fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s_CheckPlots%s}\n',DynareOptions.figures.textwidth*min(k/nc,1),Model.fname,int2str(plt));
         fprintf(fidTeX,'\\caption{Check plots.}');
         fprintf(fidTeX,'\\label{Fig:CheckPlots:%s}\n',int2str(plt));
         fprintf(fidTeX,'\\end{figure}\n');

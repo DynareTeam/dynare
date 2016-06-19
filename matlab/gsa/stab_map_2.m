@@ -174,7 +174,7 @@ for j=1:npar,
             fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
             fprintf(fidTeX,'\\begin{figure}[H]\n');
             fprintf(fidTeX,'\\centering \n');
-            fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s}\n',strrep([dirname,'/',fig_nam_,int2str(ifig)],'\','/'));
+            fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s}\n',options_.figures.textwidth*min((j2-(ifig-1)*12)/3,1),strrep([dirname,'/',fig_nam_,int2str(ifig)],'\','/'));
             fprintf(fidTeX,'\\caption{%s.}',[figtitle,' sample bivariate projection ', num2str(ifig)]);
             fprintf(fidTeX,'\\label{Fig:%s:%u}\n',fig_nam_,ifig);
             fprintf(fidTeX,'\\end{figure}\n\n');

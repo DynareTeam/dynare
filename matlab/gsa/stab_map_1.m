@@ -123,7 +123,7 @@ if iplot && ~options_.nograph
                 fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
                 fprintf(fidTeX,'\\begin{figure}[H]\n');
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s}\n',strrep([dirname,filesep,fname_,'_',aname,'_SA'],'\','/'));
+                fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s}\n',options_.figures.textwidth*min((j-12*(i-1))/3,1),strrep([dirname,filesep,fname_,'_',aname,'_SA'],'\','/'));
                 fprintf(fidTeX,'\\caption{%s.}',atitle);
                 fprintf(fidTeX,'\\label{Fig:%s}\n',atitle);
                 fprintf(fidTeX,'\\end{figure}\n\n');

@@ -305,7 +305,7 @@ for i = 1:pages
             fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(jj,:)),deblank(TEXNAMES(jj,:)));
         end    
         fprintf(fidTeX,'\\centering \n');
-        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_udiag%s}\n',[OutputFolder '/' ModelName],int2str(i));
+        fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s_udiag%s}\n',options_.figures.textwidth*min((boxplot-1)/3,1),[OutputFolder '/' ModelName],int2str(i));
         fprintf(fidTeX,'\\caption{Univariate convergence diagnostics for the Metropolis-Hastings.\n');
         fprintf(fidTeX,'The first, second and third columns are respectively the criteria based on\n');
         fprintf(fidTeX,'the eighty percent interval, the second and third moments.}');
@@ -368,7 +368,7 @@ if reste
             fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(jj,:)),deblank(TEXNAMES(jj,:)));
         end    
         fprintf(fidTeX,'\\centering \n');
-        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_udiag%s}\n',[OutputFolder '/' ModelName],int2str(pages+1));
+        fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s_udiag%s}\n',options_.figures.textwidth*min((boxplot-1)/nc,1),[OutputFolder '/' ModelName],int2str(pages+1));
         if reste == 2
             fprintf(fidTeX,'\\caption{Univariate convergence diagnostics for the Metropolis-Hastings.\n');
             fprintf(fidTeX,'The first, second and third columns are respectively the criteria based on\n');

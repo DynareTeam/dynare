@@ -159,7 +159,7 @@ for i=1:npar
                 fprintf(fidTeX,'\\psfrag{%s}[1][][0.5][0]{%s}\n',deblank(NAMES(j,:)),deblank(TeXNAMES(j,:)));
             end    
             fprintf(fidTeX,'\\centering\n');
-            fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s/%s_PriorsAndPosteriors%s}\n',OutputDirectoryName,M_.fname,int2str(figunumber));
+            fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s/%s_PriorsAndPosteriors%s}\n',options_.figures.textwidth*min(subplotnum/nn,1),OutputDirectoryName,M_.fname,int2str(figunumber));
             fprintf(fidTeX,'\\caption{Priors and posteriors.}');
             fprintf(fidTeX,'\\label{Fig:PriorsAndPosteriors:%s}\n',int2str(figunumber));
             fprintf(fidTeX,'\\end{figure}\n');
