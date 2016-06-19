@@ -6121,6 +6121,15 @@ to change the size of the HPD interval}
 @item HPDsup
 Upper bound of a 90% HPD interval
 
+@item HPDinf_ME
+Lower bound of a 90% HPD interval@footnote{See option @ref{conf_sig}
+to change the size of the HPD interval} for observables when taking 
+measurement error into account (see e.g. @cite{Christoffel et al. (2010), p.17}).
+
+@item HPDsup_ME
+Upper bound of a 90% HPD interval for observables when taking 
+measurement error into account
+
 @item Mean
 Mean of the posterior distribution
 
@@ -6611,10 +6620,10 @@ where @var{FORECAST_OBJECT} is one of the following@footnote{See @ref{forecast} 
 Mean of the posterior forecast distribution
 
 @item HPDinf/HPDsup
-Upper/lower bound of the 90% HPD interval taking into account only parameter uncertainty
+Upper/lower bound of the 90% HPD interval taking into account only parameter uncertainty (corresponding to @ref{oo_.MeanForecast})
 
 @item HPDTotalinf/HPDTotalsup
-Upper/lower bound of the 90% HPD interval taking into account both parameter and future shock uncertainty
+Upper/lower bound of the 90% HPD interval taking into account both parameter and future shock uncertainty (corresponding to @ref{oo_.PointForecast})
 
 @end table
 
@@ -7014,18 +7023,22 @@ where @var{FORECAST_MOMENT} is one of the following:
 @item HPDinf
 Lower bound of a 90% HPD interval@footnote{See option @ref{conf_sig}
 to change the size of the HPD interval} of forecast due to parameter
-uncertainty
+uncertainty, but ignoring the effect of measurement error on 
+observed variables
 
 @item HPDsup
-Lower bound of a 90% HPD interval due to parameter uncertainty
+Lower bound of a 90% HPD interval due to parameter uncertainty, but 
+ignoring the effect of measurement error on 
+observed variables
 
-@item HPDTotalinf
-Lower bound of a 90% HPD interval of forecast due to parameter
-uncertainty and future shocks (only with the @code{estimation} command)
+@item HPDinf_ME
+Lower bound of a 90% HPD interval@footnote{See option @ref{conf_sig}
+to change the size of the HPD interval} of forecast for observed variables 
+due to parameter uncertainty and measurement error 
 
-@item HPDTotalsup
-Lower bound of a 90% HPD interval due to parameter uncertainty and
-future shocks (only with the @code{estimation} command)
+@item HPDsup_ME
+Lower bound of a 90% HPD interval of forecast for observed variables 
+due to parameter uncertainty and measurement error 
 
 @item Mean
 Mean of the posterior distribution of forecasts
@@ -7041,6 +7054,7 @@ Standard deviation of the posterior distribution of forecasts
 
 
 @defvr {MATLAB/Octave variable} oo_.PointForecast
+@anchor{oo_.PointForecast}
 Set by the @code{estimation} command, if it is used with the
 @code{forecast} option and if either @code{mh_replic > 0} or
 @code{load_mh_file} option is used.
@@ -7055,6 +7069,7 @@ Fields are of the form:
 @end defvr
 
 @defvr {MATLAB/Octave variable} oo_.MeanForecast
+@anchor{oo_.MeanForecast}
 Set by the @code{estimation} command, if it is used with the
 @code{forecast} option and if either @code{mh_replic > 0} or
 @code{load_mh_file} option is used.
@@ -13798,6 +13813,10 @@ Christiano, Lawrence J., Mathias Trabandt and Karl Walentin (2011):
 ``Introducing financial frictions and unemployment into a small open
 economy model,'' @i{Journal of Economic Dynamics and Control}, 35(12),
 1999--2041
+
+@item
+Christoffel, Kai, G@"unter Coenen and Anders Warne (2010):
+``Forecasting with DSGE models,'' @i{ECB Working Paper Series}, 1185
 
 @item
 Collard, Fabrice (2001): ``Stochastic simulations with Dynare: A practical guide''
