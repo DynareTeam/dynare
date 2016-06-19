@@ -321,7 +321,7 @@ if ~isempty(indx_irf),
     end
     if ~DynareOptions.nograph,
         dyn_saveas(h1,[OutputDirectoryName,filesep,fname_,'_',type,'_irf_restrictions'],DynareOptions);
-        create_TeX_loader(DynareOptions,[OutputDirectoryName,filesep,fname_,'_',type,'_irf_restrictions'],[type ' evaluation of irf restrictions'],'irf_restrictions',type,options_.figures.textwidth*min(ij/ncol,1))
+        create_TeX_loader(DynareOptions,[OutputDirectoryName,filesep,fname_,'_',type,'_irf_restrictions'],[type ' evaluation of irf restrictions'],'irf_restrictions',type,DynareOptions.figures.textwidth*min(ij/ncol,1))
     end
     skipline()
 end
@@ -356,6 +356,24 @@ if ~isempty(indx_moment)
     disp('done !')
     skipline()
     
+    %get parameter names including standard deviations
+    np=size(BayesInfo.name,1);
+    name=cell(np,1);
+    name_tex=cell(np,1);
+    for jj=1:np
+        if DynareOptions.TeX
+            [param_name_temp, param_name_tex_temp]= get_the_name(jj,DynareOptions.TeX,Model,EstimatedParameters,DynareOptions);
+            name_tex{jj,1} = strrep(param_name_tex_temp,'$','');
+            name{jj,1} = param_name_temp;
+        else
+            param_name_temp = get_the_name(jj,DynareOptions.TeX,Model,EstimatedParameters,DynareOptions);
+            name{jj,1} = param_name_temp;
+        end
+    end
+    options_mcf.param_names = char(name);
+    if DynareOptions.TeX
+        options_mcf.param_names_tex = char(name_tex);
+    end
     options_mcf.param_names = char(BayesInfo.name);
     all_moment_couples = cellstr([char(endo_prior_restrictions.moment(:,1)) char(endo_prior_restrictions.moment(:,2))]);
     moment_couples = unique(all_moment_couples);
@@ -513,7 +531,7 @@ if ~isempty(indx_moment)
     end
     if ~DynareOptions.nograph,
         dyn_saveas(h2,[OutputDirectoryName,filesep,fname_,'_',type,'_moment_restrictions'],DynareOptions);
-        create_TeX_loader(DynareOptions,[OutputDirectoryName,filesep,fname_,'_',type,'_moment_restrictions'],[type ' evaluation of moment restrictions'],'moment_restrictions',type,options_.figures.textwidth*min(ij/ncol,1))
+        create_TeX_loader(DynareOptions,[OutputDirectoryName,filesep,fname_,'_',type,'_moment_restrictions'],[type ' evaluation of moment restrictions'],'moment_restrictions',type,DynareOptions.figures.textwidth*min(ij/ncol,1))
     end
     
     skipline()
