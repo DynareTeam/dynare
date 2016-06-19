@@ -123,6 +123,8 @@ if ~noprint
         error('You are estimating a DSGE-VAR model, but the value of the dsge prior weight is too low!')
       case 52 %dsge_var_likelihood
         error('You are estimating a DSGE-VAR model, but the implied covariance matrix of the VAR''s innovations is not positive definite!');
+      case 55
+        error('Fast Kalman filter only works with stationary models [lik_init=1] or stationary observables for non-stationary models [lik_init=3]')
       case 61 %Discretionary policy
         error(['Discretionary policy: maximum number of iterations has been reached. Procedure failed. ']);
       case 62

@@ -655,6 +655,17 @@ if ((kalman_algo==1) || (kalman_algo==3))% Multivariate Kalman Filter
             [err, LIK] = block_kalman_filter(T,R,Q,H,Pstar,Y,start,Z,kalman_tol,riccati_tol, Model.nz_state_var, Model.n_diag, Model.nobs_non_statevar);
             mexErrCheck('block_kalman_filter', err);
         elseif DynareOptions.fast_kalman_filter
+            if diffuse_periods
+                %kalman_algo==3 requires no diffuse periods (stationary
+                %observables) as otherwise FE matrix will not be positive
+                %definite
+                fval = Inf;
+                info(1) = 55;
+                info(4) = 0.1;
+                exit_flag = 0; 
+                return
+            end
+
             [LIK,lik] = kalman_filter_fast(Y,diffuse_periods+1,size(Y,2), ...
                                            a,Pstar, ...
                                            kalman_tol, riccati_tol, ...
