@@ -328,7 +328,7 @@ if options_.forecast
     pm3(endo_nbr,horizon,ifil(7),B,'Forecasted variables (point)',...
         '',varlist,M_.endo_names_tex,M_.endo_names,...
         varlist,'PointForecast',DirectoryName,'_forc_point');
-    if ~isequal(M_.H,0)
+    if ~isequal(M_.H,0) && ~isempty(intersect(options_.varobs,varlist))
         texnames=[];
         for obs_iter=1:length(options_.varobs)        
             obs_names{obs_iter,1}=M_.endo_names(strmatch(options_.varobs{obs_iter},M_.endo_names,'exact'),:);
