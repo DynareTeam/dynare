@@ -127,7 +127,11 @@ switch task
 end 
 
 if M.exo_det_nbr == 0
-    [yf,int_width] = forcst(oo.dr,y0,horizon,var_list,M,oo,options);
+    if isequal(M.H,0)
+        [yf,int_width] = forcst(oo.dr,y0,horizon,var_list,M,oo,options);
+    else
+        [yf,int_width,int_width_ME] = forcst(oo.dr,y0,horizon,var_list,M,oo,options);        
+    end
 else
     exo_det_length = size(oo.exo_det_simul,1)-M.maximum_lag;
     if horizon > exo_det_length
@@ -139,8 +143,13 @@ else
     elseif horizon < exo_det_length 
         ex = zeros(exo_det_length,M.exo_nbr); 
     end
-    [yf,int_width] = simultxdet(y0,ex,oo.exo_det_simul,...
+    if isequal(M.H,0)
+        [yf,int_width] = simultxdet(y0,ex,oo.exo_det_simul,...
                                 options.order,var_list,M,oo,options);
+    else
+        [yf,int_width,int_width_ME] = simultxdet(y0,ex,oo.exo_det_simul,...
+                                options.order,var_list,M,oo,options);
+    end
 end
 
 if ~isscalar(trend) %add trend back to forecast
@@ -162,6 +171,10 @@ for i=1:n_var
     forecast.Mean.(vname) = yf(i,maximum_lag+(1:horizon))';
     forecast.HPDinf.(vname)= yf(i,maximum_lag+(1:horizon))' - int_width(1:horizon,i);
     forecast.HPDsup.(vname) = yf(i,maximum_lag+(1:horizon))' + int_width(1:horizon,i);
+    if ~isequal(M.H,0) && ismember(var_list(i,:),options.varobs)
+        forecast.HPDinf_ME.(vname)= yf(i,maximum_lag+(1:horizon))' - int_width_ME(1:horizon,i);
+        forecast.HPDsup_ME.(vname) = yf(i,maximum_lag+(1:horizon))' + int_width_ME(1:horizon,i);
+    end
 end
 
 for i=1:M.exo_det_nbr

@@ -1,4 +1,4 @@
-function [y_,int_width]=simultxdet(y0,ex,ex_det, iorder,var_list,M_,oo_,options_)
+function [y_,int_width,int_width_ME]=simultxdet(y0,ex,ex_det, iorder,var_list,M_,oo_,options_)
 %function [y_,int_width]=simultxdet(y0,ex,ex_det, iorder,var_list,M_,oo_,options_)
 %
 % Simulates a stochastic model in the presence of deterministic exogenous shocks
@@ -9,12 +9,20 @@ function [y_,int_width]=simultxdet(y0,ex,ex_det, iorder,var_list,M_,oo_,options_
 %    ex_det:    matrix of deterministic exogenous shocks, starting at period 1-M_.maximum_lag
 %    iorder:    order of approximation
 %    var_list:  list of endogenous variables to simulate
+%   int_width_ME:distance between upper bound and
+%                mean forecast when considering measurement error
+% OUTPUTS:
+%   yf:          mean forecast
+%   int_width:   distance between upper bound and
+%                mean forecast
+%   int_width_ME:distance between upper bound and
+%                mean forecast when considering measurement error
 %
 % The forecast horizon is equal to size(ex, 1).
 % The condition size(ex,1)+M_.maximum_lag=size(ex_det,1) must be verified
 %  for consistency.
 
-% Copyright (C) 2008-2012 Dynare Team
+% Copyright (C) 2008-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -124,6 +132,7 @@ sigma_u = B*M_.Sigma_e*B';
 sigma_u1 = ghu1*M_.Sigma_e*ghu1';
 sigma_y = 0;
 
+var_yf=NaN(horizon,nvar); %initialize
 for i=1:iter
     sigma_y1 = ghx1*sigma_y*ghx1'+sigma_u1;
     var_yf(i,:) = diag(sigma_y1)';
@@ -135,8 +144,16 @@ for i=1:iter
 end
 
 fact = norminv((1-options_.forecasts.conf_sig)/2,0,1);
+if nargout==3
+    var_yf_ME=var_yf;
+    var_yf_ME(:,options_.varobs_id)=var_yf(:,options_.varobs_id)+repmat(diag(M_.H)',horizon,1);
+    int_width_ME = zeros(horizon,M_.endo_nbr);
+end
 
-int_width = zeros(iter,endo_nbr);
+int_width = zeros(iter,nvar);
 for i=1:nvar
     int_width(:,i) = fact*sqrt(var_yf(:,i));
+        if nargout==3
+        int_width_ME(:,i) = -fact*sqrt(var_yf_ME(:,i));
+        end
 end
