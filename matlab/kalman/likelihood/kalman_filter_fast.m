@@ -152,10 +152,11 @@ while notsteady && t<=last
     end
     if rcond(F) < kalman_tol
         if ~all(abs(F(:))<kalman_tol)
+            % The univariate diffuse kalman filter should be used.            
             return
         else
-            a = T*a;
-            P = T*P*transpose(T)+QQ;
+            %pathological case, discard draw
+            return
         end
     else
         F_singular = 0;

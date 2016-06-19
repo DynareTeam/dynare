@@ -172,10 +172,11 @@ while notsteady && t<=last
     sig=sqrt(diag(F));
     if any(diag(F)<kalman_tol) || rcond(F./(sig*sig')) < kalman_tol
         if ~all(abs(F(:))<kalman_tol)
+            %use diffuse filter
             return
         else
-            a = T*a;
-            P = T*P*transpose(T)+QQ;
+            %pathological case, discard draw
+            return
         end
     else
         F_singular = 0;

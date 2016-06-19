@@ -100,9 +100,8 @@ while rank(Pinf,diffuse_kalman_tol) && (t<=last)
                         % The univariate diffuse kalman filter should be used.
                         return
                     else %rank 0
-                        a = T*a;
-                        Pstar = T*Pstar*transpose(T)+QQ;
-                        Pinf  = T*Pinf*transpose(T);                        % (5.16) DK (2012)
+                        %pathological case, discard draw
+                        return
                     end
                 else
                     iFstar = inv(Fstar);
