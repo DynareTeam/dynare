@@ -129,6 +129,12 @@ while newRank && (t<=last)
         Fstar = Zi*Pstar*Zi' + H(d_index(i));           % F_{*,t} in 5.7 in DK (2012), relies on H being diagonal
         Finf  = Zi*Pinf*Zi';                            % F_{\infty,t} in 5.7 in DK (2012), relies on H being diagonal 
         Kstar = Pstar*Zi';
+        % Conduct check of rank
+        % Pinf and Finf are always scaled such that their norm=1: Fstar/Pstar, instead, 
+        % depends on the actual values of std errors in the model and can be badly scaled.
+        % experience is that diffuse_kalman_tol has to be bigger than kalman_tol, to ensure 
+        % exiting the diffuse filter properly, avoiding tests that provide false non-zero rank for Pinf. 
+        % Also the test for singularity is better set coarser for Finf than for Fstar for the same reason
         if Finf>diffuse_kalman_tol && newRank           % F_{\infty,t,i} = 0, use upper part of bracket on p. 175 DK (2012) for w_{t,i}
             Kinf   = Pinf*Zi';
             Kinf_Finf = Kinf/Finf;
