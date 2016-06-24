@@ -14,7 +14,7 @@ function rplot(s1)
 % SPECIAL REQUIREMENTS
 %    none
 
-% Copyright (C) 2001-2013 Dynare Team
+% Copyright (C) 2001-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -44,11 +44,15 @@ ix = [1 - M_.maximum_lag:size(oo_.endo_simul,2)-M_.maximum_lag]' ;
 
 y = [];
 for k=1:size(s1,1)
-    if isempty(strmatch(s1(k,:),M_.endo_names,'exact'))
-        error (['rplot: One of the variables specified does not exist']) ;
+    if isempty(strmatch(s1(k,:),M_.endo_names,'exact')) 
+        if isempty(strmatch(s1(k,:),M_.exo_names,'exact')) 
+            error (['rplot: One of the variables specified does not exist']) ;
+        else
+            y = [y; oo_.exo_simul(:,strmatch(s1(k,:),M_.exo_names,'exact'))'] ;        
+        end
+    else
+        y = [y; oo_.endo_simul(strmatch(s1(k,:),M_.endo_names,'exact'),:)] ;
     end
-
-    y = [y; oo_.endo_simul(strmatch(s1(k,:),M_.endo_names,'exact'),:)] ;
 end
 
 if options_.smpl == 0
@@ -68,9 +72,9 @@ if rplottype == 0
     xlabel('Periods') ;
     if size(s1,1) > 1
         if isoctave
-            legend(s1, 0);
+            legend(s1);
         else
-            h = legend(s1,0);
+            h = legend(s1);
             set(h, 'Interpreter', 'none');
         end
     end
@@ -89,7 +93,11 @@ elseif rplottype == 2
         subplot(nl,nc,j) ;
         plot(ix(i),y(j,i)) ;
         hold on ;
-        plot(ix(i),oo_.steady_state(strmatch(s1(j,:),M_.endo_names,'exact'))*ones(1,size(i,1)),'r:') ;
+        if ~isempty(strmatch(s1(j,:),M_.endo_names,'exact'))
+            plot(ix(i),oo_.steady_state(strmatch(s1(j,:),M_.endo_names,'exact'))*ones(1,size(i,1)),'r:') ;
+        else
+            plot(ix(i),oo_.exo_steady_state(strmatch(s1(j,:),M_.exo_names,'exact'))*ones(1,size(i,1)),'r:') ;
+        end
         xlabel('Periods') ;
         ylabel([s1(j,:)],'Interpreter','none') ;
         title(['Plot of ' s1(j,:)],'Interpreter','none') ;
@@ -100,7 +108,7 @@ end
 if ~exist(M_.fname, 'dir')
     mkdir('.',M_.fname);
 end
-if ~exist([M_.fname filesep 'graphs'])
+if ~exist([M_.fname filesep 'graphs'],'dir')
     mkdir(M_.fname,'graphs');
 end
 
@@ -111,12 +119,3 @@ dyn_saveas(hh,[M_.fname, filesep, 'graphs', filesep, 'SimulatedTrajectory_' debl
 % 06/19/01 MJ added 'exact' to strmatch calls
 % 06/25/03 MJ correction when options_.smpl ~= 0
 % 03/18/13 JP bugfix for rplottype>0; added figure names
-
-
-
-
-
-
-
-
-
