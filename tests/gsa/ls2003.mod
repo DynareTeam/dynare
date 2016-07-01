@@ -218,7 +218,7 @@ dynare_sensitivity(nodisplay, stab=0, // no need for stability analysis since th
 datafile='data_ca1.m',first_obs=8,nobs=79,prefilter=1,
 rmse=1,ppost=1,Nsam=512);
 
-collect_LaTeX_Files(M_);
+collect_latex_files;
 if system(['pdflatex -halt-on-error -interaction=batchmode ' M_.fname '_TeX_binder.tex'])
     error('TeX-File did not compile.')
 end

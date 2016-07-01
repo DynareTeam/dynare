@@ -1,9 +1,8 @@
-function collect_LaTeX_Files(M_)
-% function collect_LaTeX_Files(M_);
+function collect_latex_files
+% function collect_LaTeX_Files;
 % Creates TeX-File embedding all eps-loaders created for current mod-file
 % 
-% Inputs:
-%   o M_                    model structure
+% Inputs: none
 % 
 % Notes: 
 %   - The packages loaded enable pdflatex to run
@@ -26,6 +25,7 @@ function collect_LaTeX_Files(M_)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
+global M_
 %% Write header
 f_name_binder=[M_.fname,'_TeX_binder.tex'];
 fid=fopen(f_name_binder,'w+');

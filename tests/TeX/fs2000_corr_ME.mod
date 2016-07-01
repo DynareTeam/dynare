@@ -175,7 +175,7 @@ trace_plot(options_,M_,estim_params_,'StructuralShock',1,'eps_a')
 
 shock_decomposition y W R;
 
-collect_LaTeX_Files(M_);
+collect_latex_files;
 
 //identification(advanced=1,max_dim_cova_group=3,prior_mc=250);
 if system(['pdflatex -halt-on-error -interaction=batchmode ' M_.fname '_TeX_binder.tex'])
