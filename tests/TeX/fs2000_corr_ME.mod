@@ -124,6 +124,12 @@ end;
 steady;
 
 stoch_simul(order=1,irf=20,graph_format=eps,periods=1000,contemporaneous_correlation,conditional_variance_decomposition=[1,3]);
+options_.rplottype=0;
+rplot y e_a gy_obs;
+options_.rplottype=1;
+rplot l e_m gp_obs;
+options_.rplottype=2;
+rplot n e_a e_m m;
 stoch_simul(order=1,irf=20,graph_format=eps,periods=0,contemporaneous_correlation,conditional_variance_decomposition=[1,3]);
 
 write_latex_original_model;
