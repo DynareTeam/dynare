@@ -85,9 +85,10 @@ if norm(D.oo_.endo_simul - oo_.endo_simul) > 1e-30;
 end;                       
 
 options_.dynatol.f=1e-10;
-@#define J = 10
-@#for solve_algo_iter in 0:J
+@#define J = [0,1,2,3,4,9,10]
+@#for solve_algo_iter in J
 
+perfect_foresight_setup(periods=200);
 perfect_foresight_solver(stack_solve_algo=7,solve_algo=@{solve_algo_iter});
 
 rplot Consumption;
