@@ -84,7 +84,7 @@ while ~done
             [f0,grad] = feval(gradfun,x,varargin{:});
         end
         if isreal(grad)
-            if rcond(grad)<1e-12
+            if rcond(full(grad))<1e-12
                 grad=grad+tvec;
             end
             dx0=-grad\f0;
