@@ -38,7 +38,7 @@ jacobian_flag = options.jacobian_flag;
 
 % Set tolerance parameter depending the the caller function.
 stack = dbstack;
-if strcmp(stack(2).file,'simulation_core.m')
+if strcmp(stack(2).file,'simulation_core.m') || strcmp(stack(2).file,'solve_stacked_problem.m')
     tolf = options.dynatol.f;
 else
     tolf = options.solve_tolf;

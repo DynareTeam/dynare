@@ -84,7 +84,7 @@ if norm(D.oo_.endo_simul - oo_.endo_simul) > 1e-30;
    error('rbc_det_stack_solve_algo_7 failed');
 end;                       
 
-
+options_.dynatol.f=1e-10;
 @#define J = 10
 @#for solve_algo_iter in 0:J
 
@@ -95,9 +95,9 @@ rplot Capital;
 
 D = load('rbc_det_results');
 
-if norm(D.oo_.endo_simul - oo_.endo_simul) > 1e-6;
+if norm(D.oo_.endo_simul - oo_.endo_simul) > 1e-8;
    disp(norm(D.oo_.endo_simul - oo_.endo_simul));
-   error('rbc_det_stack_solve_algo_7 failed');
+   error(sprintf('rbc_det_stack_solve_algo_7 failed with solve_algo=%u',options_.solve_algo));
 end;
 
 @#endfor
