@@ -93,7 +93,7 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
                 info(2) = resids'*resids;
                 return;
             end
-            if max(abs(resids(n_multipliers+1:end))) > options.dynatol.f %does it solve for all variables except for the Lagrange multipliers
+            if max(abs(resids(n_multipliers+1:end))) > options.solve_tolf %does it solve for all variables except for the Lagrange multipliers
                 fprintf('\nevaluate_steady_state: The steady state file does not solve the steady state for the Ramsey problem.\n')
                 fprintf('evaluate_steady_state: Conditional on the following instrument values: \n')
                 for ii = 1:size(options.instruments,1);
@@ -101,7 +101,7 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
                 end
                 fprintf('evaluate_steady_state: the following equations have non-zero residuals: \n')
                 for ii=n_multipliers+1:M.endo_nbr
-                    if abs(resids(ii)) > options.dynatol.f/100
+                    if abs(resids(ii)) > options.solve_tolf
                         fprintf('\t Equation number %d: %f\n',ii-n_multipliers, resids(ii))
                     end
                 end
@@ -172,7 +172,7 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
             return;
         end
 
-        if max(abs(resids)) > options.dynatol.f %does it solve for all variables including the auxiliary ones
+        if max(abs(resids)) > options.solve_tolf %does it solve for all variables including the auxiliary ones
             fprintf('\nevaluate_steady_state: The steady state for the Ramsey problem could not be computed.\n')
             fprintf('evaluate_steady_state: The steady state computation stopped with the following instrument values:: \n')
             for i = 1:size(options.instruments,1);
@@ -180,12 +180,12 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
             end
             fprintf('evaluate_steady_state: The following equations have non-zero residuals: \n')
             for ii=1:n_multipliers
-                if abs(resids(ii)) > options.dynatol.f/100
+                if abs(resids(ii)) > options.solve_tolf/100
                     fprintf('\t Auxiliary Ramsey equation number %d: %f\n',ii, resids(ii))
                 end
             end
             for ii=n_multipliers+1:M.endo_nbr
-                if abs(resids(ii)) > options.dynatol.f/100
+                if abs(resids(ii)) > options.solve_tolf/100
                     fprintf('\t Equation number %d: %f\n',ii-n_multipliers, resids(ii))
                 end
             end
