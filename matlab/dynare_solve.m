@@ -213,9 +213,12 @@ elseif options.solve_algo == 11
     global mcp_data
     mcp_data.func = func;
     mcp_data.args = varargin;
-
-    [x,fval,jac,mu,status] = pathmcp(x,omcppath.lb,omcppath.ub,'mcp_func',omcppath.A,omcppath.b,omcppath.t,omcppath.mu0);
-    info = ~status;
+    info=0;
+    try
+        [x,fval,jac,mu] = pathmcp(x,omcppath.lb,omcppath.ub,'mcp_func',omcppath.A,omcppath.b,omcppath.t,omcppath.mu0);
+    catch
+        info = 1;
+    end
 else
     error('DYNARE_SOLVE: option solve_algo must be one of [0,1,2,3,4,9,10,11]')
 end

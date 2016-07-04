@@ -2979,8 +2979,14 @@ option, @pxref{Model declaration})
 Trust-region algorithm on the entire model.
 
 @item 10
-Levenberg-Marquardt mixed complementarity problem (LMMCP) solver
+Levenberg-Marquardt mixed compleproblem (LMMCP) solver
 (@cite{Kanzow and Petra 2004})
+
+@item 11
+PATH 3.0 solver of @cite{Ferris and Munson (1999)}. Dynare only provides the interface
+for using the solver. Due to licence restrictions, you have to download the solver yourself
+from @url{http://pages.cs.wisc.edu/~ferris/path.html} and place it in Matlab's search path.
+
 @end table
 
 @noindent
@@ -13746,6 +13752,10 @@ Dynamic Equilibrium Economies: Linear versus Nonlinear Likelihood,''
 @item
 Fernández-Villaverde, Jesús (2010): ``The econometrics of DSGE models,''
 @i{SERIEs}, 1, 3--49
+
+@item
+Ferris, Michael C. and Todd S. Munson (1999): ``Interfaces to PATH 3.0: Design, Implementation and Usage'',
+@i{Computational Optimization and Applications}, 12(1), 207--227
 
 @item
 Geweke, John (1992): ``Evaluating the accuracy of sampling-based approaches
