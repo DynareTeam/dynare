@@ -1,6 +1,18 @@
 function [lb,ub,eq_index] = get_complementarity_conditions(M,ramsey_policy)
+% [lb,ub,eq_index] = get_complementarity_conditions(M,ramsey_policy)
+% INPUTS
+%   - M                   [struct] contains a description of the model.
+%   - ramsey_policy       [boolean] indicator whether a Ramsey problem is considered 
+% OUTPUTS
+%   - lb                  [double] endo_nbr*1 array of lower bounds for
+%                                   endogenous variables
+%   - ub                  [double] endo_nbr*1 array of upper bounds for
+%                                   endogenous variables
+%   - eq_index            [struct] endo_nbr*1 index vector describing residual mapping resulting 
+%                                from complementarity setup used in
+%                                perfect_foresight_mcp_problem.m
 
-% Copyright (C) 2014 Dynare Team
+% Copyright (C) 2014-16 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -43,10 +55,10 @@ for i=1:size(etags,1)
         str = etags{i,3};
         kop = strfind(etags{i,3},'<');
         if ~isempty(kop)
-                k = find(strcmp(strtrim(str(1:kop-1)),cellstr(M.endo_names)));
+                k = find(strcmp(strtrim(str(1:kop-1)),cellstr(M.endo_names))); %get variable index with restriction
                 if isempty(k)
                     error(sprintf(['Complementarity condition %s: variable %s is ' ...
-                                   'not recognized',etags{i,3},strtrim(str(1:kop-1))]))
+                                   'not recognized'],etags{i,3},strtrim(str(1:kop-1))))
                 end
                 ub(k) = str2num(str(kop+1:end));
                 eq_index(etags{i,1}) = k;
@@ -54,10 +66,10 @@ for i=1:size(etags,1)
         else
             kop = strfind(etags{i,3},'>');
             if ~isempty(kop)
-                k = find(strcmp(strtrim(str(1:kop-1)),cellstr(M.endo_names)));
+                k = find(strcmp(strtrim(str(1:kop-1)),cellstr(M.endo_names))); %get variable index with restriction
                 if isempty(k)
                     error(sprintf(['Complementarity condition %s: variable %s is ' ...
-                                   'not recognized',etags{i},strtrim(str(1:kop-1))]))
+                                   'not recognized'],etags{i,3},strtrim(str(1:kop-1))))
                 end
                 lb(k) = str2num(str(kop+1:end));
                 eq_index(etags{i,1}) = k;
