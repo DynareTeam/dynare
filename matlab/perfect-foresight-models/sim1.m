@@ -3,9 +3,14 @@ function [endogenousvariables, info] = sim1(endogenousvariables, exogenousvariab
 % Performs deterministic simulations with lead or lag on one period. Uses sparse matrices.
 %
 % INPUTS
-%   ...
+%   - endogenousvariables [double] N*T array, paths for the endogenous variables (initial guess).
+%   - exogenousvariables  [double] T*M array, paths for the exogenous variables.
+%   - steadystate       [double] N*1 array, steady state for the endogenous variables.
+%   - M                   [struct] contains a description of the model.
+%   - options             [struct] contains various options.
 % OUTPUTS
-%   ...
+%   - endogenousvariables [double] N*T array, paths for the endogenous variables (solution of the perfect foresight model).
+%   - info                [struct] contains informations about the results.
 % ALGORITHM
 %   ...
 %

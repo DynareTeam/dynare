@@ -1,7 +1,33 @@
 function [options, y0, yT, z, i_cols, i_cols_J1, i_cols_T, i_cols_j, i_cols_1, ...
-          dynamicmodel] = initialize_stack_solve_algo_7(endogenousvariables, options, M, steadystate_y)
+          dynamicmodel] = initialize_stacked_problem(endogenousvariables, options, M, steadystate_y)
+% function [options, y0, yT, z, i_cols, i_cols_J1, i_cols_T, i_cols_j, i_cols_1, ...
+%           dynamicmodel] = initialize_stacked_problem(endogenousvariables, options, M, steadystate_y)
+% Sets up the stacked perfect foresight problem for use with dynare_solve.m
+%
+% INPUTS 
+% - endogenousvariables [double] N*T array, paths for the endogenous variables (initial guess).
+% - options             [struct] contains various options.
+% - M                   [struct] contains a description of the model.
+% - steadystate_y       [double] N*1 array, steady state for the endogenous variables.
+% OUTPUTS 
+% - options             [struct] contains various options.
+% - y0                  [double] N*1 array, initial conditions for the endogenous variables
+% - yT                  [double] N*1 array, terminal conditions for the endogenous variables
+% - z                   [double] T*M array, paths for the exogenous variables.
+% - i_cols              [double] indices of variables appearing in M.lead_lag_incidence
+%                                and that need to be passed to _dynamic-file
+% - i_cols_J1           [double] indices of contemporaneous and forward looking variables 
+%                                appearing in M.lead_lag_incidence
+% - i_cols_T            [double] columns of dynamic Jacobian related to
+%                                contemporaneous and backward-looking
+%                                variables (relevant in last period)
+% - i_cols_j            [double] indices of variables in M.lead_lag_incidence
+%                                in dynamic Jacobian (relevant in intermediate periods)
+% - i_cols_1            [double] indices of contemporaneous and forward looking variables in
+%                                M.lead_lag_incidence in dynamic Jacobian (relevant in first period)
+% - dynamicmodel        [handle] function handle to _dynamic-file
 
-% Copyright (C) 2015 Dynare Team
+% Copyright (C) 2015-16 Dynare Team
 %
 % This file is part of Dynare.
 %

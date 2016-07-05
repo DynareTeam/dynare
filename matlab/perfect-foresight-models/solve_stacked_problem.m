@@ -1,6 +1,19 @@
 function [endogenousvariables, info] = solve_stacked_problem(endogenousvariables, exogenousvariables, steadystate, M, options);
+% [endogenousvariables, info] = solve_stacked_problem(endogenousvariables, exogenousvariables, steadystate, M, options);
+% Solves the perfect foresight model using dynare_solve
+%
+% INPUTS 
+% - endogenousvariables [double] N*T array, paths for the endogenous variables (initial guess).
+% - exogenousvariables  [double] T*M array, paths for the exogenous variables.
+% - steadystate         [double] N*1 array, steady state for the endogenous variables.
+% - M                   [struct] contains a description of the model.
+% - options             [struct] contains various options.
+%
+% OUTPUTS 
+% - endogenousvariables [double] N*T array, paths for the endogenous variables (solution of the perfect foresight model).
+% - info                [struct] contains informations about the results.
 
-% Copyright (C) 2015 Dynare Team
+% Copyright (C) 2015-16 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -20,7 +33,7 @@ function [endogenousvariables, info] = solve_stacked_problem(endogenousvariables
 [options, y0, yT, z, i_cols, i_cols_J1, i_cols_T, i_cols_j, i_cols_1, dynamicmodel] = ...
     initialize_stacked_problem(endogenousvariables, options, M, steadystate);
 
-if (options.solve_algo == 10 || options.solve_algo == 11)
+if (options.solve_algo == 10 || options.solve_algo == 11)% mixed complementarity problem
     [lb,ub,eq_index] = get_complementarity_conditions(M,options.ramsey_policy);
     if options.linear_approximation
         lb = lb - steadystate_y;
