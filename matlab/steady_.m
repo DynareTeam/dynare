@@ -18,7 +18,7 @@ function [steady_state,params,info] = steady_(M_,options_,oo_)
 % SPECIAL REQUIREMENTS
 %   none
 
-% Copyright (C) 2001-2011 Dynare Team
+% Copyright (C) 2001-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -36,7 +36,7 @@ function [steady_state,params,info] = steady_(M_,options_,oo_)
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 if options_.solve_algo < 0 || options_.solve_algo > 12
-    error('STEADY: solve_algo must be between 0 and 8')
+    error('STEADY: solve_algo must be between 0 and 12')
 end
 
 if ~options_.bytecode && ~options_.block && options_.solve_algo > 4 && ...
@@ -48,8 +48,8 @@ if ~options_.bytecode && options_.block && options_.solve_algo == 5
     error('STEADY: you can''t use solve_algo = 5 without bytecode option')
 end
 
-if isoctave && options_.solve_algo == 7
-    error('SIMUL: you can''t use solve_algo = 7 under Octave')
+if isoctave && ismember(options_.solve_algo,[7,11])
+    error(['SIMUL: you can''t use solve_algo = %u under Octave'],options_.solve_algo)
 end
 
 [steady_state,params,info] = evaluate_steady_state(oo_.steady_state,M_,options_,oo_,~options_.steadystate.nocheck);
