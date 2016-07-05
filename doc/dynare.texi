@@ -2983,8 +2983,9 @@ Levenberg-Marquardt mixed compleproblem (LMMCP) solver
 (@cite{Kanzow and Petra 2004})
 
 @item 11
-PATH 3.0 solver of @cite{Ferris and Munson (1999)}. Dynare only provides the interface
-for using the solver. Due to licence restrictions, you have to download the solver yourself
+PATH mixed complementarity problem solver of @cite{Ferris and Munson (1999)}. The complementarity 
+conditions are specified with an @code{mcp} equation tag, @pxref{lmmcp}. Dynare only provides the interface
+for using the solver. Due to licence restrictions, you have to download the solver's most current version yourself
 from @url{http://pages.cs.wisc.edu/~ferris/path.html} and place it in Matlab's search path.
 
 @end table
@@ -3643,14 +3644,17 @@ solved, before using a constant set of operations for the remaining
 periods. Only used when @code{stack_solve_algo = 5}. Default: @code{1}.
 
 @item lmmcp
+@anchor{lmmcp}
 Solves the perfect foresight model with a Levenberg-Marquardt mixed complementarity problem (LMMCP) solver
 (@cite{Kanzow and Petra 2004}), which allows to consider inequality constraints on the endogenous variables
 (such as a ZLB on the nominal interest rate or a model with irreversible
 investment). This option is equivalent to @code{stack_solve_algo=7} @strong{and}
-@code{solve_algo=10}. The inequality constraints on the endogenous variables
-have to be specified with an equation tag @pxref{Model declaration}. The tag has to use 
-the @code{mcp} keyword. For instance,
-a ZLB on the nominal interest rate would be specified as follows in the model block:
+@code{solve_algo=10}. Using the LMMCP solver requires a particular model setup as the goal is to get rid of 
+any @code{min/max} operators and complementary slackness conditions that might introduce 
+a singularity into the Jacobian. This is done by attaching an equation tag (@pxref{Model declaration})
+with the @code{mcp} keyword to affected equations. This tag states that the equation 
+to which the tag is attached has to hold unless the expression within the tag is binding.
+For instance, a ZLB on the nominal interest rate would be specified as follows in the model block:
 @example
 model;
    ...
@@ -3660,14 +3664,20 @@ model;
 end;
 @end example
 where 1.94478 is the steady state level of the nominal interest rate and
-@code{r} is the nominal interest rate in deviation from the steady state. In the
-current implementation, the content of the @code{mcp} equation tag is not parsed by the
+@code{r} is the nominal interest rate in deviation from the steady state. This construct implies that
+the Taylor rule is operative, unless the implied interest rate @code{r<=-1.94478}, in which case the 
+@code{r} is fixed at @code{-1.94478} (thereby being equivalent to a complementary slackness
+condition). By restricting the value of @code{r} coming out of this equation, the
+@code{mcp}-tag also avoids using @code{max(r,-1.94478)} for other occurrences of @code{r} in the 
+rest of the model. It is important to keep in mind that, because the @code{mcp}-tag effectively 
+replaces a complementary slackness condition, it cannot be simply attached to any 
+equation. Rather, it must be attached to the correct affected equation as otherwise the 
+solver will solve a different problem than originally intended.
+
+Note that in the current implementation, the content of the @code{mcp} equation tag is not parsed by the
 preprocessor. The inequalities must therefore be as simple as possible: an endogenous
 variable, followed by a relational operator, followed by a number (not a
-variable, parameter or expression). Note also that the constraint on an
-endogenous variable must be associated to an equation and that the mixed
-complementarity solver may fail or perform poorly if the constraint is
-associated with an equation not directly related to the restricted variable.
+variable, parameter or expression). 
 
 @item endogenous_terminal_period
 The  number of  periods is  not constant  across Newton  iterations when
