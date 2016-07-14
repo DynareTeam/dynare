@@ -129,6 +129,7 @@ if strcmpi(type,'PosteriorDensity')
 else
     plot_name=get_the_name(column,0,M_,estim_params_,options_);
 end
+plot_name=[plot_name,'_blck_',num2str(blck)];
 
 dyn_saveas(hh,[M_.fname, filesep, 'graphs', filesep, 'TracePlot_' plot_name],options_)
 
