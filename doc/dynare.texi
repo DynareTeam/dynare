@@ -13638,6 +13638,13 @@ distribution. Results returned in @var{oo_.posterior_function_results}
 
 @end deffn
 
+@anchor{generate_trace_plots}
+@deffn Command generate_trace_plots(@var{CHAIN_NUMBER}) ;
+
+Generates trace plots of the MCMC draws for all estimated parameters and the posterior density in the specified Markov Chain @code{CHAIN_NUMBER}.
+
+@end deffn
+
 @anchor{internals}
 @deffn {MATLAB/Octave command} internals @var{FLAG} @var{ROUTINENAME}[.m]|@var{MODFILENAME}
 
