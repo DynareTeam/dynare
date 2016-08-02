@@ -148,6 +148,10 @@ if ~noprint
         error(['Ramsey: The steady state file computation for the Ramsey problem resulted in NaNs at the initial values of the instruments']);
       case 85
         error(['Ramsey: The steady state file does not solve the static first order conditions conditional on the instruments.']);
+      case 86
+        error(['Ramsey: The steady state file provides complex numbers conditional on the instruments.']);
+      case 87
+        error(['Ramsey: The maximum number of iterations has been reached. Try increasing maxit.']);
       case 102
         error('Aim: roots not correctly computed by real_schur');
       case 103

@@ -145,7 +145,6 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
         %either if no steady state file or steady state file without problems
         [ys,params,info] = dyn_ramsey_static(ys_init,M,options,oo);
         if info
-           info=81;%case should not happen
            return;
         end
         %check whether steady state really solves the model

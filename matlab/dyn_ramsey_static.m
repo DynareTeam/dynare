@@ -55,7 +55,13 @@ elseif options_.steadystate_flag
     end
     if inst_nbr == 1
         %solve for instrument, using univariate solver, starting at initial value for instrument
-        inst_val = csolve(nl_func,ys_init(k_inst),'',options_.solve_tolf,100); 
+        [inst_val, info1]= csolve(nl_func,ys_init(k_inst),'',options_.solve_tolf,options_.ramsey.maxit);
+        if info1==1 || info1==3
+            check=81;
+        end
+        if info1==4
+            check=87;
+        end        
     else
         %solve for instrument, using multivariate solver, starting at
         %initial value for instrument
@@ -63,10 +69,13 @@ elseif options_.steadystate_flag
         opt.jacobian_flag = 0;
         [inst_val,info1] = dynare_solve(nl_func,ys_init(k_inst), ...
                                         opt);
+        if info1~=0
+            check=81;
+        end
     end
     ys_init(k_inst) = inst_val;
     exo_ss = [oo.exo_steady_state oo.exo_det_steady_state];
-    [xx,params,check] = evaluate_steady_state_file(ys_init,exo_ss,M,options_,~options_.steadystate.nocheck); %run steady state file again to update parameters
+    [xx,params] = evaluate_steady_state_file(ys_init,exo_ss,M,options_,~options_.steadystate.nocheck); %run steady state file again to update parameters
     [junk,junk,steady_state] = nl_func(inst_val); %compute and return steady state
 else
     n_var = M.orig_endo_nbr;
@@ -110,6 +119,12 @@ if options_.steadystate_flag
                                                   [oo.exo_steady_state; ...
                                                   oo.exo_det_steady_state], ...
                                                   M,options_,~options_.steadystate.nocheck);
+    if any(imag(x(1:M.orig_endo_nbr))) %return with penalty
+        resids=1+sum(abs(imag(x(1:M.orig_endo_nbr)))); %return with penalty
+        steady_state=NaN(endo_nbr,1);
+        return;
+    end
+
 end
 
 xx = zeros(endo_nbr,1); %initialize steady state vector
