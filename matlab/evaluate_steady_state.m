@@ -136,7 +136,7 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
         %check whether steady state really solves the model
         resids = evaluate_static_model(ys,exo_ss,params,M,options);
 
-        n_multipliers=M.orig_eq_nbr;
+        n_multipliers=M.ramsey_eq_nbr;
         nan_indices_multiplier=find(isnan(resids(1:n_multipliers)));
         nan_indices=find(isnan(resids(n_multipliers+1:end)));
 
