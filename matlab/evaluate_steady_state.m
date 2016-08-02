@@ -93,6 +93,21 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
                 info(2) = resids'*resids;
                 return;
             end
+            
+            if any(imag(ys(n_multipliers+1:end)))
+                fprintf('\nevaluate_steady_state: The steady state file computation for the Ramsey problem resulted in complex numbers.\n')
+                fprintf('evaluate_steady_state: The steady state was computed conditional on the following initial instrument values: \n')
+                for ii = 1:size(options.instruments,1);
+                    fprintf('\t %s \t %f \n',options.instruments(ii,:),ys_init(strmatch(options.instruments(ii,:),M.endo_names,'exact')))
+                end
+                fprintf('evaluate_steady_state: If those initial values are not admissable, change them using an initval-block.\n')
+                skipline(2);
+                check=1;
+                info(1) = 86;
+                info(2) = resids'*resids;
+                return;
+            end
+
             if max(abs(resids(n_multipliers+1:end))) > options.solve_tolf %does it solve for all variables except for the Lagrange multipliers
                 fprintf('\nevaluate_steady_state: The steady state file does not solve the steady state for the Ramsey problem.\n')
                 fprintf('evaluate_steady_state: Conditional on the following instrument values: \n')
