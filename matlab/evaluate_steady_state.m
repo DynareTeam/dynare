@@ -176,7 +176,7 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
             fprintf('\nevaluate_steady_state: The steady state for the Ramsey problem could not be computed.\n')
             fprintf('evaluate_steady_state: The steady state computation stopped with the following instrument values:: \n')
             for i = 1:size(options.instruments,1);
-                fprintf('\t %s \t %f \n',options.instruments(i,:),ys_init(strmatch(options.instruments(i,:),M.endo_names,'exact')))
+                fprintf('\t %s \t %f \n',options.instruments(i,:),ys(strmatch(options.instruments(i,:),M.endo_names,'exact')))
             end
             fprintf('evaluate_steady_state: The following equations have non-zero residuals: \n')
             for ii=1:n_multipliers
