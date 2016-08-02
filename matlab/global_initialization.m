@@ -346,6 +346,7 @@ options_.conditional_variance_decomposition = [];
 options_.ramsey_policy = 0;
 options_.instruments = [];
 options_.timeless = 0;
+options_.ramsey.maxit = 500;
 
 % estimation
 estimation_info.empty_prior = struct(...

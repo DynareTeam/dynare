@@ -46,6 +46,13 @@ else
     tolf = options.solve_tolf;
 end
 
+if strcmp(stack(2).file,'dyn_ramsey_static.m')
+    maxit = options.ramsey.maxit;
+else
+    maxit = options.steady.maxit;
+end
+
+
 info = 0;
 nn = size(x,1);
 
@@ -84,7 +91,7 @@ if options.solve_algo == 0
     end
     options4fsolve=optimset('fsolve');
     options4fsolve.MaxFunEvals = 50000;
-    options4fsolve.MaxIter = options.steady.maxit;
+    options4fsolve.MaxIter = maxit;
     options4fsolve.TolFun = tolf;
     options4fsolve.Display = 'iter';
     if jacobian_flag
@@ -132,11 +139,11 @@ if options.solve_algo == 0
 elseif options.solve_algo == 1
         [x,info]=solve1(func,x,1:nn,1:nn,jacobian_flag,options.gstep, ...
                     tolf,options.solve_tolx, ...
-                    options.steady.maxit,options.debug,varargin{:});
+                    maxit,options.debug,varargin{:});
 elseif options.solve_algo == 9
         [x,info]=trust_region(func,x,1:nn,1:nn,jacobian_flag,options.gstep, ...
                     tolf,options.solve_tolx, ...
-                    options.steady.maxit,options.debug,varargin{:});
+                    maxit,options.debug,varargin{:});
 elseif options.solve_algo == 2 || options.solve_algo == 4
 
     if options.solve_algo == 2
@@ -168,7 +175,7 @@ elseif options.solve_algo == 2 || options.solve_algo == 4
         [x,info]=solver(func,x,j1(r(i):r(i+1)-1),j2(r(i):r(i+1)-1),jacobian_flag, ...
                         options.gstep, ...
                         tolf,options.solve_tolx, ...
-                        options.steady.maxit,options.debug,varargin{:});
+                        maxit,options.debug,varargin{:});
         if info
             return
         end
@@ -177,7 +184,7 @@ elseif options.solve_algo == 2 || options.solve_algo == 4
     if max(abs(fvec)) > tolf
         [x,info]=solver(func,x,1:nn,1:nn,jacobian_flag, ...
                         options.gstep, tolf,options.solve_tolx, ...
-                        options.steady.maxit,options.debug,varargin{:});
+                        maxit,options.debug,varargin{:});
     end
 elseif options.solve_algo == 3
     if jacobian_flag
