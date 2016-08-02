@@ -13,7 +13,7 @@ function [steady_state,params,check] = dyn_ramsey_static(ys_init,M,options_,oo)
 %    steady_state:  steady state value
 %    params:        parameters at steady state, potentially updated by
 %                   steady_state file
-%    check:         Lagrangian multipliers
+%    check:         error indicator, 0 if everything is OK
 %
 % SPECIAL REQUIREMENTS
 %    none
