@@ -110,7 +110,21 @@ if info
     fprintf('The prior density evaluated at the initial values is Inf for the following parameters: %s\n',BayesInfo.name{info,1})
     error('The initial value of the prior is -Inf')
 end
-    
+
+if DynareOptions.ramsey_policy
+    %test whether specification matches
+    inst_nbr = size(DynareOptions.instruments,1);
+    if inst_nbr~=0
+        orig_endo_aux_nbr = Model.orig_endo_nbr + min(find([Model.aux_vars.type] == 6)) - 1;
+        implied_inst_nbr = orig_endo_aux_nbr - Model.orig_eq_nbr;
+        if inst_nbr>implied_inst_nbr
+            error('You have specified more instruments than there are omitted equations')
+        elseif inst_nbr<implied_inst_nbr
+            error('You have specified fewer instruments than there are omitted equations')
+        end
+    end
+end
+
 % Evaluate the likelihood.
 ana_deriv = DynareOptions.analytic_derivation;
 DynareOptions.analytic_derivation=0;
