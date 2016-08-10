@@ -75,52 +75,56 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
             nan_indices=find(isnan(resids(n_multipliers+1:end)));
 
             if ~isempty(nan_indices)
-                fprintf('\nevaluate_steady_state: The steady state file computation for the Ramsey problem resulted in NaNs.\n')
-                fprintf('evaluate_steady_state: The steady state was computed conditional on the following initial instrument values: \n')
-                for ii = 1:size(options.instruments,1);
-                    fprintf('\t %s \t %f \n',options.instruments(ii,:),ys_init(strmatch(options.instruments(ii,:),M.endo_names,'exact')))
-                end
-                fprintf('evaluate_steady_state: The problem occured in the following equations: \n')
-                fprintf('\t Equation(s): ')
-                for ii=1:length(nan_indices)
+                if options.debug
+                    fprintf('\nevaluate_steady_state: The steady state file computation for the Ramsey problem resulted in NaNs.\n')
+                    fprintf('evaluate_steady_state: The steady state was computed conditional on the following initial instrument values: \n')
+                    for ii = 1:size(options.instruments,1);
+                        fprintf('\t %s \t %f \n',options.instruments(ii,:),ys_init(strmatch(options.instruments(ii,:),M.endo_names,'exact')))
+                    end
+                    fprintf('evaluate_steady_state: The problem occured in the following equations: \n')
+                    fprintf('\t Equation(s): ')
+                    for ii=1:length(nan_indices)
                         fprintf('%d, ',nan_indices(ii));
+                    end
+                    skipline();
+                    fprintf('evaluate_steady_state: If those initial values are not admissable, change them using an initval-block.\n')
+                    skipline(2);
                 end
-                skipline();
-                fprintf('evaluate_steady_state: If those initial values are not admissable, change them using an initval-block.\n')
-                skipline(2);
-                check=1;
                 info(1) = 84;
                 info(2) = resids'*resids;
                 return;
             end
             
             if any(imag(ys(n_multipliers+1:end)))
-                fprintf('\nevaluate_steady_state: The steady state file computation for the Ramsey problem resulted in complex numbers.\n')
-                fprintf('evaluate_steady_state: The steady state was computed conditional on the following initial instrument values: \n')
-                for ii = 1:size(options.instruments,1);
-                    fprintf('\t %s \t %f \n',options.instruments(ii,:),ys_init(strmatch(options.instruments(ii,:),M.endo_names,'exact')))
+                if options.debug
+                    fprintf('\nevaluate_steady_state: The steady state file computation for the Ramsey problem resulted in complex numbers.\n')
+                    fprintf('evaluate_steady_state: The steady state was computed conditional on the following initial instrument values: \n')
+                    for ii = 1:size(options.instruments,1);
+                        fprintf('\t %s \t %f \n',options.instruments(ii,:),ys_init(strmatch(options.instruments(ii,:),M.endo_names,'exact')))
+                    end
+                    fprintf('evaluate_steady_state: If those initial values are not admissable, change them using an initval-block.\n')
+                    skipline(2);
                 end
-                fprintf('evaluate_steady_state: If those initial values are not admissable, change them using an initval-block.\n')
-                skipline(2);
-                check=1;
                 info(1) = 86;
                 info(2) = resids'*resids;
                 return;
             end
 
             if max(abs(resids(n_multipliers+1:end))) > options.solve_tolf %does it solve for all variables except for the Lagrange multipliers
-                fprintf('\nevaluate_steady_state: The steady state file does not solve the steady state for the Ramsey problem.\n')
-                fprintf('evaluate_steady_state: Conditional on the following instrument values: \n')
-                for ii = 1:size(options.instruments,1);
-                    fprintf('\t %s \t %f \n',options.instruments(ii,:),ys_init(strmatch(options.instruments(ii,:),M.endo_names,'exact')))
-                end
-                fprintf('evaluate_steady_state: the following equations have non-zero residuals: \n')
-                for ii=n_multipliers+1:M.endo_nbr
-                    if abs(resids(ii)) > options.solve_tolf
-                        fprintf('\t Equation number %d: %f\n',ii-n_multipliers, resids(ii))
+                if options.debug
+                    fprintf('\nevaluate_steady_state: The steady state file does not solve the steady state for the Ramsey problem.\n')
+                    fprintf('evaluate_steady_state: Conditional on the following instrument values: \n')
+                    for ii = 1:size(options.instruments,1);
+                        fprintf('\t %s \t %f \n',options.instruments(ii,:),ys_init(strmatch(options.instruments(ii,:),M.endo_names,'exact')))
                     end
+                    fprintf('evaluate_steady_state: the following equations have non-zero residuals: \n')
+                    for ii=n_multipliers+1:M.endo_nbr
+                        if abs(resids(ii)) > options.solve_tolf
+                            fprintf('\t Equation number %d: %f\n',ii-n_multipliers, resids(ii))
+                        end
+                    end
+                    skipline(2);
                 end
-                skipline(2);
                 info(1) = 85;
                 info(2) = resids'*resids;
                 return;
@@ -155,55 +159,61 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
         nan_indices=find(isnan(resids(n_multipliers+1:end)));
 
         if ~isempty(nan_indices)
-            fprintf('\nevaluate_steady_state: The steady state computation for the Ramsey problem resulted in NaNs.\n')
-            fprintf('evaluate_steady_state: The steady state computation resulted in the following instrument values: \n')
-            for i = 1:size(options.instruments,1);
-                fprintf('\t %s \t %f \n',options.instruments(i,:),ys(strmatch(options.instruments(i,:),M.endo_names,'exact')))
-            end
-            fprintf('evaluate_steady_state: The problem occured in the following equations: \n')
-            fprintf('\t Equation(s): ')
-            for ii=1:length(nan_indices)
+            if options.debug
+                fprintf('\nevaluate_steady_state: The steady state computation for the Ramsey problem resulted in NaNs.\n')
+                fprintf('evaluate_steady_state: The steady state computation resulted in the following instrument values: \n')
+                for i = 1:size(options.instruments,1);
+                    fprintf('\t %s \t %f \n',options.instruments(i,:),ys(strmatch(options.instruments(i,:),M.endo_names,'exact')))
+                end
+                fprintf('evaluate_steady_state: The problem occured in the following equations: \n')
+                fprintf('\t Equation(s): ')
+                for ii=1:length(nan_indices)
                     fprintf('%d, ',nan_indices(ii));
+                end
+                skipline();
             end
-            skipline();
             info(1) = 82;
             return;
         end
 
         if ~isempty(nan_indices_multiplier)
-            fprintf('\nevaluate_steady_state: The steady state computation for the Ramsey problem resulted in NaNs in the auxiliary equations.\n')
-            fprintf('evaluate_steady_state: The steady state computation resulted in the following instrument values: \n')
-            for i = 1:size(options.instruments,1);
-                fprintf('\t %s \t %f \n',options.instruments(i,:),ys(strmatch(options.instruments(i,:),M.endo_names,'exact')))
-            end
-            fprintf('evaluate_steady_state: The problem occured in the following equations: \n')
-            fprintf('\t Auxiliary equation(s): ')
-            for ii=1:length(nan_indices_multiplier)
+            if options.debug
+                fprintf('\nevaluate_steady_state: The steady state computation for the Ramsey problem resulted in NaNs in the auxiliary equations.\n')
+                fprintf('evaluate_steady_state: The steady state computation resulted in the following instrument values: \n')
+                for i = 1:size(options.instruments,1);
+                    fprintf('\t %s \t %f \n',options.instruments(i,:),ys(strmatch(options.instruments(i,:),M.endo_names,'exact')))
+                end
+                fprintf('evaluate_steady_state: The problem occured in the following equations: \n')
+                fprintf('\t Auxiliary equation(s): ')
+                for ii=1:length(nan_indices_multiplier)
                     fprintf('%d, ',nan_indices_multiplier(ii));
+                end
+                skipline();
             end
-            skipline();
             info(1) = 83;
             return;
         end
 
         if max(abs(resids)) > options.solve_tolf %does it solve for all variables including the auxiliary ones
-            fprintf('\nevaluate_steady_state: The steady state for the Ramsey problem could not be computed.\n')
-            fprintf('evaluate_steady_state: The steady state computation stopped with the following instrument values:: \n')
-            for i = 1:size(options.instruments,1);
-                fprintf('\t %s \t %f \n',options.instruments(i,:),ys(strmatch(options.instruments(i,:),M.endo_names,'exact')))
-            end
-            fprintf('evaluate_steady_state: The following equations have non-zero residuals: \n')
-            for ii=1:n_multipliers
-                if abs(resids(ii)) > options.solve_tolf/100
-                    fprintf('\t Auxiliary Ramsey equation number %d: %f\n',ii, resids(ii))
+            if options.debug
+                fprintf('\nevaluate_steady_state: The steady state for the Ramsey problem could not be computed.\n')
+                fprintf('evaluate_steady_state: The steady state computation stopped with the following instrument values:: \n')
+                for i = 1:size(options.instruments,1);
+                    fprintf('\t %s \t %f \n',options.instruments(i,:),ys(strmatch(options.instruments(i,:),M.endo_names,'exact')))
                 end
-            end
-            for ii=n_multipliers+1:M.endo_nbr
-                if abs(resids(ii)) > options.solve_tolf/100
-                    fprintf('\t Equation number %d: %f\n',ii-n_multipliers, resids(ii))
+                fprintf('evaluate_steady_state: The following equations have non-zero residuals: \n')
+                for ii=1:n_multipliers
+                    if abs(resids(ii)) > options.solve_tolf/100
+                        fprintf('\t Auxiliary Ramsey equation number %d: %f\n',ii, resids(ii))
+                    end
                 end
+                for ii=n_multipliers+1:M.endo_nbr
+                    if abs(resids(ii)) > options.solve_tolf/100
+                        fprintf('\t Equation number %d: %f\n',ii-n_multipliers, resids(ii))
+                    end
+                end
+                skipline(2);
             end
-            skipline(2);
             info(1) = 81;
             info(2) = resids'*resids;
             return;
