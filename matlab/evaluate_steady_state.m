@@ -54,17 +54,6 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
     end
 
     if options.ramsey_policy
-        %test whether specification matches
-        inst_nbr = size(options.instruments,1);
-        if inst_nbr~=0
-            orig_endo_aux_nbr = M.orig_endo_nbr + min(find([M.aux_vars.type] == 6)) - 1;
-            implied_inst_nbr = orig_endo_aux_nbr - M.orig_eq_nbr;
-            if inst_nbr>implied_inst_nbr
-                error('You have specified more instruments than there are omitted equations')
-            elseif inst_nbr<implied_inst_nbr
-                error('You have specified fewer instruments than there are omitted equations')
-            end
-        end
         if steadystate_flag
             % explicit steady state file
             [ys,params,info] = evaluate_steady_state_file(ys_init,exo_ss,M, ...

@@ -22,6 +22,19 @@ global options_ oo_ M_
 options_.ramsey_policy = 1;
 oldoptions = options_;
 options_.order = 1;
+
+%test whether specification matches
+inst_nbr = size(options_.instruments,1);
+if inst_nbr~=0
+    orig_endo_aux_nbr = M_.orig_endo_nbr + min(find([M_.aux_vars.type] == 6)) - 1;
+    implied_inst_nbr = orig_endo_aux_nbr - M_.orig_eq_nbr;
+    if inst_nbr>implied_inst_nbr
+        error('You have specified more instruments than there are omitted equations')
+    elseif inst_nbr<implied_inst_nbr
+        error('You have specified fewer instruments than there are omitted equations')
+    end
+end
+        
 info = stoch_simul(var_list);
 
 oo_.steady_state = oo_.dr.ys;
