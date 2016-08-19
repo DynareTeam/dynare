@@ -78,7 +78,7 @@ end
 
 % this test doesn't check complementarity conditions and is not used for
 % mixed complementarity problems
-if (options.solve_algo ~= 10) && (max(abs(fvec)) < tolf)
+if (~ismember(options.solve_algo,[10,11])) && (max(abs(fvec)) < tolf)
     return ;
 end
 
