@@ -326,11 +326,11 @@ end
 
 % Get needed informations for kalman filter routines.
 start = DynareOptions.presample+1;
-Z = BayesInfo.mf;
+Z = BayesInfo.mf;           %selector for observed variables
 no_missing_data_flag = ~DatasetInfo.missing.state;
-mm = length(T);
-pp = DynareDataset.vobs;
-rr = length(Q);
+mm = length(T);             %number of states
+pp = DynareDataset.vobs;    %number of observables
+rr = length(Q);             %number of shocks
 kalman_tol = DynareOptions.kalman_tol;
 diffuse_kalman_tol = DynareOptions.diffuse_kalman_tol;
 riccati_tol = DynareOptions.riccati_tol;
@@ -341,31 +341,9 @@ Y = transpose(DynareDataset.data)-trend;
 %------------------------------------------------------------------------------
 kalman_algo = DynareOptions.kalman_algo;
 
-% resetting measurement errors covariance matrix for univariate filters
-if (kalman_algo == 2) || (kalman_algo == 4)
-    if isequal(H,0)
-        H = zeros(pp,1);
-        mmm = mm;
-    else
-        if all(all(abs(H-diag(diag(H)))<1e-14))% ie, the covariance matrix is diagonal...
-            H = diag(H);
-            mmm = mm;
-        else
-            Z = [Z, eye(pp)];
-            T = blkdiag(T,zeros(pp));
-            Q = blkdiag(Q,H);
-            R = blkdiag(R,eye(pp));
-            Pstar = blkdiag(Pstar,H);
-            Pinf  = blkdiag(Pinf,zeros(pp));
-            H = zeros(pp,1);
-            mmm   = mm+pp;
-        end
-    end
-end
-
 
 diffuse_periods = 0;
-correlated_errors_have_been_checked = 0;
+expanded_state_vector_for_univariate_filter=0;
 singular_diffuse_filter = 0;
 switch DynareOptions.lik_init
   case 1% Standard initialization with the steady state of the state equation.
@@ -445,7 +423,18 @@ switch DynareOptions.lik_init
                 H1 = diag(H);
                 mmm = mm;
             else
-                Z = [Z, eye(pp)];
+                %Augment state vector (follows Section 6.4.3 of DK (2012))
+                expanded_state_vector_for_univariate_filter=1;
+                if Zflag
+                    Z1=Z;
+                else
+                    Z1=zeros(pp,size(T,2));
+                    for jz=1:length(Z)
+                        Z1(jz,Z(jz))=1;
+                    end
+                end
+                Z = [Z1, eye(pp)];
+                Zflag=1;
                 T = blkdiag(T,zeros(pp));
                 Q = blkdiag(Q,H);
                 R = blkdiag(R,eye(pp));
@@ -453,10 +442,9 @@ switch DynareOptions.lik_init
                 Pinf  = blkdiag(Pinf,zeros(pp));
                 H1 = zeros(pp,1);
                 mmm   = mm+pp;
+                
             end
         end
-        % no need to test again for correlation elements
-        correlated_errors_have_been_checked = 1;
 
         [dLIK,dlik,a,Pstar] = univariate_kalman_filter_d(DatasetInfo.missing.aindex,...
                                                         DatasetInfo.missing.number_of_observations,...
@@ -660,13 +648,24 @@ end
 %------------------------------------------------------------------------------
 
 singularity_has_been_detected = false;
-
+% First test multivariate filter if specified; potentially abort and use univariate filter instead
 if ((kalman_algo==1) || (kalman_algo==3))% Multivariate Kalman Filter
     if no_missing_data_flag
         if DynareOptions.block
             [err, LIK] = block_kalman_filter(T,R,Q,H,Pstar,Y,start,Z,kalman_tol,riccati_tol, Model.nz_state_var, Model.n_diag, Model.nobs_non_statevar);
             mexErrCheck('block_kalman_filter', err);
         elseif DynareOptions.fast_kalman_filter
+            if diffuse_periods
+                %kalman_algo==3 requires no diffuse periods (stationary
+                %observables) as otherwise FE matrix will not be positive
+                %definite
+                fval = Inf;
+                info(1) = 55;
+                info(4) = 0.1;
+                exit_flag = 0; 
+                return
+            end
+
             [LIK,lik] = kalman_filter_fast(Y,diffuse_periods+1,size(Y,2), ...
                                            a,Pstar, ...
                                            kalman_tol, riccati_tol, ...
@@ -708,13 +707,11 @@ if ((kalman_algo==1) || (kalman_algo==3))% Multivariate Kalman Filter
                 kalman_algo = 4;
             end
         else
-            if isinf(LIK)
-                fval = Inf;
-                info(1) = 66;
-                info(4) = 0.1;
-                exit_flag = 0;
-                return
-            end
+            fval = Inf;
+            info(1) = 50;
+            info(4) = 0.1;
+            exit_flag = 0;
+            return
         end
     else
         if DynareOptions.lik_init==3
@@ -732,43 +729,52 @@ end
 
 if (kalman_algo==2) || (kalman_algo==4)
     % Univariate Kalman Filter
-    % resetting measurement error covariance matrix when necessary                                                           %
-    if ~correlated_errors_have_been_checked
-        if isequal(H,0)
-            H1 = zeros(pp,1);
+    % resetting measurement error covariance matrix when necessary following DK (2012), Section 6.4.3                                                          %
+    if isequal(H,0)
+        H1 = zeros(pp,1);
+        mmm = mm;
+        if analytic_derivation,
+            DH = zeros(pp,length(xparam1));
+        end
+    else
+        if all(all(abs(H-diag(diag(H)))<1e-14))% ie, the covariance matrix is diagonal...
+            H1 = diag(H);
             mmm = mm;
+            clear('tmp')
             if analytic_derivation,
-                DH = zeros(pp,length(xparam1));
+                for j=1:pp,
+                    tmp(j,:)=DH(j,j,:);
+                end
+                DH=tmp;
             end
         else
-            if all(all(abs(H-diag(diag(H)))<1e-14))% ie, the covariance matrix is diagonal...
-                H1 = diag(H);
-                mmm = mm;
-                clear tmp
-                if analytic_derivation,
-                    for j=1:pp,
-                        tmp(j,:)=DH(j,j,:);
-                    end
-                    DH=tmp;
+            if ~expanded_state_vector_for_univariate_filter
+                Z1=zeros(pp,size(T,2));
+                for jz=1:length(Z)
+                    Z1(jz,Z(jz))=1;
                 end
-            else
-                Z = [Z, eye(pp)];
+                Z = [Z1, eye(pp)];
+                Zflag=1;
                 T = blkdiag(T,zeros(pp));
                 Q = blkdiag(Q,H);
                 R = blkdiag(R,eye(pp));
                 Pstar = blkdiag(Pstar,H);
                 Pinf  = blkdiag(Pinf,zeros(pp));
                 H1 = zeros(pp,1);
-                mmm   = mm+pp;
-                if singularity_has_been_detected
-                    a = zeros(mmm,1);
-                end
+                Zflag=1;
+            end
+            mmm   = mm+pp;
+            if singularity_has_been_detected
+                a = zeros(mmm,1);
+            elseif ~expanded_state_vector_for_univariate_filter
+                a = [a; zeros(pp,1)];                
             end
         end
-        if analytic_derivation,
-            analytic_deriv_info{5}=DH;
-        end
     end
+    if analytic_derivation,
+        analytic_deriv_info{5}=DH;
+    end
+
     [LIK, lik] = univariate_kalman_filter(DatasetInfo.missing.aindex,DatasetInfo.missing.number_of_observations,DatasetInfo.missing.no_more_missing_observations,Y,diffuse_periods+1,size(Y,2), ...
                                           a,Pstar, ...
                                           DynareOptions.kalman_tol, ...
@@ -819,6 +825,14 @@ end
 if imag(LIK)~=0
     fval = Inf;
     info(1) = 46;
+    info(4) = 0.1;
+    exit_flag = 0;
+    return
+end
+
+if isinf(LIK)~=0
+    fval = Inf;
+    info(1) = 50;
     info(4) = 0.1;
     exit_flag = 0;
     return

@@ -16,7 +16,7 @@ function []=display_problematic_vars_Jacobian(problemrow,problemcol,M_,x,type,ca
 %   none.
 %  
 
-% Copyright (C) 2014 Dynare Team
+% Copyright (C) 2014-16 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -40,7 +40,12 @@ end
 aux_eq_nbr=M_.eq_nbr-M_.orig_eq_nbr;
 if strcmp(type,'dynamic')
     for ii=1:length(problemrow)
-        [var_row,var_index]=find(M_.lead_lag_incidence==problemcol(ii));
+        if problemcol(ii)>max(M_.lead_lag_incidence)
+            var_row=2;
+            var_index=problemcol(ii)-max(max(M_.lead_lag_incidence));
+        else
+            [var_row,var_index]=find(M_.lead_lag_incidence==problemcol(ii));
+        end
         if var_row==2
             type_string='';
         elseif var_row==1
@@ -48,7 +53,7 @@ if strcmp(type,'dynamic')
         elseif var_row==3;
             type_string='lead of';
         end
-        if var_index<=M_.orig_endo_nbr
+        if problemcol(ii)<=max(max(M_.lead_lag_incidence)) && var_index<=M_.orig_endo_nbr
             if problemrow(ii)<=aux_eq_nbr
                 eq_nbr=problemrow(ii);
                 fprintf('Derivative of Auxiliary Equation %d with respect to %s Variable %s  (initial value of %s: %g) \n',eq_nbr,type_string,deblank(M_.endo_names(var_index,:)),deblank(M_.endo_names(var_index,:)),x(var_index))
@@ -56,7 +61,7 @@ if strcmp(type,'dynamic')
                 eq_nbr=problemrow(ii)-aux_eq_nbr;
                 fprintf('Derivative of Equation %d with respect to %s Variable %s  (initial value of %s: %g) \n',eq_nbr,type_string,deblank(M_.endo_names(var_index,:)),deblank(M_.endo_names(var_index,:)),x(var_index))
             end
-        else %auxiliary vars
+        elseif problemcol(ii)<=max(max(M_.lead_lag_incidence)) && var_index>M_.orig_endo_nbr %auxiliary vars
             if M_.aux_vars(1,problemcol(ii)-M_.orig_endo_nbr).type ==6 %Ramsey Lagrange Multiplier 
                 if problemrow(ii)<=aux_eq_nbr
                     eq_nbr=problemrow(ii);
@@ -76,7 +81,17 @@ if strcmp(type,'dynamic')
                     fprintf('Derivative of Equation %d with respect to %s Variable %s  (initial value of %s: %g) \n',eq_nbr,type_string,deblank(M_.endo_names(orig_var_index,:)),deblank(M_.endo_names(orig_var_index,:)),x(orig_var_index))            
                 end
             end
-        end    
+        elseif problemcol(ii)>max(max(M_.lead_lag_incidence)) && var_index<=M_.exo_nbr
+            if problemrow(ii)<=aux_eq_nbr
+                eq_nbr=problemrow(ii);
+                fprintf('Derivative of Auxiliary Equation %d with respect to %s shock %s \n',eq_nbr,type_string,deblank(M_.exo_names(var_index,:)));
+            else
+                eq_nbr=problemrow(ii)-aux_eq_nbr;
+                fprintf('Derivative of Equation %d with respect to %s shock %s \n',eq_nbr,type_string,deblank(M_.exo_names(var_index,:)));
+            end            
+        else
+            error('display_problematic_vars_Jacobian:: The error should not happen. Please contact the developers')
+        end
     end
     fprintf('\n%s  The problem most often occurs, because a variable with\n',caller_string)
     fprintf('%s  exponent smaller than 1 has been initialized to 0. Taking the derivative\n',caller_string)

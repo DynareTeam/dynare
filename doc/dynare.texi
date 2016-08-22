@@ -5849,8 +5849,9 @@ singularity is encountered, Dynare by default automatically switches to the univ
 @item fast_kalman_filter
 @anchor{fast_kalman_filter} Select the fast Kalman filter using Chandrasekhar
 recursions as described by @cite{Herbst, 2015}. This setting is only used with
-@code{kalman_algo=1} or @code{kalman_algo=3}. It is not yet compatible with
-@code{analytical_derivation}.
+@code{kalman_algo=1} or @code{kalman_algo=3}. In case of using the diffuse Kalman 
+filter (@code{kalman_algo=3/lik_init=3}), the observables must be stationary. This option 
+is not yet compatible with @code{analytical_derivation}.
 
 @item kalman_tol = @var{DOUBLE}
 @anchor{kalman_tol} Numerical tolerance for determining the singularity of the covariance matrix of the prediction errors during the Kalman filter (minimum allowed reciprocal of the matrix condition number). Default value is @code{1e-10}

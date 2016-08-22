@@ -1546,13 +1546,13 @@ DynamicModel::writeDynamicMFile(const string &dynamic_basename) const
 					<< "%                                          Dynare may prepend auxiliary equations, see M_.aux_vars" << endl
                     << "%   g1        [M_.endo_nbr by #dynamic variables] double    Jacobian matrix of the dynamic model equations;" << endl
                     << "%                                                           rows: equations in order of declaration" << endl
-                    << "%                                                           columns: variables in order stored in M_.lead_lag_incidence" << endl
+                    << "%                                                           columns: variables in order stored in M_.lead_lag_incidence followed by the ones in M_.exo_names" << endl
                     << "%   g2        [M_.endo_nbr by (#dynamic variables)^2] double   Hessian matrix of the dynamic model equations;" << endl
                     << "%                                                              rows: equations in order of declaration" << endl
-                    << "%                                                              columns: variables in order stored in M_.lead_lag_incidence" << endl
+                    << "%                                                              columns: variables in order stored in M_.lead_lag_incidence followed by the ones in M_.exo_names" << endl
                     << "%   g3        [M_.endo_nbr by (#dynamic variables)^3] double   Third order derivative matrix of the dynamic model equations;" << endl
                     << "%                                                              rows: equations in order of declaration" << endl
-                    << "%                                                              columns: variables in order stored in M_.lead_lag_incidence" << endl
+                    << "%                                                              columns: variables in order stored in M_.lead_lag_incidence followed by the ones in M_.exo_names" << endl
                     << "%" << endl
                     << "%" << endl                    
                     << "% Warning : this file is generated automatically by Dynare" << endl

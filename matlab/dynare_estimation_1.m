@@ -149,7 +149,8 @@ catch % if check fails, provide info on using calibration if present
     if estim_params_.full_calibration_detected %calibrated model present and no explicit starting values
         skipline(1);
         fprintf('ESTIMATION_CHECKS: There was an error in computing the likelihood for initial parameter values.\n')
-        fprintf('ESTIMATION_CHECKS: You should try using the calibrated version of the model as starting values. To do\n')
+        fprintf('ESTIMATION_CHECKS: If this is not a problem with the setting of options (check the error message below),\n')
+        fprintf('ESTIMATION_CHECKS: you should try using the calibrated version of the model as starting values. To do\n')
         fprintf('ESTIMATION_CHECKS: this, add an empty estimated_params_init-block with use_calibration option immediately before the estimation\n')    
         fprintf('ESTIMATION_CHECKS: command (and after the estimated_params-block so that it does not get overwritten):\n');
         skipline(2);
@@ -166,19 +167,6 @@ if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.m
 end
 
 %% Estimation of the posterior mode or likelihood mode
-
-% analytical derivation is not yet available for kalman_filter_fast
-if options_.analytic_derivation && options_.fast_kalman_filter
-    error(['estimation option conflict: analytic_derivation isn''t available ' ...
-           'for fast_kalman_filter'])
-end
-
-% fast kalman filter is only available with kalman_algo == 1,3
-if options_.fast_kalman_filter && ...
-        (options_.kalman_algo == 1 || options_.kalman_algo == 3)
-    error(['estimation option conflict: fast_kalman_filter is only available ' ...
-           'with kalman_algo = 1 or kalman_algo = 3'])
-end
 
 if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
     %prepare settings for newrat

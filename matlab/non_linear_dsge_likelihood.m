@@ -367,3 +367,12 @@ if imag(fval)~=0
     exit_flag = 0;
     return
 end
+
+if isinf(LIK)~=0
+    fval = Inf;
+    info(1) = 50;
+    info(4) = 0.1;
+    exit_flag = 0;
+    return
+end
+
