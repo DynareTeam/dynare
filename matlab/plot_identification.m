@@ -115,7 +115,7 @@ if SampleSize == 1,
         fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
         fprintf(fidTeX,'\\begin{figure}[H]\n');
         fprintf(fidTeX,'\\centering \n');
-        fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_ident_strength_%s}\n',[IdentifDirectoryName '/' M_.fname],tittxt1);
+        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_ident_strength_%s}\n',[IdentifDirectoryName '/' M_.fname],tittxt1);
         fprintf(fidTeX,'\\caption{%s  - Identification using info from observables.}',tit_TeX);
         fprintf(fidTeX,'\\label{Fig:ident:%s}\n',deblank(tittxt));
         fprintf(fidTeX,'\\end{figure}\n\n');
@@ -158,7 +158,7 @@ if SampleSize == 1,
                 fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
                 fprintf(fidTeX,'\\begin{figure}[H]\n');
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_sensitivity_%s}\n',[IdentifDirectoryName '/' M_.fname],tittxt1);
+                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_sensitivity_%s}\n',[IdentifDirectoryName '/' M_.fname],tittxt1);
                 fprintf(fidTeX,'\\caption{%s  - Sensitivity plot.}',tit_TeX);
                 fprintf(fidTeX,'\\label{Fig:sensitivity:%s}\n',deblank(tittxt));
                 fprintf(fidTeX,'\\end{figure}\n\n');
@@ -212,7 +212,7 @@ if SampleSize == 1,
                 fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
                 fprintf(fidTeX,'\\begin{figure}[H]\n');
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_ident_collinearity_%s_%u}\n',[IdentifDirectoryName '/' M_.fname],tittxt1,j);
+                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_ident_collinearity_%s_%u}\n',[IdentifDirectoryName '/' M_.fname],tittxt1,j);
                 fprintf(fidTeX,'\\caption{%s  - Collinearity patterns with %u parameter(s).}',tit_TeX,j);
                 fprintf(fidTeX,'\\label{Fig:collinearity:%s:%u_pars}\n',deblank(tittxt),j);
                 fprintf(fidTeX,'\\end{figure}\n\n');
@@ -277,7 +277,7 @@ if SampleSize == 1,
             fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
             fprintf(fidTeX,'\\begin{figure}[H]\n');
             fprintf(fidTeX,'\\centering \n');
-            fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_ident_pattern_%s_1}\n',[IdentifDirectoryName '/' M_.fname],tittxt1);
+            fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_ident_pattern_%s_1}\n',[IdentifDirectoryName '/' M_.fname],tittxt1);
             fprintf(fidTeX,'\\caption{%s.}',tex_tit_1);
             fprintf(fidTeX,'\\label{Fig:ident_pattern:%s:1}\n',tittxt1);
             fprintf(fidTeX,'\\end{figure}\n\n');
@@ -292,7 +292,7 @@ if SampleSize == 1,
                 fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
                 fprintf(fidTeX,'\\begin{figure}[H]\n');
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_ident_pattern_%s_2}\n',[IdentifDirectoryName '/' M_.fname],tittxt1);
+                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_ident_pattern_%s_2}\n',[IdentifDirectoryName '/' M_.fname],tittxt1);
                 fprintf(fidTeX,'\\caption{%s.}',tex_tit_2);
                 fprintf(fidTeX,'\\label{Fig:ident_pattern:%s:2}\n',tittxt1);
                 fprintf(fidTeX,'\\end{figure}\n\n');
@@ -336,7 +336,7 @@ else
         fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
         fprintf(fidTeX,'\\begin{figure}[H]\n');
         fprintf(fidTeX,'\\centering \n');
-        fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_MC_sensitivity}\n',[IdentifDirectoryName '/' M_.fname]);
+        fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_MC_sensitivity}\n',[IdentifDirectoryName '/' M_.fname]);
         fprintf(fidTeX,'\\caption{MC mean of sensitivity measures}');
         fprintf(fidTeX,'\\label{Fig:_MC_sensitivity}\n');
         fprintf(fidTeX,'\\end{figure}\n\n');
@@ -447,7 +447,7 @@ else
             fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
             fprintf(fidTeX,'\\begin{figure}[H]\n');
             fprintf(fidTeX,'\\centering \n');
-            fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_MC_ident_pattern_1}\n',[IdentifDirectoryName '/' M_.fname]);
+            fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_MC_ident_pattern_1}\n',[IdentifDirectoryName '/' M_.fname]);
             fprintf(fidTeX,'\\caption{%s.}',tex_tit_1);
             fprintf(fidTeX,'\\label{Fig:MC_ident_pattern:1}\n');
             fprintf(fidTeX,'\\end{figure}\n\n');
@@ -462,7 +462,7 @@ else
                 fprintf(fidTeX,['%% ' datestr(now,0) '\n\n']);
                 fprintf(fidTeX,'\\begin{figure}[H]\n');
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s_MC_ident_pattern_2}\n',[IdentifDirectoryName '/' M_.fname]);
+                fprintf(fidTeX,'\\includegraphics[width=0.8\\textwidth]{%s_MC_ident_pattern_2}\n',[IdentifDirectoryName '/' M_.fname]);
                 fprintf(fidTeX,'\\caption{%s.}',tex_tit_2);
                 fprintf(fidTeX,'\\label{Fig:MC_ident_pattern:2}\n');
                 fprintf(fidTeX,'\\end{figure}\n\n');

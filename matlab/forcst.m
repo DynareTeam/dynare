@@ -1,5 +1,5 @@
-function [yf,int_width]=forcst(dr,y0,horizon,var_list)
-% function [yf,int_width]=forecst(dr,y0,horizon,var_list)
+function [yf,int_width,int_width_ME]=forcst(dr,y0,horizon,var_list,M_,oo_,options_)
+% function [yf,int_width,int_width_ME]=forecst(dr,y0,horizon,var_list,M_,oo_,options_)
 %   computes mean forecast for a given value of the parameters
 %   computes also confidence band for the forecast    
 %
@@ -8,11 +8,16 @@ function [yf,int_width]=forcst(dr,y0,horizon,var_list)
 %   y0:          initial values
 %   horizon:     nbr of periods to forecast
 %   var_list:    list of variables (character matrix)
-%
+%   M_:          Dynare model structure
+%   options_:    Dynare options structure
+%   oo_:         Dynare results structure
+
 % OUTPUTS:
 %   yf:          mean forecast
 %   int_width:   distance between upper bound and
 %                mean forecast
+%   int_width_ME:distance between upper bound and
+%                mean forecast when considering measurement error
 %
 % SPECIAL REQUIREMENTS
 %    none
@@ -33,8 +38,6 @@ function [yf,int_width]=forcst(dr,y0,horizon,var_list)
 %
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
-
-global M_ oo_ options_ 
 
 oo_=make_ex_(M_,options_,oo_);
 yf = simult_(y0,dr,zeros(horizon,M_.exo_nbr),1);
@@ -63,26 +66,39 @@ end
 ghx1 = dr.ghx(inv_order_var(ivar),:);
 ghu1 = dr.ghu(inv_order_var(ivar),:);
 
-sigma_u = B*M_.Sigma_e*B';
+%initialize recursion
+sigma_u = B*M_.Sigma_e*B'; 
 sigma_u1 = ghu1*M_.Sigma_e*ghu1';
-sigma_y = 0;
+sigma_y = 0; %no uncertainty about the states
 
 var_yf=NaN(horizon,nvar); %initialize
 for i=1:horizon
+    %map uncertainty about states into uncertainty about observables
     sigma_y1 = ghx1*sigma_y*ghx1'+sigma_u1;
     var_yf(i,:) = diag(sigma_y1)';
     if i == horizon
         break
     end
+    %update uncertainty about states
     sigma_u = A*sigma_u*A';
     sigma_y = sigma_y+sigma_u;
+end
+if nargout==3
+    var_yf_ME=var_yf;
+    [loc_H,loc_varlist]=ismember(options_.varobs',options_.varlist);
+    loc_varlist(loc_varlist==0)=[];    
+    var_yf_ME(:,loc_varlist)=var_yf(:,loc_varlist)+repmat(diag(M_.H(loc_H,loc_H))',horizon,1);
+    int_width_ME = zeros(horizon,nvar);
 end
 
 fact = norminv((1-options_.forecasts.conf_sig)/2,0,1);
 
-int_width = zeros(horizon,M_.endo_nbr);
+int_width = zeros(horizon,nvar);
 for i=1:nvar
     int_width(:,i) = -fact*sqrt(var_yf(:,i));
+    if nargout==3
+        int_width_ME(:,i) = -fact*sqrt(var_yf_ME(:,i));
+    end
 end
 
 yf = yf(ivar,:);

@@ -129,6 +129,7 @@ if strcmpi(type,'PosteriorDensity')
 else
     plot_name=get_the_name(column,0,M_,estim_params_,options_);
 end
+plot_name=[plot_name,'_blck_',num2str(blck)];
 
 dyn_saveas(hh,[M_.fname, filesep, 'graphs', filesep, 'TracePlot_' plot_name],options_)
 
@@ -161,7 +162,7 @@ if options_.TeX
     
     fprintf(fid,'%-s\n','\begin{figure}[H]');
     fprintf(fid,'%-s\n','\centering');
-    fprintf(fid,'%-s\n',['  \includegraphics[scale=0.5]{',[M_.fname, '/graphs/TracePlot_' plot_name],'}\\']);
+    fprintf(fid,'%-s\n',['  \includegraphics[width=0.8\textwidth]{',[M_.fname, '/graphs/TracePlot_' plot_name],'}\\']);
     fprintf(fid,'%-s\n',['    \caption{',FigureName,'}']);
     fprintf(fid,'%-s\n','\end{figure}');
     fclose(fid);

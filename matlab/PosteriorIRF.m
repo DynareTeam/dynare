@@ -412,13 +412,13 @@ if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
                 figunumber = figunumber+1;
                 
                 fprintf(fidTeX,'\\centering \n');
-                fprintf(fidTeX,'\\includegraphics[scale=0.5]{%s/%s_Bayesian_IRF_%s_%d}\n',DirectoryName,M_.fname,deblank(tit(ii,:)),figunumber);
+                fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s/%s_Bayesian_IRF_%s_%d}\n',options_.figures.textwidth*min(subplotnum/nn,1),DirectoryName,M_.fname,deblank(tit(ii,:)),figunumber);
                 if options_.relative_irf
                     fprintf(fidTeX,['\\caption{Bayesian relative IRF.}']);
                 else
                     fprintf(fidTeX,'\\caption{Bayesian IRF: Orthogonalized shock to $%s$.}\n',deblank(tit_TeX(ii,:)));
                 end
-                fprintf(fidTeX,'\\label{Fig:BayesianIRF:%s}\n',deblank(tit(ii,:)));
+                fprintf(fidTeX,'\\label{Fig:BayesianIRF:%s:%d}\n',deblank(tit(ii,:)),figunumber);
                 fprintf(fidTeX,'\\end{figure}\n');
                 fprintf(fidTeX,' \n');
                 

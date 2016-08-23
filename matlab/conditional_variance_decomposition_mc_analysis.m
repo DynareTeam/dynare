@@ -60,8 +60,8 @@ if isempty(exogenous_variable_index)
     return
 end
 
-name_1 = var_list(endogenous_variable_index,:);
-name_2 = exo;
+name_1 = deblank(var_list(endogenous_variable_index,:));
+name_2 = deblank(exo);
 name = [ name_1 '.' name_2 ];
 
 if isfield(oo_, [ TYPE 'TheoreticalMoments' ])
