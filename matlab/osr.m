@@ -51,7 +51,7 @@ oo_=make_ex_(M_,options_,oo_);
 np = size(params,1);
 i_params = zeros(np,1);
 for i=1:np
-    i_params(i) = strmatch(deblank(params(i,:)),M_.param_names,'exact');
+    i_params(i) = strmatch(cell2mat(deblank(params(i,:))),M_.param_names,'exact');
 end
 
 skipline()
