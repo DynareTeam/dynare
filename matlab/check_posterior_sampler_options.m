@@ -48,7 +48,6 @@ if init,
             posterior_sampler_options.serial_bar_refresh_rate=3;
             posterior_sampler_options.parallel_bar_title='RWMH';
             posterior_sampler_options.serial_bar_title='RW Metropolis-Hastings';
-            posterior_sampler_options.save_tmp_file=1;
             
             % default options
             posterior_sampler_options = add_fields_(posterior_sampler_options,options_.posterior_sampler_options.rwmh);
@@ -95,6 +94,8 @@ if init,
                             else
                                 error('initial_estimation_checks:: The specified mh_scale_file does not exist.')
                             end
+                        case 'save_tmp_file'
+                            posterior_sampler_options.save_tmp_file = options_list{i,2};
                         otherwise
                             warning(['rwmh_sampler: Unknown option (' options_list{i,1} ')!'])
                     end
@@ -106,7 +107,6 @@ if init,
             posterior_sampler_options.serial_bar_refresh_rate=1;
             posterior_sampler_options.parallel_bar_title='TaRB-MH';
             posterior_sampler_options.serial_bar_title='TaRB Metropolis-Hastings';
-            posterior_sampler_options.save_tmp_file=1;
             
             % default options
             posterior_sampler_options = add_fields_(posterior_sampler_options,options_.posterior_sampler_options.tarb);
@@ -160,7 +160,9 @@ if init,
                             else
                                 error('initial_estimation_checks:: The specified scale_file does not exist.')
                             end
-                            
+                        case 'save_tmp_file'
+                            posterior_sampler_options.save_tmp_file = options_list{i,2};
+    
                         otherwise
                             warning(['tarb_sampler: Unknown option (' options_list{i,1} ')!'])
                             
@@ -175,7 +177,6 @@ if init,
             posterior_sampler_options.serial_bar_refresh_rate=3;
             posterior_sampler_options.parallel_bar_title='IMH';
             posterior_sampler_options.serial_bar_title='Ind. Metropolis-Hastings';
-            posterior_sampler_options.save_tmp_file=1;
             
             % default options
             posterior_sampler_options = add_fields_(posterior_sampler_options,options_.posterior_sampler_options.imh);
@@ -210,6 +211,9 @@ if init,
                             posterior_sampler_options.use_mh_covariance_matrix = options_list{i,2};
                             options_.use_mh_covariance_matrix = options_list{i,2};
                             
+                        case 'save_tmp_file'
+                            posterior_sampler_options.save_tmp_file = options_list{i,2};
+
                         otherwise
                             warning(['imh_sampler: Unknown option (' options_list{i,1} ')!'])
                     end
@@ -222,7 +226,6 @@ if init,
             posterior_sampler_options.serial_bar_refresh_rate=1;
             posterior_sampler_options.parallel_bar_title='SLICE';
             posterior_sampler_options.serial_bar_title='SLICE';
-            posterior_sampler_options.save_tmp_file=1;
             
             % default options
             posterior_sampler_options = add_fields_(posterior_sampler_options,options_.posterior_sampler_options.slice);
@@ -292,6 +295,9 @@ if init,
                             % default = 0
                             posterior_sampler_options.use_mh_covariance_matrix = options_list{i,2};
                             options_.use_mh_covariance_matrix = options_list{i,2};
+
+                        case 'save_tmp_file'
+                            posterior_sampler_options.save_tmp_file = options_list{i,2};
                             
                         otherwise
                             warning(['slice_sampler: Unknown option (' options_list{i,1} ')!'])
@@ -408,7 +414,7 @@ if strcmp(posterior_sampler_options.posterior_sampling_method,'slice')
             % % %                 [junk, invhess] = compute_mh_covariance_matrix;
             % % %                 posterior_sampler_options.invhess = invhess;
             % % %             end
-            [V1 D]=eig(invhess);
+            [V1, D]=eig(invhess);
             posterior_sampler_options.V1=V1;
             posterior_sampler_options.WR=sqrt(diag(D))*3;
         end

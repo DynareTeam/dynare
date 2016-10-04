@@ -115,4 +115,4 @@ end;
 varobs gp_obs gy_obs;
 
 estimation(order=1, datafile='../fsdat_simul',nobs=192, loglinear, mh_replic=2002, mh_nblocks=2, mh_jscale=0.8,mode_compute=4,
-posterior_sampler_options=('proposal_distribution','rand_multivariate_student','student_degrees_of_freedom',5));
+posterior_sampler_options=('proposal_distribution','rand_multivariate_student','student_degrees_of_freedom',5,'save_tmp_file',0));

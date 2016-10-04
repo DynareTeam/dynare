@@ -5708,6 +5708,11 @@ covariance of the proposal distribution. Requires the @ref{load_mh_file}-option 
 Provides the name of a @file{_mh_scale.mat}-file storing the tuned scale factor from a 
 previous run of @code{mode_compute=6}
 
+@item 'save_tmp_file'
+@anchor{save_tmp_file}
+Save the MCMC draws into a @code{_mh_tmp_blck}-file at the refresh rate of the status bar instead of just saving the draws
+when the current @code{_mh*_blck}-file is full. Default: 0
+
 @end table
 
 @item 'independent_metropolis_hastings'
@@ -5742,6 +5747,9 @@ Default: 0.8
 @item 'use_mh_covariance_matrix'
 @xref{use_mh_covariance_matrix}. Must be used with @code{'rotated'}. Default: 0
 
+@item 'save_tmp_file'
+@xref{save_tmp_file}. Default: 1.
+
 @end table
 
 @item 'tailored_random_block_metropolis_hastings'
@@ -5763,6 +5771,9 @@ Metropolis-Hastings algorithm. @xref{optim}.
 
 @item 'scale_file'
 @xref{scale_file}.
+
+@item 'save_tmp_file'
+@xref{save_tmp_file}. Default: 1.
 
 @end table
 

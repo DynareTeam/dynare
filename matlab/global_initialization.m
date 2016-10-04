@@ -472,12 +472,14 @@ options_.posterior_sampler_options.posterior_sampling_method = 'random_walk_metr
 options_.posterior_sampler_options.rwmh.proposal_distribution = 'rand_multivariate_normal';
 options_.posterior_sampler_options.rwmh.student_degrees_of_freedom = 3;
 options_.posterior_sampler_options.rwmh.use_mh_covariance_matrix=0;
+options_.posterior_sampler_options.rwmh.save_tmp_file=0;
 % Tailored Random Block Metropolis-Hastings
 options_.posterior_sampler_options.tarb.proposal_distribution = 'rand_multivariate_normal';
 options_.posterior_sampler_options.tarb.student_degrees_of_freedom = 3;
 options_.posterior_sampler_options.tarb.mode_compute=4;
 options_.posterior_sampler_options.tarb.new_block_probability=0.25; %probability that next parameter belongs to new block
 options_.posterior_sampler_options.tarb.optim_opt=''; %probability that next parameter belongs to new block
+options_.posterior_sampler_options.tarb.save_tmp_file=1;
 % Slice
 options_.posterior_sampler_options.slice.proposal_distribution = '';
 options_.posterior_sampler_options.slice.rotated=0;
@@ -487,6 +489,7 @@ options_.posterior_sampler_options.slice.WR=[];
 options_.posterior_sampler_options.slice.mode_files=[];
 options_.posterior_sampler_options.slice.mode=[];
 options_.posterior_sampler_options.slice.initial_step_size=0.8;
+options_.posterior_sampler_options.slice.save_tmp_file=1;
 % Independent Metropolis-Hastings
 options_.posterior_sampler_options.imh.proposal_distribution = 'rand_multivariate_normal';
 options_.posterior_sampler_options.imh.use_mh_covariance_matrix=0;
