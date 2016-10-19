@@ -11,8 +11,9 @@
 
 \begin{document}
 
-\title{BVAR models ``\`a la Sims'' in Dynare\thanks{Copyright \copyright~2007--2016 S\'ebastien
-    Villemot. Permission is granted to copy, distribute and/or modify
+\title{BVAR models ``\`a la Sims'' in Dynare\thanks{Copyright \copyright~2007--2015 S\'ebastien
+    Villemot; \copyright~2016 S\'ebastien
+    Villemot and Johannes Pfeifer. Permission is granted to copy, distribute and/or modify
     this document under the terms of the GNU Free Documentation
     License, Version 1.3 or any later version published by the Free
     Software Foundation; with no Invariant Sections, no Front-Cover
@@ -25,9 +26,8 @@
   }}
 
 \author{S\'ebastien Villemot\thanks{Paris School of Economics and
-    CEPREMAP. E-mail:
-    \href{mailto:sebastien@dynare.org}{\texttt{sebastien@dynare.org}}.}}
-\date{First version: September 2007 \hspace{1cm} This version: March 2016}
+    CEPREMAP.} \and Johannes Pfeifer\thanks{University of Mannheim. E-mail: \href{mailto:pfeifer@uni-mannheim.de}{\texttt{pfeifer@uni-mannheim.de}}.}}
+\date{First version: September 2007 \hspace{1cm} This version: October 2016}
 
 \maketitle
 
@@ -539,6 +539,22 @@ Most results are stored for future use:
 \item if RMSE has been computed, results are in \texttt{oo\_.bvar.forecast.rmse}.
 \end{itemize}
 
+\subsection{Impulse Response Functions}
+
+The syntax for computing impulse response functions is:
+
+\medskip
+\texttt{bvar\_irf(}\textit{number\_of\_lags},\textit{identification\_scheme}\texttt{);}
+\medskip
+
+The \textit{identification\_scheme} option has two potential values
+\begin{itemize}
+\item \texttt{'Cholesky'}: uses a lower triangular factorization of the covariance matrix (default)
+\item \texttt{'SquareRoot'}: uses the Matrix square root of the covariance matrix
+\end{itemize}
+
+The mean, median, variance and confidence intervals for IRFs are saved in \texttt{oo\_.bvar.irf}
+
 \section{Examples}
 
 This section presents two short examples of BVAR estimations. These examples and the associated datafile (\texttt{bvar\_sample.m}) can be found in the \texttt{tests/bvar\_a\_la\_sims} directory of the Dynare v4 subversion tree.
@@ -555,6 +571,8 @@ bvar_density(datafile = bvar_sample, first_obs = 20, bvar_prior_flat,
              bvar_prior_train = 10) 8;
 
 bvar_forecast(forecast = 10, bvar_replic = 10000, nobs = 200) 8;
+
+bvar_irf(8,'Cholesky');
 \end{verbatim}
 
 Note that you must declare twice the variables used in the estimation: first with a \texttt{var} statement, then with a \texttt{varobs} statement. This is necessary to have a syntactically correct \texttt{mod} file.
