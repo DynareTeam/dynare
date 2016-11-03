@@ -8929,7 +8929,7 @@ regime 1 to regime 3 is 0, while regime 3 is an absorbing state.
 @deffn Command svar (@var{OPTIONS}@dots{});
 @descriptionhead
 
-Each Makov chain can control the switching of a set of parameters. We
+Each Markov chain can control the switching of a set of parameters. We
 allow the parameters to be divided equation by equation and by variance
 or slope and intercept.
 
