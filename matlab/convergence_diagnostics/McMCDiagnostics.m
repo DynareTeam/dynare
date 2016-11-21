@@ -482,7 +482,7 @@ if TeX && any(strcmp('eps',cellstr(options_.graph_format)))
     fprintf(fidTeX,'\\label{Fig:MultivariateDiagnostics}\n');
     fprintf(fidTeX,'\\end{figure}\n');
     fprintf(fidTeX,'\n');
-    fprintf(fidTeX,'% End Of TeX file.');
+    fprintf(fidTeX,'%% End Of TeX file.');
     fclose(fidTeX);
 end
 
