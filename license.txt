@@ -81,6 +81,11 @@ Copyright: 2010-2015 Alexander Meyer-Gohde
            2015 Dynare Team
 License: GPL-3+
 
+Files: matlab/convergence_diagnostics/raftery_lewis.m
+Copyright: 2016 Benjamin Born and Johannes Pfeifer
+           2016 Dynare Team
+License: GPL-3+
+
 Files: matlab/optimization/simpsa.m matlab/optimization/simpsaget.m matlab/optimization/simpsaset.m
 Copyright: 2005 Henning Schmidt, FCC, henning@fcc.chalmers.se
            2006 Brecht Donckels, BIOMATH, brecht.donckels@ugent.be

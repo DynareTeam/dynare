@@ -272,6 +272,8 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <DYNARE_STATEMENT>lik_init  		{return token::LIK_INIT;}
 <DYNARE_STATEMENT>taper_steps       {return token::TAPER_STEPS;}
 <DYNARE_STATEMENT>geweke_interval   {return token::GEWEKE_INTERVAL;}
+<DYNARE_STATEMENT>raftery_lewis_qrs {return token::RAFTERY_LEWIS_QRS;}
+<DYNARE_STATEMENT>raftery_lewis_diagnostics {return token::RAFTERY_LEWIS_DIAGNOSTICS;}
 <DYNARE_STATEMENT>graph   		{return token::GRAPH;}
 <DYNARE_STATEMENT>nograph   		{return token::NOGRAPH;}
 <DYNARE_STATEMENT>nodisplay     {return token::NODISPLAY;}

@@ -6114,6 +6114,21 @@ Percentage of MCMC draws at the beginning and end of the MCMC chain taken
 to compute the @cite{Geweke (1992,1999)} convergence diagnostics (requires @ref{mh_nblocks}=1)
 after discarding the first @ref{mh_drop} percent of draws as a burnin. Default: @code{[0.2 0.5]}.
 
+@item raftery_lewis_diagnostics
+@anchor{raftery_lewis_diagnostics}
+Triggers the computation of the @cite{Raftery and Lewis (1992)} convergence diagnostics. The goal is deliver the number of draws 
+required to estimate a particular quantile of the CDF @code{q} with precision @code{r} with a probability @code{s}. Typically, one wants to estimate
+the @code{q=0.025} percentile (corresponding to a 95 percent HPDI) with a precision of 0.5 percent (@code{r=0.005}) with 95 percent 
+certainty (@code{s=0.95}). The defaults can be changed via @ref{raftery_lewis_qrs}. Based on the 
+theory of first order Markov Chains, the diagnostics will provide a required burn-in (@code{M}), the number of draws after the burnin (@code{N}) 
+as well as a thinning factor that would deliver a first order chain (@code{k}). The last line of the table will also deliver the maximum over 
+all parameters for the respective values.
+
+@item raftery_lewis_qrs = [@var{DOUBLE} @var{DOUBLE} @var{DOUBLE}]
+@anchor{raftery_lewis_qrs}
+Sets the quantile of the CDF @code{q} that is estimated with precision @code{r} with a probability @code{s} in the 
+@cite{Raftery and Lewis (1992)} convergence diagnostics. Default: @code{[0.025 0.005 0.95]}.
+
 @item consider_all_endogenous
 Compute the posterior moments, smoothed variables, k-step ahead
 filtered variables and forecasts (when requested) on all the
@@ -14200,6 +14215,10 @@ Pfeifer, Johannes (2014): ``An Introduction to Graphs in Dynare''
 Rabanal, Pau and Juan Rubio-Ramirez (2003): ``Comparing New Keynesian
 Models of the Business Cycle: A Bayesian Approach,'' Federal Reserve
 of Atlanta, @i{Working Paper Series}, 2003-30.
+
+@item
+Raftery, Adrien E. and Steven Lewis (1992): ``How many iterations in the Gibbs sampler?,''  in @i{Bayesian Statistics, Vol. 4}, 
+ed. J.O. Berger, J.M. Bernardo, A.P. Dawid, and A.F.M. Smith, Clarendon Press: Oxford, pp. 763-773.   
 
 @item
 Ratto, Marco (2008): ``Analysing DSGE models with global sensitivity

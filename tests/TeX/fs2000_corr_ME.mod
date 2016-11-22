@@ -169,7 +169,7 @@ end;
 write_latex_prior_table;
 
 estimation(mode_compute=8,order=1,datafile='../fs2000/fsdat_simul',mode_check,smoother,filter_decomposition,mh_replic=4000, mh_nblocks=1, mh_jscale=0.8,forecast = 8,bayesian_irf,filtered_vars,filter_step_ahead=[1,3],irf=20,
-        moments_varendo,contemporaneous_correlation,conditional_variance_decomposition=[1 2 4],smoothed_state_uncertainty) m P c e W R k d y gy_obs;
+        moments_varendo,contemporaneous_correlation,conditional_variance_decomposition=[1 2 4],smoothed_state_uncertainty,raftery_lewis_diagnostics) m P c e W R k d y gy_obs;
 
 trace_plot(options_,M_,estim_params_,'PosteriorDensity',1);
 trace_plot(options_,M_,estim_params_,'StructuralShock',1,'e_a')

@@ -123,7 +123,7 @@ LastLineNumber = record.MhDraws(end,3);
 NumberOfDraws  = PastDraws(1);
 
 if NumberOfDraws<=2000
-    warning(['estimation:: MCMC convergence diagnostics are not computed because the total number of iterations is less than 2000!'])
+    warning(['estimation:: MCMC convergence diagnostics are not computed because the total number of iterations is not bigger than 2000!'])
     return
 end
 
@@ -193,6 +193,33 @@ if nblck == 1 % Brooks and Gelman tests need more than one block
         dyn_latex_table(M_,options_,my_title,'geweke',headers,param_name_tex,datamat,lh,12,4,additional_header);    
     end
     skipline(2);
+    
+    if options_.convergence.rafterylewis.indicator
+        if any(options_.convergence.rafterylewis.qrs<0) || any(options_.convergence.rafterylewis.qrs>1) || length(options_.convergence.rafterylewis.qrs)~=3 ...
+            || (options_.convergence.rafterylewis.qrs(1)-options_.convergence.rafterylewis.qrs(2)<=0)
+            fprintf('\nCONVERGENCE DIAGNOSTICS: Invalid option for raftery_lewis_qrs. Using the default of [0.025 0.005 0.95].\n')
+            options_.convergence.rafterylewis.qrs=[0.025 0.005 0.95];
+        end        
+        Raftery_Lewis_q=options_.convergence.rafterylewis.qrs(1);
+        Raftery_Lewis_r=options_.convergence.rafterylewis.qrs(2);
+        Raftery_Lewis_s=options_.convergence.rafterylewis.qrs(3);
+        oo_.Raftery_Lewis = raftery_lewis(x2,Raftery_Lewis_q,Raftery_Lewis_r,Raftery_Lewis_s);
+        oo_.Raftery_Lewis.parameter_names=param_name;
+        my_title=sprintf('Raftery/Lewis (1992) Convergence Diagnostics, based on quantile q=%4.3f with precision r=%4.3f with probability s=%4.3f.',Raftery_Lewis_q,Raftery_Lewis_r,Raftery_Lewis_s);     
+        headers = char('Variables','M (burn-in)','N (req. draws)','N+M (total draws)','k (thinning)');
+
+        raftery_data_mat=[oo_.Raftery_Lewis.M_burn,oo_.Raftery_Lewis.N_prec,oo_.Raftery_Lewis.N_total,oo_.Raftery_Lewis.k_thin];
+        raftery_data_mat=[raftery_data_mat;max(raftery_data_mat)];
+        labels_Raftery_Lewis=char(param_name,'Maximum');
+        lh = size(labels_Raftery_Lewis,2)+2;
+        dyntable(options_,my_title,headers,labels_Raftery_Lewis,raftery_data_mat,lh,10,0);
+        if options_.TeX
+            labels_Raftery_Lewis_tex=char(param_name_tex,'Maximum');
+            lh = size(labels_Raftery_Lewis_tex,2)+2;
+            dyn_latex_table(M_,options_,my_title,'raftery_lewis',headers,labels_Raftery_Lewis_tex,raftery_data_mat,lh,10,0);
+        end      
+    end
+       
     return;
 end
 

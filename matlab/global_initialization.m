@@ -767,6 +767,9 @@ options_.gpu = 0;
 %Geweke convergence diagnostics
 options_.convergence.geweke.taper_steps=[4 8 15];
 options_.convergence.geweke.geweke_interval=[0.2 0.5];
+%Raftery/Lewis convergence diagnostics;
+options_.convergence.rafterylewis.indicator=0;
+options_.convergence.rafterylewis.qrs=[0.025 0.005 0.95];
 
 % Options for lmmcp solver
 options_.lmmcp.status = 0;

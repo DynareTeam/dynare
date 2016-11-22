@@ -84,12 +84,19 @@ options_.solve_tolf = 1e-12;
 
 estimation(order=1,datafile=fsdat_simul,nobs=192,loglinear,mh_replic=3000,mh_nblocks=1,mh_jscale=0.8,moments_varendo,selected_variables_only,contemporaneous_correlation,smoother,forecast=8,
         geweke_interval = [0.19 0.49],
-        taper_steps = [4 7 15]
+        taper_steps = [4 7 15],
+        raftery_lewis_diagnostics,
+        raftery_lewis_qrs=[0.025 0.01 0.95]
         ) y m;
+
 if ~isequal(options_.convergence.geweke.taper_steps,[4 7 15]') || ~isequal(options_.convergence.geweke.geweke_interval,[0.19 0.49])
     error('Interface for Geweke diagnostics not working')
 end
         
+if ~isequal(options_.convergence.rafterylewis.qrs,[0.025 0.01 0.95]) || ~isequal(options_.convergence.rafterylewis.indicator,1)
+    error('Interface for Raftery/Lewis diagnostics not working')
+end
+
 %test load_mh_file option
 options_.smoother=0;
 options_.moments_varendo=0;
