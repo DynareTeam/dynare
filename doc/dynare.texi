@@ -2234,29 +2234,41 @@ which Dynare was designed require both initial and terminal
 conditions. Most often these initial and terminal conditions are
 static equilibria, but not necessarily.
 
-One typical application is to consider an economy at the equilibrium,
-trigger a shock in first period, and study the trajectory of return at
+One typical application is to consider an economy at the equilibrium at time 0,
+trigger a shock in first period, and study the trajectory of return to
 the initial equilibrium. To do that, one needs @code{initval} and
 @code{shocks} (@pxref{Shocks on exogenous variables}.
 
 Another one is to study, how an economy, starting from arbitrary
-initial conditions converges toward equilibrium. To do that, one needs
-@code{initval} and @code{endval}.
+initial conditions at time 0 converges toward equilibrium. 
+In this case models, the command @code{histval} permits to specify different 
+historical initial values for variables with lags for the 
+periods before the beginning of the simulation. Due to the design of Dynare, 
+in this case @code{initval} is used to specify the terminal conditions.
 
-For models with lags on more than one period, the command
-@code{histval} permits to specify different historical initial values
-for periods before the beginning of the simulation.
 
 @deffn Block initval ;
 @deffnx Block initval (@var{OPTIONS}@dots{});
 
 @descriptionhead
 
-The @code{initval} block serves two purposes: declaring the initial
-(and possibly terminal) conditions in a simulation exercise, and
-providing guess values for non-linear solvers.
+The @code{initval} block has two main purposes: providing guess values 
+for non-linear solvers in the context of perfect foresight simulations 
+and providing guess values for steady state computations in both perfect 
+foresight and stochastic simulations. Depending on the presence of @code{histval} 
+and @code{endval}-blocks it is also used for declaring the initial and 
+terminal conditions in a perfect foresight simulation exercise. 
+Because of this interaction of the meaning of an @code{initval}-block 
+with the presence of @code{histval} and @code{endval}-blocks in perfect foresight 
+simulations, it is strongly recommended to check that the 
+constructed @code{oo_.endo_simul} and @code{oo_.exo_simul} variables 
+contain the desired values after running @code{perfect_foresight_setup} 
+and before running @code{perfect_foresight_solver}. In the presence of leads 
+and lags, these subfields of the results structure will store the historical 
+values for the lags in the first 
+column/row and the terminal values for the leads in the last column/row.
 
-This block is terminated by @code{end;}, and contains lines of the
+The @code{initval} block is terminated by @code{end;}, and contains lines of the
 form:
 @example
 @var{VARIABLE_NAME} = @var{EXPRESSION};
@@ -2264,36 +2276,38 @@ form:
 
 @customhead{In a deterministic (@i{i.e.} perfect foresight) model}
 
-First, it provides the initial conditions for all the endogenous and
-exogenous variables at all the periods preceeding the first simulation
-period (unless some of these initial values are modified by
-@code{histval}).
+First, it will fill both the @code{oo_.endo_simul} and @code{oo_.exo_simul} variables 
+storing the endogenous and exogenous variables with the values provided by this block. 
+If there are no other blocks present, it will therefore provide the initial and 
+terminal conditions for all the endogenous and exogenous variables, because it 
+will also fill the last column/row of these matrices. For the intermediate simulation periods 
+it thereby provides the starting values for the solver.
+In the presence of a @code{histval} block (and therefore absence of an @code{endval}-block), 
+this @code{histval} block will provide/overwrite the historical values for the state variables (lags) by 
+setting the first column/row of @code{oo_.endo_simul} and @code{oo_.exo_simul}. 
+This implies that the @code{initval}-block in the presence of @code{histval} only sets the terminal values 
+for the variables with leads and provides initial values for the perfect foresight solver.
 
-Second, in the absence of an @code{endval} block, it sets the terminal
-conditions for all the periods succeeding the last simulation period.
 
-Third, in the absence of an @code{endval} block, it provides initial guess
-values at all simulation dates for the perfect foresight solver, and is
-therefore used by @code{perfect_foresight_setup} and @code{simul}.
-
-For this last reason, it necessary to provide values for all the
-endogenous variables in an @code{initval} block (even though,
-theoretically, initial conditions are only necessary for lagged
-variables). If some variables, endogenous or exogenous, are not mentioned in the
+Because of these various functions of @code{initval} it is often necessary to provide values for all the
+endogenous variables in an @code{initval} block. Initial and terminal conditions are strictly 
+necessary for lagged/leaded variables, while feasible starting values are required for the solver. 
+It is important to be aware that if some variables, endogenous or exogenous, are not mentioned in the
 @code{initval} block, a zero value is assumed. It is particularly important to keep 
 this in mind when specifying exogenous variables using @code{varexo} that are not allowed 
 to take on the value of zero, like e.g. TFP. 
 
 Note that if the @code{initval} block is immediately followed by a
-@code{steady} command, its semantics is changed. The @code{steady}
-command will compute the steady state of the model for all the
-endogenous variables, assuming that exogenous variables are kept
-constant to the value declared in the @code{initval} block, and using
-the values declared for the endogenous as initial guess values for the
-non-linear solver. An @code{initval} block followed by @code{steady}
-is formally equivalent to an @code{initval} block with the same values
-for the exogenous, and with the associated steady state values for the
-endogenous.
+@code{steady} command, its semantics are slightly changed. 
+The @code{steady} command will compute the steady state of the model for all the 
+endogenous variables, assuming that exogenous variables are kept constant at the value 
+declared in the @code{initval} block. These steady state values conditional on 
+the declared exogenous variables are then written into @code{oo_.endo_simul} and take up the 
+potential roles as historical and terminal conditions as well 
+as starting values for the solver. An @code{initval} block followed by @code{steady}
+is therefore formally equivalent to an @code{initval} block with the specified values
+for the exogenous variables, and the endogenous variables set to the associated steady state values
+conditional on the exogenous variables.
 
 @customhead{In a stochastic model}
 
@@ -2307,7 +2321,7 @@ It is not necessary to declare @code{0} as initial value for exogenous
 stochastic variables, since it is the only possible value.
 
 The subsequently computed steady state (not the initial values, use
-@ref{histval} or this) will be used as the initial condition at all
+@ref{histval} for this) will be used as the initial condition at all
 the periods preceeding the first simulation period for the three
 possible types of simulations in stochastic mode:
 
@@ -2361,33 +2375,40 @@ form:
 @var{VARIABLE_NAME} = @var{EXPRESSION};
 @end example
 
-The @code{endval} block makes only sense in a deterministic model, and
-serves two purposes.
+The @code{endval} block makes only sense in a deterministic model and cannot 
+be used together with @code{histval}. Similar to the @code{initval} command, 
+it will fill both the @code{oo_.endo_simul} and @code{oo_.exo_simul} variables 
+storing the endogenous and exogenous variables with the values provided by this block. 
+If no @code{initval}-block is present, it will fill the whole matrices, therefore 
+providing the initial and terminal conditions for all the endogenous and exogenous 
+variables, because it will also fill the first and last column/row of these matrices. Due to
+also filling the intermediate simulation periods it will provide the starting values for the solver as well.
 
-First, it sets the terminal conditions for all the periods succeeding
-the last simulation period.
+If an @code{initval}-block is present, @code{initval} will provide the historical 
+values for the variables (if there are states/lags), while @code{endval} will fill 
+the remainder of the matrices, thereby still providing i) the terminal conditions 
+for variables entering the model with a lead and ii) the initial guess values 
+for all endogenous variables at all the simulation dates for the perfect foresight solver.
 
-Second, it provides initial guess values at all the simulation dates for the
-perfect foresight solver, and is therefore used by
-@code{perfect_foresight_setup} and @code{simul}.
-
-For this last reason, it necessary to provide values for all the
-endogenous variables in an @code{endval} block (even though,
-theoretically, terminal conditions are only necessary for forward
-variables). If some variables, endogenous or exogenous, are not mentioned in the
+Note that if some variables, endogenous or exogenous, are NOT mentioned in the
 @code{endval} block, the value assumed is that of the last
-@code{initval} block or @code{steady} command.
+@code{initval} block or @code{steady} command (if present). Therefore, 
+in contrast to @code{initval}, omitted variables are not automatically assumed to be 0 
+in this case. Again, it is strongly recommended to check the 
+constructed @code{oo_.endo_simul} and @code{oo_.exo_simul} variables 
+after running @code{perfect_foresight_setup} and before running @code{perfect_foresight_solver}
+to see whether the desired outcome has been achieved. 
 
-Note that if the @code{endval} block is immediately followed by a
-@code{steady} command, its semantics is changed. The @code{steady}
-command will compute the steady state of the model for all the
-endogenous variables, assuming that exogenous variables are kept
-constant to the value declared in the @code{endval} block, and using
-the values declared for the endogenous as initial guess values for the
-non-linear solver. An @code{endval} block followed by @code{steady} is
-formally equivalent to an @code{endval} block with the same values for
-the exogenous, and with the associated steady state values for the
-endogenous.
+Like @code{initval}, if the @code{endval} block is immediately followed by a
+@code{steady} command, its semantics are slightly changed. 
+The @code{steady} command will compute the steady state of the model for all 
+the endogenous variables, assuming that exogenous variables are kept constant 
+to the value declared in the @code{endval} block. These steady state values 
+conditional on the declared exogenous variables are then written into @code{oo_.endo_simul} 
+and therefore take up the potential roles as historical and terminal conditions 
+as well as starting values for the solver. An @code{endval} block followed by @code{steady}
+is therefore formally equivalent to an @code{endval} block with the specified values
+for the exogenous variables, and the endogenous variables set to the associated steady state values.
 
 @optionshead
 
@@ -2420,8 +2441,11 @@ end;
 steady;
 @end example
 
-The initial equilibrium is computed by @code{steady} for @code{x=1},
-and the terminal one, for @code{x=2}.
+The initial equilibrium is computed by @code{steady} conditional on @code{x=1},
+and the terminal one conditional on @code{x=2}. The @code{initval}-block sets 
+the initial condition for @code{k}, while the @code{endval}-block sets the terminal
+condition for @code{c}. The starting values for the perfect foresight solver are 
+given by the @code{endval}-block. A detailed explanation follows below the next example.
 
 @examplehead
 
@@ -2435,6 +2459,53 @@ c^(-gam) - (1+bet)^(-1)*(aa*alph*x(+1)*k^(alph-1) + 1 - delt)*c(+1)^(-gam);
 end;
 
 initval;
+k = 12;
+end;
+
+endval;
+c = 2;
+x = 1.1;
+end;
+simul(periods=200);
+
+@end example
+
+In this example, the problem is finding the optimal path for consumption
+and capital for the periods t=1 to T=200, given the path of the exogenous
+technology level @code{x}. @code{c} and @code{x} are forward-looking 
+variables, so we need terminal conditions for them, while @code{k} is a backward-looking (state)
+variable, so we need an initial condition for it.
+
+Setting @code{x=1.1} in the @code{endval}-block without a @code{shocks}-block implies that technology
+is at 1.1 in t=1 and stays there forever, because @code{endval}
+is filling all entries of @code{oo_.endo_simul} and @code{oo_.exo_simul} except 
+for the very first one, which stores the initial conditions and was set to 0 by the @code{initval}-block when not 
+explicitly specifying a value for it. 
+
+Because the law of motion for capital is backward-looking, we need an initial
+condition for @code{k} at time 0. Due to the presence of @code{endval}, this cannot be 
+done via a @code{histval}-block, but rather must be specified in the @code{initval}-block.
+Similarly, because the Euler equation is forward-looking, we need a
+terminal condition for @code{c} at t=201, which is specified in the
+@code{endval}-block. 
+
+As can be seen, it is not necessary to specify @code{c} and @code{x} in the @code{initval}-block and
+@code{k} in the @code{endval}-block, because they have no impact on the results. Due to 
+the optimization problem in the first period being to choose @code{c,k}
+at t=1 given the predetermined capital stock @code{k} inherited from t=0 as
+well as the current and future values for technology @code{x}, the values for
+@code{c} and @code{x} at time t=0 play no role. The same applies to the choice of
+@code{c,k} at time t=200, which does not depend on @code{k} at t=201. As
+the Euler equation shows, that choice only depends on current capital as
+well as future consumption @code{c} and technology @code{x}, but not on
+future capital @code{k}. The intuitive reason is that those variables are
+the consequence of optimization problems taking place in at periods t=0
+and t=201, respectively, which are not modeled here. 
+
+@examplehead
+
+@example
+initval;
 c = 1.2;
 k = 12;
 x = 1;
@@ -2445,51 +2516,31 @@ c = 2;
 k = 20;
 x = 1.1;
 end;
-simul(periods=200);
-
 @end example
 
-In this example, the problem is finding the optimal path for consumption
-and capital for the periods t=1 to T=200, given the path of the exogenous
-technology level @code{x}. Setting @code{x=1.1} in the
-@code{endval}-block without a @code{shocks}-block implies that technology
-jumps to this new level in t=1 and stays there forever. Because the law
-of motion for capital is backward-looking, we also need an initial
-condition for @code{k} at time 0, specified in the @code{initval}-block.
-Similarly, because the Euler equation is forward-looking, we need a
-terminal condition for @code{c} at t=201, which is specified in the
-@code{endval}-block. Specifying @code{c} in the @code{initval}-block and
-@code{k} in the @code{endval}-block has no impact on the results: due to
-the optimization problem in the first period being to choose @code{c,k}
-at t=1 given predetermined capital stock @code{k} inherited from t=0 as
-well as the current and future values for technology, the value for
-@code{c} at time t=0 plays no role. The same applies to the choice of
-@code{c,k} at time t=200, which does not depend on @code{k} at t=201. As
-the Euler equation shows, that choice only depends on current capital as
-well as future consumption @code{c} and technology @code{x}, but not on
-future capital @code{k}. The intuitive reason is that those variables are
-the consequence of optimization problems taking place in at periods t=0
-and t=201, respectively, which are not considered. Thus, when specifying
-those values in the @code{initval} and @code{endval}-blocks, Dynare takes
-them as given and basically assumes that there were realizations
-of exogenous variables and states (basically initial/terminal conditions
-at the unspecified time periods t<0 and t>201) that make those choices
-equilibrium values.
+In this example, initial conditions for the forward-looking variables @code{x}
+and @code{c} are provided, together with a terminal condition for the backward-looking
+variable @code{k}. As shown in the previous example, these values will not affect the simulation 
+results. Dynare simply takes them as given and basically assumes that there were realizations
+of exogenous variables and states that make those choices
+equilibrium values (basically initial/terminal conditions
+at the unspecified time periods t<0 and t>201). 
  
-This also suggest another way of looking at the use of @code{steady}
+The above example suggests another way of looking at the use of @code{steady}
 after @code{initval} and @code{endval}. Instead of saying that the
 implicit unspecified conditions before and after the simulation range
 have to fit the initial/terminal conditions of the endogenous variables
 in those blocks, @code{steady} specifies that those conditions at t<0 and
 t>201 are equal to being at the steady state given the exogenous
-variables in the @code{initval} and @code{endval}-blocks and sets the
-endogenous variables at t=0 and t=201 to the corresponding steady state
+variables in the @code{initval} and @code{endval}-blocks. The
+endogenous variables at t=0 and t=201 are then set to the corresponding steady state
 equilibrium values.
  
 The fact that @code{c} at t=0 and @code{k} at t=201 specified in
 @code{initval} and @code{endval} are taken as given has an important
 implication for plotting the simulated vector for the endogenous
-variables: this vector will also contain the initial and terminal
+variables, i.e. the rows of @code{oo_.endo_simul}: this vector will 
+also contain the initial and terminal
 conditions and thus is 202 periods long in the example. When you specify
 arbitrary values for the initial and terminal conditions for forward- and
 backward-looking variables, respectively, these values can be very far
@@ -2497,7 +2548,7 @@ away from the endogenously determined values at t=1 and t=200. While the
 values at t=0 and t=201 are unrelated to the dynamics for 0<t<201, they
 may result in strange-looking large jumps. In the example above,
 consumption will display a large jump from t=0 to t=1 and capital will
-jump from t=200 to t=201.
+jump from t=200 to t=201 when using @ref{rplot} or manually plotting @code{oo_.endo_val}.
 
 @end deffn
 
@@ -2510,7 +2561,9 @@ jump from t=200 to t=201.
 
 In models with lags on more than one period, the @code{histval} block
 permits to specify different historical initial values for different
-periods.
+periods of the state variables. In this case, the @code{initval}-block takes over the role of specifying 
+terminal conditions and starting values for the solver. Note that the @code{histval} block does not 
+take non-state variables.   
 
 This block is terminated by @code{end;}, and contains lines of the
 form:
@@ -2525,15 +2578,33 @@ By convention in Dynare, period 1 is the first period of the
 simulation. Going backward in time, the first period before the start
 of the simulation is period @code{0}, then period @code{-1}, and so on.
 
-If your lagged variables are linked by identities, be careful to
-satisfy these identities when you set historical initial values.
+State variables not initialized in the @code{histval} block are assumed to
+have a value of zero at period 0 and before. Note that @code{histval}
+cannot be followed by @code{steady}.
 
-Variables not initialized in the @code{histval} block are assumed to
-have a value of zero at period 0 and before. Note that this behavior
-differs from the case where there is no @code{histval} block, where all
-variables are initialized at their steady state value at period 0 and
-before (except when a @code{steady} command doesn't follow an
-@code{initval} block).
+@examplehead
+@example
+model;
+x=1.5*x(-1)-0.6*x(-2)+epsilon;
+log(c)=0.5*x+0.5*log(c(+1));
+end;
+
+histval;
+x(0)=-1;
+x(-1)=0.2;
+end;
+
+initval;
+c=1;
+x=1;
+end;
+@end example
+
+In this example, @code{histval} is used to set the historical conditions for the two lags
+of the endogenous variable @code{x}, stored in the first column of @code{oo_.endo_simul}. 
+The @code{initval} block is used to set the terminal condition for the forward looking variable @code{c},
+stored in the last column of @code{oo_.endo_simul}. Moreover, the @code{initval} block defines
+the starting values for the perfect foresight solver for both endogenous variables @code{c} and @code{x}.
 
 @customhead{In a stochastic simulation context}
 
@@ -2593,6 +2664,8 @@ histval;
 y(0) = 1.1;
 y(-1) = 0.9;
 end;
+
+stoch_simul(periods=100);
 @end example
 
 @end deffn
@@ -3799,7 +3872,7 @@ This variable stores the path of exogenous variables during a simulation
 or @code{extended_path}).
 
 The variables are arranged in columns, in order of declaration (as in
-@code{M_.endo_names}). Periods are in rows. Note that this convention
+@code{M_.exo_names}). Periods are in rows. Note that this convention
 regarding columns and rows is the opposite of the convention for
 @code{oo_.endo_simul}!
 
@@ -9684,7 +9757,7 @@ Do not output percentile error bands (@i{i.e.} compute mean). Default:
 Dynare has comments to plot the results of a simulation and to save the results.
 
 @deffn Command rplot @var{VARIABLE_NAME}@dots{};
-
+@anchor{rplot}
 Plots the simulated path of one or several variables, as stored in
 @code{oo_.endo_simul} by either @code{perfect_foresight_solver}, @code{simul}
 (@pxref{Deterministic simulation}) or @code{stoch_simul} with option
