@@ -55,9 +55,11 @@ for i=1:np
     i_params(i) = strmatch(str{:}, M_.param_names, 'exact');
 end
 
-skipline()
-disp('OPTIMAL SIMPLE RULE')
-skipline()
+if ~options_.noprint
+    skipline()
+    disp('OPTIMAL SIMPLE RULE')
+    skipline()
+end
 osr_res = osr1(i_params,i_var,W);
 
 stoch_simul(var_list);
