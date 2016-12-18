@@ -149,15 +149,7 @@ if options_.lik_init == 1               % Kalman filter
     if kalman_algo ~= 2
         kalman_algo = 1;
     end
-	if options_.lyapunov_fp == 1
-        Pstar = lyapunov_symm(T,R*Q*R',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, 3, [], options_.debug);
-    elseif options_.lyapunov_db == 1
-        Pstar = disclyap_fast(T,R*Q*R',options_.lyapunov_doubling_tol);
-    elseif options_.lyapunov_srs == 1
-        Pstar = lyapunov_symm(T,Q,options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, 4, R, options_.debug);
-    else
-        Pstar = lyapunov_symm(T,R*Q*R',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, [], [], options_.debug);
-    end;
+    Pstar=lyapunov_solver(T,R,Q,options_);
     Pinf        = [];
 elseif options_.lik_init == 2           % Old Diffuse Kalman filter
     if kalman_algo ~= 2
@@ -203,15 +195,7 @@ elseif options_.lik_init == 5            % Old diffuse Kalman filter only for th
     end
     R_tmp = R(stable, :);
     T_tmp = T(stable,stable);
-    if options_.lyapunov_fp == 1
-        Pstar_tmp = lyapunov_symm(T_tmp,R_tmp*Q*R_tmp',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, 3, [], options_.debug);
-    elseif options_.lyapunov_db == 1
-        Pstar_tmp = disclyap_fast(T_tmp,R_tmp*Q*R_tmp',options_.lyapunov_doubling_tol);
-    elseif options_.lyapunov_srs == 1
-        Pstar_tmp = lyapunov_symm(T_tmp,Q,options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, 4, R_tmp, options_.debug);
-    else
-        Pstar_tmp = lyapunov_symm(T_tmp,R_tmp*Q*R_tmp',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, [], [], options_.debug);
-    end
+    Pstar_tmp=lyapunov_solver(T_tmp,R_tmp,Q,DynareOptions);
     Pstar(stable, stable) = Pstar_tmp;
     Pinf  = [];
 end

@@ -111,7 +111,7 @@ function [fval,info,exit_flag,DLIK,Hess,SteadyState,trend_coeff,Model,DynareOpti
 %! @sp 2
 %! @strong{This function calls:}
 %! @sp 1
-%! @ref{dynare_resolve}, @ref{lyapunov_symm}, @ref{compute_Pinf_Pstar}, @ref{kalman_filter_d}, @ref{missing_observations_kalman_filter_d}, @ref{univariate_kalman_filter_d}, @ref{kalman_steady_state}, @ref{getH}, @ref{kalman_filter}, @ref{score}, @ref{AHessian}, @ref{missing_observations_kalman_filter}, @ref{univariate_kalman_filter}, @ref{priordens}
+%! @ref{dynare_resolve}, @ref{lyapunov_symm}, @ref{lyapunov_solver}, @ref{compute_Pinf_Pstar}, @ref{kalman_filter_d}, @ref{missing_observations_kalman_filter_d}, @ref{univariate_kalman_filter_d}, @ref{kalman_steady_state}, @ref{getH}, @ref{kalman_filter}, @ref{score}, @ref{AHessian}, @ref{missing_observations_kalman_filter}, @ref{univariate_kalman_filter}, @ref{priordens}
 %! @end deftypefn
 %@eod:
 
@@ -351,15 +351,7 @@ switch DynareOptions.lik_init
         % Use standard kalman filter except if the univariate filter is explicitely choosen.
         kalman_algo = 1;
     end
-    if DynareOptions.lyapunov_fp == 1
-        Pstar = lyapunov_symm(T,R*Q'*R',DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, 3, [], DynareOptions.debug);
-    elseif DynareOptions.lyapunov_db == 1
-        Pstar = disclyap_fast(T,R*Q*R',DynareOptions.lyapunov_doubling_tol);
-    elseif DynareOptions.lyapunov_srs == 1
-        Pstar = lyapunov_symm(T,Q,DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, 4, R, DynareOptions.debug);
-    else
-        Pstar = lyapunov_symm(T,R*Q*R',DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, [], [], DynareOptions.debug);
-    end;
+    Pstar=lyapunov_solver(T,R,Q,DynareOptions);
     Pinf  = [];
     a     = zeros(mm,1);
     Zflag = 0;
@@ -471,7 +463,7 @@ switch DynareOptions.lik_init
     if err
         disp(['dsge_likelihood:: I am not able to solve the Riccati equation, so I switch to lik_init=1!']);
         DynareOptions.lik_init = 1;
-        Pstar = lyapunov_symm(T,R*Q*R',DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, [], [], DynareOptions.debug);
+        Pstar=lyapunov_solver(T,R,Q,DynareOptions);
     end
     Pinf  = [];
     a = zeros(mm,1);
@@ -491,15 +483,7 @@ switch DynareOptions.lik_init
     end
     R_tmp = R(stable, :);
     T_tmp = T(stable,stable);
-    if DynareOptions.lyapunov_fp == 1
-        Pstar_tmp = lyapunov_symm(T_tmp,R_tmp*Q*R_tmp',DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, 3, [], DynareOptions.debug);
-    elseif DynareOptions.lyapunov_db == 1
-        Pstar_tmp = disclyap_fast(T_tmp,R_tmp*Q*R_tmp',DynareOptions.lyapunov_doubling_tol);
-    elseif DynareOptions.lyapunov_srs == 1
-        Pstar_tmp = lyapunov_symm(T_tmp,Q,DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, 4, R_tmp, DynareOptions.debug);
-    else
-        Pstar_tmp = lyapunov_symm(T_tmp,R_tmp*Q*R_tmp',DynareOptions.qz_criterium,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, [], [], DynareOptions.debug);
-    end    
+    Pstar_tmp=lyapunov_solver(T_tmp,R_tmp,Q,DynareOptions);
     Pstar(stable, stable) = Pstar_tmp;
     Pinf  = [];
     a = zeros(mm,1);
@@ -580,14 +564,14 @@ if analytic_derivation,
     for i=1:EstimatedParameters.nvx
         k =EstimatedParameters.var_exo(i,1);
         DQ(k,k,i) = 2*sqrt(Q(k,k));
-        dum =  lyapunov_symm(T,DOm(:,:,i),DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold,[],[],DynareOptions.debug);
+        dum =  lyapunov_symm(T,DOm(:,:,i),DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold,[],DynareOptions.debug);
 %         kk = find(abs(dum) < 1e-12);
 %         dum(kk) = 0;
         DP(:,:,i)=dum;
         if full_Hess
         for j=1:i,
             jcount=jcount+1;
-            dum =  lyapunov_symm(T,dyn_unvech(D2Om(:,jcount)),DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold,[],[],DynareOptions.debug);
+            dum =  lyapunov_symm(T,dyn_unvech(D2Om(:,jcount)),DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold,[],DynareOptions.debug);
 %             kk = (abs(dum) < 1e-12);
 %             dum(kk) = 0;
             D2P(:,jcount)=dyn_vech(dum);
@@ -607,7 +591,7 @@ if analytic_derivation,
     offset = offset + EstimatedParameters.nvn;
     if DynareOptions.lik_init==1,
     for j=1:EstimatedParameters.np
-        dum =  lyapunov_symm(T,DT(:,:,j+offset)*Pstar*T'+T*Pstar*DT(:,:,j+offset)'+DOm(:,:,j+offset),DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold,[],[],DynareOptions.debug);
+        dum =  lyapunov_symm(T,DT(:,:,j+offset)*Pstar*T'+T*Pstar*DT(:,:,j+offset)'+DOm(:,:,j+offset),DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold,[],DynareOptions.debug);
 %         kk = find(abs(dum) < 1e-12);
 %         dum(kk) = 0;
         DP(:,:,j+offset)=dum;
@@ -621,7 +605,7 @@ if analytic_derivation,
             D2Tij = reshape(D2T(:,jcount),size(T));
             D2Omij = dyn_unvech(D2Om(:,jcount));
             tmp = D2Tij*Pstar*T' + T*Pstar*D2Tij' + DTi*DPj*T' + DTj*DPi*T' + T*DPj*DTi' + T*DPi*DTj' + DTi*Pstar*DTj' + DTj*Pstar*DTi' + D2Omij;
-            dum = lyapunov_symm(T,tmp,DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold,[],[],DynareOptions.debug);
+            dum = lyapunov_symm(T,tmp,DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold,[],DynareOptions.debug);
 %             dum(abs(dum)<1.e-12) = 0;
             D2P(:,jcount) = dyn_vech(dum);
 %             D2P(:,:,j+offset,i) = dum;

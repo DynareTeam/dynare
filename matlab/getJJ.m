@@ -102,7 +102,7 @@ else
     %     return
     %   end
     m = length(A);
-    GAM =  lyapunov_symm(A,B*M_.Sigma_e*B',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold,1,[],options_.debug);
+    GAM =  lyapunov_symm(A,B*M_.Sigma_e*B',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold,1,options_.debug);
     k = find(abs(GAM) < 1e-12);
     GAM(k) = 0;
     %   if useautocorr,
@@ -116,7 +116,7 @@ else
     %   end
     %   XX =  lyapunov_symm_mr(A,BB,options_.qz_criterium,options_.lyapunov_complex_threshold,0);
     for j=1:length(indexo),
-        dum =  lyapunov_symm(A,dOm(:,:,j),options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold,2,[],options_.debug);
+        dum =  lyapunov_symm(A,dOm(:,:,j),options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold,2,options_.debug);
         %     dum =  XX(:,:,j);
         k = find(abs(dum) < 1e-12);
         dum(k) = 0;
@@ -141,7 +141,7 @@ else
     end
     nexo = length(indexo);
     for j=1:length(indx),
-        dum =  lyapunov_symm(A,dA(:,:,j+nexo)*GAM*A'+A*GAM*dA(:,:,j+nexo)'+dOm(:,:,j+nexo),options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold,2,[],options_.debug);
+        dum =  lyapunov_symm(A,dA(:,:,j+nexo)*GAM*A'+A*GAM*dA(:,:,j+nexo)'+dOm(:,:,j+nexo),options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold,2,options_.debug);
         %     dum =  XX(:,:,j);
         k = find(abs(dum) < 1e-12);
         dum(k) = 0;
