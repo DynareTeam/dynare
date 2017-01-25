@@ -111,9 +111,11 @@ for i=fpar:npar,
             set(0,'CurrentFigure',hh)
             subplot(nn,nn,subplotnum);
             if ~MAX_nirfs_dsgevar
-                h1 = area(1:options_.irf,HPDIRF(:,2,j,i),'FaceColor',[.9 .9 .9],'BaseValue',min(HPDIRF(:,1,j,i))); %grey below HPDIsup and minimum of HPDIinf
-                hold on
-                h2 = area(1:options_.irf,HPDIRF(:,1,j,i),'FaceColor',[1 1 1],'BaseValue',min(HPDIRF(:,1,j,i))); %white below HPDIinf and minimum of HPDIinf
+                if ~isnan(min(HPDIRF(:,1,j,i)))
+                    h1 = area(1:options_.irf,HPDIRF(:,2,j,i),'FaceColor',[.9 .9 .9],'BaseValue',min(HPDIRF(:,1,j,i))); %grey below HPDIsup and minimum of HPDIinf
+                    hold on
+                    h2 = area(1:options_.irf,HPDIRF(:,1,j,i),'FaceColor',[1 1 1],'BaseValue',min(HPDIRF(:,1,j,i))); %white below HPDIinf and minimum of HPDIinf
+                end
                 plot(1:options_.irf,MeanIRF(:,j,i),'-k','linewidth',3)
                 % plot([1 options_.irf],[0 0],'-r','linewidth',0.5);
                 box on
@@ -122,14 +124,18 @@ for i=fpar:npar,
                 remove_fractional_xticks;
                 hold off
             else
-                h1 = area(1:options_.irf,HPDIRF(:,2,j,i),'FaceColor',[.9 .9 .9],'BaseValue',min([min(HPDIRF(:,1,j,i)),min(HPDIRFdsgevar(:,1,j,i))])); %grey below HPDIsup and minimum of HPDIinf and HPDIRFdsgevar
-                hold on
-                h2 = area(1:options_.irf,HPDIRF(:,1,j,i),'FaceColor',[1 1 1],'BaseValue',min([min(HPDIRF(:,1,j,i)),min(HPDIRFdsgevar(:,1,j,i))])); %white below HPDIinf and minimum of  HPDIinf and HPDIRFdsgevar
+                if ~isnan(min([min(HPDIRF(:,1,j,i)),min(HPDIRFdsgevar(:,1,j,i))]))
+                    h1 = area(1:options_.irf,HPDIRF(:,2,j,i),'FaceColor',[.9 .9 .9],'BaseValue',min([min(HPDIRF(:,1,j,i)),min(HPDIRFdsgevar(:,1,j,i))])); %grey below HPDIsup and minimum of HPDIinf and HPDIRFdsgevar
+                    hold on
+                    h2 = area(1:options_.irf,HPDIRF(:,1,j,i),'FaceColor',[1 1 1],'BaseValue',min([min(HPDIRF(:,1,j,i)),min(HPDIRFdsgevar(:,1,j,i))])); %white below HPDIinf and minimum of  HPDIinf and HPDIRFdsgevar
+                end
                 plot(1:options_.irf,MeanIRF(:,j,i),'-k','linewidth',3)
                 plot(1:options_.irf,MeanIRFdsgevar(:,j,i),'--k','linewidth',2)
-                plot(1:options_.irf,HPDIRFdsgevar(:,1,j,i),'--k','linewidth',1)
-                plot(1:options_.irf,HPDIRFdsgevar(:,2,j,i),'--k','linewidth',1)
-                % plot([1 options_.irf],[0 0],'-r','linewidth',0.5);
+                if ~isnan(min(HPDIRF(:,1,j,i)))
+                    plot(1:options_.irf,HPDIRFdsgevar(:,1,j,i),'--k','linewidth',1)
+                    plot(1:options_.irf,HPDIRFdsgevar(:,2,j,i),'--k','linewidth',1)
+                end
+                 % plot([1 options_.irf],[0 0],'-r','linewidth',0.5);
                 box on
                 axis tight
                 xlim([1 options_.irf]);

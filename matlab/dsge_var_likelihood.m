@@ -187,7 +187,7 @@ end
 %------------------------------------------------------------------------------
 
 % Compute the theoretical second order moments
-tmp0 = lyapunov_symm(T,R*Q*R',DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, [], [], DynareOptions.debug);
+tmp0 = lyapunov_symm(T,R*Q*R',DynareOptions.lyapunov_fixed_point_tol,DynareOptions.qz_criterium,DynareOptions.lyapunov_complex_threshold, [], DynareOptions.debug);
 mf  = BayesInfo.mf1;
 
 % Get the non centered second order moments

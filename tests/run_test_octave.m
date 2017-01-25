@@ -1,4 +1,4 @@
-## Copyright (C) 2009-2014 Dynare Team
+## Copyright (C) 2009-2016 Dynare Team
 ##
 ## This file is part of Dynare.
 ##
@@ -21,8 +21,11 @@
 ## 'wsOct', and reloaded after Dynare has finished (this is necessary since
 ## Dynare does a 'clear -all').
 
+load_octave_packages
+
 top_test_dir = getenv('TOP_TEST_DIR');
 addpath(top_test_dir);
+addpath('.'); % workaround for bug in Octave 4.2.0-rc2: https://savannah.gnu.org/bugs/?49334
 addpath([top_test_dir filesep '..' filesep 'matlab']);
 
 ## Test Dynare Version

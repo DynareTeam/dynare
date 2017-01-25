@@ -224,13 +224,13 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
             [ys,check] = dynare_solve(@static_problem,...
                                       ys_init,...
                                       options, exo_ss, params,...
-                                      M.orig_endo_nbr,...
+                                      M.endo_nbr,...
                                       static_model);
             if check && options.debug
                 [ys,check,fvec,fjac] = dynare_solve(@static_problem,...
                           ys_init,...
                           options, exo_ss, params,...
-                          M.orig_endo_nbr,...
+                          M.endo_nbr,...
                           static_model);
                 [infrow,infcol]=find(isinf(fjac) | isnan(fjac));
                 if ~isempty(infrow)
@@ -277,12 +277,7 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
                     [infrow,infcol]=find(isinf(jacob) | isnan(jacob));
                     fprintf('\nSTEADY:  The Jacobian contains Inf or NaN. The problem arises from: \n\n')
                     for ii=1:length(infrow)
-                        if infcol(ii)<=M.orig_endo_nbr
-                            fprintf('STEADY:  Derivative of Equation %d with respect to Variable %s  (initial value of %s: %g) \n',infrow(ii),deblank(M.endo_names(infcol(ii),:)),deblank(M.endo_names(infcol(ii),:)),ys_init(infcol(ii)))
-                        else %auxiliary vars
-                            orig_var_index=M.aux_vars(1,infcol(ii)-M.orig_endo_nbr).orig_index;
-                            fprintf('STEADY:  Derivative of Equation %d with respect to Variable %s  (initial value of %s: %g) \n',infrow(ii),deblank(M.endo_names(orig_var_index,:)),deblank(M.endo_names(orig_var_index,:)),ys_init(infcol(ii)))
-                        end
+                        fprintf('STEADY:  Derivative of Equation %d with respect to Variable %s  (initial value of %s: %g) \n',infrow(ii),deblank(M.endo_names(infcol(ii),:)),deblank(M.endo_names(infcol(ii),:)),ys_init(infcol(ii)))
                     end
                     fprintf('Check whether your model is truly linear. Put "resid(1);" before "steady;" to see the problematic equations.\n')
                 end
@@ -296,6 +291,10 @@ function [ys,params,info] = evaluate_steady_state(ys_init,M,options,oo,steadysta
 
     if check
         info(1)= 20;
+        %make sure ys contains auxiliary variables in case of problem with dynare_solve
+        if length(M.aux_vars) > 0 && ~steadystate_flag
+            ys = h_set_auxiliary_variables(ys,exo_ss,M.params);
+        end
         resid = evaluate_static_model(ys,exo_ss,params,M,options);
         info(2) = resid'*resid ;
         if isnan(info(2))

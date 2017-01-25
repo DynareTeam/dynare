@@ -31,6 +31,9 @@ function dynare_estimation_1(var_list_,dname)
 
 global M_ options_ oo_ estim_params_ bayestopt_ dataset_ dataset_info
 
+%store qz_criterium
+qz_criterium_old=options_.qz_criterium;
+
 % Set particle filter flag.
 if options_.order > 1
     if options_.particle.status && options_.order==2  
@@ -160,9 +163,11 @@ end
 
 if isequal(options_.mode_compute,0) && isempty(options_.mode_file) && options_.mh_posterior_mode_estimation==0
     if options_.smoother == 1
-        [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend] = DsgeSmoother(xparam1,gend,transpose(data),data_index,missing_value);
-        [oo_]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend);
+        [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend,state_uncertainty,M_,oo_,options_,bayestopt_] = DsgeSmoother(xparam1,gend,transpose(data),data_index,missing_value,M_,oo_,options_,bayestopt_,estim_params_);
+        [oo_]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend,state_uncertainty);
     end
+    %reset qz_criterium
+    options_.qz_criterium=qz_criterium_old;
     return
 end
 
@@ -256,35 +261,6 @@ if ~isequal(options_.mode_compute,0) && ~options_.mh_posterior_mode_estimation
     else
         save([M_.fname '_mode.mat'],'xparam1','parameter_names','fval');
     end
-end
-
-switch options_.MCMC_jumping_covariance
-    case 'hessian' %Baseline
-        %do nothing and use hessian from mode_compute
-    case 'prior_variance' %Use prior variance
-        if any(isinf(bayestopt_.p2))
-            error('Infinite prior variances detected. You cannot use the prior variances as the proposal density, if some variances are Inf.')
-        else
-            hh = diag(1./(bayestopt_.p2.^2));
-        end
-    case 'identity_matrix' %Use identity
-        hh = eye(nx);
-    otherwise %user specified matrix in file
-        try
-            load(options_.MCMC_jumping_covariance,'jumping_covariance')
-            hh=jumping_covariance;
-        catch
-            error(['No matrix named ''jumping_covariance'' could be found in ',options_.MCMC_jumping_covariance,'.mat'])
-        end
-        [nrow, ncol]=size(hh);
-        if ~isequal(nrow,ncol) && ~isequal(nrow,nx) %check if square and right size
-            error(['jumping_covariance matrix must be square and have ',num2str(nx),' rows and columns'])
-        end
-        try %check for positive definiteness
-            chol(hh);
-        catch
-            error(['Specified jumping_covariance is not positive definite'])
-        end
 end
 
 if ~options_.mh_posterior_mode_estimation && options_.cova_compute
@@ -388,6 +364,39 @@ if np > 0
     save([M_.fname '_params.mat'],'pindx');
 end
 
+switch options_.MCMC_jumping_covariance
+    case 'hessian' %Baseline
+        %do nothing and use hessian from mode_compute
+    case 'prior_variance' %Use prior variance
+        if any(isinf(bayestopt_.p2))
+            error('Infinite prior variances detected. You cannot use the prior variances as the proposal density, if some variances are Inf.')
+        else
+            hh = diag(1./(bayestopt_.p2.^2));
+        end
+        hsd = sqrt(diag(hh));
+        invhess = inv(hh./(hsd*hsd'))./(hsd*hsd');
+    case 'identity_matrix' %Use identity
+        invhess = eye(nx);
+    otherwise %user specified matrix in file
+        try
+            load(options_.MCMC_jumping_covariance,'jumping_covariance')
+            hh=jumping_covariance;
+        catch
+            error(['No matrix named ''jumping_covariance'' could be found in ',options_.MCMC_jumping_covariance,'.mat'])
+        end
+        [nrow, ncol]=size(hh);
+        if ~isequal(nrow,ncol) && ~isequal(nrow,nx) %check if square and right size
+            error(['jumping_covariance matrix must be square and have ',num2str(nx),' rows and columns'])
+        end
+        try %check for positive definiteness
+            chol(hh);
+            hsd = sqrt(diag(hh));
+            invhess = inv(hh./(hsd*hsd'))./(hsd*hsd');
+        catch
+            error(['Specified jumping_covariance is not positive definite'])
+        end
+end
+
 if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
         (any(bayestopt_.pshape >0 ) && options_.load_mh_file)  %% not ML estimation
     bounds = prior_bounds(bayestopt_, options_.prior_trunc);
@@ -421,14 +430,25 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
     %% Here I discard first mh_drop percent of the draws:
     CutSample(M_, options_, estim_params_);
     if options_.mh_posterior_mode_estimation
+        %reset qz_criterium
+        options_.qz_criterium=qz_criterium_old;
         return
     else
-        if ~options_.nodiagnostic && options_.mh_replic>0
-            oo_= McMCDiagnostics(options_, estim_params_, M_,oo_);
+        %get stored results if required
+        if options_.load_mh_file && options_.load_results_after_load_mh
+            oo_load_mh=load([M_.fname '_results'],'oo_');    
         end
-
+        if ~options_.nodiagnostic 
+            if (options_.mh_replic>0 || (options_.load_mh_file && ~options_.load_results_after_load_mh))
+                oo_= McMCDiagnostics(options_, estim_params_, M_,oo_);
+            elseif options_.load_mh_file && options_.load_results_after_load_mh
+                if isfield(oo_load_mh.oo_,'convergence')
+                    oo_.convergence=oo_load_mh.oo_.convergence;
+                end
+            end
+        end
         %% Estimation of the marginal density from the Mh draws:
-        if options_.mh_replic
+        if options_.mh_replic || (options_.load_mh_file && ~options_.load_results_after_load_mh)
             [marginal,oo_] = marginal_density(M_, options_, estim_params_, oo_, bayestopt_);
             % Store posterior statistics by parameter name
             oo_ = GetPosteriorParametersStatistics(estim_params_, M_, options_, bayestopt_, oo_, pnames);
@@ -439,8 +459,25 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
             % a matrix
             [oo_.posterior.metropolis.mean,oo_.posterior.metropolis.Variance] ...
                 = GetPosteriorMeanVariance(M_,options_.mh_drop);
-        else
-            load([M_.fname '_results'],'oo_');
+        elseif options_.load_mh_file && options_.load_results_after_load_mh
+            %% load fields from previous MCMC run stored in results-file            
+            field_names={'posterior_mode','posterior_std_at_mode',...% fields set by marginal_density
+                'posterior_mean','posterior_hpdinf','posterior_hpdsup','posterior_median','posterior_variance','posterior_std','posterior_deciles','posterior_density',...% fields set by GetPosteriorParametersStatistics
+                'prior_density',...%fields set by PlotPosteriorDistributions
+                };
+            for field_iter=1:size(field_names,2)
+                if isfield(oo_load_mh.oo_,field_names{1,field_iter})
+                    oo_.(field_names{1,field_iter})=oo_load_mh.oo_.(field_names{1,field_iter});
+                end
+            end            
+            % field set by marginal_density
+            if isfield(oo_load_mh.oo_,'MarginalDensity') && isfield(oo_load_mh.oo_.MarginalDensity,'ModifiedHarmonicMean')
+                oo_.MarginalDensity.ModifiedHarmonicMean=oo_load_mh.oo_.MarginalDensity.ModifiedHarmonicMean;
+            end            
+            % field set by GetPosteriorMeanVariance
+            if isfield(oo_load_mh.oo_,'posterior') && isfield(oo_load_mh.oo_.posterior,'metropolis')
+                oo_.posterior.metropolis=oo_load_mh.oo_.posterior.metropolis;
+            end
         end
         [error_flag,junk,options_]= metropolis_draw(1,options_,estim_params_,M_);
         if options_.bayesian_irf
@@ -467,6 +504,8 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
 end
 
 if options_.particle.status
+    %reset qz_criterium
+    options_.qz_criterium=qz_criterium_old;
     return
 end
 
@@ -474,8 +513,8 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                                                       > 0) && options_.load_mh_file)) ...
     || ~options_.smoother ) && options_.partial_information == 0  % to be fixed
     %% ML estimation, or posterior mode without Metropolis-Hastings or Metropolis without Bayesian smoothes variables
-    [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend] = DsgeSmoother(xparam1,dataset_.nobs,transpose(dataset_.data),dataset_info.missing.aindex,dataset_info.missing.state);
-    [oo_,yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend);
+    [atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend,state_uncertainty,M_,oo_,options_,bayestopt_] = DsgeSmoother(xparam1,dataset_.nobs,transpose(dataset_.data),dataset_info.missing.aindex,dataset_info.missing.state,M_,oo_,options_,bayestopt_,estim_params_);
+    [oo_,yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend,state_uncertainty);
 
     if ~options_.nograph,
         [nbplt,nr,nc,lr,lc,nstar] = pltorg(M_.exo_nbr);
@@ -713,3 +752,5 @@ if np > 0
     save([M_.fname '_pindx.mat'] ,'pindx');
 end
 
+%reset qz_criterium
+options_.qz_criterium=qz_criterium_old;

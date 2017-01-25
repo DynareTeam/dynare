@@ -37,7 +37,7 @@ end;
 
 varobs w x y;
        
-estimation(datafile=data,first_obs=1000,nobs=200,mh_replic=0,diffuse_filter);
+estimation(datafile=data,first_obs=1000,nobs=200,mh_replic=0,diffuse_filter,smoothed_state_uncertainty);
 
 stoch_simul(irf=0);
 

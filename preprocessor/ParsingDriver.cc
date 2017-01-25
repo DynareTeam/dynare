@@ -507,8 +507,7 @@ ParsingDriver::init_val(string *name, expr_t rhs)
   if (nostrict)
     if (!mod_file->symbol_table.exists(*name))
       {
-        warnings << "WARNING: discarding '" << *name
-                 << "' not recognized in initval or endval statement" << endl;
+        warning("discarding '" + *name + "' as it was not recognized in the initval or endval statement");
         delete name;
         return;
       }
@@ -1941,9 +1940,16 @@ ParsingDriver::ramsey_policy()
 {
   if (!mod_file->symbol_table.exists("optimal_policy_discount_factor"))
     declare_optimal_policy_discount_factor_parameter(data_tree->One);
-  mod_file->addStatement(new RamseyPolicyStatement(symbol_list, options_list));
-  symbol_list.clear();
+  mod_file->addStatement(new RamseyPolicyStatement(mod_file->symbol_table, ramsey_policy_list, options_list));
   options_list.clear();
+  ramsey_policy_list.clear();
+}
+
+void
+ParsingDriver::add_to_ramsey_policy_list(string *name)
+{
+  ramsey_policy_list.push_back(*name);
+  delete name;
 }
 
 void
@@ -2050,7 +2056,8 @@ ParsingDriver::ms_variance_decomposition()
 void
 ParsingDriver::svar()
 {
-  OptionsList::num_options_t::const_iterator it0, it1, it2;
+  OptionsList::string_options_t::const_iterator it0, it1, it2;
+  OptionsList::num_options_t::const_iterator itn;
   OptionsList::vec_int_options_t::const_iterator itv;
 
   it0 = options_list.string_options.find("ms.coefficients");
@@ -2069,10 +2076,10 @@ ParsingDriver::svar()
           && it2 != options_list.string_options.end()))
     error("You may only pass one of 'coefficients', 'variances', or 'constants'.");
 
-  it0 = options_list.num_options.find("ms.chain");
-  if (it0 == options_list.num_options.end())
+  itn = options_list.num_options.find("ms.chain");
+  if (itn == options_list.num_options.end())
     error("A chain option must be passed to the svar statement.");
-  else if (atoi(it0->second.c_str()) <= 0)
+  else if (atoi(itn->second.c_str()) <= 0)
     error("The value passed to the chain option must be greater than zero.");
 
   itv = options_list.vector_int_options.find("ms.equations");

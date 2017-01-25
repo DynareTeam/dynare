@@ -26,7 +26,13 @@ if max(max(abs(SmoothedShocks-repmat(SmoothedShocks(:,:,1),[1,1,2]))))>1e-8
     error('SmoothedShocks do not match')
 end
 
-if max(max(abs(SmoothedVariables-repmat(SmoothedVariables(:,:,1),[1,1,2]))))>1e-8
+if isoctave
+    tol_crit=5e-6;
+else
+    tol_crit=1e-8;    
+end
+
+if max(max(abs(SmoothedVariables-repmat(SmoothedVariables(:,:,1),[1,1,2]))))>tol_crit
     error('SmoothedVariables do not match')
 end
 

@@ -107,9 +107,9 @@ P_obs (log(mst)-gam);
 Y_obs (gam);
 end;
 
-estimation(order=1, datafile=fsdat_simul, mode_compute=0,nobs=192, loglinear,diffuse_filter, smoother) m P c e W R k d n l gy_obs gp_obs y dA;
-estimation(order=1, datafile=fsdat_simul, mode_compute=0,nobs=192, loglinear,diffuse_filter, smoother,kalman_algo=3) m P c e W R k d n l gy_obs gp_obs y dA;
-estimation(order=1, datafile=fsdat_simul, mode_compute=0,nobs=192, loglinear,diffuse_filter, smoother,kalman_algo=4) m P c e W R k d n l gy_obs gp_obs y dA;
+estimation(order=1, datafile=fsdat_simul, mode_compute=0,nobs=192, loglinear,diffuse_filter, smoother,smoothed_state_uncertainty) m P c e W R k d n l gy_obs gp_obs y dA;
+estimation(order=1, datafile=fsdat_simul, mode_compute=0,nobs=192, loglinear,diffuse_filter, smoother,kalman_algo=3,smoothed_state_uncertainty) m P c e W R k d n l gy_obs gp_obs y dA;
+estimation(order=1, datafile=fsdat_simul, mode_compute=0,nobs=192, loglinear,diffuse_filter, smoother,kalman_algo=4,smoothed_state_uncertainty) m P c e W R k d n l gy_obs gp_obs y dA;
 
 /*
  * The following lines were used to generate the data file. If you want to

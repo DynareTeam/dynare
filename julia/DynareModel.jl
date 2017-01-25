@@ -23,27 +23,27 @@ export Model, Endo, Exo, ExoDet, Param, dynare_model
 abstract Atom
 
 immutable Endo <: Atom
-    name::UTF8String
-    tex_name::UTF8String
-    long_name::UTF8String
+    name::String
+    tex_name::String
+    long_name::String
 end
 
 immutable Exo <: Atom
-    name::UTF8String
-    tex_name::UTF8String
-    long_name::UTF8String
+    name::String
+    tex_name::String
+    long_name::String
 end
 
 immutable ExoDet <: Atom
-    name::UTF8String
-    tex_name::UTF8String
-    long_name::UTF8String
+    name::String
+    tex_name::String
+    long_name::String
 end
 
 immutable Param <: Atom
-    name::UTF8String
-    tex_name::UTF8String
-    long_name::UTF8String
+    name::String
+    tex_name::String
+    long_name::String
 end
 
 immutable AuxVars
@@ -52,7 +52,7 @@ immutable AuxVars
     orig_index::Int
     orig_lead_lag::Int
     eq_nbr::Int
-    orig_expr::UTF8String
+    orig_expr::String
 end
 
 immutable PredVars
@@ -73,14 +73,14 @@ end
 
 immutable EquationTag
     eq_nbr::Int
-    name::UTF8String
-    value::UTF8String
+    name::String
+    value::String
 end
 
 type Model
-    fname::ASCIIString
-    dname::ASCIIString
-    dynare_version::ASCIIString
+    fname::String
+    dname::String
+    dynare_version::String
     endo::Vector{Endo}
     exo::Vector{Exo}
     exo_det::Vector{ExoDet}
@@ -111,7 +111,7 @@ type Model
     analytical_steady_state::Bool
     user_written_analytical_steady_state::Bool
     static_and_dynamic_models_differ::Bool
-    equation_tags::Vector{UTF8String}
+    equation_tags::Vector{String}
     exo_names_orig_ord::Vector{Int}
     sigma_e::Matrix{Float64}
     correlation_matrix::Matrix{Float64}
@@ -160,7 +160,7 @@ function dynare_model()
                  false,                 # analytical_steady_state
                  false,                 # user_written_analytical_steady_state
                  false,                 # static_and_dynamic_models_differ
-                 Array(ASCIIString,0),  # equation_tags
+                 Array(String,0),       # equation_tags
                  Array(Int64,1),        # exo_names_orig_ord
                  Array(Float64, 0, 0),  # sigma_e (Cov matrix of the structural innovations)
                  Array(Float64, 0, 0),  # correlation_matrix (Corr matrix of the structural innovations)

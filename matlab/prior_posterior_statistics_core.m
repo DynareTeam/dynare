@@ -21,6 +21,7 @@ function myoutput=prior_posterior_statistics_core(myinputs,fpar,B,whoiam, ThisMa
 %                          _trend_coeff;
 %                          _smoothed_trend;
 %                          _smoothed_constant;
+%                          _state_uncert;
 %
 % ALGORITHM
 %   Portion of prior_posterior.m function.
@@ -58,6 +59,7 @@ end
 type=myinputs.type;
 run_smoother=myinputs.run_smoother;
 filter_covariance=myinputs.filter_covariance;
+smoothed_state_uncertainty=myinputs.smoothed_state_uncertainty;
 gend=myinputs.gend;
 Y=myinputs.Y;
 data_index=myinputs.data_index;
@@ -83,8 +85,12 @@ if naK
     MAX_naK=myinputs.MAX_naK;
 end
 if filter_covariance
-   MAX_filter_covariance=myinputs.MAX_filter_covariance;
+    MAX_filter_covariance=myinputs.MAX_filter_covariance;
 end
+if smoothed_state_uncertainty
+    MAX_n_smoothed_state_uncertainty=myinputs.MAX_n_smoothed_state_uncertainty;
+end
+
 exo_nbr=myinputs.exo_nbr;
 maxlag=myinputs.maxlag;
 MAX_nsmoo=myinputs.MAX_nsmoo;
@@ -177,6 +183,9 @@ stock_ys = NaN(MAX_nruns,endo_nbr);
 if filter_covariance
     stock_filter_covariance = zeros(endo_nbr,endo_nbr,gend+1,MAX_filter_covariance);
 end
+if smoothed_state_uncertainty
+    stock_smoothed_uncert = zeros(endo_nbr,endo_nbr,gend,MAX_n_smoothed_state_uncertainty);
+end
 
 for b=fpar:B
     if strcmpi(type,'prior')
@@ -195,8 +204,8 @@ for b=fpar:B
 
     if run_smoother
         [dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
-        [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK,junk1,junk2,P,junk4,junk5,trend_addition] = ...
-            DsgeSmoother(deep,gend,Y,data_index,missing_value);
+        [alphahat,etahat,epsilonhat,alphatilde,SteadyState,trend_coeff,aK,junk1,junk2,P,junk4,junk5,trend_addition,state_uncertainty,M_,oo_,options_,bayestopt_] = ...
+            DsgeSmoother(deep,gend,Y,data_index,missing_value,M_,oo_,options_,bayestopt_,estim_params_);
         
         stock_trend_coeff(options_.varobs_id,irun(9))=trend_coeff;
         stock_smoothed_trend(IdObs,:,irun(11))=trend_addition;
@@ -247,7 +256,7 @@ for b=fpar:B
             %filtered variable E_t(y_t+k) requires to shift trend by k periods
             %write variables into declaration order
             if options_.loglinear %reads values from smoother results, which are in dr-order and put them into declaration order
-                constant_part=repmat(log(SteadyState(dr.order_var))',[length(options_.filter_step_ahead),1,gend+max(options_.filter_step_ahead)])
+                constant_part=repmat(log(SteadyState(dr.order_var))',[length(options_.filter_step_ahead),1,gend+max(options_.filter_step_ahead)]);
             else
                 constant_part=repmat(SteadyState(dr.order_var)',[length(options_.filter_step_ahead),1,gend+max(options_.filter_step_ahead)]);
             end       
@@ -322,6 +331,9 @@ for b=fpar:B
         if filter_covariance
             stock_filter_covariance(dr.order_var,dr.order_var,:,irun(8)) = P;
         end
+        if smoothed_state_uncertainty
+            stock_smoothed_uncert(dr.order_var,dr.order_var,:,irun(13)) = state_uncertainty;
+        end
     else
         [T,R,SteadyState,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_);
     end
@@ -330,7 +342,7 @@ for b=fpar:B
     stock_ys(irun(5),:) = SteadyState';
 
 
-    irun = irun +  ones(12,1);
+    irun = irun +  ones(13,1);
 
 
     if run_smoother && (irun(1) > MAX_nsmoo || b == B),
@@ -463,6 +475,17 @@ for b=fpar:B
         irun(irun_index) = 1;
     end
     
+    irun_index=13;
+    if run_smoother && smoothed_state_uncertainty && (irun(irun_index) > MAX_n_smoothed_state_uncertainty || b == B)
+        stock = stock_smoothed_uncert(:,:,:,1:irun(irun_index)-1);
+        ifil(irun_index) = ifil(irun_index) + 1;
+        save([DirectoryName '/' M_.fname '_state_uncert' int2str(ifil(irun_index)) '.mat'],'stock');
+        if RemoteFlag==1,
+            OutputFileName_state_uncert = [OutputFileName_state_uncert; {[DirectoryName filesep], [M_.fname '_state_uncert' int2str(ifil(irun_index)) '.mat']}];
+        end
+        irun(irun_index) = 1;
+    end
+
     dyn_waitbar((b-fpar+1)/(B-fpar+1),h);
 end
 
@@ -480,7 +503,8 @@ if RemoteFlag==1,
                         OutputFileName_filter_covar;
                         OutputFileName_trend_coeff;
                         OutputFileName_smoothed_trend;
-                        OutputFileName_smoothed_constant];
+                        OutputFileName_smoothed_constant;
+                        OutputFileName_state_uncert];
 end
 
 dyn_waitbar_close(h);

@@ -272,8 +272,12 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <DYNARE_STATEMENT>lik_init  		{return token::LIK_INIT;}
 <DYNARE_STATEMENT>taper_steps       {return token::TAPER_STEPS;}
 <DYNARE_STATEMENT>geweke_interval   {return token::GEWEKE_INTERVAL;}
+<DYNARE_STATEMENT>raftery_lewis_qrs {return token::RAFTERY_LEWIS_QRS;}
+<DYNARE_STATEMENT>raftery_lewis_diagnostics {return token::RAFTERY_LEWIS_DIAGNOSTICS;}
 <DYNARE_STATEMENT>graph   		{return token::GRAPH;}
 <DYNARE_STATEMENT>nograph   		{return token::NOGRAPH;}
+<DYNARE_STATEMENT>posterior_graph   		{return token::POSTERIOR_GRAPH;}
+<DYNARE_STATEMENT>posterior_nograph   		{return token::POSTERIOR_NOGRAPH;}
 <DYNARE_STATEMENT>nodisplay     {return token::NODISPLAY;}
 <DYNARE_STATEMENT>graph_format  {return token::GRAPH_FORMAT;}
 <DYNARE_STATEMENT>eps  {yylval->string_val = new string(yytext); return token::EPS;}
@@ -298,6 +302,7 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <DYNARE_STATEMENT>mh_mode 		{return token::MH_MODE;}
 <DYNARE_STATEMENT>mh_nblocks 		{return token::MH_NBLOCKS;}
 <DYNARE_STATEMENT>load_mh_file 	{return token::LOAD_MH_FILE;}
+<DYNARE_STATEMENT>load_results_after_load_mh 	{return token::LOAD_RESULTS_AFTER_LOAD_MH;}
 <DYNARE_STATEMENT>loglinear 		{return token::LOGLINEAR;}
 <DYNARE_STATEMENT>linear_approximation 		{return token::LINEAR_APPROXIMATION;}
 <DYNARE_STATEMENT>logdata 	{return token::LOGDATA;}
@@ -354,6 +359,7 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <DYNARE_STATEMENT>vlist {return token::VLIST;}
 <DYNARE_STATEMENT>vlistlog {return token::VLISTLOG;}
 <DYNARE_STATEMENT>vlistper {return token::VLISTPER;}
+<DYNARE_STATEMENT>keep_kalman_algo_if_singularity_is_detected {return token::KEEP_KALMAN_ALGO_IF_SINGULARITY_IS_DETECTED;}
 <DYNARE_STATEMENT>restriction_fname {return token::RESTRICTION_FNAME;}
 <DYNARE_STATEMENT>nlags {return token::NLAGS;}
 <DYNARE_STATEMENT>restrictions {return token::RESTRICTIONS;}
@@ -572,6 +578,7 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <DYNARE_STATEMENT>k_order_solver {return token::K_ORDER_SOLVER; }
 <DYNARE_STATEMENT>filter_covariance {return token::FILTER_COVARIANCE; }
 <DYNARE_STATEMENT>filter_decomposition {return token::FILTER_DECOMPOSITION; }
+<DYNARE_STATEMENT>smoothed_state_uncertainty {return token::SMOOTHED_STATE_UNCERTAINTY; }
 <DYNARE_STATEMENT>selected_variables_only {return token::SELECTED_VARIABLES_ONLY; }
 <DYNARE_STATEMENT>pruning {return token::PRUNING; }
 <DYNARE_STATEMENT>save_draws {return token::SAVE_DRAWS; }
@@ -635,6 +642,7 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <DYNARE_STATEMENT>dr_algo {return token::DR_ALGO;}
 <DYNARE_STATEMENT>simul_algo {return token::SIMUL_ALGO;}
 <DYNARE_STATEMENT>stack_solve_algo {return token::STACK_SOLVE_ALGO;}
+<DYNARE_STATEMENT>robust_lin_solve {return token::ROBUST_LIN_SOLVE;}
 <DYNARE_STATEMENT>drop {return token::DROP;}
 <DYNARE_STATEMENT>order {return token::ORDER;}
 <DYNARE_STATEMENT>sylvester {return token::SYLVESTER;}

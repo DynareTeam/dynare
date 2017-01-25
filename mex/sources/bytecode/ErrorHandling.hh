@@ -37,6 +37,15 @@
 # define CHAR_LENGTH 2
 #endif
 
+//Work around for: https://sourceware.org/bugzilla/show_bug.cgi?id=19439
+#ifndef __builtin_isnan
+# define isnan(x) std::isnan(x)
+#endif
+
+#ifndef __builtin_isinf
+# define isinf(x) std::isinf(x)
+#endif
+
 #ifdef _MSC_VER
 #include <limits>
 #define M_E 2.71828182845904523536
@@ -134,6 +143,19 @@ class MSVCpp_missings
 };
 #endif
 
+#ifdef __MINGW32__
+#define __CROSS_COMPILATION__
+#endif
+
+#ifdef __MINGW64__
+#define __CROSS_COMPILATION__
+#endif
+
+#ifdef __CROSS_COMPILATION__
+#define M_PI 3.14159265358979323846
+#define M_SQRT2 1.41421356237309504880
+#define finite(x) !std::isfinite(x)
+#endif
 
 //#define DEBUG
 using namespace std;

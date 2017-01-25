@@ -37,7 +37,7 @@ end
 oo.endo_simul = endo_simul;
 
 if debug
-    save ep_test_1 endo_simul exo_simul
+    save ep_test_1.mat endo_simul exo_simul
 end
 
 if bytecode_flag && ~ep.stochastic.order

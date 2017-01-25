@@ -1,15 +1,16 @@
 function [dr,info,M_,options_,oo_] = dr_block(dr,task,M_,options_,oo_,varargin)
-% function [dr,info,M_,options_,oo_] = dr_block(dr,task,M_,options_,oo_)
-% computes the reduced form solution of a rational expectation model (first
-% approximation of the stochastic model around the deterministic steady state). 
+% function [dr,info,M_,options_,oo_] = dr_block(dr,task,M_,options_,oo_,varargin)
+% computes the reduced form solution of a rational expectations model
+% (first order approximation of the stochastic model around the deterministic steady state). 
 %
 % INPUTS
 %   dr         [matlab structure] Decision rules for stochastic simulations.
-%   task       [integer]          if task = 0 then dr1 computes decision rules.
-%                                 if task = 1 then dr1 computes eigenvalues.
+%   task       [integer]          if task = 0 then dr_block computes decision rules.
+%                                 if task = 1 then dr_block computes eigenvalues.
 %   M_         [matlab structure] Definition of the model.           
 %   options_   [matlab structure] Global options.
 %   oo_        [matlab structure] Results 
+%   oo_        [matlab cell]      Other input arguments
 %    
 % OUTPUTS
 %   dr         [matlab structure] Decision rules for stochastic simulations.
@@ -33,7 +34,7 @@ function [dr,info,M_,options_,oo_] = dr_block(dr,task,M_,options_,oo_,varargin)
 %   none.
 %  
 
-% Copyright (C) 2010-2015 Dynare Team
+% Copyright (C) 2010-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -638,7 +639,7 @@ for i = 1:Size;
 
             
             if options_.loglinear
-                error('log linear option is for the moment not supported in first order approximation for a block decomposed mode');
+                error('The loglinear option is not yet supported in first order approximation for a block decomposed model');
 %                 k = find(dr.kstate(:,2) <= M_.maximum_endo_lag+1);
 %                 klag = dr.kstate(k,[1 2]);
 %                 k1 = dr.order_var;
@@ -657,7 +658,7 @@ for i = 1:Size;
 
             %exogenous deterministic variables
             if exo_det_nbr > 0
-                error('deterministic exogenous are not yet implemented in first order approximation for a block decomposed model');
+                error('Deterministic exogenous variables are not yet implemented in first order approximation for a block decomposed model');
 %                 f1 = sparse(jacobia_(:,nonzeros(M_.lead_lag_incidence(M_.maximum_endo_lag+2:end,order_var))));
 %                 f0 = sparse(jacobia_(:,nonzeros(M_.lead_lag_incidence(M_.maximum_endo_lag+1,order_var))));
 %                 fudet = data(i).g1_xd;

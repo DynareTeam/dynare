@@ -128,6 +128,12 @@ if ismember('moments', varargin) % Prior simulations (2nd order moments).
     oo__.dr = set_state_space(oo__.dr, Model, options_);
     % Solve model
     [dr, info, Model , options__ , oo__] = resol(0, Model , options_ ,oo__);
+    if info
+        skipline()
+        disp(sprintf('Cannot solve the model on the prior mode (info = %s, %s)', num2str(info(1)), interpret_resol_info(info)));
+        skipline()
+        return
+    end
     % Compute and display second order moments
     oo__ = disp_th_moments(oo__.dr, [], Model, options__, oo__);
     skipline(2)

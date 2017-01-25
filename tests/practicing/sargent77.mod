@@ -38,4 +38,4 @@ end;
 
 stoch_simul(dr_algo=1,drop=0, order=1, periods=33, irf=0);
 
-save data_hyperinfl x mu;
+save data_hyperinfl.mat x mu;

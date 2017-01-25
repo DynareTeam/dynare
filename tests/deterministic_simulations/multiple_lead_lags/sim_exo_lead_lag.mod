@@ -1,7 +1,7 @@
 // Same model as sim_exo_lead_lag_aux_vars.mod, but no auxiliary variables to deal with leads and lags
 
 var c k z_forward z_backward;
-varexo x z_shock;
+varexo x;
 
 parameters alph gam delt bet aa;
 alph=0.5;

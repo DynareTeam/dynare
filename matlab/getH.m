@@ -627,8 +627,8 @@ if nargout > 5,
                 d2Om(:,cumjcount+1:cumjcount+jcount) = d2Om_tmp(:,1:jcount);
                 %         d2Om(:,:,j+length(indexo),i+length(indexo)) = y;
                 %         d2Om(:,:,i+length(indexo),j+length(indexo)) = y;
-                save([tmpDir filesep 'd2A_' int2str(cumjcount+1) '_'  int2str(cumjcount+jcount)],'d2A')
-                save([tmpDir filesep 'd2Om_' int2str(cumjcount+1) '_'  int2str(cumjcount+jcount)],'d2Om')
+                save([tmpDir filesep 'd2A_' int2str(cumjcount+1) '_' int2str(cumjcount+jcount) '.mat'],'d2A')
+                save([tmpDir filesep 'd2Om_' int2str(cumjcount+1) '_'  int2str(cumjcount+jcount) '.mat'],'d2Om')
                 cumjcount = cumjcount+jcount;
                 jcount=0;
                 %         d2A = sparse(m1*m1,tot_param_nbr*(tot_param_nbr+1)/2);

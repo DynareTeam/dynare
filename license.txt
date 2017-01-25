@@ -14,7 +14,7 @@ Upstream-Contact: Dynare Team, whose members in 2016 are:
 Source: http://www.dynare.org
 
 Files: *
-Copyright: 1996-2016 Dynare Team
+Copyright: 1996-2017 Dynare Team
 License: GPL-3+
 
 Files: matlab/AIM/SP*
@@ -79,6 +79,11 @@ License: GPL-3+
 Files: matlab/one_sided_hp_filter.m
 Copyright: 2010-2015 Alexander Meyer-Gohde
            2015 Dynare Team
+License: GPL-3+
+
+Files: matlab/convergence_diagnostics/raftery_lewis.m
+Copyright: 2016 Benjamin Born and Johannes Pfeifer
+           2016 Dynare Team
 License: GPL-3+
 
 Files: matlab/optimization/simpsa.m matlab/optimization/simpsaget.m matlab/optimization/simpsaset.m
@@ -153,7 +158,7 @@ License: permissive
  distribute this software.
 
 Files: doc/dynare.texi doc/*.tex doc/*.svg doc/*.dia doc/*.pdf doc/*.bib
-Copyright: 1996-2016 Dynare Team
+Copyright: 1996-2017 Dynare Team
 License: GFDL-NIV-1.3+
 
 Files: doc/userguide/*.tex doc/userguide/*.bib doc/userguide/*.pdf

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2016 Dynare Team
+ * Copyright (C) 2003-2017 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -1607,6 +1607,11 @@ DynamicModel::writeDynamicCFile(const string &dynamic_basename, const int order)
                     << " * Warning : this file is generated automatically by Dynare" << endl
                     << " *           from model file (.mod)" << endl
                     << " */" << endl
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
+                    << "#ifdef _MSC_VER" << endl
+                    << "#define _USE_MATH_DEFINES" << endl
+                    << "#endif" << endl
+#endif
                     << "#include <math.h>" << endl;
 
   if (external_functions_table.get_total_number_of_unique_model_block_external_functions())
@@ -1620,11 +1625,13 @@ DynamicModel::writeDynamicCFile(const string &dynamic_basename, const int order)
 
   // Write function definition if oPowerDeriv is used
   writePowerDerivCHeader(mDynamicModelFile);
+  writeNormcdfCHeader(mDynamicModelFile);
 
   // Writing the function body
   writeDynamicModel(mDynamicModelFile, true, false);
 
-  writePowerDeriv(mDynamicModelFile, true);
+  writePowerDeriv(mDynamicModelFile);
+  writeNormcdf(mDynamicModelFile);
   mDynamicModelFile.close();
 
   mDynamicMexFile.open(filename_mex.c_str(), ios::out | ios::binary);
@@ -1995,6 +2002,8 @@ DynamicModel::writeSparseDynamicMFile(const string &dynamic_basename, const stri
           mDynamicModelFile << "  tmp = y(:,M_.block_structure.block(" << block + 1 << ").variable);\n";
 	  mDynamicModelFile << "  if any(isnan(tmp) | isinf(tmp))\n";
           mDynamicModelFile << "    disp(['Inf or Nan value during the evaluation of block " << block <<"']);\n";
+          mDynamicModelFile << "    oo_.deterministic_simulation.error = 100;\n";
+          mDynamicModelFile << "    varargout{1} = oo_;\n";
           mDynamicModelFile << "    return;\n";
           mDynamicModelFile << "  end;\n";
         }
@@ -2020,6 +2029,8 @@ DynamicModel::writeSparseDynamicMFile(const string &dynamic_basename, const stri
           mDynamicModelFile << "  tmp = y(:,M_.block_structure.block(" << block + 1 << ").variable);\n";
           mDynamicModelFile << "  if any(isnan(tmp) | isinf(tmp))\n";
           mDynamicModelFile << "    disp(['Inf or Nan value during the evaluation of block " << block <<"']);\n";
+          mDynamicModelFile << "    oo_.deterministic_simulation.error = 100;\n";
+          mDynamicModelFile << "    varargout{1} = oo_;\n";
           mDynamicModelFile << "    return;\n";
           mDynamicModelFile << "  end;\n";
         }
@@ -2049,6 +2060,8 @@ DynamicModel::writeSparseDynamicMFile(const string &dynamic_basename, const stri
           mDynamicModelFile << "  tmp = y(:,M_.block_structure.block(" << block + 1 << ").variable);\n";
           mDynamicModelFile << "  if any(isnan(tmp) | isinf(tmp))\n";
           mDynamicModelFile << "    disp(['Inf or Nan value during the resolution of block " << block <<"']);\n";
+          mDynamicModelFile << "    oo_.deterministic_simulation.error = 100;\n";
+          mDynamicModelFile << "    varargout{1} = oo_;\n";
           mDynamicModelFile << "    return;\n";
           mDynamicModelFile << "  end;\n";
         }
@@ -2079,6 +2092,8 @@ DynamicModel::writeSparseDynamicMFile(const string &dynamic_basename, const stri
           mDynamicModelFile << "  tmp = y(:,M_.block_structure.block(" << block + 1 << ").variable);\n";
           mDynamicModelFile << "  if any(isnan(tmp) | isinf(tmp))\n";
           mDynamicModelFile << "    disp(['Inf or Nan value during the resolution of block " << block <<"']);\n";
+          mDynamicModelFile << "    oo_.deterministic_simulation.error = 100;\n";
+          mDynamicModelFile << "    varargout{1} = oo_;\n";
           mDynamicModelFile << "    return;\n";
           mDynamicModelFile << "  end;\n";
         }
@@ -2109,6 +2124,8 @@ DynamicModel::writeSparseDynamicMFile(const string &dynamic_basename, const stri
           mDynamicModelFile << "  tmp = y(:,M_.block_structure.block(" << block + 1 << ").variable);\n";
           mDynamicModelFile << "  if any(isnan(tmp) | isinf(tmp))\n";
           mDynamicModelFile << "    disp(['Inf or Nan value during the resolution of block " << block <<"']);\n";
+          mDynamicModelFile << "    oo_.deterministic_simulation.error = 100;\n";
+          mDynamicModelFile << "    varargout{1} = oo_;\n";
           mDynamicModelFile << "    return;\n";
           mDynamicModelFile << "  end;\n";
         }
@@ -2326,6 +2343,15 @@ DynamicModel::writeDynamicModel(ostream &DynamicOutput, bool use_dll, bool julia
 
   if (output_type == oMatlabDynamicModel)
     {
+      // Check that we don't have more than 32 nested parenthesis because Matlab does not suppor this. See Issue #1201
+      map<string, string> tmp_paren_vars;
+      bool message_printed = false;
+      fixNestedParenthesis(model_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(model_local_vars_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(jacobian_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(hessian_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(third_derivatives_output, tmp_paren_vars, message_printed);
+
       DynamicOutput << "%" << endl
                     << "% Model equations" << endl
                     << "%" << endl
@@ -3990,81 +4016,20 @@ DynamicModel::writeParamsDerivativesFile(const string &basename, bool julia) con
       && !hessian_params_derivatives.size())
     return;
 
-  string filename = julia ? basename + "DynamicParamsDerivs.jl" : basename + "_params_derivs.m";
-  ofstream paramsDerivsFile;
-  paramsDerivsFile.open(filename.c_str(), ios::out | ios::binary);
-  if (!paramsDerivsFile.is_open())
-    {
-      cerr << "ERROR: Can't open file " << filename << " for writing" << endl;
-      exit(EXIT_FAILURE);
-    }
-
   ExprNodeOutputType output_type = (julia ? oJuliaDynamicModel : oMatlabDynamicModel);
-
-  if (!julia)
-    paramsDerivsFile << "function [rp, gp, rpp, gpp, hp] = " << basename << "_params_derivs(y, x, params, steady_state, it_, ss_param_deriv, ss_param_2nd_deriv)" << endl
-                     << "%" << endl
-                     << "% Compute the derivatives of the dynamic model with respect to the parameters" << endl
-                     << "% Inputs :" << endl
-                     << "%   y         [#dynamic variables by 1] double    vector of endogenous variables in the order stored" << endl
-                     << "%                                                 in M_.lead_lag_incidence; see the Manual" << endl
-                     << "%   x         [nperiods by M_.exo_nbr] double     matrix of exogenous variables (in declaration order)" << endl
-                     << "%                                                 for all simulation periods" << endl
-                     << "%   params    [M_.param_nbr by 1] double          vector of parameter values in declaration order" << endl
-                     << "%   steady_state  [M_.endo_nbr by 1] double       vector of steady state values" << endl                    
-                     << "%   it_       scalar double                       time period for exogenous variables for which to evaluate the model" << endl
-                     << "%   ss_param_deriv     [M_.eq_nbr by #params]     Jacobian matrix of the steady states values with respect to the parameters" << endl
-                     << "%   ss_param_2nd_deriv [M_.eq_nbr by #params by #params] Hessian matrix of the steady states values with respect to the parameters" << endl
-                     << "%" << endl
-                     << "% Outputs:" << endl
-                     << "%   rp        [M_.eq_nbr by #params] double    Jacobian matrix of dynamic model equations with respect to parameters " << endl
-					 << "%                                              Dynare may prepend or append auxiliary equations, see M_.aux_vars" << endl
-                     << "%   gp        [M_.endo_nbr by #dynamic variables by #params] double    Derivative of the Jacobian matrix of the dynamic model equations with respect to the parameters" << endl
-                     << "%                                                           rows: equations in order of declaration" << endl
-                     << "%                                                           columns: variables in order stored in M_.lead_lag_incidence" << endl
-                     << "%   rpp       [#second_order_residual_terms by 4] double   Hessian matrix of second derivatives of residuals with respect to parameters;" << endl
-                     << "%                                                              rows: respective derivative term" << endl
-                     << "%                                                              1st column: equation number of the term appearing" << endl
-                     << "%                                                              2nd column: number of the first parameter in derivative" << endl
-                     << "%                                                              3rd column: number of the second parameter in derivative" << endl
-                     << "%                                                              4th column: value of the Hessian term" << endl
-                     << "%   gpp      [#second_order_Jacobian_terms by 5] double   Hessian matrix of second derivatives of the Jacobian with respect to the parameters;" << endl
-                     << "%                                                              rows: respective derivative term" << endl
-                     << "%                                                              1st column: equation number of the term appearing" << endl
-                     << "%                                                              2nd column: column number of variable in Jacobian of the dynamic model" << endl                    
-                     << "%                                                              3rd column: number of the first parameter in derivative" << endl
-                     << "%                                                              4th column: number of the second parameter in derivative" << endl
-                     << "%                                                              5th column: value of the Hessian term" << endl
-                     << "%   hp      [#first_order_Hessian_terms by 5] double   Jacobian matrix of derivatives of the dynamic Hessian with respect to the parameters;" << endl
-                     << "%                                                              rows: respective derivative term" << endl
-                     << "%                                                              1st column: equation number of the term appearing" << endl
-                     << "%                                                              2nd column: column number of first variable in Hessian of the dynamic model" << endl                    
-                     << "%                                                              3rd column: column number of second variable in Hessian of the dynamic model" << endl
-                     << "%                                                              4th column: number of the parameter in derivative" << endl
-                     << "%                                                              5th column: value of the Hessian term" << endl                    
-                     << "%" << endl
-                     << "%" << endl                    
-                     << "% Warning : this file is generated automatically by Dynare" << endl
-                     << "%           from model file (.mod)" << endl << endl;
-  else
-    paramsDerivsFile << "module " << basename << "DynamicParamsDerivs" << endl
-                     << "#" << endl
-                     << "# NB: this file was automatically generated by Dynare" << endl
-                     << "#     from " << basename << ".mod" << endl
-                     << "#" << endl
-                     << "export params_derivs" << endl << endl
-                     << "function params_derivs(y, x, paramssteady_state, it_, "
-                     << "ss_param_deriv, ss_param_2nd_deriv)" << endl;
+  ostringstream model_local_vars_output;   // Used for storing model local vars
+  ostringstream model_output;              // Used for storing model temp vars and equations
+  ostringstream jacobian_output;           // Used for storing jacobian equations
+  ostringstream hessian_output;            // Used for storing Hessian equations
+  ostringstream hessian1_output;           // Used for storing Hessian equations
+  ostringstream third_derivs_output;       // Used for storing third order derivatives equations
+  ostringstream third_derivs1_output;      // Used for storing third order derivatives equations
 
   deriv_node_temp_terms_t tef_terms;
-  writeModelLocalVariables(paramsDerivsFile, output_type, tef_terms);
+  writeModelLocalVariables(model_local_vars_output, output_type, tef_terms);
 
   temporary_terms_t temp_terms_empty;
-  writeTemporaryTerms(params_derivs_temporary_terms, temp_terms_empty, paramsDerivsFile, output_type, tef_terms);
-
-  // Write parameter derivative
-  paramsDerivsFile << "rp = zeros(" << equation_number() << ", "
-                   << symbol_table.param_nbr() << ");" << endl;
+  writeTemporaryTerms(params_derivs_temporary_terms, temp_terms_empty, model_output, output_type, tef_terms);
 
   for (first_derivatives_t::const_iterator it = residuals_params_derivatives.begin();
        it != residuals_params_derivatives.end(); it++)
@@ -4075,15 +4040,11 @@ DynamicModel::writeParamsDerivativesFile(const string &basename, bool julia) con
 
       int param_col = symbol_table.getTypeSpecificID(getSymbIDByDerivID(param)) + 1;
 
-      paramsDerivsFile << "rp" << LEFT_ARRAY_SUBSCRIPT(output_type) << eq+1 << ", " << param_col
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << " = ";
-      d1->writeOutput(paramsDerivsFile, output_type, params_derivs_temporary_terms, tef_terms);
-      paramsDerivsFile << ";" << endl;
+      jacobian_output << "rp" << LEFT_ARRAY_SUBSCRIPT(output_type) << eq+1 << ", " << param_col
+                      << RIGHT_ARRAY_SUBSCRIPT(output_type) << " = ";
+      d1->writeOutput(jacobian_output, output_type, params_derivs_temporary_terms, tef_terms);
+      jacobian_output << ";" << endl;
     }
-
-  // Write jacobian derivatives
-  paramsDerivsFile << "gp = zeros(" << equation_number() << ", " << dynJacobianColsNbr << ", "
-                   << symbol_table.param_nbr() << ");" << endl;
 
   for (second_derivatives_t::const_iterator it = jacobian_params_derivatives.begin();
        it != jacobian_params_derivatives.end(); it++)
@@ -4096,19 +4057,11 @@ DynamicModel::writeParamsDerivativesFile(const string &basename, bool julia) con
       int var_col = getDynJacobianCol(var) + 1;
       int param_col = symbol_table.getTypeSpecificID(getSymbIDByDerivID(param)) + 1;
 
-      paramsDerivsFile << "gp" << LEFT_ARRAY_SUBSCRIPT(output_type) << eq+1 << ", " << var_col
-                       << ", " << param_col << RIGHT_ARRAY_SUBSCRIPT(output_type) << " = ";
-      d2->writeOutput(paramsDerivsFile, output_type, params_derivs_temporary_terms, tef_terms);
-      paramsDerivsFile << ";" << endl;
+      hessian_output << "gp" << LEFT_ARRAY_SUBSCRIPT(output_type) << eq+1 << ", " << var_col
+                     << ", " << param_col << RIGHT_ARRAY_SUBSCRIPT(output_type) << " = ";
+      d2->writeOutput(hessian_output, output_type, params_derivs_temporary_terms, tef_terms);
+      hessian_output << ";" << endl;
     }
-
-  if (!julia)
-    // If nargout >= 3...
-    paramsDerivsFile << "if nargout >= 3" << endl;
-
-  // Write parameter second derivatives (only if nargout >= 3)
-  paramsDerivsFile << "rpp = zeros(" << residuals_params_second_derivatives.size()
-                   << ",4);" << endl;
 
   int i = 1;
   for (second_derivatives_t::const_iterator it = residuals_params_second_derivatives.begin();
@@ -4122,21 +4075,17 @@ DynamicModel::writeParamsDerivativesFile(const string &basename, bool julia) con
       int param1_col = symbol_table.getTypeSpecificID(getSymbIDByDerivID(param1)) + 1;
       int param2_col = symbol_table.getTypeSpecificID(getSymbIDByDerivID(param2)) + 1;
 
-      paramsDerivsFile << "rpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",1"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << eq+1 << ";" << endl
-                       << "rpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",2"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param1_col << ";" << endl
-                       << "rpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",3"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param2_col << ";" << endl
-                       << "rpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",4"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=";
-      d2->writeOutput(paramsDerivsFile, output_type, params_derivs_temporary_terms, tef_terms);
-      paramsDerivsFile << ";" << endl;
+      hessian1_output << "rpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",1"
+                      << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << eq+1 << ";" << endl
+                      << "rpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",2"
+                      << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param1_col << ";" << endl
+                      << "rpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",3"
+                      << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param2_col << ";" << endl
+                      << "rpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",4"
+                      << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=";
+      d2->writeOutput(hessian1_output, output_type, params_derivs_temporary_terms, tef_terms);
+      hessian1_output << ";" << endl;
     }
-
-  // Write jacobian second derivatives  (only if nargout >= 3)
-  paramsDerivsFile << "gpp = zeros(" << jacobian_params_second_derivatives.size()
-                   << ",5);" << endl;
 
   i = 1;
   for (third_derivatives_t::const_iterator it = jacobian_params_second_derivatives.begin();
@@ -4152,27 +4101,19 @@ DynamicModel::writeParamsDerivativesFile(const string &basename, bool julia) con
       int param1_col = symbol_table.getTypeSpecificID(getSymbIDByDerivID(param1)) + 1;
       int param2_col = symbol_table.getTypeSpecificID(getSymbIDByDerivID(param2)) + 1;
 
-      paramsDerivsFile << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",1"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << eq+1 << ";" << endl
-                       << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",2"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << var_col << ";" << endl
-                       << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",3"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param1_col << ";" << endl
-                       << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",4"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param2_col << ";" << endl
-                       << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",5"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=";
-      d2->writeOutput(paramsDerivsFile, output_type, params_derivs_temporary_terms, tef_terms);
-      paramsDerivsFile << ";" << endl;
+      third_derivs_output << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",1"
+                          << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << eq+1 << ";" << endl
+                          << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",2"
+                          << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << var_col << ";" << endl
+                          << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",3"
+                          << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param1_col << ";" << endl
+                          << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",4"
+                          << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param2_col << ";" << endl
+                          << "gpp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",5"
+                          << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=";
+      d2->writeOutput(third_derivs_output, output_type, params_derivs_temporary_terms, tef_terms);
+      third_derivs_output << ";" << endl;
     }
-
-  if (!julia)
-    // If nargout >= 5...
-    paramsDerivsFile << "end" << endl
-                     << "if nargout >= 5" << endl;
-
-  // Write hessian derivatives (only if nargout >= 5)
-  paramsDerivsFile << "hp = zeros(" << hessian_params_derivatives.size() << ",5);" << endl;
 
   i = 1;
   for (third_derivatives_t::const_iterator it = hessian_params_derivatives.begin();
@@ -4188,24 +4129,130 @@ DynamicModel::writeParamsDerivativesFile(const string &basename, bool julia) con
       int var2_col = getDynJacobianCol(var2) + 1;
       int param_col = symbol_table.getTypeSpecificID(getSymbIDByDerivID(param)) + 1;
 
-      paramsDerivsFile << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",1"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << eq+1 << ";" << endl
-                       << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",2"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << var1_col << ";" << endl
-                       << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",3"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << var2_col << ";" << endl
-                       << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",4"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param_col << ";" << endl
-                       << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",5"
-                       << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=";
-      d2->writeOutput(paramsDerivsFile, output_type, params_derivs_temporary_terms, tef_terms);
-      paramsDerivsFile << ";" << endl;
+      third_derivs1_output << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",1"
+                           << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << eq+1 << ";" << endl
+                           << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",2"
+                           << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << var1_col << ";" << endl
+                           << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",3"
+                           << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << var2_col << ";" << endl
+                           << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",4"
+                           << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=" << param_col << ";" << endl
+                           << "hp" << LEFT_ARRAY_SUBSCRIPT(output_type) << i << ",5"
+                           << RIGHT_ARRAY_SUBSCRIPT(output_type) << "=";
+      d2->writeOutput(third_derivs1_output, output_type, params_derivs_temporary_terms, tef_terms);
+      third_derivs1_output << ";" << endl;
     }
 
-  if (julia)
-    paramsDerivsFile << "(rp, gp, rpp, gpp, hp)" << endl;
-  paramsDerivsFile << "end" << endl
-                   << "end" << endl;
+  string filename = julia ? basename + "DynamicParamsDerivs.jl" : basename + "_params_derivs.m";
+  ofstream paramsDerivsFile;
+  paramsDerivsFile.open(filename.c_str(), ios::out | ios::binary);
+  if (!paramsDerivsFile.is_open())
+    {
+      cerr << "ERROR: Can't open file " << filename << " for writing" << endl;
+      exit(EXIT_FAILURE);
+    }
+
+  if (!julia)
+    {
+      // Check that we don't have more than 32 nested parenthesis because Matlab does not suppor this. See Issue #1201
+      map<string, string> tmp_paren_vars;
+      bool message_printed = false;
+      fixNestedParenthesis(model_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(model_local_vars_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(jacobian_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(hessian_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(hessian1_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(third_derivs_output, tmp_paren_vars, message_printed);
+      fixNestedParenthesis(third_derivs1_output, tmp_paren_vars, message_printed);
+      paramsDerivsFile << "function [rp, gp, rpp, gpp, hp] = " << basename << "_params_derivs(y, x, params, steady_state, it_, ss_param_deriv, ss_param_2nd_deriv)" << endl
+                       << "%" << endl
+                       << "% Compute the derivatives of the dynamic model with respect to the parameters" << endl
+                       << "% Inputs :" << endl
+                       << "%   y         [#dynamic variables by 1] double    vector of endogenous variables in the order stored" << endl
+                       << "%                                                 in M_.lead_lag_incidence; see the Manual" << endl
+                       << "%   x         [nperiods by M_.exo_nbr] double     matrix of exogenous variables (in declaration order)" << endl
+                       << "%                                                 for all simulation periods" << endl
+                       << "%   params    [M_.param_nbr by 1] double          vector of parameter values in declaration order" << endl
+                       << "%   steady_state  [M_.endo_nbr by 1] double       vector of steady state values" << endl
+                       << "%   it_       scalar double                       time period for exogenous variables for which to evaluate the model" << endl
+                       << "%   ss_param_deriv     [M_.eq_nbr by #params]     Jacobian matrix of the steady states values with respect to the parameters" << endl
+                       << "%   ss_param_2nd_deriv [M_.eq_nbr by #params by #params] Hessian matrix of the steady states values with respect to the parameters" << endl
+                       << "%" << endl
+                       << "% Outputs:" << endl
+                       << "%   rp        [M_.eq_nbr by #params] double    Jacobian matrix of dynamic model equations with respect to parameters " << endl
+                       << "%                                              Dynare may prepend or append auxiliary equations, see M_.aux_vars" << endl
+                       << "%   gp        [M_.endo_nbr by #dynamic variables by #params] double    Derivative of the Jacobian matrix of the dynamic model equations with respect to the parameters" << endl
+                       << "%                                                           rows: equations in order of declaration" << endl
+                       << "%                                                           columns: variables in order stored in M_.lead_lag_incidence" << endl
+                       << "%   rpp       [#second_order_residual_terms by 4] double   Hessian matrix of second derivatives of residuals with respect to parameters;" << endl
+                       << "%                                                              rows: respective derivative term" << endl
+                       << "%                                                              1st column: equation number of the term appearing" << endl
+                       << "%                                                              2nd column: number of the first parameter in derivative" << endl
+                       << "%                                                              3rd column: number of the second parameter in derivative" << endl
+                       << "%                                                              4th column: value of the Hessian term" << endl
+                       << "%   gpp      [#second_order_Jacobian_terms by 5] double   Hessian matrix of second derivatives of the Jacobian with respect to the parameters;" << endl
+                       << "%                                                              rows: respective derivative term" << endl
+                       << "%                                                              1st column: equation number of the term appearing" << endl
+                       << "%                                                              2nd column: column number of variable in Jacobian of the dynamic model" << endl
+                       << "%                                                              3rd column: number of the first parameter in derivative" << endl
+                       << "%                                                              4th column: number of the second parameter in derivative" << endl
+                       << "%                                                              5th column: value of the Hessian term" << endl
+                       << "%   hp      [#first_order_Hessian_terms by 5] double   Jacobian matrix of derivatives of the dynamic Hessian with respect to the parameters;" << endl
+                       << "%                                                              rows: respective derivative term" << endl
+                       << "%                                                              1st column: equation number of the term appearing" << endl
+                       << "%                                                              2nd column: column number of first variable in Hessian of the dynamic model" << endl
+                       << "%                                                              3rd column: column number of second variable in Hessian of the dynamic model" << endl
+                       << "%                                                              4th column: number of the parameter in derivative" << endl
+                       << "%                                                              5th column: value of the Hessian term" << endl
+                       << "%" << endl
+                       << "%" << endl
+                       << "% Warning : this file is generated automatically by Dynare" << endl
+                       << "%           from model file (.mod)" << endl << endl
+                       << model_local_vars_output.str()
+                       << model_output.str()
+                       << "rp = zeros(" << equation_number() << ", "
+                       << symbol_table.param_nbr() << ");" << endl
+                       << jacobian_output.str()
+                       << "gp = zeros(" << equation_number() << ", " << dynJacobianColsNbr << ", " << symbol_table.param_nbr() << ");" << endl
+                       << hessian_output.str()
+                       << "if nargout >= 3" << endl
+                       << "rpp = zeros(" << residuals_params_second_derivatives.size() << ",4);" << endl
+                       << hessian1_output.str()
+                       << "gpp = zeros(" << jacobian_params_second_derivatives.size() << ",5);" << endl
+                       << third_derivs_output.str()
+                       << "end" << endl
+                       << "if nargout >= 5" << endl
+                       << "hp = zeros(" << hessian_params_derivatives.size() << ",5);" << endl
+                       << third_derivs1_output.str()
+                       << "end" << endl
+                       << "end" << endl;
+    }
+  else
+    paramsDerivsFile << "module " << basename << "DynamicParamsDerivs" << endl
+                     << "#" << endl
+                     << "# NB: this file was automatically generated by Dynare" << endl
+                     << "#     from " << basename << ".mod" << endl
+                     << "#" << endl
+                     << "export params_derivs" << endl << endl
+                     << "function params_derivs(y, x, paramssteady_state, it_, "
+                     << "ss_param_deriv, ss_param_2nd_deriv)" << endl
+                     << model_local_vars_output.str()
+                     << model_output.str()
+                     << "rp = zeros(" << equation_number() << ", "
+                     << symbol_table.param_nbr() << ");" << endl
+                     << jacobian_output.str()
+                     << "gp = zeros(" << equation_number() << ", " << dynJacobianColsNbr << ", " << symbol_table.param_nbr() << ");" << endl
+                     << hessian_output.str()
+                     << "rpp = zeros(" << residuals_params_second_derivatives.size() << ",4);" << endl
+                     << hessian1_output.str()
+                     << "gpp = zeros(" << jacobian_params_second_derivatives.size() << ",5);" << endl
+                     << third_derivs_output.str()
+                     << "hp = zeros(" << hessian_params_derivatives.size() << ",5);" << endl
+                     << third_derivs1_output.str()
+                     << "(rp, gp, rpp, gpp, hp)" << endl
+                     << "end" << endl
+                     << "end" << endl;
+
   paramsDerivsFile.close();
 }
 
@@ -4797,6 +4844,11 @@ DynamicModel::writeResidualsC(const string &basename, bool cuda) const
                     << " * Warning : this file is generated automatically by Dynare" << endl
                     << " *           from model " << basename << "(.mod)" << endl
                     << " */" << endl
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
+                    << "#ifdef _MSC_VER" << endl
+                    << "#define _USE_MATH_DEFINES" << endl
+                    << "#endif" << endl
+#endif
                     << "#include <math.h>" << endl;
 
   mDynamicModelFile << "#include <stdlib.h>" << endl;
@@ -4807,6 +4859,7 @@ DynamicModel::writeResidualsC(const string &basename, bool cuda) const
   // Write function definition if oPowerDeriv is used
   // even for residuals if doing Ramsey
   writePowerDerivCHeader(mDynamicModelFile);
+  writeNormcdfCHeader(mDynamicModelFile);
 
   mDynamicModelFile << "void Residuals(const double *y, double *x, int nb_row_x, double *params, double *steady_state, int it_, double *residual)" << endl
                     << "{" << endl;
@@ -4823,7 +4876,8 @@ DynamicModel::writeResidualsC(const string &basename, bool cuda) const
                     << model_output.str()
 		    << "}" << endl;
 
-  writePowerDeriv(mDynamicModelFile, true);
+  writePowerDeriv(mDynamicModelFile);
+  writeNormcdf(mDynamicModelFile);
   mDynamicModelFile.close();
 
 }
@@ -4846,6 +4900,11 @@ DynamicModel::writeFirstDerivativesC(const string &basename, bool cuda) const
                     << " * Warning : this file is generated automatically by Dynare" << endl
                     << " *           from model " << basename << "(.mod)" << endl
                     << " */" << endl
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
+                    << "#ifdef _MSC_VER" << endl
+                    << "#define _USE_MATH_DEFINES" << endl
+                    << "#endif" << endl
+#endif
                     << "#include <math.h>" << endl;
 
   mDynamicModelFile << "#include <stdlib.h>" << endl;
@@ -4855,6 +4914,7 @@ DynamicModel::writeFirstDerivativesC(const string &basename, bool cuda) const
 
   // Write function definition if oPowerDeriv is used
   writePowerDerivCHeader(mDynamicModelFile);
+  writeNormcdfCHeader(mDynamicModelFile);
 
   mDynamicModelFile << "void FirstDerivatives(const double *y, double *x, int nb_row_x, double *params, double *steady_state, int it_, double *residual, double *g1, double *v2, double *v3)" << endl
                     << "{" << endl;
@@ -4880,8 +4940,6 @@ DynamicModel::writeFirstDerivativesC(const string &basename, bool cuda) const
 
   mDynamicModelFile << "}" << endl;
 
-  // already written in writeResidualsC()
-  // writePowerDeriv(mDynamicModelFile, true);
   mDynamicModelFile.close();
 
 }
@@ -4905,6 +4963,11 @@ DynamicModel::writeFirstDerivativesC_csr(const string &basename, bool cuda) cons
                     << " * Warning : this file is generated automatically by Dynare" << endl
                     << " *           from model " << basename << "(.mod)" << endl
                     << " */" << endl
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
+                    << "#ifdef _MSC_VER" << endl
+                    << "#define _USE_MATH_DEFINES" << endl
+                    << "#endif" << endl
+#endif
                     << "#include <math.h>" << endl;
 
   mDynamicModelFile << "#include <stdlib.h>" << endl;
@@ -4914,6 +4977,7 @@ DynamicModel::writeFirstDerivativesC_csr(const string &basename, bool cuda) cons
 
   // Write function definition if oPowerDeriv is used
   writePowerDerivCHeader(mDynamicModelFile);
+  writeNormcdfCHeader(mDynamicModelFile);
 
   mDynamicModelFile << "void FirstDerivatives(const double *y, double *x, int nb_row_x, double *params, double *steady_state, int it_, double *residual, int *row_ptr, int *col_ptr, double *value)" << endl
                     << "{" << endl;
@@ -4984,7 +5048,6 @@ DynamicModel::writeFirstDerivativesC_csr(const string &basename, bool cuda) cons
 		    << "for (i=0; i < " << row_ptr.size() + 1 << "; i++) row_ptr[i] = row_ptr_data[i];" << endl;
   mDynamicModelFile << "}" << endl;
 
-  //  writePowerDeriv(mDynamicModelFile, true);
   mDynamicModelFile.close();
 
 }
@@ -5007,6 +5070,11 @@ DynamicModel::writeSecondDerivativesC_csr(const string &basename, bool cuda) con
                     << " * Warning : this file is generated automatically by Dynare" << endl
                     << " *           from model " << basename << "(.mod)" << endl
                     << " */" << endl
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
+                    << "#ifdef _MSC_VER" << endl
+                    << "#define _USE_MATH_DEFINES" << endl
+                    << "#endif" << endl
+#endif
                     << "#include <math.h>" << endl;
 
   mDynamicModelFile << "#include <stdlib.h>" << endl;
@@ -5016,6 +5084,7 @@ DynamicModel::writeSecondDerivativesC_csr(const string &basename, bool cuda) con
 
   // write function definition if oPowerDeriv is used
   writePowerDerivCHeader(mDynamicModelFile);
+  writeNormcdfCHeader(mDynamicModelFile);
 
   mDynamicModelFile << "void SecondDerivatives(const double *y, double *x, int nb_row_x, double *params, double *steady_state, int it_, double *residual, int *row_ptr, int *col_ptr, double *value)" << endl
                     << "{" << endl;
@@ -5077,9 +5146,9 @@ DynamicModel::writeSecondDerivativesC_csr(const string &basename, bool cuda) con
 
   mDynamicModelFile << "}" << endl;
 
-  writePowerDeriv(mDynamicModelFile, true);
+  writePowerDeriv(mDynamicModelFile);
+  writeNormcdf(mDynamicModelFile);
   mDynamicModelFile.close();
-
 }
 
 void
@@ -5100,6 +5169,11 @@ DynamicModel::writeThirdDerivativesC_csr(const string &basename, bool cuda) cons
                     << " * Warning : this file is generated automatically by Dynare" << endl
                     << " *           from model " << basename << "(.mod)" << endl
                     << " */" << endl
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
+                    << "#ifdef _MSC_VER" << endl
+                    << "#define _USE_MATH_DEFINES" << endl
+                    << "#endif" << endl
+#endif
                     << "#include <math.h>" << endl;
 
   mDynamicModelFile << "#include <stdlib.h>" << endl;
@@ -5109,6 +5183,7 @@ DynamicModel::writeThirdDerivativesC_csr(const string &basename, bool cuda) cons
 
   // Write function definition if oPowerDeriv is used
   writePowerDerivCHeader(mDynamicModelFile);
+  writeNormcdfCHeader(mDynamicModelFile);
 
   mDynamicModelFile << "void ThirdDerivatives(const double *y, double *x, int nb_row_x, double *params, double *steady_state, int it_, double *residual, double *g1, double *v2, double *v3)" << endl
                     << "{" << endl;
@@ -5203,7 +5278,8 @@ DynamicModel::writeThirdDerivativesC_csr(const string &basename, bool cuda) cons
 
   mDynamicModelFile << "}" << endl;
 
-  writePowerDeriv(mDynamicModelFile, true);
+  writePowerDeriv(mDynamicModelFile);
+  writeNormcdf(mDynamicModelFile);
   mDynamicModelFile.close();
 
 }

@@ -206,7 +206,7 @@ end
 %$ 
 %$ try
 %$    if isoctave
-%$        s = quadv(density, .0000000001, 100000);
+%$        s = quadv(density, .0000000001, 100000,1e-10);
 %$    else
 %$        s = integral(density, 0, 100000);
 %$    end
@@ -229,7 +229,7 @@ end
 %$ 
 %$ try
 %$    if isoctave
-%$        s = quadv(density, .0000000001, 100000);
+%$        s = quadv(density, .0000000001, 100000,1e-10);
 %$    else
 %$        s = integral(density, 0, 100000);
 %$    end
@@ -252,7 +252,7 @@ end
 %$ 
 %$ try
 %$    if isoctave
-%$        s = quadv(density, .0000000001, 100000);
+%$        s = quadv(density, .0000000001, 100000,1e-10)
 %$    else
 %$        s = integral(density, 0, 100000);
 %$    end
@@ -262,7 +262,11 @@ end
 %$ end
 %$
 %$ if t(1)
-%$    t(2) = abs(s-1)<1e-6;
+%$        if isoctave()
+%$            t(2) = abs(s-1)<5e-5;
+%$        else
+%$            t(2) = abs(s-1)<1e-6;
+%$        end
 %$ end
 %$
 %$ T = all(t);
@@ -275,7 +279,7 @@ end
 %$ 
 %$ try
 %$    if isoctave
-%$        s = quadv(xdens, .0000000001, 100000);
+%$        s = quadv(xdens, .0000000001, 20,1e-10)
 %$    else
 %$        s = integral(xdens, 0, 100000);
 %$    end
@@ -298,7 +302,7 @@ end
 %$ 
 %$ try
 %$    if isoctave
-%$        s = quadv(xdens, .0000000001, 100000);
+%$        s = quadv(xdens, .0000000001, 100000,1e-10)
 %$    else
 %$        s = integral(xdens, 0, 100000);
 %$    end
@@ -321,7 +325,7 @@ end
 %$ 
 %$ try
 %$    if isoctave
-%$        s = quadv(xdens, .0000000001, 100000);
+%$        s = quadv(xdens, .0000000001, 100000,1e-10)
 %$    else
 %$        s = integral(xdens, 0, 100000);
 %$    end
@@ -347,7 +351,7 @@ end
 %$    s = NaN(n, 1);
 %$    for i=1:n
 %$        if isoctave()
-%$            s(i) = quadv(density, .0000000001, .1*i);
+%$            s(i) = quadv(density, .0000000001, .1*i,1e-10)
 %$        else
 %$            s(i) = integral(density, 0, .1*i);
 %$        end
@@ -378,7 +382,7 @@ end
 %$    s = NaN(n, 1);
 %$    for i=1:n
 %$        if isoctave()
-%$            s(i) = quadv(density, .0000000001, .1*i);
+%$            s(i) = quadv(density, .0000000001, .1*i,1e-10)
 %$        else
 %$            s(i) = integral(density, 0, .1*i);
 %$        end
@@ -409,7 +413,7 @@ end
 %$    s = NaN(n, 1);
 %$    for i=1:n
 %$        if isoctave()
-%$            s(i) = quadv(density, .0000000001, .1*i);
+%$            s(i) = quadv(density, .0000000001, .1*i,1e-10)
 %$        else
 %$            s(i) = integral(density, 0, .1*i);
 %$        end
@@ -423,7 +427,11 @@ end
 %$    for i=1:n
 %$        x = .1*i;
 %$        q = 1-exp(-(x/scale)^shape);
-%$        t(i+1) = abs(s(i)-q)<1e-6;
+%$        if isoctave()
+%$            t(i+1) = abs(s(i)-q)<5e-5;
+%$        else
+%$            t(i+1) = abs(s(i)-q)<1e-6;
+%$        end
 %$    end
 %$ end
 %$

@@ -64,7 +64,7 @@ dynare_m_LDADD = macro/libmacro.a
 
 DynareFlex.cc FlexLexer.h: DynareFlex.ll
 	$(LEX) -o DynareFlex.cc DynareFlex.ll
-	cp $(LEXINC)/FlexLexer.h .
+	cp $(LEXINC)/FlexLexer.h . || test -f ./FlexLexer.h
 
 DynareBison.cc DynareBison.hh location.hh stack.hh position.hh: DynareBison.yy
 	$(YACC) -o DynareBison.cc DynareBison.yy

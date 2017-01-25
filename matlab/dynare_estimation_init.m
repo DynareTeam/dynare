@@ -123,22 +123,7 @@ if isequal(options_.diffuse_filter,1) || (options_.kalman_algo>2)
     end
 end
 
-% If options_.lik_init == 1
-%     set by default options_.qz_criterium to 1-1e-6
-%     and check options_.qz_criterium < 1-eps if options_.lik_init == 1
-% Else
-%     set by default options_.qz_criterium to 1+1e-6
-if isequal(options_.lik_init,1)
-    if isempty(options_.qz_criterium)
-        options_.qz_criterium = 1-1e-6;
-    elseif options_.qz_criterium > 1-eps
-        error(['Estimation: option qz_criterium is too large for estimating ' ...
-               'a stationary model. If your model contains unit roots, use ' ...
-               'option diffuse_filter'])
-    end
-elseif isempty(options_.qz_criterium)
-    options_.qz_criterium = 1+1e-6;
-end
+options_=select_qz_criterium_value(options_);
 
 % Set options related to filtered variables.
 if ~isequal(options_.filtered_vars,0) && isempty(options_.filter_step_ahead)
@@ -609,6 +594,14 @@ else
     estim_params_.Sigma_e_entries_to_check_for_positive_definiteness=Sigma_e_non_zero_rows;
 end
 
+
+if options_.load_results_after_load_mh
+    if ~exist([M_.fname '_results.mat'],'file')
+        fprintf('\ndynare_estimation_init:: You specified the load_results_after_load_mh, but no _results.mat-file\n')
+        fprintf('dynare_estimation_init:: was found. Results will be recomputed.\n')
+        options_.load_results_after_load_mh=0;
+    end
+end
 
 if options_.mh_replic
     [current_options, options_] = check_posterior_sampler_options([], options_, bounds);

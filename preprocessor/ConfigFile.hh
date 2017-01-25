@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2015 Dynare Team
+ * Copyright (C) 2010-2016 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -57,7 +57,7 @@ class SlaveNode
 public:
   SlaveNode(string &computerName_arg, string port_arg, int minCpuNbr_arg, int maxCpuNbr_arg, string &userName_arg,
             string &password_arg, string &remoteDrive_arg, string &remoteDirectory_arg,
-            string &dynarePath_arg, string &matlabOctavePath_arg, bool singleCompThread_arg,
+            string &dynarePath_arg, string &matlabOctavePath_arg, bool singleCompThread_arg, int numberOfThreadsPerJob_arg,
             string &operatingSystem_arg);
   ~SlaveNode();
 
@@ -73,6 +73,7 @@ protected:
   const string dynarePath;
   const string matlabOctavePath;
   const bool singleCompThread;
+  const int numberOfThreadsPerJob;
   const string operatingSystem;
 };
 
@@ -116,7 +117,7 @@ private:
   void addParallelConfFileElement(bool inNode, bool inCluster, member_nodes_t member_nodes, string &name,
                                   string &computerName, string port, int minCpuNbr, int maxCpuNbr, string &userName,
                                   string &password, string &remoteDrive, string &remoteDirectory,
-                                  string &dynarePath, string &matlabOctavePath, bool singleCompThread,
+                                  string &dynarePath, string &matlabOctavePath, bool singleCompThread, int numberOfThreadsPerJob,
                                   string &operatingSystem);
 public:
   //! Parse config file

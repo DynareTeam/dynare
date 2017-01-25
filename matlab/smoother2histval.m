@@ -162,7 +162,7 @@ for i = 1:length(invars)
     end
     s = getfield(smoothedvars, invars{i});
     j = strmatch(invars{i}, M_.endo_names, 'exact');
-    v = s((period-M_.maximum_endo_lag+1):period) + steady_state(j);
+    v = s((period-M_.maximum_endo_lag+1):period);% + steady_state(j);
     if ~isfield(opts, 'outfile')
         j = strmatch(outvars{i}, M_.endo_names, 'exact');
         if isempty(j)
@@ -200,7 +200,7 @@ for i = 1:length(M_.aux_vars)
             error('The period that you indicated is too small to construct initial conditions')
         end
         j = M_.aux_vars(i).endo_index;
-        v = s((period-M_.maximum_endo_lag+1+l):(period+l))+steady_state(j);
+        v = s((period-M_.maximum_endo_lag+1+l):(period+l)); %+steady_state(j);
         if ~isfield(opts, 'outfile')
             M_.endo_histval(j, :) = v;
         else

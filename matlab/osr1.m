@@ -41,6 +41,7 @@ iyv = iyv(:);
 iyr0 = find(iyv) ;
 it_ = M_.maximum_lag + 1 ;
 
+osr_res.error_indicator = 1; %initialize indicator
 
 if M_.exo_nbr == 0
     oo_.exo_steady_state = [] ;
@@ -101,10 +102,12 @@ i_var=unique(i_var);
 [loss,info,exit_flag,vx]=osr_obj(t0,i_params,inv_order_var(i_var),weights(i_var,i_var));
 if info~=0
    print_info(info, options_.noprint, options_);
-else
-   fprintf('\nOSR: Initial value of the objective function: %g \n\n',loss);
+   else 
+       if ~options_.noprint
+           fprintf('\nOSR: Initial value of the objective function: %g \n\n',loss);
+       end
 end
-if isinf(loss)
+if ~options_.noprint && isinf(loss) 
    fprintf('\nOSR: The initial value of the objective function is infinite.\n');
    fprintf('\nOSR: Check whether the unconditional variance of a target variable is infinite\n');
    fprintf('\nOSR: due to the presence of a unit root.\n');
@@ -136,12 +139,17 @@ for i=1:length(i_params)
     osr_res.optim_params.(deblank(M_.param_names(i_params(i),:))) = p(i);
 end
 
-skipline()
-disp('OPTIMAL VALUE OF THE PARAMETERS:')
-skipline()
-for i=1:np
-    disp(sprintf('%16s %16.6g\n',M_.param_names(i_params(i),:),p(i)))
+if ~options_.noprint
+    skipline()
+    disp('OPTIMAL VALUE OF THE PARAMETERS:')
+    skipline()
+    for i=1:np
+        disp(sprintf('%16s %16.6g\n',M_.param_names(i_params(i),:),p(i)))
+    end
+    disp(sprintf('Objective function : %16.6g\n',f));
+    skipline()
 end
-disp(sprintf('Objective function : %16.6g\n',f));
-skipline()
 [oo_.dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
+if ~info
+    osr_res.error_indicator=0;
+end

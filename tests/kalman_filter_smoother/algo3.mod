@@ -34,8 +34,8 @@ stderr e_z, inv_gamma_pdf,0.01, inf;
 end;
 
 varobs w x y;
-       
-estimation(datafile=data,first_obs=1000,nobs=200,mh_replic=0,diffuse_filter,filtered_vars);
+
+estimation(datafile=data,first_obs=1000,nobs=200,mh_replic=0,diffuse_filter,filtered_vars,smoothed_state_uncertainty);
 
 //checking smoother consistency
 X = oo_.SmoothedVariables;

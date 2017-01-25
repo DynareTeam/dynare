@@ -1,4 +1,4 @@
-function [Z,ST,R1,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,qz_criterium, restrict_columns)
+function [Pstar,Pinf] = compute_Pinf_Pstar(mf,T,R,Q,qz_criterium, restrict_columns)
 % function [Z,ST,QT,R1,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,qz_criterium, restrict_columns)
 % Kitagawa transformation of state space system with a quasi-triangular
 % transition matrix with unit roots at the top, but excluding zero columns of the transition matrix. 
@@ -20,10 +20,6 @@ function [Z,ST,R1,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,qz_c
 %   qz_criterium [double]     numerical criterium for unit roots   
 %  
 % OUTPUTS 
-%   Z            [double]     transformed matrix of measurement equation
-%   ST           [double]     tranformed matrix of transition
-%   R1           [double]     tranformed matrix of structural shock effects
-%   QT           [double]     matrix of Schur vectors
 %   Pstar        [double]     matrix of covariance of stationary part
 %   Pinf         [double]     matrix of covariance initialization for
 %                             nonstationary part    
@@ -52,20 +48,8 @@ function [Z,ST,R1,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,qz_c
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 np = size(T,1);
-if nargin == 6,
-    indx = restrict_columns;
-    indx0=find(~ismember([1:np],indx));
-else
-    indx=(find(max(abs(T))>0));
-    indx0=(find(max(abs(T))==0));
-end
-T0=T(indx0,indx); %static variables vs. dynamic ones
-R0=R(indx0,:); % matrix of shocks for static variables
 
-% perform Kitagawa transformation only for non-zero columns of T
-T=T(indx,indx);
-R=R(indx,:);
-np = size(T,1);
+% perform Kitagawa transformation 
 [QT,ST] = schur(T);
 e1 = abs(ordeig(ST)) > 2-qz_criterium;
 [QT,ST] = ordschur(QT,ST,e1);
@@ -73,7 +57,9 @@ k = find(abs(ordeig(ST)) > 2-qz_criterium);
 nk = length(k);
 nk1 = nk+1;
 Pstar = zeros(np,np);
-B = QT'*R*Q*R'*QT;
+R1 = QT'*R;
+B = R1*Q*R1';
+% computes variance of stationary block (lower right)
 i = np;
 while i >= nk+2
     if ST(i,i-1) == 0
@@ -114,46 +100,16 @@ if i == nk+1
     Pstar(nk1,nk1)=(B(nk1,nk1)+c)/(1-ST(nk1,nk1)*ST(nk1,nk1));
 end
 
-R1 = QT'*R;
-ST1=ST;
-
-% now I recover stationarized static variables
-% using 
-% ss = s-z and
-% z-z(-1) (growth rates of unit roots) only depends on stationary variables
-np0=length(indx0);
-Pstar = blkdiag(zeros(np0),Pstar);
-ST = [zeros(length(Pstar),length(indx0)) [T0*QT ;ST]];
-R1 = [R0; R1];
-ST0=ST;
-ST0(:,1:np0+nk)=0;
-ST0(np0+1:np0+nk,:)=0;
-ST0(1:np0,np0+nk+1:end) = ST(1:np0,np0+nk+1:end)-ST(1:np0,np0+1:np0+nk)*ST(np0+1:np0+nk,np0+nk+1:end);
-R10 = R1;
-R10(np0+1:np0+nk,:)=0;
-R10(1:np0,:) = R1(1:np0,:)-ST(1:np0,np0+1:np0+nk)*R1(np0+1:np0+nk,:);
-Pstar = ...
-     ST0*Pstar*ST0'+ ...
-         R10*Q*R10';
-QT = blkdiag(eye(np0),QT);
-QT(1:np0,np0+1:np0+nk) = QT(1:np0,np0+1:np0+nk)+ST(1:np0,np0+1:np0+nk);
-% reorder QT entries 
-QT([indx0(:); indx(:)],:) = QT; 
-Z = QT(mf,:);
-ST(1:np0,:) = ST0(1:np0,:);
-R1(1:np0,:) = R10(1:np0,:);
-
 % stochastic trends with no influence on observed variables are
 % arbitrarily initialized to zero
 Pinf = zeros(np,np);
 Pinf(1:nk,1:nk) = eye(nk);
-[QQ,RR,EE] = qr(Z*ST(:,1+np0:nk+np0),0);
-k = find(abs(diag([RR; zeros(nk-size(Z,1),size(RR,2))])) < 1e-8);
-if length(k) > 0
-    k1 = EE(:,k);
-    dd =ones(nk,1);
-    dd(k1) = zeros(length(k1),1);
-    Pinf(1:nk,1:nk) = diag(dd);
+for k = 1:nk
+    if norm(QT(mf,k)) < 1e-8
+        Pinf(k,k) = 0;
+    end
 end
-Pinf = blkdiag(zeros(np0),Pinf);
+
+Pinf = QT*Pinf*QT';
+Pstar = QT*Pstar*QT';
 

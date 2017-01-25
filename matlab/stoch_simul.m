@@ -273,7 +273,7 @@ if options_.irf
                         end
                         fprintf(fidTeX,'\\centering \n');
                         fprintf(fidTeX,'\\includegraphics[width=%2.2f\\textwidth]{%s_IRF_%s}\n',options_.figures.textwidth*min(j/nc,1),M_.fname,deblank(tit(i,:)));
-                        fprintf(fidTeX,'\\caption{Impulse response functions (orthogonalized shock to $%s$).}',titTeX(i,:));
+                        fprintf(fidTeX,'\\caption{Impulse response functions (orthogonalized shock to $%s$).}\n',titTeX(i,:));
                         fprintf(fidTeX,'\\label{Fig:IRF:%s}\n',deblank(tit(i,:)));
                         fprintf(fidTeX,'\\end{figure}\n');
                         fprintf(fidTeX,' \n');

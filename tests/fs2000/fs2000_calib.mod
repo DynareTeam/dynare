@@ -70,3 +70,6 @@ varobs gp_obs gy_obs;
 
 calib_smoother(datafile=fsdat_simul, filtered_vars, filter_step_ahead = [3:4]) m P c e W R k d n l y dA;
 
+%run calibrated diffuse filter
+bayestopt_=[];
+calib_smoother(diffuse_filter,datafile=fsdat_simul, filtered_vars, filter_step_ahead = [3:4]) m P c e W R k d n l y dA;

@@ -1,7 +1,7 @@
 function [vdec, corr, autocorr, z, zz] = th_moments(dr,var_list)
 % [vdec, corr, autocorr, z, zz] = th_moments(dr,var_list)
 
-% Copyright (C) 2012-2015 Dynare Team
+% Copyright (C) 2012-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -27,7 +27,7 @@ if nvar == 0
 else
     ivar=zeros(nvar,1);
     for i=1:nvar
-        i_tmp = strmatch(var_list(:,i),M_.endo_names,'exact');
+        i_tmp = strmatch(var_list{:,i},M_.endo_names,'exact');
         if isempty(i_tmp)
             error(['One of the variables specified does not exist']) ;
         else

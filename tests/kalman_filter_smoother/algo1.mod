@@ -31,8 +31,8 @@ stderr e_z, uniform_pdf,,, 0.01, 0.1;
 end;
 
 varobs dw dx dy z;
-       
-estimation(datafile=data,first_obs=1000,nobs=200,mh_replic=0,filtered_vars);
+
+estimation(datafile=data,first_obs=1000,nobs=200,mh_replic=0,filtered_vars,smoothed_state_uncertainty);
 
 //checking smoother consistency
 X = oo_.SmoothedVariables;

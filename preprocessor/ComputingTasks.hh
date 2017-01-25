@@ -154,12 +154,15 @@ public:
 class RamseyPolicyStatement : public Statement
 {
 private:
-  const SymbolList symbol_list;
+  const SymbolTable &symbol_table;
+  const vector<string> ramsey_policy_list;
   const OptionsList options_list;
 public:
-  RamseyPolicyStatement(const SymbolList &symbol_list_arg,
+  RamseyPolicyStatement(const SymbolTable &symbol_table_arg,
+                        const vector<string> &ramsey_policy_list_arg,
                         const OptionsList &options_list_arg);
   virtual void checkPass(ModFileStructure &mod_file_struct, WarningConsolidation &warnings);
+  void checkRamseyPolicyList();
   virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const;
 };
 

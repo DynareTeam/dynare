@@ -51,12 +51,15 @@ oo_=make_ex_(M_,options_,oo_);
 np = size(params,1);
 i_params = zeros(np,1);
 for i=1:np
-    i_params(i) = strmatch(deblank(params(i,:)),M_.param_names,'exact');
+    str = deblank(params(i,:));
+    i_params(i) = strmatch(str{:}, M_.param_names, 'exact');
 end
 
-skipline()
-disp('OPTIMAL SIMPLE RULE')
-skipline()
+if ~options_.noprint
+    skipline()
+    disp('OPTIMAL SIMPLE RULE')
+    skipline()
+end
 osr_res = osr1(i_params,i_var,W);
 
 stoch_simul(var_list);

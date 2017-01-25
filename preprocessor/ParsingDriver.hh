@@ -216,7 +216,8 @@ private:
   //! Temporary storage for shock_groups
   vector<string> shock_group;
   vector<ShockGroupsStatement::Group> shock_groups;
-  
+  //! Temporary storage for ramsey policy. Workaround for issue #1355
+  vector<string> ramsey_policy_list;
   //! reset the values for temporary storage
   void reset_current_external_function_options();
   //! Adds a model lagged variable to ModelTree and VariableTable
@@ -737,7 +738,8 @@ public:
   void add_shock_group(string *name);
   //! End shock groups declaration
   void end_shock_groups(const string *name);
-    
+  //! Add an element to the ramsey policy list
+  void add_to_ramsey_policy_list(string *name);
   void smoother2histval();
   void histval_file(string *filename);
   void perfect_foresight_setup();

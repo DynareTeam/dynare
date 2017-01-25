@@ -1,4 +1,4 @@
-function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,decomp,trend_addition] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value)
+function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,decomp,trend_addition,state_uncertainty,M_,oo_,options_,bayestopt_] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value,M_,oo_,options_,bayestopt_,estim_params_)
 % Estimation of the smoothed variables and innovations. 
 % 
 % INPUTS 
@@ -7,6 +7,11 @@ function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,de
 %   o data          [double]   (n*T) matrix of data.
 %   o data_index    [cell]      1*smpl cell of column vectors of indices.
 %   o missing_value 1 if missing values, 0 otherwise
+%   o M_            [structure] decribing the model
+%   o oo_           [structure] storing the results
+%   o options_      [structure] describing the options
+%   o bayestopt_    [structure] describing the priors
+%   o estim_params_ [structure] characterizing parameters to be estimated
 %  
 % OUTPUTS
 %   o alphahat      [double]  (m*T) matrix, smoothed endogenous variables (a_{t|T})  (decision-rule order)
@@ -25,6 +30,12 @@ function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,de
 %   o decomp        (K*m*r*(T+K)) 4D array of shock decomposition of k-step ahead
 %                       filtered variables (decision-rule order)
 %   o trend_addition [double] (n*T) pure trend component; stored in options_.varobs order         
+%   o state_uncertainty [double] (K,K,T) array, storing the uncertainty
+%                                   about the smoothed state (decision-rule order)
+%   o M_            [structure] decribing the model
+%   o oo_           [structure] storing the results
+%   o options_      [structure] describing the options
+%   o bayestopt_    [structure] describing the priors
 %  
 % Notes:
 %   m:  number of endogenous variables (M_.endo_nbr)
@@ -63,8 +74,6 @@ function [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK,T,R,P,PK,de
 %
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
-
-global bayestopt_ M_ oo_ estim_params_ options_
 
 alphahat        = [];
 etahat  = [];
@@ -147,15 +156,7 @@ if options_.lik_init == 1               % Kalman filter
     if kalman_algo ~= 2
         kalman_algo = 1;
     end
-	if options_.lyapunov_fp == 1
-        Pstar = lyapunov_symm(T,R*Q*R',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, 3, [], options_.debug);
-    elseif options_.lyapunov_db == 1
-        Pstar = disclyap_fast(T,R*Q*R',options_.lyapunov_doubling_tol);
-    elseif options_.lyapunov_srs == 1
-        Pstar = lyapunov_symm(T,Q,options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, 4, R, options_.debug);
-    else
-        Pstar = lyapunov_symm(T,R*Q*R',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, [], [], options_.debug);
-    end;
+    Pstar=lyapunov_solver(T,R,Q,options_);
     Pinf        = [];
 elseif options_.lik_init == 2           % Old Diffuse Kalman filter
     if kalman_algo ~= 2
@@ -178,9 +179,7 @@ elseif options_.lik_init == 3           % Diffuse Kalman filter
             Z   = [Z, eye(vobs)];
         end
     end
-    [Ztmp,Stmp,Rtmp,QT,Pstar,Pinf] = schur_statespace_transformation(mf,T,R,Q,options_.qz_criterium,oo_.dr.restrict_var_list);
-    Pinf = QT*Pinf*QT';
-    Pstar = QT*Pstar*QT';
+    [Pstar,Pinf] = compute_Pinf_Pstar(mf,T,R,Q,options_.qz_criterium,oo_.dr.restrict_var_list);
 elseif options_.lik_init == 4           % Start from the solution of the Riccati equation.
     [err, Pstar] = kalman_steady_state(transpose(T),R*Q*transpose(R),transpose(build_selection_matrix(mf,np,vobs)),H);
     mexErrCheck('kalman_steady_state',err);
@@ -203,15 +202,7 @@ elseif options_.lik_init == 5            % Old diffuse Kalman filter only for th
     end
     R_tmp = R(stable, :);
     T_tmp = T(stable,stable);
-    if options_.lyapunov_fp == 1
-        Pstar_tmp = lyapunov_symm(T_tmp,R_tmp*Q*R_tmp',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, 3, [], options_.debug);
-    elseif options_.lyapunov_db == 1
-        Pstar_tmp = disclyap_fast(T_tmp,R_tmp*Q*R_tmp',options_.lyapunov_doubling_tol);
-    elseif options_.lyapunov_srs == 1
-        Pstar_tmp = lyapunov_symm(T_tmp,Q,options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, 4, R_tmp, options_.debug);
-    else
-        Pstar_tmp = lyapunov_symm(T_tmp,R_tmp*Q*R_tmp',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, [], [], options_.debug);
-    end
+    Pstar_tmp=lyapunov_solver(T_tmp,R_tmp,Q,DynareOptions);
     Pstar(stable, stable) = Pstar_tmp;
     Pinf  = [];
 end
@@ -233,10 +224,10 @@ ST = T;
 R1 = R;
 
 if kalman_algo == 1 || kalman_algo == 3
-    [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp] = missing_DiffuseKalmanSmootherH1_Z(ST, ...
+    [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp,state_uncertainty] = missing_DiffuseKalmanSmootherH1_Z(ST, ...
                                                       Z,R1,Q,H,Pinf,Pstar, ...
                                                       data1,vobs,np,smpl,data_index, ...
-                                                      options_.nk,kalman_tol,diffuse_kalman_tol,options_.filter_decomposition);
+                                                      options_.nk,kalman_tol,diffuse_kalman_tol,options_.filter_decomposition,options_.smoothed_state_uncertainty);
     if isinf(alphahat)
         if kalman_algo == 1
             kalman_algo = 2;
@@ -261,7 +252,7 @@ if kalman_algo == 2 || kalman_algo == 4
                 if kalman_algo == 4
                     %recompute Schur state space transformation with
                     %expanded state space
-                    [Ztmp,Ttmp,Rtmp,Qtmp,Pstar,Pinf] = schur_statespace_transformation(mf,ST,R1,Q,options_.qz_criterium);
+                    [Pstar,Pinf] = compute_Pinf_Pstar(mf,ST,R1,Q,options_.qz_criterium);
                 else
                     Pstar = blkdiag(Pstar,H);
                     Pinf  = blkdiag(Pinf,zeros(vobs));                    
@@ -273,11 +264,11 @@ if kalman_algo == 2 || kalman_algo == 4
             end
         end
         
-    [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp] = missing_DiffuseKalmanSmootherH3_Z(ST, ...
+    [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp,state_uncertainty] = missing_DiffuseKalmanSmootherH3_Z(ST, ...
                                                       Z,R1,Q,diag(H), ...
                                                       Pinf,Pstar,data1,vobs,np,smpl,data_index, ...
                                                       options_.nk,kalman_tol,diffuse_kalman_tol, ...
-                                                      options_.filter_decomposition);
+                                                      options_.filter_decomposition,options_.smoothed_state_uncertainty);
 end
 
 
@@ -298,5 +289,8 @@ if expanded_state_vector_for_univariate_filter && (kalman_algo == 2 || kalman_al
     end
     if ~isempty(P)
         P = P(k,k,:);
+    end
+    if ~isempty(state_uncertainty)
+        state_uncertainty = state_uncertainty(k,k,:);
     end
 end

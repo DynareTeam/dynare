@@ -104,6 +104,7 @@ end
 [dr.ys,M.params,info] = evaluate_steady_state(oo.steady_state,M,options,oo,0);
 
 if info(1)
+    oo.dr = dr;
     return
 end
 

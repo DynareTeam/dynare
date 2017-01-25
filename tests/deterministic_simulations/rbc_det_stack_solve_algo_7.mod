@@ -95,10 +95,14 @@ rplot Consumption;
 rplot Capital;
 
 D = load('rbc_det_results');
-
-if norm(D.oo_.endo_simul - oo_.endo_simul) > 1e-8;
-   disp(norm(D.oo_.endo_simul - oo_.endo_simul));
-   error(sprintf('rbc_det_stack_solve_algo_7 failed with solve_algo=%u',options_.solve_algo));
+if isoctave && options_.solve_algo==0
+    %%acount for somehow weaker convergence criterion in Octave's fsolve
+    tol_crit=1e-4;
+else
+    tol_crit=1e-8;    
+end
+if norm(D.oo_.endo_simul - oo_.endo_simul) > tol_crit;
+    disp(norm(D.oo_.endo_simul - oo_.endo_simul));
+    error(sprintf('rbc_det_stack_solve_algo_7 failed with solve_algo=%u',options_.solve_algo));
 end;
-
 @#endfor

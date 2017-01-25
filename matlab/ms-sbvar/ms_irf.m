@@ -15,7 +15,7 @@ function [options_, oo_]=ms_irf(varlist, M_, options_, oo_)
 % SPECIAL REQUIREMENTS
 %    none
 
-% Copyright (C) 2011-2012 Dynare Team
+% Copyright (C) 2011-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -95,7 +95,7 @@ if options_.ms.regimes
             '.out'], '-ascii');
         irf_data = reshape_ascii_irf_data(M_.endo_nbr, percentiles_size, ...
             options_.ms.horizon, irf_data);
-        save([irfdir filesep 'irf_regime_' num2str(regime_i-1)], 'irf_data');
+        save([irfdir filesep 'irf_regime_' num2str(regime_i-1) '.mat'], 'irf_data');
         plot_ms_irf(M_, options_, irf_data, irf_title, varlist);
     end
 else
@@ -104,17 +104,17 @@ else
             num2str(options_.ms.regime-1) '_' options_.ms.output_file_tag ...
             '.out'], '-ascii');
         irf_title = ['Impulse Response, Regime ' num2str(options_.ms.regime)];
-        save_filename = ['irf_regime_' num2str(options_.ms.regime-1)];
+        save_filename = ['irf_regime_' num2str(options_.ms.regime-1) '.mat'];
     elseif options_.ms.filtered_probabilities
         irf_data = load([irfdir filesep 'ir_percentiles_filtered_' ...
             options_.ms.output_file_tag '.out'], '-ascii');
         irf_title = 'Impulse Response Filtered';
-        save_filename = 'irf';
+        save_filename = 'irf.mat';
     else
         irf_data = load([irfdir filesep 'ir_percentiles_ergodic_' ...
             options_.ms.output_file_tag '.out'], '-ascii');
         irf_title = 'Impulse Response Ergodic';
-        save_filename = 'irf';
+        save_filename = 'irf.mat';
     end
 
     irf_data = reshape_ascii_irf_data(M_.endo_nbr, percentiles_size, ...

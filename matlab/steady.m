@@ -87,7 +87,13 @@ if info(1) == 0
     end
 else
     if options_.noprint == 0
-        resid;
+        if ~isempty(steady_state)
+            resid;
+        else
+            skipline()
+            disp('Residuals of the static equations cannot be computed because the steady state routine returned an empty vector.')
+            skipline()
+        end
     end
     if options_.debug
         fprintf('\nThe steady state computation failed. It terminated with the following values:\n')

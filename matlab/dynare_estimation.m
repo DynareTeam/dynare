@@ -29,7 +29,7 @@ function oo_recursive_=dynare_estimation(var_list,dname)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global options_ oo_ M_ dataset_
+global options_ oo_ M_ dataset_ dataset_info
 
 oo_recursive_={};
 
@@ -87,7 +87,7 @@ if nnobs>1 || nfirstobs > 1
             M_.dname = [dname '_' int2str(first_obs(i))];
         end
         dynare_estimation_1(var_list,M_.dname);
-        if isequal(i,1)
+        if isequal(i,1) && options_.mode_compute ~= 0
             options_.mode_file = [M_.fname '_mode'];
         end
         if options_.recursive_estimation_restart
@@ -143,7 +143,7 @@ if nnobs > 1 && horizon > 0
     time_offset=min(3,gend-1); %for observables, plot 3 previous periods unless data is shorter
     k = time_offset+min(nobs(end)-nobs(1)+horizon, ...
               size(dataset_.data,1)-nobs(1));
-    data2 = dataset_.data(end-k+1:end,:);
+    data2 = dataset_info.rawdata(end-k+1:end,:);
     [nbplt,nr,nc,lr,lc,nstar] = pltorg(nvar);
     m = 1;
     plot_index=0;

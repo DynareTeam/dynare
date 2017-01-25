@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2001-2010 Dynare Team
+ * Copyright (C) 2001-2016 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -65,4 +65,4 @@ end;
 
 stoch_simul(order=1);
 oo_exp=oo_;
-save results_exp oo_exp
+save results_exp.mat oo_exp

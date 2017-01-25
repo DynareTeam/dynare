@@ -45,7 +45,7 @@ n = length(i_var);
 
 [A,B] = kalman_transition_matrix(dr,nstatic+(1:nspred),1:nc,M_.exo_nbr);
 
-[vx,u] = lyapunov_symm(A,B*Sigma_e*B',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, [], [], options_.debug);
+[vx,u] = lyapunov_symm(A,B*Sigma_e*B',options_.lyapunov_fixed_point_tol,options_.qz_criterium,options_.lyapunov_complex_threshold, [], options_.debug);
 
 if size(u,2) > 0
     i_stat = find(any(abs(ghx*u) < options_.Schur_vec_tol,2)); %only set those variances of objective function for which variance is finite     

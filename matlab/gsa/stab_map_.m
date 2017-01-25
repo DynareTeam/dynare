@@ -700,7 +700,7 @@ else
 end
 
 xparam1=x0;
-save prior_ok xparam1;
+save prior_ok.mat xparam1;
 
 options_.periods=opt.periods;
 if isfield(opt,'nomoments'),

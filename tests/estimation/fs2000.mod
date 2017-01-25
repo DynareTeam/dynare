@@ -82,22 +82,44 @@ varobs gp_obs gy_obs;
 
 options_.solve_tolf = 1e-12;
 
-estimation(order=1,datafile=fsdat_simul,nobs=192,loglinear,mh_replic=3000,mh_nblocks=1,mh_jscale=0.8,moments_varendo,selected_variables_only,contemporaneous_correlation,smoother,forecast=8) y m;
+estimation(order=1,datafile=fsdat_simul,nobs=192,loglinear,mh_replic=3000,mh_nblocks=1,mh_jscale=0.8,moments_varendo,selected_variables_only,contemporaneous_correlation,smoother,forecast=8,
+        geweke_interval = [0.19 0.49],
+        taper_steps = [4 7 15],
+        raftery_lewis_diagnostics,
+        raftery_lewis_qrs=[0.025 0.01 0.95],
+        bayesian_irf,posterior_nograph
+        ) y m;
+
+if ~isequal(options_.convergence.geweke.taper_steps,[4 7 15]') || ~isequal(options_.convergence.geweke.geweke_interval,[0.19 0.49])
+    error('Interface for Geweke diagnostics not working')
+end
+        
+if ~isequal(options_.convergence.rafterylewis.qrs,[0.025 0.01 0.95]) || ~isequal(options_.convergence.rafterylewis.indicator,1)
+    error('Interface for Raftery/Lewis diagnostics not working')
+end
+
 %test load_mh_file option
+options_.bayesian_irf=0;
 options_.smoother=0;
 options_.moments_varendo=0;
 options_.forecast=0;   
 copyfile([M_.dname filesep 'metropolis' filesep M_.dname '_mh1_blck1.mat'],[M_.dname '_mh1_blck1.mat'])
 estimation(mode_compute=0,mode_file=fs2000_mode,order=1, datafile=fsdat_simul, nobs=192, loglinear, mh_replic=1500, mh_nblocks=1, mh_jscale=0.8);
 hh=eye(size(bayestopt_.name,1));
-save('fs2000_mode','hh','-append')
-Laplace = oo_.MarginalDensity.LaplaceApproximation;
+save('fs2000_mode.mat','hh','-append')
+Laplace = oo_.MarginalDensity.LaplaceApproximation; %save Laplace approximation which will be overwritten with set hh otherwise
 estimation(mode_compute=0,mode_file=fs2000_mode,order=1, datafile=fsdat_simul, nobs=192, loglinear, mh_replic=1500, mh_nblocks=1, mh_jscale=10,load_mh_file);
-oo_.MarginalDensity.LaplaceApproximation = Laplace;
 
 temp1=load([M_.dname '_mh1_blck1.mat']);
 temp2=load([M_.dname filesep 'metropolis' filesep M_.dname '_mh1_blck1.mat']);
 
-if max(max(abs(temp1.x2-temp2.x2)))>1e-10
-    error('Draws of unaffected chain are not the same')
+if ~isoctave
+    if max(max(abs(temp1.x2-temp2.x2)))>1e-10
+        error('Adding draws did not result in the same chain')
+    end
 end
+        
+save('fs2000_result.mat','oo_')        
+options_.load_results_after_load_mh=1;
+estimation(mode_compute=0,mode_file=fs2000_mode,order=1, datafile=fsdat_simul, nobs=192, loglinear, mh_replic=0, mh_nblocks=1, mh_jscale=10,load_mh_file,smoother) gy_obs gp_obs;
+oo_.MarginalDensity.LaplaceApproximation = Laplace; %reset correct Laplace

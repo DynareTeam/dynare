@@ -59,7 +59,7 @@ case ${MATLAB_ARCH} in
     ax_mexopts_ok="yes"
     ;;
   maci | maci64)
-    MACOSX_DEPLOYMENT_TARGET='10.6'
+    MACOSX_DEPLOYMENT_TARGET='10.7'
     if test "${MATLAB_ARCH}" = "maci"; then
         ARCHS='i386'
     else

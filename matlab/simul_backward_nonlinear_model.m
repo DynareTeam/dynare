@@ -52,7 +52,7 @@ function DynareOutput = simul_backward_nonlinear_model(initial_conditions, sampl
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
 if DynareModel.maximum_lead
-    error(['simul_backward_nonlinear_model:: The specified model is not backward looking!'])
+    error('simul_backward_nonlinear_model:: The specified model is not backward looking!')
 end
 
 if nargin<6
@@ -63,12 +63,10 @@ if nargin<6
     effective_number_of_shocks = length(positive_var_indx);
     covariance_matrix = DynareModel.Sigma_e(positive_var_indx,positive_var_indx);
     covariance_matrix_upper_cholesky = chol(covariance_matrix);
-
     % Set seed to its default state.
     if DynareOptions.bnlms.set_dynare_seed_to_default
         set_dynare_seed('default');
     end
-
     % Simulate structural innovations.
     switch DynareOptions.bnlms.innovation_distribution
       case 'gaussian'
@@ -76,7 +74,6 @@ if nargin<6
       otherwise
         error(['simul_backward_nonlinear_model:: ' DynareOption.bnlms.innovation_distribution ' distribution for the structural innovations is not (yet) implemented!'])
     end
-
     % Put the simulated innovations in DynareOutput.exo_simul.
     DynareOutput.exo_simul = zeros(sample_size,number_of_shocks);
     DynareOutput.exo_simul(:,positive_var_indx) = DynareOutput.bnlms.shocks;
@@ -102,7 +99,12 @@ y = NaN(length(idx)+ny1,1);
 % initialization of the returned simulations.
 DynareOutput.endo_simul = NaN(DynareModel.endo_nbr,sample_size+1);
 if isempty(initial_conditions)
-    DynareOutput.endo_simul(:,1) = DynareOutput.steady_state;
+    if isfield(DynareModel,'endo_histval')
+        DynareOutput.endo_simul(:,1:DynareModel.maximum_lag) = DynareModel.endo_histval;
+    else
+        warning('simul_backward_nonlinear_model:: Initial condition is zero for all variables! If the model is nonlinear, the model simulation may fail with the default initialization')
+        DynareOutput.endo_simul(:,1) = 0;
+    end
 else
     DynareOutput.endo_simul(:,1) = initial_conditions;
 end

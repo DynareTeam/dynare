@@ -51,5 +51,5 @@ check;
 
 stoch_simul(dr_algo=1, order=1, periods=500, irf=10);
 //datasaver('simudata',[]);
-save data_rosen s N P W;
+save data_rosen.mat s N P W;
 

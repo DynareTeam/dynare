@@ -31,8 +31,8 @@ main2(stringstream &in, string &basename, bool debug, bool clear_all, bool clear
       WarningConsolidation &warnings, bool nostrict, bool check_model_changes,
       bool minimal_workspace, bool compute_xrefs, FileOutputType output_mode,
       LanguageOutputType language, int params_derivs_order
-#if defined(_WIN32) || defined(__CYGWIN32__)
-      , bool cygwin, bool msvc
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
+      , bool cygwin, bool msvc, bool mingw
 #endif
       )
 {
@@ -59,8 +59,8 @@ main2(stringstream &in, string &basename, bool debug, bool clear_all, bool clear
   else
     mod_file->writeOutputFiles(basename, clear_all, clear_global, no_log, no_warn, console, nograph,
                                nointeractive, config_file, check_model_changes, minimal_workspace, compute_xrefs
-#if defined(_WIN32) || defined(__CYGWIN32__)
-			       , cygwin, msvc
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
+			       , cygwin, msvc, mingw
 #endif
 			       );
 

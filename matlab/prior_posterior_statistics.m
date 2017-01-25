@@ -117,6 +117,10 @@ if options_.filter_covariance
     MAX_filter_covariance = min(B,ceil(MaxNumberOfBytes/(endo_nbr^2*(gend+1))/8));
 end
 
+if options_.smoothed_state_uncertainty 
+    MAX_n_smoothed_state_uncertainty = min(B,ceil(MaxNumberOfBytes/((endo_nbr*endo_nbr)*gend)/8));
+end
+
 varlist = options_.varlist;
 if isempty(varlist)
     varlist = M_.endo_names(1:M_.orig_endo_nbr, :);
@@ -129,13 +133,13 @@ for i=1:nvar
     end
 end
 
-n_variables_to_fill=12;
+n_variables_to_fill=13;
 
 irun = ones(n_variables_to_fill,1);
 ifil = zeros(n_variables_to_fill,1);
 
 run_smoother = 0;
-if options_.smoother || options_.forecast || options_.filter_step_ahead
+if options_.smoother || options_.forecast || options_.filter_step_ahead || options_.smoothed_state_uncertainty
     run_smoother = 1;
 end
 
@@ -144,11 +148,17 @@ if options_.filter_covariance
     filter_covariance=1;
 end
 
+smoothed_state_uncertainty=0;
+if options_.smoothed_state_uncertainty
+    smoothed_state_uncertainty=1;
+end
+
 % Store the variable mandatory for local/remote parallel computing.
 
 localVars.type=type;
 localVars.run_smoother=run_smoother;
 localVars.filter_covariance=filter_covariance;
+localVars.smoothed_state_uncertainty=smoothed_state_uncertainty;
 localVars.gend=gend;
 localVars.Y=Y;
 localVars.data_index=data_index;
@@ -180,6 +190,9 @@ if naK
 end
 if options_.filter_covariance
     localVars.MAX_filter_covariance = MAX_filter_covariance;
+end
+if options_.smoothed_state_uncertainty 
+    localVars.MAX_n_smoothed_state_uncertainty = MAX_n_smoothed_state_uncertainty ;
 end
 localVars.MAX_n_smoothed_constant=MAX_n_smoothed_constant;
 localVars.MAX_n_smoothed_trend=MAX_n_smoothed_trend;
@@ -246,6 +259,10 @@ else
             ifil(10,j+1) =ifil(10,j)+nfiles;  
             nfiles = ceil(nBlockPerCPU(j)/MAX_n_smoothed_trend);
             ifil(11,j+1) =ifil(11,j)+nfiles;  
+            if smoothed_state_uncertainty
+                nfiles = ceil(nBlockPerCPU(j)/MAX_n_smoothed_state_uncertainty);
+                ifil(13,j+1) =ifil(13,j)+nfiles;           
+            end
         end
     end
     localVars.ifil = ifil;
@@ -297,7 +314,16 @@ if options_.smoother
     pm3(endo_nbr,gend,ifil(11),B,'Smoothed trend',...
         '',M_.endo_names(1:M_.orig_endo_nbr, :),M_.endo_names_tex,M_.endo_names,...
         varlist,'Trend',DirectoryName,'_smoothed_trend');
-
+    pm3(endo_nbr,gend,ifil(1),B,'Updated Variables',...
+        '',varlist,M_.endo_names_tex,M_.endo_names,...
+        varlist,'UpdatedVariables',DirectoryName, ...
+        '_update');
+    if smoothed_state_uncertainty
+        pm3(endo_nbr,endo_nbr,ifil(13),B,'State Uncertainty',...
+            '',varlist,M_.endo_names_tex,M_.endo_names,...
+            varlist,'StateUncertainty',DirectoryName,'_state_uncert');
+    end
+    
     if nvn
         for obs_iter=1:length(options_.varobs)        
             meas_error_names{obs_iter,1}=['SE_EOBS_' M_.endo_names(strmatch(options_.varobs{obs_iter},M_.endo_names,'exact'),:)];
@@ -312,10 +338,6 @@ if options_.smoother
 end
 
 if options_.filtered_vars
-    pm3(endo_nbr,gend,ifil(1),B,'Updated Variables',...
-        '',varlist,M_.endo_names_tex,M_.endo_names,...
-        varlist,'UpdatedVariables',DirectoryName, ...
-        '_update');
     pm3(endo_nbr,gend,ifil(4),B,'One step ahead forecast (filtered variables)',...
         '',varlist,M_.endo_names_tex,M_.endo_names,...
         varlist,'FilteredVariables',DirectoryName,'_filter_step_ahead');

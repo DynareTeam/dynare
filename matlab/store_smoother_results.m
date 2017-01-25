@@ -1,4 +1,4 @@
-function [oo_, yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend)
+function [oo_, yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend,state_uncertainty)
 % oo_=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend)
 % Writes the smoother results into respective fields in oo_
 % 
@@ -24,6 +24,8 @@ function [oo_, yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,da
 %   decomp          [4D array]  (K*m*r*(T+K)) 4D array of shock decomposition of k-step ahead
 %                                   filtered variables (decision-rule order)
 %   Trend           [double]    [nvarobs*T] matrix of trends in observables
+%   state_uncertainty [double]   (K,K,T) array, storing the uncertainty
+%                                   about the smoothed state (decision-rule order)
 %
 % Outputs:
 %   oo_             [structure] storing the results:
@@ -38,7 +40,8 @@ function [oo_, yf]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,da
 %                   oo_.UpdatedVariables: structure storing the updated variables
 %                   oo_.SmoothedShocks: structure storing the smoothed shocks
 %                   oo_.SmoothedMeasurementErrors: structure storing the smoothed measurement errors
-%
+%                   oo_.Smoother.State_uncertainty: smoothed state uncertainty (declaration order)
+
 %   yf              [double]    (nvarobs*T) matrix storing the smoothed observed variables (order of options_.varobs)  
 % 
 % Notes: 
@@ -117,6 +120,9 @@ if options_.filter_covariance
     oo_.Smoother.Variance = P;
 end
 
+if options_.smoothed_state_uncertainty
+    oo_.Smoother.State_uncertainty=state_uncertainty;
+end
 %get indices of smoothed variables
 i_endo_in_bayestopt_smoother_varlist = bayestopt_.smoother_saved_var_list;
 i_endo_in_dr_matrices=bayestopt_.smoother_var_list(i_endo_in_bayestopt_smoother_varlist);
@@ -206,6 +212,9 @@ end
 
 if options_.filter_covariance
     oo_.Smoother.Variance(oo_.dr.order_var,oo_.dr.order_var,:)=oo_.Smoother.Variance;
+end
+if options_.smoothed_state_uncertainty
+    oo_.Smoother.State_uncertainty(oo_.dr.order_var,oo_.dr.order_var,:)=state_uncertainty;
 end
 
 %% get smoothed shocks

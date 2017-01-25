@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2012 Dynare Team
+ * Copyright (C) 2006-2016 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -127,7 +127,7 @@ mexFunction(int nlhs, mxArray *plhs[],
   b = mxGetPr(prhs[1]);
 
   /* set criterium for stable eigenvalues */
-  if (nrhs == 3 && mxGetM(prhs[2]) > 0)
+  if (nrhs >= 3 && mxGetM(prhs[2]) > 0)
     {
       criterium = *mxGetPr(prhs[2]);
     }

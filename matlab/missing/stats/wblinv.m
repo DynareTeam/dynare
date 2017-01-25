@@ -148,14 +148,18 @@ t = exp(log(scale)+log(-log(1-proba))/shape);
 %$               [shape, scale, x(k-1)]
 %$           end
 %$           if isoctave
-%$               s = quadv(density, 0, x(k-1));
+%$               s = quadv(density, 0, x(k-1),1e-10);
 %$           else
 %$               s = integral(density, 0, x(k-1));
 %$           end
 %$           if debug
 %$               [s, abs(p-s)]
 %$           end
+%$         if isoctave
+%$           t(k) = abs(p-s)<1e-10;  
+%$         else
 %$           t(k) = abs(p-s)<1e-12;
+%$         end
 %$       end
 %$    end
 %$ end

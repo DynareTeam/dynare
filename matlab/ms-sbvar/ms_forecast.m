@@ -14,7 +14,7 @@ function [options_, oo_]=ms_forecast(M_, options_, oo_)
 % SPECIAL REQUIREMENTS
 %    none
 
-% Copyright (C) 2011-2012 Dynare Team
+% Copyright (C) 2011-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -93,7 +93,7 @@ if options_.ms.regimes
             '.out'], '-ascii');
         forecast_data = reshape_ascii_forecast_data(M_.endo_nbr, ...
             percentiles_size, options_.ms.horizon, forecast_data);
-        save([forecastdir filesep 'forecast_regime_' num2str(regime_i-1)], ...
+        save([forecastdir filesep 'forecast_regime_' num2str(regime_i-1) '.mat'], ...
             'forecast_data');
         plot_ms_forecast(M_, options_, forecast_data, forecast_title);
     end
@@ -103,12 +103,12 @@ else
             num2str(options_.ms.regime-1) '_' options_.ms.output_file_tag ...
             '.out'], '-ascii');
         forecast_title = ['Forecast, Regime ' num2str(options_.ms.regime)];
-        save_filename = ['forecast_regime_' num2str(options_.ms.regime-1)];
+        save_filename = ['forecast_regime_' num2str(options_.ms.regime-1) '.mat'];
     else
         forecast_data = load([forecastdir filesep 'forecasts_percentiles_' ...
             options_.ms.output_file_tag '.out'], '-ascii');
         forecast_title = 'Forecast';
-        save_filename = 'forecast';
+        save_filename = 'forecast.mat';
     end
 
     forecast_data = reshape_ascii_forecast_data(M_.endo_nbr, ...

@@ -19,7 +19,7 @@ LIBS += $(shell $(MKOCTFILE) -p FLIBS)
 
 mexdir = $(libdir)/dynare/mex/octave
 
-all-local:
+all-local: $(PROGRAMS)
 	$(MKDIR_P) $(top_srcdir)/../../octave
 	cd $(top_srcdir)/../../octave && \
 	for p in $(PROGRAMS); do \

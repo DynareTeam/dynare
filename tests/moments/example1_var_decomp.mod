@@ -24,7 +24,7 @@
 
 
 var y, c, k, a, h, b;
-varexo e, u, junk;
+varexo e, u;
 
 parameters beta, rho, alpha, delta, theta, psi, tau;
 

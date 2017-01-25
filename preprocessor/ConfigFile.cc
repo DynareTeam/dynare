@@ -52,11 +52,12 @@ Path::Path(vector<string> &includepath_arg)
 
 SlaveNode::SlaveNode(string &computerName_arg, string port_arg, int minCpuNbr_arg, int maxCpuNbr_arg, string &userName_arg,
                      string &password_arg, string &remoteDrive_arg, string &remoteDirectory_arg,
-                     string &dynarePath_arg, string &matlabOctavePath_arg, bool singleCompThread_arg,
+                     string &dynarePath_arg, string &matlabOctavePath_arg, bool singleCompThread_arg, int numberOfThreadsPerJob_arg,
                      string &operatingSystem_arg) :
   computerName(computerName_arg), port(port_arg), minCpuNbr(minCpuNbr_arg), maxCpuNbr(maxCpuNbr_arg), userName(userName_arg),
   password(password_arg), remoteDrive(remoteDrive_arg), remoteDirectory(remoteDirectory_arg), dynarePath(dynarePath_arg),
-  matlabOctavePath(matlabOctavePath_arg), singleCompThread(singleCompThread_arg), operatingSystem(operatingSystem_arg)
+  matlabOctavePath(matlabOctavePath_arg), singleCompThread(singleCompThread_arg), numberOfThreadsPerJob(numberOfThreadsPerJob_arg),
+  operatingSystem(operatingSystem_arg)
 {
   if (computerName.empty())
     {
@@ -163,7 +164,8 @@ ConfigFile::getConfigFileInfo(const string &config_file)
     global_init_file;
   vector<string> includepath;
   int minCpuNbr = 0, maxCpuNbr = 0;
-  bool singleCompThread = true;
+  int numberOfThreadsPerJob = 1;
+  bool singleCompThread = false;
   member_nodes_t member_nodes;
 
   bool inHooks = false;
@@ -194,7 +196,7 @@ ConfigFile::getConfigFileInfo(const string &config_file)
             addParallelConfFileElement(inNode, inCluster, member_nodes, name,
                                        computerName, port, minCpuNbr, maxCpuNbr, userName,
                                        password, remoteDrive, remoteDirectory,
-                                       dynarePath, matlabOctavePath, singleCompThread,
+                                       dynarePath, matlabOctavePath, singleCompThread, numberOfThreadsPerJob,
                                        operatingSystem);
 
           //! Reset communication vars / option defaults
@@ -232,7 +234,8 @@ ConfigFile::getConfigFileInfo(const string &config_file)
             = operatingSystem = global_init_file = "";
           includepath.clear();
           minCpuNbr = maxCpuNbr = 0;
-          singleCompThread = true;
+          numberOfThreadsPerJob = 1;
+          singleCompThread = false;
           member_nodes.clear();
         }
       else
@@ -349,6 +352,8 @@ ConfigFile::getConfigFileInfo(const string &config_file)
               dynarePath = tokenizedLine.back();
             else if (!tokenizedLine.front().compare("MatlabOctavePath"))
               matlabOctavePath = tokenizedLine.back();
+            else if (!tokenizedLine.front().compare("NumberOfThreadsPerJob"))
+              numberOfThreadsPerJob = atoi(tokenizedLine.back().c_str());
             else if (!tokenizedLine.front().compare("SingleCompThread"))
               if (tokenizedLine.back().compare("true") == 0)
                 singleCompThread = true;
@@ -437,7 +442,7 @@ ConfigFile::getConfigFileInfo(const string &config_file)
     addParallelConfFileElement(inNode, inCluster, member_nodes, name,
                                computerName, port, minCpuNbr, maxCpuNbr, userName,
                                password, remoteDrive, remoteDirectory,
-                               dynarePath, matlabOctavePath, singleCompThread,
+                               dynarePath, matlabOctavePath, singleCompThread, numberOfThreadsPerJob,
                                operatingSystem);
 
   configFile->close();
@@ -472,7 +477,7 @@ void
 ConfigFile::addParallelConfFileElement(bool inNode, bool inCluster, member_nodes_t member_nodes,
                                        string &name, string &computerName, string port, int minCpuNbr, int maxCpuNbr, string &userName,
                                        string &password, string &remoteDrive, string &remoteDirectory,
-                                       string &dynarePath, string &matlabOctavePath, bool singleCompThread,
+                                       string &dynarePath, string &matlabOctavePath, bool singleCompThread, int numberOfThreadsPerJob,
                                        string &operatingSystem)
 {
   //! ADD NODE
@@ -491,7 +496,8 @@ ConfigFile::addParallelConfFileElement(bool inNode, bool inCluster, member_nodes
       else
         slave_nodes[name] = new SlaveNode(computerName, port, minCpuNbr, maxCpuNbr, userName,
                                           password, remoteDrive, remoteDirectory, dynarePath,
-                                          matlabOctavePath, singleCompThread, operatingSystem);
+                                          matlabOctavePath, singleCompThread, numberOfThreadsPerJob,
+                                          operatingSystem);
   //! ADD CLUSTER
   else if (inCluster)
     if (minCpuNbr > 0 || maxCpuNbr > 0 || !userName.empty()
@@ -746,7 +752,8 @@ ConfigFile::writeCluster(ostream &output) const
              << "'DynarePath', '" << it->second->dynarePath << "', "
              << "'MatlabOctavePath', '" << it->second->matlabOctavePath << "', "
              << "'OperatingSystem', '" << it->second->operatingSystem << "', "
-             << "'NodeWeight', '" << (cluster_it->second->member_nodes.find(it->first))->second << "', ";
+             << "'NodeWeight', '" << (cluster_it->second->member_nodes.find(it->first))->second << "', "
+             << "'NumberOfThreadsPerJob', " << it->second->numberOfThreadsPerJob << ", ";
 
       if (it->second->singleCompThread)
         output << "'SingleCompThread', 'true');" << endl;

@@ -2,7 +2,7 @@
 ** 
 ** Pseudo code of the algorithm is given at http://home.online.no/~pjacklam/notes/invnorm  
 **
-** Copyright (C) 2010-2011 Dynare Team
+** Copyright (C) 2010-2016 Dynare Team
 **
 ** This file is part of Dynare.
 **
@@ -39,6 +39,18 @@ using namespace std;
 # include <omp.h>
 #endif
 #define DEBUG_OMP 0
+
+#ifdef __MINGW32__
+#define __CROSS_COMPILATION__
+#endif
+
+#ifdef __MINGW64__
+#define __CROSS_COMPILATION__
+#endif
+
+#ifdef __CROSS_COMPILATION__
+#define M_PI 3.14159265358979323846
+#endif
 
 template<typename T> T icdf( const T uniform )
 /*

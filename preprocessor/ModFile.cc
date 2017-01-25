@@ -36,6 +36,7 @@ ModFile::ModFile(WarningConsolidation &warnings_arg)
     dynamic_model(symbol_table, num_constants, external_functions_table),
     trend_dynamic_model(symbol_table, num_constants, external_functions_table),
     ramsey_FOC_equations_dynamic_model(symbol_table, num_constants, external_functions_table),
+    orig_ramsey_dynamic_model(symbol_table, num_constants, external_functions_table),
     static_model(symbol_table, num_constants, external_functions_table),
     steady_state_model(symbol_table, num_constants, external_functions_table, static_model),
     linear(false), block(false), byte_code(false), use_dll(false), no_static(false), 
@@ -360,6 +361,8 @@ ModFile::transformPass(bool nostrict)
         clone the model then clone the new equations back to the original because
         we have to call computeDerivIDs (in computeRamseyPolicyFOCs and computingPass)
        */
+      if (linear)
+        dynamic_model.cloneDynamic(orig_ramsey_dynamic_model);
       dynamic_model.cloneDynamic(ramsey_FOC_equations_dynamic_model);
       ramsey_FOC_equations_dynamic_model.computeRamseyPolicyFOCs(*planner_objective);
       ramsey_FOC_equations_dynamic_model.replaceMyEquations(dynamic_model);
@@ -434,6 +437,14 @@ ModFile::transformPass(bool nostrict)
       cerr << "ERROR: ramsey_policy is incompatible with deterministic exogenous variables" << endl;
       exit(EXIT_FAILURE);
     }
+
+  if (mod_file_struct.ramsey_policy_present)
+    for (vector<Statement *>::iterator it = statements.begin(); it != statements.end(); it++)
+      {
+        RamseyPolicyStatement *rps = dynamic_cast<RamseyPolicyStatement *>(*it);
+        if (rps != NULL)
+          rps->checkRamseyPolicyList();
+      }
 
   if (mod_file_struct.identification_present && symbol_table.exo_det_nbr() > 0)
     {
@@ -529,15 +540,22 @@ ModFile::computingPass(bool no_tmp_terms, FileOutputType output, bool compute_xr
                   if (mod_file_struct.identification_present || mod_file_struct.estimation_analytic_derivation)
                     paramsDerivsOrder = params_derivs_order;
 		  dynamic_model.computingPass(true, hessian, thirdDerivatives, paramsDerivsOrder, global_eval_context, no_tmp_terms, block, use_dll, byte_code, compute_xrefs);
+                  if (linear && mod_file_struct.ramsey_model_present)
+                    orig_ramsey_dynamic_model.computingPass(true, true, false, paramsDerivsOrder, global_eval_context, no_tmp_terms, block, use_dll, byte_code, compute_xrefs);
 		}
 	    }
 	  else // No computing task requested, compute derivatives up to 2nd order by default
 	    dynamic_model.computingPass(true, true, false, none, global_eval_context, no_tmp_terms, block, use_dll, byte_code, compute_xrefs);
 
-      if (linear && !dynamic_model.checkHessianZero())
+      if ((linear && !mod_file_struct.ramsey_model_present && !dynamic_model.checkHessianZero()) ||
+          (linear && mod_file_struct.ramsey_model_present && !orig_ramsey_dynamic_model.checkHessianZero()))
         {
           map<int, string> eqs;
-          dynamic_model.getNonZeroHessianEquations(eqs);
+          if (mod_file_struct.ramsey_model_present)
+            orig_ramsey_dynamic_model.getNonZeroHessianEquations(eqs);
+          else
+            dynamic_model.getNonZeroHessianEquations(eqs);
+
           cerr << "ERROR: If the model is declared linear the second derivatives must be equal to zero." << endl
                << "       The following equations had non-zero second derivatives:" << endl;
           for (map<int, string >::const_iterator it = eqs.begin(); it != eqs.end(); it++)
@@ -561,7 +579,7 @@ ModFile::writeOutputFiles(const string &basename, bool clear_all, bool clear_glo
                           bool console, bool nograph, bool nointeractive, const ConfigFile &config_file,
                           bool check_model_changes, bool minimal_workspace, bool compute_xrefs
 #if defined(_WIN32) || defined(__CYGWIN32__)
-                          , bool cygwin, bool msvc
+                          , bool cygwin, bool msvc, bool mingw
 #endif
                           ) const
 {
@@ -685,6 +703,8 @@ ModFile::writeOutputFiles(const string &basename, bool clear_all, bool clear_glo
       mOutputFile << "};" << endl;
     }
 
+  mOutputFile << "M_.hessian_eq_zero = " << dynamic_model.checkHessianZero() << ";" << endl;
+
   config_file.writeCluster(mOutputFile);
 
   if (byte_code)
@@ -718,45 +738,49 @@ ModFile::writeOutputFiles(const string &basename, bool clear_all, bool clear_glo
     }
 
 #if defined(_WIN32) || defined(__CYGWIN32__)
-  // If using USE_DLL with MSVC, check that the user didn't use a function not supported by MSVC (because MSVC doesn't comply with C99 standard)
+#if (defined(_MSC_VER) && _MSC_VER < 1700)
+  // If using USE_DLL with MSVC 10.0 or earlier, check that the user didn't use a function not supported by the compiler (because MSVC <= 10.0 doesn't comply with C99 standard)
   if (use_dll && msvc)
     {
       if (dynamic_model.isUnaryOpUsed(oAcosh))
         {
-          cerr << "ERROR: acosh() function is not supported with USE_DLL option and MSVC compiler; use Cygwin compiler instead." << endl;
+          cerr << "ERROR: acosh() function is not supported with USE_DLL option and older MSVC compilers; use Cygwin, MinGW or upgrade your MSVC compiler to 11.0 (2012) or later." << endl;
           exit(EXIT_FAILURE);
         }
       if (dynamic_model.isUnaryOpUsed(oAsinh))
         {
-          cerr << "ERROR: asinh() function is not supported with USE_DLL option and MSVC compiler; use Cygwin compiler instead." << endl;
+          cerr << "ERROR: asinh() function is not supported with USE_DLL option and older MSVC compilers; use Cygwin, MinGW or upgrade your MSVC compiler to 11.0 (2012) or later." << endl;
           exit(EXIT_FAILURE);
         }
       if (dynamic_model.isUnaryOpUsed(oAtanh))
         {
-          cerr << "ERROR: atanh() function is not supported with USE_DLL option and MSVC compiler; use Cygwin compiler instead." << endl;
-          exit(EXIT_FAILURE);
-        }
-      if (dynamic_model.isTrinaryOpUsed(oNormcdf))
-        {
-          cerr << "ERROR: normcdf() function is not supported with USE_DLL option and MSVC compiler; use Cygwin compiler instead." << endl;
+          cerr << "ERROR: atanh() function is not supported with USE_DLL option and older MSVC compilers; use Cygwin, MinGW or upgrade your MSVC compiler to 11.0 (2012) or later." << endl;
           exit(EXIT_FAILURE);
         }
     }
+#endif
 #endif
 
   // Compile the dynamic MEX file for use_dll option
   // When check_model_changes is true, don't force compile if MEX is fresher than source
   if (use_dll)
     {
-#if defined(_WIN32) || defined(__CYGWIN32__)
+#if defined(_WIN32) || defined(__CYGWIN32__) || defined(__MINGW32__)
       if (msvc)
         // MATLAB/Windows + Microsoft Visual C++
 	mOutputFile << "dyn_mex('msvc', '" << basename << "', " << !check_model_changes << ")" <<  endl;
       else if (cygwin)
         // MATLAB/Windows + Cygwin g++
 	mOutputFile << "dyn_mex('cygwin', '" << basename << "', " << !check_model_changes << ")" << endl;
+      else if (mingw)
+        // MATLAB/Windows + MinGW g++
+        mOutputFile << "dyn_mex('mingw', '" << basename << "', " << !check_model_changes << ")" << endl;
       else
-        mOutputFile << "    error('When using the USE_DLL option, you must give either ''cygwin'' or ''msvc'' option to the ''dynare'' command')" << endl;
+        mOutputFile << "if isoctave" << endl
+                    << "    dyn_mex('', '" << basename << "', " << !check_model_changes << ")" << endl
+                    << "else" << endl
+                    << "    error('When using the USE_DLL option on Matlab, you must give the ''cygwin'', ''msvc'', or ''mingw'' option to the ''dynare'' command')" << endl
+                    << "end" << endl;
 #else
       // other configurations
       mOutputFile << "dyn_mex('', '" << basename << "', " << !check_model_changes << ")" << endl;

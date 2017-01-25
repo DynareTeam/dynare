@@ -105,6 +105,9 @@ delete_stale_file([MhDirectoryName filesep M_.fname '_param_irf*.mat']);
 if strcmpi(type,'posterior')
     B = options_.sub_draws;
     options_.B = B;
+    if round((1-options_.mh_conf_sig)*B)<2
+        fprintf('\nPosteriorIRF:: options_.mh_conf_sig times options_.sub_draws is too small to generate HPDIs. I am omitting them.\n')
+    end
 elseif strcmpi(type,'gsa')
     RootDirectoryName = CheckPath('gsa',M_.dname);
     if options_.opt_gsa.pprior
@@ -359,7 +362,7 @@ end
 % .tex generation always run in sequentially. This portion of code is execute in parallel by
 % PosteriorIRF_core2.m function.
 
-
+if ~options_.nograph && ~options_.no_graph.posterior
 % Save the local variables.
 localVars=[];
 
@@ -456,5 +459,6 @@ else
 end
 % END parallel code!
 
+end
 
 fprintf('Estimation::mcmc: Posterior IRFs, done!\n');

@@ -12,7 +12,7 @@ LIBS += $(MATLAB_LIBS)
 
 mexdir = $(libdir)/dynare/mex/matlab
 
-all-local:
+all-local: $(PROGRAMS)
 	$(MKDIR_P) $(top_srcdir)/../../matlab
 	cd $(top_srcdir)/../../matlab && \
 	for p in $(PROGRAMS); do \

@@ -201,50 +201,56 @@ iyr0 = find(iyv) ;
 it_ = M.maximum_lag + 1;
 z = repmat(dr.ys,1,klen);
 
-if options.order == 1
-    if (options.bytecode)
-        [chck, junk, loc_dr] = bytecode('dynamic','evaluate', z,exo_simul, ...
-                                        M.params, dr.ys, 1);
-        jacobia_ = [loc_dr.g1 loc_dr.g1_x loc_dr.g1_xd];
-    else
-        [junk,jacobia_] = feval([M.fname '_dynamic'],z(iyr0),exo_simul, ...
-                            M.params, dr.ys, it_);
-    end;
-elseif options.order >= 2
-    if (options.bytecode)
-        [chck, junk, loc_dr] = bytecode('dynamic','evaluate', z,exo_simul, ...
-                            M.params, dr.ys, 1);
-        jacobia_ = [loc_dr.g1 loc_dr.g1_x];
-    else
-        [junk,jacobia_,hessian1] = feval([M.fname '_dynamic'],z(iyr0),...
-                                         exo_simul, ...
-                                         M.params, dr.ys, it_);
-    end;
-    if options.use_dll
-        % In USE_DLL mode, the hessian is in the 3-column sparse representation
-        hessian1 = sparse(hessian1(:,1), hessian1(:,2), hessian1(:,3), ...
-                          size(jacobia_, 1), size(jacobia_, 2)*size(jacobia_, 2));
+if ~options.block
+    if options.order == 1
+        if (options.bytecode)
+            [chck, junk, loc_dr] = bytecode('dynamic','evaluate', z,exo_simul, ...
+                M.params, dr.ys, 1);
+            jacobia_ = [loc_dr.g1 loc_dr.g1_x loc_dr.g1_xd];
+        else
+            [junk,jacobia_] = feval([M.fname '_dynamic'],z(iyr0),exo_simul, ...
+                M.params, dr.ys, it_);
+        end;
+    elseif options.order >= 2
+        if (options.bytecode)
+            [chck, junk, loc_dr] = bytecode('dynamic','evaluate', z,exo_simul, ...
+                M.params, dr.ys, 1);
+            jacobia_ = [loc_dr.g1 loc_dr.g1_x];
+        else
+            [junk,jacobia_,hessian1] = feval([M.fname '_dynamic'],z(iyr0),...
+                exo_simul, ...
+                M.params, dr.ys, it_);
+        end;
+        if options.use_dll
+            % In USE_DLL mode, the hessian is in the 3-column sparse representation
+            hessian1 = sparse(hessian1(:,1), hessian1(:,2), hessian1(:,3), ...
+                size(jacobia_, 1), size(jacobia_, 2)*size(jacobia_, 2));
+        end
     end
+    
+    if any(any(isinf(jacobia_) | isnan(jacobia_)))
+        problem_dummy=1;
+        [infrow,infcol]=find(isinf(jacobia_) | isnan(jacobia_));
+        fprintf('\nMODEL_DIAGNOSTICS: The Jacobian of the dynamic model contains Inf or NaN. The problem arises from: \n\n')
+        display_problematic_vars_Jacobian(infrow,infcol,M,dr.ys,'dynamic','MODEL_DIAGNOSTICS: ')
+    end
+    if any(any(~isreal(jacobia_)))
+        problem_dummy=1;
+        [imagrow,imagcol]=find(abs(imag(jacobia_))>1e-15);
+        fprintf('\nMODEL_DIAGNOSTICS: The Jacobian of the dynamic model contains imaginary parts. The problem arises from: \n\n')
+        display_problematic_vars_Jacobian(imagrow,imagcol,M,dr.ys,'dynamic','MODEL_DIAGNOSTICS: ')
+    end
+    if exist('hessian1','var')
+        if any(any(isinf(hessian1) | isnan(hessian1)))
+            problem_dummy=1;
+            fprintf('\nMODEL_DIAGNOSTICS: The Hessian of the dynamic model contains Inf or NaN.\n')
+        end
+    end    
+else
+    fprintf('\nMODEL_DIAGNOSTICS: This command currently does not support the block option for checking.\n')
+    fprintf('\nMODEL_DIAGNOSTICS: the dynamic model. You may want to disable it for doing model_diagnostics. Skipping this part.\n')
 end
 
-if any(any(isinf(jacobia_) | isnan(jacobia_)))
-    problem_dummy=1;
-    [infrow,infcol]=find(isinf(jacobia_) | isnan(jacobia_));
-    fprintf('\nMODEL_DIAGNOSTICS: The Jacobian of the dynamic model contains Inf or NaN. The problem arises from: \n\n')
-    display_problematic_vars_Jacobian(infrow,infcol,M,dr.ys,'dynamic','MODEL_DIAGNOSTICS: ')
-end
-if any(any(~isreal(jacobia_)))
-    problem_dummy=1;
-    [imagrow,imagcol]=find(abs(imag(jacobia_))>1e-15);
-    fprintf('\nMODEL_DIAGNOSTICS: The Jacobian of the dynamic model contains imaginary parts. The problem arises from: \n\n')
-    display_problematic_vars_Jacobian(imagrow,imagcol,M,dr.ys,'dynamic','MODEL_DIAGNOSTICS: ')
-end
-if exist('hessian1','var')
-    if any(any(isinf(hessian1) | isnan(hessian1)))
-        problem_dummy=1;
-        fprintf('\nMODEL_DIAGNOSTICS: The Hessian of the dynamic model contains Inf or NaN.\n')
-    end
-end
 if problem_dummy==0
     fprintf('MODEL_DIAGNOSTICS:  No obvious problems with this mod-file were detected.\n')
 end

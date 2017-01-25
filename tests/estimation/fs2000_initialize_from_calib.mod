@@ -1,6 +1,6 @@
 //uses a prior mean for bet that does not allow solving the model. Then uses the calibrated value to initialize.
 var m P c e W R k d n l gy_obs gp_obs y dA;
-varexo e_a e_m e_f;
+varexo e_a e_m;
 
 parameters alp bet gam mst rho psi del;
 
@@ -59,7 +59,6 @@ end;
 shocks;
 var e_a; stderr 0.014;
 var e_m; stderr 0.005;
-var e_f; stderr 0.0001;
 corr gy_obs, gp_obs = 0.1;
 var gy_obs; stderr 0.005;
 var gp_obs; stderr 0.005;

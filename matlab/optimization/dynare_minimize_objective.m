@@ -135,7 +135,11 @@ switch minimizer_algorithm
         simulated_annealing(objective_function,start_par_value,sa_options,LB,UB,varargin{:});
   case 3
     if isoctave && ~user_has_octave_forge_package('optim')
-        error('Optimization algorithm 3 requires the optim package')
+        try
+            pkg load optim
+        catch
+            error('Optimization algorithm 3 requires the optim package')
+        end
     elseif ~isoctave && ~user_has_matlab_license('optimization_toolbox')
         error('Optimization algorithm 3 requires the Optimization Toolbox')
     end
@@ -270,9 +274,10 @@ switch minimizer_algorithm
     if ~isoctave
         [opt_par_values,fval,exitflag] = fminsearch(objective_function,start_par_value,optim_options,varargin{:});
     else
-        % Under Octave, use a wrapper, since fminsearch() does not have a 4th arg
+        % Under Octave, use a wrapper, since fminsearch() does not have a
+        % 4th arg, and only has two output args
         func = @(x) objective_function(x,varargin{:});
-        [opt_par_values,fval,exitflag] = fminsearch(func,start_par_value,optim_options);
+        [opt_par_values,fval] = fminsearch(func,start_par_value,optim_options);
     end
   case 8
     % Dynare implementation of the simplex algorithm.

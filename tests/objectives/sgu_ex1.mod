@@ -29,5 +29,5 @@ stoch_simul(nomoments,irf=0,nocorr,ar=0);
 global dr_
 dr_obj_ = dr_;
 
-save sgu_ex1 dr_obj_;
+save sgu_ex1.mat dr_obj_;
 

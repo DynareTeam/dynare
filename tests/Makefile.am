@@ -32,6 +32,7 @@ MODFILES = \
 	estimation/fs2000_calibrated_covariance.mod \
 	estimation/fs2000_model_comparison.mod \
 	estimation/fs2000_fast.mod \
+	estimation/ls2003_endog_prior_restrict_estimation.mod \
 	estimation/independent_mh/fs2000_independent_mh.mod \
 	estimation/MH_recover/fs2000_recover.mod \
 	estimation/MH_recover/fs2000_recover_2.mod \
@@ -54,6 +55,9 @@ MODFILES = \
 	example1_irf_shocks.mod \
 	example1_abs_sign.mod \
 	example1_macroif.mod \
+	example1long.mod \
+	example2long.mod \
+	example2long_use_dll.mod \
 	t_sgu_ex1.mod \
 	irfs/example1_unit_std.mod \
 	optimal_policy/OSR/osr_example.mod \
@@ -214,6 +218,8 @@ MODFILES = \
 	kalman_filter_smoother/fs2000a.mod \
 	kalman_filter_smoother/fs2000_smoother_only.mod \
 	kalman_filter_smoother/fs2000_smoother_only_ns.mod \
+	kalman_filter_smoother/test_compute_Pinf_Pstar_data.mod \
+	kalman_filter_smoother/test_compute_Pinf_Pstar.mod \
 	kalman_filter_smoother/check_variable_dimensions/fs2000.mod \
 	kalman_filter_smoother/check_variable_dimensions/fs2000_ML.mod \
 	kalman/likelihood_from_dynare/fs2000_corr_ME.mod \
@@ -236,6 +242,10 @@ MODFILES = \
 	ep/rbcii.mod \
 	ep/linearmodel0.mod \
 	ep/linearmodel1.mod \
+	stochastic-backward-models/solow_cd.mod \
+	stochastic-backward-models/solow_ces.mod \
+	stochastic-backward-models/solow_cd_with_steadystate.mod \
+	stochastic-backward-models/backward_linear.mod \
 	deterministic_simulations/purely_forward/ar1.mod \
         deterministic_simulations/purely_forward/nk.mod \
 	deterministic_simulations/purely_backward/ar1.mod \
@@ -271,6 +281,7 @@ MODFILES = \
 	trend_var/fs2000_log_nonstationary.mod \
 	decision_rules/third_order/FV2011.mod \
 	decision_rules/example1.mod \
+	decision_rules/ar_qz_test.mod \
 	shock_decomposition/example1_calib_shock_decomp.mod \
 	shock_decomposition/fs2000_est.mod \
 	shock_decomposition/fs2000_est_varlist.mod \
@@ -328,6 +339,7 @@ XFAIL_MODFILES = ramst_xfail.mod \
 	estim_param_in_shock_value_xfail.mod \
 	optimal_policy/Ramsey/ramsey_ex_wrong_ss_file_xfail.mod \
 	estimation/fs2000_mixed_ML_xfail.mod \
+	estimation/fs2000_stochastic_singularity_xfail.mod \
 	identification/ident_unit_root/ident_unit_root_xfail.mod \
 	steady_state/Linear_steady_state_xfail.mod \
 	example1_undeclared_vars_xfail.mod
@@ -337,6 +349,12 @@ MFILES = initval_file/ramst_initval_file_data.m
 # Dependencies
 example1_use_dll.m.trs: example1.m.trs
 example1_use_dll.o.trs: example1.o.trs
+
+example2long_use_dll.m.trs: example1long.m.trs
+example2long_use_dll.o.trs: example1long.o.trs
+
+example2long.m.trs: example1long.m.trs
+example2long.o.trs: example1long.o.trs
 
 estimation/MH_recover/fs2000_recover_tarb.m.trs: estimation/MH_recover/fs2000_recover.m.trs
 estimation/MH_recover/fs2000_recover_tarb.o.trs: estimation/MH_recover/fs2000_recover.o.trs
@@ -362,6 +380,9 @@ kalman_filter_smoother/algoH2.o.trs: kalman_filter_smoother/algoH1.o.trs
 
 kalman_filter_smoother/algo4.m.trs: kalman_filter_smoother/algo3.m.trs
 kalman_filter_smoother/algo4.o.trs: kalman_filter_smoother/algo3.o.trs
+
+kalman_filter_smoother/test_compute_Pinf_Pstar.m.trs: kalman_filter_smoother/test_compute_Pinf_Pstar_data.m.trs
+kalman_filter_smoother/test_compute_Pinf_Pstar.o.trs: kalman_filter_smoother/test_compute_Pinf_Pstar_data.o.trs
 
 optimal_policy/nk_ramsey_expectation_a.m.trs: optimal_policy/nk_ramsey_expectation.m.trs
 optimal_policy/nk_ramsey_expectation_a.o.trs: optimal_policy/nk_ramsey_expectation.o.trs
@@ -496,6 +517,170 @@ kalman/likelihood_from_dynare/fs2000ns_corr_ME_missing.o.trs: kalman/likelihood_
 lmmcp/sw_newton.m.trs: lmmcp/sw_lmmcp.m.trs
 lmmcp/sw_newton.o.trs: lmmcp/sw_lmmcp.o.trs
 
+observation_trends_and_prefiltering/MCMC: m/observation_trends_and_prefiltering/MCMC o/observation_trends_and_prefiltering/MCMC
+m/observation_trends_and_prefiltering/MCMC: $(patsubst %.mod, %.m.trs, $(filter observation_trends_and_prefiltering/MCMC/%.mod, $(MODFILES)))
+o/observation_trends_and_prefiltering/MCMC: $(patsubst %.mod, %.o.trs, $(filter observation_trends_and_prefiltering/MCMC/%.mod, $(MODFILES)))
+
+observation_trends_and_prefiltering/ML: m/observation_trends_and_prefiltering/ML o/observation_trends_and_prefiltering/ML
+m/observation_trends_and_prefiltering/ML: $(patsubst %.mod, %.m.trs, $(filter observation_trends_and_prefiltering/ML/%.mod, $(MODFILES)))
+o/observation_trends_and_prefiltering/ML: $(patsubst %.mod, %.o.trs, $(filter observation_trends_and_prefiltering/ML/%.mod, $(MODFILES)))
+
+observation_trends_and_prefiltering/calib_smoother: m/observation_trends_and_prefiltering/calib_smoother o/observation_trends_and_prefiltering/calib_smoother
+m/observation_trends_and_prefiltering/calib_smoother: $(patsubst %.mod, %.m.trs, $(filter observation_trends_and_prefiltering/calib_smoother/%.mod, $(MODFILES)))
+o/observation_trends_and_prefiltering/calib_smoother: $(patsubst %.mod, %.o.trs, $(filter observation_trends_and_prefiltering/calib_smoother/%.mod, $(MODFILES)))
+
+observation_trends_and_prefiltering: m/observation_trends_and_prefiltering o/observation_trends_and_prefiltering
+m/observation_trends_and_prefiltering: $(patsubst %.mod, %.m.trs, $(filter observation_trends_and_prefiltering/%.mod, $(MODFILES)))
+o/observation_trends_and_prefiltering: $(patsubst %.mod, %.o.trs, $(filter observation_trends_and_prefiltering/%.mod, $(MODFILES)))
+
+stochastic-backward-models: m/stochastic-backward-models o/stochastic-backward-models
+m/stochastic-backward-models: $(patsubst %.mod, %.m.trs, $(filter stochastic-backward-models/%.mod, $(MODFILES)))
+o/stochastic-backward-models: $(patsubst %.mod, %.o.trs, $(filter stochastic-backward-models/%.mod, $(MODFILES)))
+
+arima: m/arima o/arima
+m/arima: $(patsubst %.mod, %.m.trs, $(filter arima/%.mod, $(MODFILES)))
+o/arima: $(patsubst %.mod, %.o.trs, $(filter arima/%.mod, $(MODFILES)))
+
+homotopy: m/homotopy o/homotopy
+m/homotopy: $(patsubst %.mod, %.m.trs, $(filter homotopy/%.mod, $(MODFILES)))
+o/homotopy: $(patsubst %.mod, %.o.trs, $(filter homotopy/%.mod, $(MODFILES)))
+
+expectations: m/expectations o/expectations
+m/expectations: $(patsubst %.mod, %.m.trs, $(filter expectations/%.mod, $(MODFILES)))
+o/expectations: $(patsubst %.mod, %.o.trs, $(filter expectations/%.mod, $(MODFILES)))
+
+external_function: m/external_function o/external_function
+m/external_function: $(patsubst %.mod, %.m.trs, $(filter external_function/%.mod, $(MODFILES)))
+o/external_function: $(patsubst %.mod, %.o.trs, $(filter external_function/%.mod, $(MODFILES)))
+
+trend_var: m/trend_var o/trend_var
+m/trend_var: $(patsubst %.mod, %.m.trs, $(filter trend_var/%.mod, $(MODFILES)))
+o/trend_var: $(patsubst %.mod, %.o.trs, $(filter trend_var/%.mod, $(MODFILES)))
+
+moments: m/moments o/moments
+m/moments: $(patsubst %.mod, %.m.trs, $(filter moments/%.mod, $(MODFILES)))
+o/moments: $(patsubst %.mod, %.o.trs, $(filter moments/%.mod, $(MODFILES)))
+
+AIM: m/AIM o/AIM
+m/AIM: $(patsubst %.mod, %.m.trs, $(filter AIM/%.mod, $(MODFILES)))
+o/AIM: $(patsubst %.mod, %.o.trs, $(filter AIM/%.mod, $(MODFILES)))
+
+second_order: m/second_order o/second_order
+m/second_order: $(patsubst %.mod, %.m.trs, $(filter second_order/%.mod, $(MODFILES)))
+o/second_order: $(patsubst %.mod, %.o.trs, $(filter second_order/%.mod, $(MODFILES)))
+
+decision_rules: m/decision_rules o/decision_rules
+m/decision_rules: $(patsubst %.mod, %.m.trs, $(filter decision_rules/%.mod, $(MODFILES)))
+o/decision_rules: $(patsubst %.mod, %.o.trs, $(filter decision_rules/%.mod, $(MODFILES)))
+
+k_order_perturbation: m/k_order_perturbation o/k_order_perturbation
+m/k_order_perturbation: $(patsubst %.mod, %.m.trs, $(filter k_order_perturbation/%.mod, $(MODFILES)))
+o/k_order_perturbation: $(patsubst %.mod, %.o.trs, $(filter k_order_perturbation/%.mod, $(MODFILES)))
+
+optimal_policy/OSR: m/optimal_policy/OSR o/optimal_policy/OSR
+m/optimal_policy/OSR: $(patsubst %.mod, %.m.trs, $(filter optimal_policy/OSR/%.mod, $(MODFILES)))
+o/optimal_policy/OSR: $(patsubst %.mod, %.o.trs, $(filter optimal_policy/OSR/%.mod, $(MODFILES)))
+
+optimal_policy/Ramsey: m/optimal_policy/Ramsey o/optimal_policy/Ramsey
+m/optimal_policy/Ramsey: $(patsubst %.mod, %.m.trs, $(filter optimal_policy/Ransey/%.mod, $(MODFILES)))
+o/optimal_policy/Ramsey: $(patsubst %.mod, %.o.trs, $(filter optimal_policy/Ramsey/%.mod, $(MODFILES)))
+
+optimal_policy: m/optimal_policy o/optimal_policy
+m/optimal_policy: $(patsubst %.mod, %.m.trs, $(filter optimal_policy/%.mod, $(MODFILES)))
+o/optimal_policy: $(patsubst %.mod, %.o.trs, $(filter optimal_policy/%.mod, $(MODFILES)))
+
+discretionary_policy: m/discretionary_policy o/discretionary_policy
+m/discretionary_policy: $(patsubst %.mod, %.m.trs, $(filter discretionary_policy/%.mod, $(MODFILES)))
+o/discretionary_policy: $(patsubst %.mod, %.o.trs, $(filter discretionary_policy/%.mod, $(MODFILES)))
+
+steady_state: m/steady_state o/steady_state
+m/steady_state: $(patsubst %.mod, %.m.trs, $(filter steady_state/%.mod, $(MODFILES)))
+o/steady_state: $(patsubst %.mod, %.o.trs, $(filter steady_state/%.mod, $(MODFILES)))
+
+steady_state_operator: m/steady_state_operator o/steady_state_operator
+m/steady_state_operator: $(patsubst %.mod, %.m.trs, $(filter steady_state_operator/%.mod, $(MODFILES)))
+o/steady_state_operator: $(patsubst %.mod, %.o.trs, $(filter steady_state_operator/%.mod, $(MODFILES)))
+
+deterministic_simulations/multiple_lead_lags: m/deterministic_simulations/multiple_lead_lags o/deterministic_simulations/multiple_lead_lags
+m/deterministic_simulations/multiple_lead_lags: $(patsubst %.mod, %.m.trs, $(filter deterministic_simulations/multiple_lead_lags/%.mod, $(MODFILES)))
+o/deterministic_simulations/multiple_lead_lags: $(patsubst %.mod, %.o.trs, $(filter deterministic_simulations/multiple_lead_lags/%.mod, $(MODFILES)))
+
+deterministic_simulations: m/deterministic_simulations o/deterministic_simulations
+m/deterministic_simulations: $(patsubst %.mod, %.m.trs, $(filter deterministic_simulations/%.mod, $(MODFILES)))
+o/deterministic_simulations: $(patsubst %.mod, %.o.trs, $(filter deterministic_simulations/%.mod, $(MODFILES)))
+
+simul: m/simul o/simul
+m/simul: $(patsubst %.mod, %.m.trs, $(filter simul/%.mod, $(MODFILES)))
+o/simul: $(patsubst %.mod, %.o.trs, $(filter simul/%.mod, $(MODFILES)))
+
+ep: m/ep o/ep
+m/ep: $(patsubst %.mod, %.m.trs, $(filter ep/%.mod, $(MODFILES)))
+o/ep: $(patsubst %.mod, %.o.trs, $(filter ep/%.mod, $(MODFILES)))
+
+ms-sbvar: m/ms-sbvar o/ms-sbvar
+m/ms-sbvar: $(patsubst %.mod, %.m.trs, $(filter ms-sbvar/%.mod, $(MODFILES)))
+o/ms-sbvar: $(patsubst %.mod, %.o.trs, $(filter ms-sbvar/%.mod, $(MODFILES)))
+
+lmmcp: m/lmmcp o/lmmcp
+m/lmmcp: $(patsubst %.mod, %.m.trs, $(filter lmmcp/%.mod, $(MODFILES)))
+o/lmmcp: $(patsubst %.mod, %.o.trs, $(filter lmmcp/%.mod, $(MODFILES)))
+
+gsa: m/gsa o/gsa
+m/gsa: $(patsubst %.mod, %.m.trs, $(filter gsa/%.mod, $(MODFILES)))
+o/gsa: $(patsubst %.mod, %.o.trs, $(filter gsa/%.mod, $(MODFILES)))
+
+identification: m/identification o/identification
+m/identification: $(patsubst %.mod, %.m.trs, $(filter identification/%.mod, $(MODFILES)))
+o/identification: $(patsubst %.mod, %.o.trs, $(filter identification/%.mod, $(MODFILES)))
+
+fs2000: m/fs2000 o/fs2000
+m/fs2000: $(patsubst %.mod, %.m.trs, $(filter fs2000/%.mod, $(MODFILES)))
+o/fs2000: $(patsubst %.mod, %.o.trs, $(filter fs2000/%.mod, $(MODFILES)))
+
+estimation/MH_recover: m/estimation/MH_recover o/estimation/MH_recover
+m/estimation/MH_recover: $(patsubst %.mod, %.m.trs, $(filter estimation/MH_recover/%.mod, $(MODFILES)))
+o/estimation/MH_recover: $(patsubst %.mod, %.o.trs, $(filter estimation/MH_recover/%.mod, $(MODFILES)))
+
+estimation: m/estimation o/estimation
+m/estimation: $(patsubst %.mod, %.m.trs, $(filter estimation/%.mod, $(MODFILES)))
+o/estimation: $(patsubst %.mod, %.o.trs, $(filter estimation/%.mod, $(MODFILES)))
+
+kalman/likelihood_from_dynare: m/kalman/likelihood_from_dynare o/kalman/likelihood_from_dynare
+m/kalman/likelihood_from_dynare: $(patsubst %.mod, %.m.trs, $(filter kalman/likelihood_from_dynare/%.mod, $(MODFILES)))
+o/kalman/likelihood_from_dynare: $(patsubst %.mod, %.o.trs, $(filter kalman/likelihood_from_dynare/%.mod, $(MODFILES)))
+
+kalman/lik_init: m/kalman/lik_init o/kalman/lik_init
+m/kalman/lik_init: $(patsubst %.mod, %.m.trs, $(filter kalman/lik_init/%.mod, $(MODFILES)))
+o/kalman/lik_init: $(patsubst %.mod, %.o.trs, $(filter kalman/lik_init/%.mod, $(MODFILES)))
+
+kalman: m/kalman o/kalman
+m/kalman: $(patsubst %.mod, %.m.trs, $(filter kalman/%.mod, $(MODFILES)))
+o/kalman: $(patsubst %.mod, %.o.trs, $(filter kalman/%.mod, $(MODFILES)))
+
+dsge-var: m/dsge-var o/dsge-var
+m/dsge-var: $(patsubst %.mod, %.m.trs, $(filter dsge-var/%.mod, $(MODFILES)))
+o/dsge-var: $(patsubst %.mod, %.o.trs, $(filter dsge-var/%.mod, $(MODFILES)))
+
+kalman_filter_smoother: m/kalman_filter_smoother o/kalman_filter_smoother
+m/kalman_filter_smoother: $(patsubst %.mod, %.m.trs, $(filter kalman_filter_smoother/%.mod, $(MODFILES)))
+o/kalman_filter_smoother: $(patsubst %.mod, %.o.trs, $(filter kalman_filter_smoother/%.mod, $(MODFILES)))
+
+shock_decomposition: m/shock_decomposition o/shock_decomposition
+m/shock_decomposition: $(patsubst %.mod, %.m.trs, $(filter shock_decomposition/%.mod, $(MODFILES)))
+o/shock_decomposition: $(patsubst %.mod, %.o.trs, $(filter shock_decomposition/%.mod, $(MODFILES)))
+
+conditional_forecasts: m/conditional_forecasts o/conditional_forecasts
+m/conditional_forecasts: $(patsubst %.mod, %.m.trs, $(filter conditional_forecasts/%.mod, $(MODFILES)))
+o/conditional_forecasts: $(patsubst %.mod, %.o.trs, $(filter conditional_forecasts/%.mod, $(MODFILES)))
+
+optimizers: m/optimizers o/optimizers
+m/optimizers: $(patsubst %.mod, %.m.trs, $(filter optimizers/%.mod, $(MODFILES)))
+o/optimizers: $(patsubst %.mod, %.o.trs, $(filter optimizers/%.mod, $(MODFILES)))
+
+gradient: m/gradient o/gradient
+m/gradient: $(patsubst %.mod, %.m.trs, $(filter gradient/%.mod, $(MODFILES)))
+o/gradient: $(patsubst %.mod, %.o.trs, $(filter gradient/%.mod, $(MODFILES)))
+
 # Matlab TRS Files
 M_TRS_FILES = $(patsubst %.mod, %.m.trs, $(MODFILES))
 M_TRS_FILES += run_block_byte_tests_matlab.m.trs run_reporting_test_matlab.m.trs run_all_unitary_tests.m.trs
@@ -551,7 +736,7 @@ EXTRA_DIST = \
 	external_function/extFunWithFirstAndSecondDerivs.m \
 	expectations/expectation_ss_old_steadystate.m \
 	steady_state/walsh1_old_ss_steadystate.m \
-	data/test.xls \
+	data/test.xlsx \
 	gsa/morris/nk_est_data.m \
 	analytic_derivatives/fsdat_simul.m \
 	fs2000/fsdat_simul.m \
@@ -667,7 +852,7 @@ check-octave: $(O_XFAIL_TRS_FILES) $(O_TRS_FILES)
 %.o.trs %.o.log: %.mod
 	@echo "`tput bold``tput setaf 8`OCTAVE: $(PWD)/$*... `tput sgr0`"
 	@DYNARE_VERSION="$(PACKAGE_VERSION)" TOP_TEST_DIR="$(PWD)" FILESTEM="$*" \
-		$(OCTAVE) --no-init-file --silent --no-history run_test_octave.m > $*.o.log 2>&1 || \
+		$(OCTAVE) --no-init-file --silent --no-history --path "$*.mod" run_test_octave.m > $*.o.log 2>&1 || \
 	printf ":test-result: FAIL\n:number-tests: 1\n:number-failed-tests: 1\n:list-of-failed-tests: $*.mod\n:cputime: 0.0\n" > $*.o.trs
 	@if grep -q ":test-result: PASS" $*.o.trs; then \
 	echo "`tput bold``tput setaf 2`OCTAVE: $(PWD)/$* PASSED!`tput sgr0`" ; \

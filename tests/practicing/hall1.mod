@@ -43,4 +43,4 @@ steady;
 check;
 
 stoch_simul(dr_algo=1, order=1, periods=500, irf=10);
-save data_hall c in;
+save data_hall.mat c in;

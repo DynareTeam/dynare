@@ -96,7 +96,7 @@ end;
 stoch_simul(order=1,periods=200,irf=0,noprint);
 
 @#for c in countries
-save pseudo_data Y_@{c} C_@{c} I_@{c} E_@{c} PIE_@{c} W_@{c} R_@{c} -append;
+save pseudo_data.mat Y_@{c} C_@{c} I_@{c} E_@{c} PIE_@{c} W_@{c} R_@{c} -append;
 @#endfor
 
 

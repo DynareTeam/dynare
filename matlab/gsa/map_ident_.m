@@ -177,14 +177,14 @@ if opt_gsa.load_ident_files==0,
   % [ytr, j0r]=teff(R,Nsam,istable);
   %
   % yt=[yt1 yt2 ytr];
-  save([OutputDirectoryName,'/',fname_,'_main_eff'],'ac','cc','vdec','yt','mss')
+  save([OutputDirectoryName,'/',fname_,'_main_eff.mat'],'ac','cc','vdec','yt','mss')
 else
   if opt_gsa.morris==2,
 %    [pdraws, TAU, GAM] = dynare_identification([1:npT]); %,[lpmatx lpmat(istable,:)]);
 %    [pdraws, TAU, GAM] = dynare_identification(options_.options_ident);
    pdraws = dynare_identification(options_.options_ident);
   end
-  load([OutputDirectoryName,'/',fname_,'_main_eff'],'ac','cc','vdec','yt','mss')
+  load([OutputDirectoryName,'/',fname_,'_main_eff.mat'],'ac','cc','vdec','yt','mss')
 end
 
 %   for j=1:nr,
@@ -209,7 +209,7 @@ if opt_gsa.morris==1,
     [SAmeas, SAMorris(:,:,i)] = Morris_Measure_Groups(npT, [lpmat0 lpmat], vdec(:,i),nliv);
   end
   SAvdec = squeeze(SAMorris(:,1,:))';
-  save([OutputDirectoryName,'/',fname_,'_morris_IDE'],'SAvdec','vdec','ir_vdec','ic_vdec')
+  save([OutputDirectoryName,'/',fname_,'_morris_IDE.mat'],'SAvdec','vdec','ir_vdec','ic_vdec')
   else
     load([OutputDirectoryName,'/',fname_,'_morris_IDE'],'SAvdec','vdec','ir_vdec','ic_vdec')
   end
@@ -230,7 +230,7 @@ if opt_gsa.morris==1,
   dyn_saveas(hh,[OutputDirectoryName,'/',fname_,'_morris_vdec'],options_);
   create_TeX_loader(options_,[OutputDirectoryName,'/',fname_,'_morris_vdec'],1,'Screening identification: variance decomposition','morris_vdec',1)
   else
-  save([OutputDirectoryName,'/',fname_,'_morris_IDE'],'vdec')
+  save([OutputDirectoryName,'/',fname_,'_morris_IDE.mat'],'vdec')
     
   end
 
@@ -313,8 +313,8 @@ if opt_gsa.morris==1,
   end
   SAcc = squeeze(SAMorris(:,1,:))';
   SAcc = SAcc./(max(SAcc')'*ones(1,npT));
-  save([OutputDirectoryName,'/',fname_,'_morris_IDE'],'SAcc','cc','ir_cc','ic_cc','-append')
-  save([OutputDirectoryName,'/',fname_,'_morris_IDE'],'ac','ir_ac','ic_ac','-append')
+  save([OutputDirectoryName,'/',fname_,'_morris_IDE.mat'],'SAcc','cc','ir_cc','ic_cc','-append')
+  save([OutputDirectoryName,'/',fname_,'_morris_IDE.mat'],'ac','ir_ac','ic_ac','-append')
   else
     load([OutputDirectoryName,'/',fname_,'_morris_IDE'],'SAcc','cc','ir_cc','ic_cc')
     load([OutputDirectoryName,'/',fname_,'_morris_IDE'],'ac','ir_ac','ic_ac')
@@ -713,7 +713,7 @@ if opt_gsa.morris==1,
   for j=1:j0
     SAsignorm(:,j)=SAMsig(:,j)./max(SAMsig(:,j));
   end
-    save([OutputDirectoryName,'/',fname_,'_morris_IDE'],'SAnorm','SAmunorm','SAsignorm','-append')
+    save([OutputDirectoryName,'/',fname_,'_morris_IDE.mat'],'SAnorm','SAmunorm','SAsignorm','-append')
   else
     load([OutputDirectoryName,'/',fname_,'_morris_IDE'],'SAnorm','SAmunorm','SAsignorm')
   end
@@ -1030,8 +1030,8 @@ else,  % main effects analysis
     imap_cc{j}=imap;
 
   end
-  save([OutputDirectoryName,'/map_cc',fsuffix],'gsa_')
-  save([OutputDirectoryName,'/',fname_,'_main_eff'],'imap_cc','SAcc','ccac','-append')
+  save([OutputDirectoryName,'/map_cc',fsuffix,'.mat'],'gsa_')
+  save([OutputDirectoryName,'/',fname_,'_main_eff.mat'],'imap_cc','SAcc','ccac','-append')
   else
     load([OutputDirectoryName,'/',fname_,'_main_eff'],'imap_cc','SAcc','ccac')
     

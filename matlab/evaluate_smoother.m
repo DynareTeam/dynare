@@ -1,11 +1,15 @@
-function [oo_, Smoothed_variables_declaration_order_deviation_form]=evaluate_smoother(parameters,var_list)
+function [oo_,options_,bayestopt_,Smoothed_variables_declaration_order_deviation_form]=evaluate_smoother(parameters,var_list,M_,oo_,options_,bayestopt_,estim_params_)
 % Evaluate the smoother at parameters.
 %
 % INPUTS
 %    o parameters  a string ('posterior mode','posterior mean','posterior median','prior mode','prior mean','mle_mode') or a vector of values for
 %                  the (estimated) parameters of the model.
 %    o var_list    subset of endogenous variables
-%
+%    o M_          [structure]  Definition of the model
+%    o oo_         [structure]  Storage of results
+%    o options_    [structure]  Options
+%    o bayestopt_  [structure]  describing the priors
+%    o estim_params_ [structure] characterizing parameters to be estimated
 %
 % OUTPUTS
 %    o oo       [structure]  results:
@@ -22,6 +26,8 @@ function [oo_, Smoothed_variables_declaration_order_deviation_form]=evaluate_smo
 %                           order of declaration of variables (M_.endo_names)
 %                           in deviations from their respective mean, i.e.
 %                           without trend and constant part (used for shock_decomposition)
+%    o options_    [structure]  Options; returns options_.first_obs
+%    o bayestopt_  [structure]  describing the priors; returns fields like bayestopt_.smoother_var_list from the smoother 
 %
 % SPECIAL REQUIREMENTS
 %    None
@@ -47,9 +53,10 @@ function [oo_, Smoothed_variables_declaration_order_deviation_form]=evaluate_smo
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global options_ M_ bayestopt_ oo_ estim_params_   % estim_params_ may be emty
-
 persistent dataset_ dataset_info
+
+%store qz_criterium
+qz_criterium_old=options_.qz_criterium;
 
 if ischar(parameters) && strcmp(parameters,'calibration')
     options_.smoother=1;
@@ -94,10 +101,13 @@ if ischar(parameters)
     end
 end
 
-[atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend] = ...
-    DsgeSmoother(parameters,dataset_.nobs,transpose(dataset_.data),dataset_info.missing.aindex,dataset_info.missing.state);
-[oo_]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend);
+[atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,T,R,P,PK,decomp,Trend,state_uncertainty,M_,oo_,options_,bayestopt_] = ...
+    DsgeSmoother(parameters,dataset_.nobs,transpose(dataset_.data),dataset_info.missing.aindex,dataset_info.missing.state,M_,oo_,options_,bayestopt_,estim_params_);
+[oo_]=store_smoother_results(M_,oo_,options_,bayestopt_,dataset_,dataset_info,atT,innov,measurement_error,updated_variables,ys,trend_coeff,aK,P,PK,decomp,Trend,state_uncertainty);
 
-if nargout==2
+if nargout==4
    Smoothed_variables_declaration_order_deviation_form=atT(oo_.dr.inv_order_var(bayestopt_.smoother_var_list),:);
 end
+
+%reset qz_criterium
+options_.qz_criterium=qz_criterium_old;

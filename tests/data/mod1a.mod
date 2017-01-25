@@ -20,4 +20,4 @@ end;
 
 varobs dx dy;
 check;
-estimation(datafile='test.xls',nobs=1000,mh_replic=2000,mh_jscale=1.3);
+estimation(datafile='test.xlsx',nobs=1000,mh_replic=2000,mh_jscale=1.3);

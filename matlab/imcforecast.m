@@ -43,7 +43,7 @@ function imcforecast(constrained_paths, constrained_vars, options_cond_fcst)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global options_ oo_ M_ bayestopt_
+global options_ oo_ M_ bayestopt_ estim_params_
 
 if ~isfield(options_cond_fcst,'parameter_set') || isempty(options_cond_fcst.parameter_set)
     if isfield(oo_,'posterior_mode')
@@ -119,7 +119,13 @@ if estimated_model
     data_index = dataset_info.missing.aindex;
     gend = dataset_.nobs;
     missing_value = dataset_info.missing.state;
-    [atT,innov,measurement_error,filtered_state_vector,ys,trend_coeff,aK,T,R,P,PK,decomp,trend_addition] = DsgeSmoother(xparam,gend,data,data_index,missing_value);
+    
+    %store qz_criterium
+    qz_criterium_old=options_.qz_criterium;
+    options_=select_qz_criterium_value(options_);
+    options_smoothed_state_uncertainty_old = options_.smoothed_state_uncertainty;
+    [atT,innov,measurement_error,filtered_state_vector,ys,trend_coeff,aK,T,R,P,PK,decomp,trend_addition,state_uncertainty,M_,oo_,options_,bayestopt_] = DsgeSmoother(xparam,gend,data,data_index,missing_value,M_,oo_,options_,bayestopt_,estim_params_);
+    options_.smoothed_state_uncertainty = options_smoothed_state_uncertainty_old;
     %get constant part
     if options_.noconstant
         constant = zeros(size(ys,1),options_cond_fcst.periods+1);
@@ -146,14 +152,14 @@ if estimated_model
     trend = constant(oo_.dr.order_var,:);
     InitState(:,1) = atT(:,end);
 else
+    qz_criterium_old=options_.qz_criterium;
+    if isempty(options_.qz_criterium)
+        options_.qz_criterium = 1+1e-6;
+    end
     graph_title='Calibration';
     if ~isfield(oo_.dr,'kstate')
         error('You need to call stoch_simul before conditional_forecast')
     end
-end
-
-if isempty(options_.qz_criterium)
-    options_.qz_criterium = 1+1e-6;
 end
 
 [T,R,ys,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_);
@@ -272,5 +278,8 @@ for i = 1:EndoSize
 end
 forecasts.graph.title=graph_title;
 forecasts.graph.fname=M_.fname;
+
+%reset qz_criterium
+options_.qz_criterium=qz_criterium_old;
 
 save('conditional_forecasts.mat','forecasts');

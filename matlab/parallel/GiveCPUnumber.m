@@ -69,4 +69,8 @@ switch Environment
 
     nCPU=str2num(ComputerInformations(length(ComputerInformations)-1))+1;
 
+  case 2            %MAC-OS OPERATING SYSTEM
+
+    nCPU=str2num(ComputerInformations);
+
 end

@@ -58,6 +58,7 @@ dynareParallelMkDir(RemoteTmpFolder,DataInput);
 %               see http://www.dynare.org/DynareWiki/ParallelDynare.
 %         2.1   [warning] The user asks to use more CPU's than those available.
 %         2.2   [warning] There are unused CPU's!
+%         2.3   [error] NumberOfThreadsPerJob is not a divisor of CPUnbr
 %
 %
 %   Value 3:    The remote computer is unreachable!!!
@@ -359,11 +360,16 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
         s4=['try,\n  dynareroot = dynare_config();\n'];
         s41=(['  fT = fopen(''DynareIsOk.txt'',''w+'');\n']);
         s42='  fclose(fT);\n';
-        s5=['catch,end,\n'];
+        s5=['catch,\n'];
         s51=(['  fT = fopen(''DynareFailed.txt'',''w+'');\n']);
         s52='  fclose(fT);\n';
+        s6=['end,\n'];
+        s7=['if ismac,\n'];
+        s71=(['  fT = fopen(''IsMac.txt'',''w+'');\n']);
+        s72='  fclose(fT);\n';
+        s8=['end,\n'];
         send='exit';
-        StrCommand=([s1,s2,s3,s4,s41,s42,s5,s51,s52,send]);
+        StrCommand=([s1,s2,s3,s4,s41,s42,s5,s51,s52,s6,s7,s71,s72,s8,send]);
         
         % Mettere controllo su NbW ...
         % if isoctave
@@ -488,6 +494,11 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
                 return
             else
                 disp('Check on Dynare Path remote machine ..... Ok!')
+            if isempty(dynareParallelDir('IsMac.txt',RemoteTmpFolder,DataInput(Node)))
+                RemoteEnvironment=Environment;
+            else
+                RemoteEnvironment=2;                
+            end
                 skipline(2)
             end
         end
@@ -542,10 +553,16 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
     si0=[];
     de0=[];
     
+    Environment1=Environment;
     disp('Checking Hardware please wait ...');
     if (DataInput(Node).Local == 1)
         if Environment,
-            [si0 de0]=system('grep processor /proc/cpuinfo');
+            if ~ismac
+                [si0 de0]=system('grep processor /proc/cpuinfo');
+            else
+                [si0 de0]=system('sysctl -n hw.ncpu');
+                Environment1=2;
+            end
         else
             [si0 de0]=system(['psinfo \\']);
         end
@@ -557,7 +574,12 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
                 ssh_token = '';
             end
             if OStargetUnix,
-                [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' grep processor /proc/cpuinfo']);
+                if RemoteEnvironment ==1 , 
+                    [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' grep processor /proc/cpuinfo']);
+                else % it is MAC
+                    [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' sysctl -n hw.ncpu']);
+                    Environment1=2;
+                end
             else
                 [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' psinfo']);
             end
@@ -569,13 +591,13 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
     
     RealCPUnbr='';
 %    keyboard;
-    RealCPUnbr=GiveCPUnumber(de0,Environment);
+    RealCPUnbr=GiveCPUnumber(de0,Environment1);
     
     % Questo controllo penso che si possa MIGLIORARE!!!!!
-    if  isempty (RealCPUnbr) && Environment==0,
+    if  isempty (RealCPUnbr) && Environment1==0,
         [si0 de0]=system(['psinfo \\',DataInput(Node).ComputerName]);
     end        
-    RealCPUnbr=GiveCPUnumber(de0,Environment);
+    RealCPUnbr=GiveCPUnumber(de0,Environment1);
 
     if  isempty (RealCPUnbr)
         % An error occurred when we try to know the Cpu/Cores
@@ -619,6 +641,15 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
         disp('Warning! There are unused CPU''s!')
         skipline(2)
         ErrorCode=2.2;
+    end
+    
+    if mod(length(DataInput(Node).CPUnbr),DataInput(Node).NumberOfThreadsPerJob)
+        skipline()
+        disp(['NumberOfThreadsPerJob = ',int2str(DataInput(Node).NumberOfThreadsPerJob),' is not an exact divisor of number of CPUs = ',int2str(DataInput(Node).CPUnbr),'!'])
+        disp(['    You must re-set properly NumberOfThreadsPerJob of node ' int2str(Node) ' ' DataInput(Node).ComputerName])
+        disp('    in your configuration file')
+        skipline()
+        ErrorCode=2.3;
     end
     
     disp(['Test for Cluster computation, computer ',DataInput(Node).ComputerName, ' ..... Passed!'])

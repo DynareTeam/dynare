@@ -1,5 +1,5 @@
-function acf = autocorr(y, ar)
-% function acf = autocorr(y, ar)
+function acf = dyn_autocorr(y, ar)
+% function acf = dyn_autocorr(y, ar)
 % autocorrelation function of y
 %
 % INPUTS
@@ -12,7 +12,7 @@ function acf = autocorr(y, ar)
 % SPECIAL REQUIREMENTS
 %   none
 
-% Copyright (C) 2015 Dynare Team
+% Copyright (C) 2015-16 Dynare Team
 %
 % This file is part of Dynare.
 %

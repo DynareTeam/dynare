@@ -1,4 +1,4 @@
-## Copyright (C) 2015 Dynare Team
+## Copyright (C) 2015-2016 Dynare Team
 ##
 ## This file is part of Dynare.
 ##
@@ -14,6 +14,8 @@
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
+
+load_octave_packages
 
 top_test_dir = getenv('TOP_TEST_DIR');
 [mfile, name] = strtok(getenv('FILESTEM'));
@@ -44,8 +46,6 @@ else
   fprintf(fid,':list-of-passed-tests: %s\n', [name '.m']);
 end
 fclose(fid);
-exit;
-
 
 ## Local variables:
 ## mode: Octave

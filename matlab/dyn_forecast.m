@@ -58,7 +58,7 @@ i_var = [];
 for i = 1:size(var_list)
     tmp = strmatch(var_list(i,:),endo_names,'exact');
     if isempty(tmp)
-        error([var_list(i,:) ' isn''t and endogenous variable'])
+        error([var_list(i,:) ' isn''t an endogenous variable'])
     end
     i_var = [i_var; tmp];
 end
@@ -140,7 +140,7 @@ else
                             repmat(oo.exo_det_steady_state',...
                                    horizon- ... 
                                    exo_det_length,1)];
-    elseif horizon < exo_det_length 
+    elseif horizon <= exo_det_length 
         ex = zeros(exo_det_length,M.exo_nbr); 
     end
     if isequal(M.H,0)

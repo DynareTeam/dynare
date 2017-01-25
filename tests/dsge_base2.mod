@@ -32,5 +32,5 @@ steady;
 
 stoch_simul;
 
-save dsge_base2 oo_ M_ options_;
+save dsge_base2.mat oo_ M_ options_;
 close all, clc;

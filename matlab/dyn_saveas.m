@@ -52,7 +52,12 @@ if any(strcmp('fig',cellstr(DynareOptions.graph_format)))
         error('Octave cannot create fig files!')
     else
         if DynareOptions.nodisplay
-            set(h, 'Visible','on');
+%  THE FOLLOWING LINES COULD BE USED IF BUGS/PROBLEMS ARE REPORTED USING LINE 60		
+%             set(h,'Units','Normalized')
+%             mypos=get(h,'Position');
+%             set(h,'Position',[-1 -1 mypos(3:4)])
+%             set(h, 'Visible','on');
+            set(h,'CreateFcn','set(gcf, ''Visible'',''on'')') ;
         end
         saveas(h,[fname '.fig']);
     end

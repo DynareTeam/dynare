@@ -231,6 +231,9 @@ end
 for i = 1:length(M_.aux_vars)
     if M_.aux_vars(i).endo_index == aux_index
         switch M_.aux_vars(i).type
+          case 0
+            str = sprintf('%s(%d)',deblank(M_.endo_names(aux_index,:)),aux_lead_lag);                
+            return
           case 1
             orig_name = deblank(M_.endo_names(M_.aux_vars(i).orig_index, :));
           case 3

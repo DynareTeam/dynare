@@ -1,4 +1,4 @@
-function [il,l1,ik,k1] = indices_lagged_leaded_exogenous(k,M)
+function [il,l1,ik,k1] = indices_lagged_leaded_exogenous_variables(k,M)
 % returns indices of all endogenous variables split between auxiliary
 % variables for lagged or leaded exogenous variables and all other ones
 %

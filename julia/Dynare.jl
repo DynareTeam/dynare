@@ -27,8 +27,8 @@ function compile(modfile)
         unshift!(LOAD_PATH, pwd())
     end
     # Process modfile
-    println(string("Using ", WORD_SIZE, "-bit preprocessor"))
-    preprocessor = string(dirname(@__FILE__()), "/preprocessor", WORD_SIZE, "/dynare_m")
+    println(string("Using ", Sys.WORD_SIZE, "-bit preprocessor"))
+    preprocessor = string(dirname(@__FILE__()), "/preprocessor", Sys.WORD_SIZE, "/dynare_m")
     run(`$preprocessor $modfile language=julia output=dynamic`)
 end
 
@@ -38,12 +38,12 @@ macro dynare(modfiles...)
         for modfile in modfiles
             eval(:(compile($modfile)))
             basename = split(modfile, ".mod"; keep=false)
-            push!(ex.args, Expr(:import, symbol(basename[1])))
+            push!(ex.args, Expr(:import, Symbol(basename[1])))
         end
     else
         eval(:(compile($modfiles)))
         basename = split(modfiles[1], ".mod"; keep=false)
-        push!(ex.args, Expr(:importall, symbol(basename[1])))
+        push!(ex.args, Expr(:importall, Symbol(basename[1])))
     end
     return ex
 end

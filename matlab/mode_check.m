@@ -145,6 +145,9 @@ for plt = 1:nbplt,
                 y(i,1) = fval;
             else
                 y(i,1) = NaN;
+                if DynareOptions.debug
+                    fprintf('mode_check:: could not solve model for parameter %s at value %4.3f, error code: %u\n',name,z(i),info(1))
+                end
             end
             if DynareOptions.mode_check.nolik==0
                 lnprior = priordens(xx,BayesInfo.pshape,BayesInfo.p6,BayesInfo.p7,BayesInfo.p3,BayesInfo.p4);
@@ -204,4 +207,4 @@ if TeX && any(strcmp('eps',cellstr(DynareOptions.graph_format)))
 end
 
 OutputDirectoryName = CheckPath('modecheck',Model.dname);
-save([OutputDirectoryName '/check_plot_data'],'mcheck');
+save([OutputDirectoryName '/check_plot_data.mat'],'mcheck');

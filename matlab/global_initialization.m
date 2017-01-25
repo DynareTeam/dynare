@@ -134,6 +134,8 @@ options_.graphics.line_width = 1;
 options_.graph_format = 'eps';
 options_.nodisplay = 0;
 options_.nograph = 0;
+options_.no_graph.posterior = 0;
+options_.no_graph.shock_decomposition = 0;
 options_.XTick = [];
 options_.XTickLabel = [];
 options_.console_mode = 0;
@@ -413,17 +415,20 @@ options_.bayesian_th_moments = 0;
 options_.diffuse_filter = 0;
 options_.filter_step_ahead = [];
 options_.filtered_vars = 0;
+options_.smoothed_state_uncertainty = 0;
 options_.first_obs = NaN;
 options_.nobs = NaN;
 options_.kalman_algo = 0;
 options_.fast_kalman_filter = 0;
 options_.kalman_tol = 1e-10;
+options_.kalman.keep_kalman_algo_if_singularity_is_detected = 0;
 options_.diffuse_kalman_tol = 1e-6;
 options_.use_univariate_filters_if_singularity_is_detected = 1;
 options_.riccati_tol = 1e-6;
 options_.lik_algo = 1;
 options_.lik_init = 1;
 options_.load_mh_file = 0;
+options_.load_results_after_load_mh = 0;
 options_.logdata = 0;
 options_.loglinear = 0;
 options_.linear_approximation = 0;
@@ -471,12 +476,14 @@ options_.posterior_sampler_options.posterior_sampling_method = 'random_walk_metr
 options_.posterior_sampler_options.rwmh.proposal_distribution = 'rand_multivariate_normal';
 options_.posterior_sampler_options.rwmh.student_degrees_of_freedom = 3;
 options_.posterior_sampler_options.rwmh.use_mh_covariance_matrix=0;
+options_.posterior_sampler_options.rwmh.save_tmp_file=0;
 % Tailored Random Block Metropolis-Hastings
 options_.posterior_sampler_options.tarb.proposal_distribution = 'rand_multivariate_normal';
 options_.posterior_sampler_options.tarb.student_degrees_of_freedom = 3;
 options_.posterior_sampler_options.tarb.mode_compute=4;
 options_.posterior_sampler_options.tarb.new_block_probability=0.25; %probability that next parameter belongs to new block
 options_.posterior_sampler_options.tarb.optim_opt=''; %probability that next parameter belongs to new block
+options_.posterior_sampler_options.tarb.save_tmp_file=1;
 % Slice
 options_.posterior_sampler_options.slice.proposal_distribution = '';
 options_.posterior_sampler_options.slice.rotated=0;
@@ -486,9 +493,11 @@ options_.posterior_sampler_options.slice.WR=[];
 options_.posterior_sampler_options.slice.mode_files=[];
 options_.posterior_sampler_options.slice.mode=[];
 options_.posterior_sampler_options.slice.initial_step_size=0.8;
+options_.posterior_sampler_options.slice.save_tmp_file=1;
 % Independent Metropolis-Hastings
 options_.posterior_sampler_options.imh.proposal_distribution = 'rand_multivariate_normal';
 options_.posterior_sampler_options.imh.use_mh_covariance_matrix=0;
+options_.posterior_sampler_options.imh.save_tmp_file=0;
 
 options_.trace_plot_ma = 200;
 options_.mh_autocorrelation_function_size = 30;
@@ -761,6 +770,9 @@ options_.gpu = 0;
 %Geweke convergence diagnostics
 options_.convergence.geweke.taper_steps=[4 8 15];
 options_.convergence.geweke.geweke_interval=[0.2 0.5];
+%Raftery/Lewis convergence diagnostics;
+options_.convergence.rafterylewis.indicator=0;
+options_.convergence.rafterylewis.qrs=[0.025 0.005 0.95];
 
 % Options for lmmcp solver
 options_.lmmcp.status = 0;

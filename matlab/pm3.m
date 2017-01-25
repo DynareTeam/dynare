@@ -85,9 +85,11 @@ fprintf(['Estimation::mcmc: ' tit1 '\n']);
 k = 0;
 filter_step_ahead_indicator=0;
 filter_covar_indicator=0;
+state_uncert_indicator=0;
 
 for file = 1:ifil
-    load([DirectoryName '/' M_.fname var_type int2str(file)]);
+    loaded_file=load([DirectoryName '/' M_.fname var_type int2str(file)]);
+    stock=loaded_file.stock;
     if strcmp(var_type,'_filter_step_ahead')
         if file==1 %on first run, initialize variable for storing filter_step_ahead
             stock1_filter_step_ahead=NaN(n1,n2,B,length(options_.filter_step_ahead)); 
@@ -117,6 +119,13 @@ for file = 1:ifil
         end
         k = k(end)+(1:size(stock,2));
         stock1(:,k) = stock;
+    elseif strcmp(var_type,'_state_uncert')
+        if file==1 %on first run, initialize variable for storing filter_step_ahead
+            stock1_state_uncert=NaN(n1,n2,size(stock,3),B);
+        end
+        state_uncert_indicator=1;
+        k = k(end)+(1:size(stock,4));
+        stock1_state_uncert(:,:,:,k) = stock;
     else
         if file==1 %on first run, initialize variable for storing filter_step_ahead
             stock1 = zeros(n1,n2,B);
@@ -137,8 +146,7 @@ if filter_step_ahead_indicator
     if options_.estimation.moments_posterior_density.indicator
         Density_filter_step_ahead = zeros(options_.estimation.moments_posterior_density.gridpoints,2,filter_steps,nvar,n2);
     end
-end
-if filter_covar_indicator
+elseif filter_covar_indicator
     draw_dimension=4;
     oo_.FilterCovariance.Mean = squeeze(mean(stock1_filter_covar,draw_dimension));
     oo_.FilterCovariance.Median = squeeze(median(stock1_filter_covar,draw_dimension));
@@ -158,6 +166,28 @@ if filter_covar_indicator
     oo_.FilterCovariance.post_deciles=post_deciles;
     oo_.FilterCovariance.HPDinf=squeeze(hpd_interval(:,:,:,1));
     oo_.FilterCovariance.HPDsup=squeeze(hpd_interval(:,:,:,2));
+    fprintf(['Estimation::mcmc: ' tit1 ', done!\n']);
+    return
+elseif state_uncert_indicator
+    draw_dimension=4;
+    oo_.Smoother.State_uncertainty.Mean = squeeze(mean(stock1_state_uncert,draw_dimension));
+    oo_.Smoother.State_uncertainty.Median = squeeze(median(stock1_state_uncert,draw_dimension));
+    oo_.Smoother.State_uncertainty.var = squeeze(var(stock1_state_uncert,0,draw_dimension));
+    if size(stock1_state_uncert,draw_dimension)>2
+        hpd_interval = quantile(stock1_state_uncert,[(1-options_.mh_conf_sig)/2 (1-options_.mh_conf_sig)/2+options_.mh_conf_sig],draw_dimension);
+    else
+        size_matrix=size(stock1_state_uncert);
+        hpd_interval=NaN([size_matrix(1:3),2]);
+    end
+    if size(stock1_state_uncert,draw_dimension)>9
+        post_deciles =quantile(stock1_state_uncert,[0.1:0.1:0.9],draw_dimension);
+    else
+        size_matrix=size(stock1_state_uncert);
+        post_deciles=NaN([size_matrix(1:3),9]);
+    end
+    oo_.Smoother.State_uncertainty.post_deciles=post_deciles;
+    oo_.Smoother.State_uncertainty.HPDinf=squeeze(hpd_interval(:,:,:,1));
+    oo_.Smoother.State_uncertainty.HPDsup=squeeze(hpd_interval(:,:,:,2));
     fprintf(['Estimation::mcmc: ' tit1 ', done!\n']);
     return
 end
@@ -262,6 +292,7 @@ end
 %% 	Finally I build the plots.
 %%
 
+if ~options_.nograph && ~options_.no_graph.posterior
 % Block of code executed in parallel, with the exception of file
 % .tex generation always run sequentially. This portion of code is execute in parallel by
 % pm3_core1.m function.
@@ -363,6 +394,7 @@ if options_.TeX && any(strcmp('eps',cellstr(options_.graph_format)))
     end
     fprintf(fidTeX,'%% End of TeX file.\n');
     fclose(fidTeX);
+end
 end
 
 fprintf(['Estimation::mcmc: ' tit1 ', done!\n']);

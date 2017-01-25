@@ -1,6 +1,6 @@
 function check_matlab_path(change_path_flag)
     
-% Copyright (C) 2015 Dynare Team
+% Copyright (C) 2015-2016 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -35,6 +35,10 @@ end
 
 % Get matlab path
 MATLAB_PATH = path();
+if isoctave
+    % Octave always has '.' at the top of the path, so remove '.:'
+    MATLAB_PATH = MATLAB_PATH(3:end);
+end
 
 % Position of DYNARE_PATH in MATLAB_PATH
 idDYNARE = strfind(MATLAB_PATH,DYNARE_PATH);

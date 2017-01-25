@@ -163,7 +163,7 @@ if ~loadSA,
             yss(i,:,:)=repmat(sto_ys(:,js(i))',[gend,1]);
         end
         if exist('xparam1','var')
-            [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value);
+            [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value,M_,oo_,options_,bayestopt_,estim_params_);
             y0 = transpose( squeeze(aK(1,jxj,1:gend)));% + kron(ys_mode(js),ones(1,gend)));
             yobs = transpose( ahat(jxj,:));% + kron(ys_mode(js),ones(1,gend)));
             rmse_mode = sqrt(mean((yobs(istart:end,:)-y0(istart:end,:)).^2));
@@ -196,7 +196,7 @@ if ~loadSA,
         end
         if exist('xparam1_mean','var')
             %eval(['rmse_pmean(i) = sqrt(mean((',vj,'(fobs-1+istart:fobs-1+nobs)-y0M(istart:end-1)).^2));'])
-            [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1_mean,gend,Y,data_index,missing_value);
+            [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1_mean,gend,Y,data_index,missing_value,M_,oo_,options_,bayestopt_,estim_params_);
             y0 = transpose( squeeze(aK(1,jxj,1:gend)));% + kron(ys_mean(js),ones(1,gend)));
             yobs = transpose( ahat(jxj,:));% + kron(ys_mean(js),ones(1,gend)));
             rmse_pmean = sqrt(mean((yobs(istart:end,:)-y0(istart:end,:)).^2));
