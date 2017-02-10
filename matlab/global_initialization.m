@@ -565,6 +565,11 @@ options_.homotopy_mode = 0;
 options_.homotopy_steps = 1;
 options_.homotopy_force_continue = 0;
 
+% numerical hessian
+hessian.use_penalized_objective = false;
+
+options_.hessian = hessian;
+
 %csminwel optimization routine
 csminwel.tolerance.f=1e-7;
 csminwel.maxiter=1000;
@@ -644,6 +649,23 @@ options_.saopt.ns=10;
 options_.saopt.nt=10;
 options_.saopt.step_length_c=0.1;
 options_.saopt.initial_step_length=1;
+
+% particleswarm (global optimization toolbox needed)
+particleswarm.Display = 'iter';
+particleswarm.DisplayInterval = 1;
+particleswarm.FunctionTolerance = 1e-6;
+particleswarm.FunValCheck = 'on';
+particleswarm.HybridFcn = [];
+particleswarm.InertiaRange = [0.1, 1.1];
+particleswarm.MaxIterations = 100000;
+particleswarm.MaxStallIterations = 20;
+particleswarm.MaxStallTime = Inf;
+particleswarm.MaxTime = Inf;
+particleswarm.MinNeighborsFraction = .25;
+particleswarm.ObjectiveLimit = -Inf;
+particleswarm.UseParallel = false;
+particleswarm.UseVectorized = false;
+options_.particleswarm = particleswarm;
 
 % prior analysis
 options_.prior_mc = 20000;

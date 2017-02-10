@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Dynare Team
+ * Copyright (C) 2006-2017 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -128,7 +128,7 @@ public:
   void evalAllExpressions(bool warn_uninit);
   //! Do some checking and fills mod_file_struct
   /*! \todo add check for number of equations and endogenous if ramsey_policy is present */
-  void checkPass();
+  void checkPass(bool nostrict);
   //! Perform some transformations on the model (creation of auxiliary vars and equations)
   void transformPass(bool nostrict);
   //! Execute computations

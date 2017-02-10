@@ -141,7 +141,10 @@ trend_coeff = [];
 exit_flag   = 1;
 info        = zeros(4,1);
 DLIK        = [];
-Hess       = [];
+Hess        = [];
+
+% Ensure that xparam1 is a column vector.
+xparam1 = xparam1(:);
 
 if DynareOptions.estimation_dll
     [fval,exit_flag,SteadyState,trend_coeff,info,params,H,Q] ...

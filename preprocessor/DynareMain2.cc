@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 Dynare Team
+ * Copyright (C) 2008-2017 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -42,7 +42,7 @@ main2(stringstream &in, string &basename, bool debug, bool clear_all, bool clear
   ModFile *mod_file = p.parse(in, debug);
 
   // Run checking pass
-  mod_file->checkPass();
+  mod_file->checkPass(nostrict);
 
   // Perform transformations on the model (creation of auxiliary vars and equations)
   mod_file->transformPass(nostrict);

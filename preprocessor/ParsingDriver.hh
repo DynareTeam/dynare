@@ -93,6 +93,10 @@ private:
   //! Checks that a given symbol exists and is a endogenous or exogenous, and stops with an error message if it isn't
   void check_symbol_is_endogenous_or_exogenous(string *name);
 
+  //! Checks for symbol existence in model block. If it doesn't exist, an error message is stored to be printed at
+  //! the end of the model block
+  void check_symbol_existence_in_model_block(const string &name);
+
   //! Helper to add a symbol declaration
   void declare_symbol(const string *name, SymbolType type, const string *tex_name, const vector<pair<string *, string *> *> *partition_value);
 
@@ -180,6 +184,8 @@ private:
   //! Temporary storage for current restriction number in svar_identification block
   map<int,int> svar_Qi_restriction_nbr;
   map<int,int> svar_Ri_restriction_nbr;
+  //! Stores undeclared model variables
+  set<string> undeclared_model_vars;
   //! Temporary storage for restriction type
   enum SvarRestrictionType
     {
@@ -228,8 +234,12 @@ private:
 
   bool nostrict;
 
+  bool model_error_encountered;
+
+  ostringstream model_errors;
+
 public:
-  ParsingDriver(WarningConsolidation &warnings_arg, bool nostrict_arg) : warnings(warnings_arg), nostrict(nostrict_arg) { };
+  ParsingDriver(WarningConsolidation &warnings_arg, bool nostrict_arg) : warnings(warnings_arg), nostrict(nostrict_arg), model_error_encountered(false) { };
 
   //! Starts parsing, and constructs the MOD file representation
   /*! The returned pointer should be deleted after use */
@@ -256,6 +266,12 @@ public:
   void error(const string &m) __attribute__ ((noreturn));
   //! Warning handler using saved location
   void warning(const string &m);
+
+  //! Error handler with explicit location (used in model block, accumulating error messages to be printed later)
+  void model_error(const string &m);
+
+  //! Code shared between model_error() and error()
+  void create_error_string(const Dynare::parser::location_type &l, const string &m, ostream &stream);
 
   //! Check if a given symbol exists in the parsing context, and is not a mod file local variable
   bool symbol_exists_and_is_not_modfile_local_or_external_function(const char *s);
@@ -341,6 +357,8 @@ public:
   void end_homotopy();
   //! Begin a model block
   void begin_model();
+  //! End a model block, printing errors that were encountered in parsing
+  void end_model();
   //! Writes a shocks statement
   void end_shocks(bool overwrite);
   //! Writes a mshocks statement
@@ -668,6 +686,8 @@ public:
   void push_external_function_arg_vector_onto_stack();
   //! Adds an external function argument
   void add_external_function_arg(expr_t arg);
+  //! Test to see if model/external function has exactly one integer argument
+  pair<bool, double> is_there_one_integer_argument() const;
   //! Adds an external function call node
   expr_t add_model_var_or_external_function(string *function_name, bool in_model_block);
   //! Adds a native statement

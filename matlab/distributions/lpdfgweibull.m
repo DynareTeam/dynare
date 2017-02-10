@@ -279,7 +279,7 @@ end
 %$ 
 %$ try
 %$    if isoctave
-%$        s = quadv(xdens, .0000000001, 100000,1e-10)
+%$        s = quadv(xdens, .0000000001, 20,1e-10)
 %$    else
 %$        s = integral(xdens, 0, 100000);
 %$    end

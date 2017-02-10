@@ -41,6 +41,13 @@ ParsingDriver::symbol_exists_and_is_not_modfile_local_or_external_function(const
 }
 
 void
+ParsingDriver::check_symbol_existence_in_model_block(const string &name)
+{
+  if (!mod_file->symbol_table.exists(name))
+    model_error("Unknown symbol: " + name);
+}
+
+void
 ParsingDriver::check_symbol_existence(const string &name)
 {
   if (!mod_file->symbol_table.exists(name))
@@ -106,16 +113,7 @@ ParsingDriver::parse(istream &in, bool debug)
 void
 ParsingDriver::error(const Dynare::parser::location_type &l, const string &m)
 {
-  cerr << "ERROR: " << *l.begin.filename << ": line " << l.begin.line;
-  if (l.begin.line == l.end.line)
-    if (l.begin.column == l.end.column - 1)
-      cerr << ", col " << l.begin.column;
-    else
-      cerr << ", cols " << l.begin.column << "-" << l.end.column - 1;
-  else
-    cerr << ", col " << l.begin.column << " -"
-         << " line " << l.end.line << ", col " << l.end.column - 1;
-  cerr << ": " << m << endl;
+  create_error_string(l, m, cerr);
   exit(EXIT_FAILURE);
 }
 
@@ -123,6 +121,28 @@ void
 ParsingDriver::error(const string &m)
 {
   error(location, m);
+}
+
+void
+ParsingDriver::create_error_string(const Dynare::parser::location_type &l, const string &m, ostream &stream)
+{
+  stream << "ERROR: " << *l.begin.filename << ": line " << l.begin.line;
+  if (l.begin.line == l.end.line)
+    if (l.begin.column == l.end.column - 1)
+      stream << ", col " << l.begin.column;
+    else
+      stream << ", cols " << l.begin.column << "-" << l.end.column - 1;
+  else
+    stream << ", col " << l.begin.column << " -"
+         << " line " << l.end.line << ", col " << l.end.column - 1;
+  stream << ": " << m << endl;
+}
+
+void
+ParsingDriver::model_error(const string &m)
+{
+  create_error_string(location, m, model_errors);
+  model_error_encountered = true;
 }
 
 void
@@ -334,8 +354,22 @@ ParsingDriver::add_inf_constant()
 expr_t
 ParsingDriver::add_model_variable(string *name)
 {
-  check_symbol_existence(*name);
-  int symb_id = mod_file->symbol_table.getID(*name);
+  check_symbol_existence_in_model_block(*name);
+  int symb_id;
+  try
+    {
+      symb_id = mod_file->symbol_table.getID(*name);
+      if (undeclared_model_vars.find(*name) != undeclared_model_vars.end())
+        model_error("Unknown symbol: " + *name);
+    }
+  catch (SymbolTable::UnknownSymbolNameException &e)
+    {
+      // This could be endog or param too. Just declare something to continue parsing,
+      // knowing that processing will end at the end of parsing of the model block
+      declare_exogenous(new string (*name));
+      undeclared_model_vars.insert(*name);
+      symb_id = mod_file->symbol_table.getID(*name);
+    }
   delete name;
   return add_model_variable(symb_id, 0);
 }
@@ -650,6 +684,17 @@ void
 ParsingDriver::begin_model()
 {
   set_current_data_tree(&mod_file->dynamic_model);
+}
+
+void
+ParsingDriver::end_model()
+{
+  if (model_error_encountered)
+    {
+      cerr << model_errors.str();
+      exit(EXIT_FAILURE);
+    }
+  reset_data_tree();
 }
 
 void
@@ -2533,6 +2578,51 @@ ParsingDriver::add_external_function_arg(expr_t arg)
   stack_external_function_args.top().push_back(arg);
 }
 
+pair<bool, double>
+ParsingDriver::is_there_one_integer_argument() const
+{
+  if (stack_external_function_args.top().size() != 1)
+    return make_pair(false, 0);
+
+  NumConstNode *numNode = dynamic_cast<NumConstNode *>(stack_external_function_args.top().front());
+  UnaryOpNode *unaryNode = dynamic_cast<UnaryOpNode *>(stack_external_function_args.top().front());
+
+  if (numNode == NULL && unaryNode == NULL)
+    return make_pair(false, 0);
+
+  eval_context_t ectmp;
+  double model_var_arg;
+  if (unaryNode == NULL)
+    {
+      try
+        {
+          model_var_arg = numNode->eval(ectmp);
+        }
+      catch (ExprNode::EvalException &e)
+        {
+          return make_pair(false, 0);
+        }
+    }
+  else
+    if (unaryNode->get_op_code() != oUminus)
+      return make_pair(false, 0);
+    else
+      {
+        try
+          {
+            model_var_arg = unaryNode->eval(ectmp);
+          }
+        catch (ExprNode::EvalException &e)
+          {
+            return make_pair(false, 0);
+          }
+      }
+
+  if (model_var_arg != floor(model_var_arg))
+    return make_pair(false, 0);
+  return make_pair(true, model_var_arg);
+}
+
 expr_t
 ParsingDriver::add_model_var_or_external_function(string *function_name, bool in_model_block)
 {
@@ -2550,47 +2640,14 @@ ParsingDriver::add_model_var_or_external_function(string *function_name, bool in
             }
           else
             { // e.g. model_var(lag) => ADD MODEL VARIABLE WITH LEAD (NumConstNode)/LAG (UnaryOpNode)
-              if (stack_external_function_args.top().size() != 1)
-                error(string("Symbol ") + *function_name + string(" is being treated as if it were a function (i.e., has received more than one argument)."));
+              if (undeclared_model_vars.find(*function_name) != undeclared_model_vars.end())
+                model_error("Unknown symbol: " + *function_name);
 
-              NumConstNode *numNode = dynamic_cast<NumConstNode *>(stack_external_function_args.top().front());
-              UnaryOpNode *unaryNode = dynamic_cast<UnaryOpNode *>(stack_external_function_args.top().front());
+              pair<bool, double> rv = is_there_one_integer_argument();
+              if (!rv.first)
+                model_error(string("Symbol ") + *function_name + string(" is being treated as if it were a function (i.e., takes an argument that is not an integer)."));
 
-              if (numNode == NULL && unaryNode == NULL)
-                error(string("Symbol ") + *function_name + string(" is being treated as if it were a function (i.e., takes an argument that is not an integer)."));
-
-              eval_context_t ectmp;
-              double model_var_arg;
-              if (unaryNode == NULL)
-                {
-                  try
-                    {
-                      model_var_arg = numNode->eval(ectmp);
-                    }
-                  catch (ExprNode::EvalException &e)
-                    {
-                      error(string("Symbol ") + *function_name + string(" is being treated as if it were a function (i.e., takes an argument that is not an integer)."));
-                    }
-                }
-              else
-                if (unaryNode->get_op_code() != oUminus)
-                  error(string("Symbol ") + *function_name + string(" is being treated as if it were a function (i.e., takes an argument that is not an integer)."));
-                else
-                  {
-                    try
-                      {
-                        model_var_arg = unaryNode->eval(ectmp);
-                      }
-                    catch (ExprNode::EvalException &e)
-                      {
-                        error(string("Symbol ") + *function_name + string(" is being treated as if it were a function (i.e., takes an argument that is not an integer)."));
-                      }
-                  }
-
-              if (model_var_arg != floor(model_var_arg))
-                error(string("Symbol ") + *function_name + string(" is being treated as if it were a function (i.e., takes an argument that is not an integer)."));
-
-              nid = add_model_variable(mod_file->symbol_table.getID(*function_name), (int) model_var_arg);
+              nid = add_model_variable(mod_file->symbol_table.getID(*function_name), (int) rv.second);
               stack_external_function_args.pop();
               delete function_name;
               return nid;
@@ -2615,8 +2672,21 @@ ParsingDriver::add_model_var_or_external_function(string *function_name, bool in
   else
     { //First time encountering this external function i.e., not previously declared or encountered
       if (in_model_block)
-        error("To use an external function (" + *function_name + ") within the model block, you must first declare it via the external_function() statement.");
-
+        {
+          // Continue processing, noting that it was not declared
+          // Paring will end at the end of the model block
+          undeclared_model_vars.insert(*function_name);
+          model_error("Unknown symbol: " + *function_name);
+          pair<bool, double> rv = is_there_one_integer_argument();
+          if (rv.first)
+            {
+              // assume it's a lead/lagged variable
+              declare_exogenous(new string (*function_name));
+              return add_model_variable(mod_file->symbol_table.getID(*function_name), (int) rv.second);
+            }
+          else
+            error("To use an external function (" + *function_name + ") within the model block, you must first declare it via the external_function() statement.");
+        }
       declare_symbol(function_name, eExternalFunction, NULL, NULL);
       current_external_function_options.nargs = stack_external_function_args.top().size();
       mod_file->external_functions_table.addExternalFunction(mod_file->symbol_table.getID(*function_name),

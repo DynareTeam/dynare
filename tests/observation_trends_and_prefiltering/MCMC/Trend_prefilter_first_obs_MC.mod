@@ -7,7 +7,7 @@ estimation(order=1,datafile='AR1_trend_data_with_constant',mh_replic=400,mode_co
         first_obs=1000,smoother,prefilter=1,
         mh_nblocks=1,mh_jscale=1e-4,
         filtered_vars, filter_step_ahead = [1,2,4],
-        mcmc_jumping_covariance='MCMC_jump_covar_prefilter',forecast=100) P_obs Y_obs junk2;
+        mcmc_jumping_covariance='MCMC_jump_covar_prefilter',forecast=100,no_posterior_kernel_density) P_obs Y_obs junk2;
 
 load('AR1_trend_data_with_constant');
 @#include "../Trend_load_data_common.inc" 

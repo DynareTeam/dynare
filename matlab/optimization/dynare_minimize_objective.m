@@ -401,8 +401,58 @@ switch minimizer_algorithm
     [LB, UB]=set_bounds_to_finite_values(bounds, options_.huge_number);
     [opt_par_values, fval, exitflag] = simpsa(func2str(objective_function),start_par_value,LB,UB,simpsaOptions,varargin{:});
   case 11
-     options_.cova_compute = 0 ;
-     [opt_par_values,stdh,lb_95,ub_95,med_param] = online_auxiliary_filter(start_par_value,varargin{:}) ;
+    options_.cova_compute = 0;
+    [opt_par_values, stdh, lb_95, ub_95, med_param] = online_auxiliary_filter(start_par_value, varargin{:});
+  case 12
+    [LB, UB] = set_bounds_to_finite_values(bounds, options_.huge_number);
+    tmp = transpose([fieldnames(options_.particleswarm), struct2cell(options_.particleswarm)]);
+    particleswarmOptions = optimoptions(@particleswarm);
+    particleswarmOptions = optimoptions(particleswarmOptions, tmp{:});
+    if ~isempty(options_.optim_opt)
+        options_list = read_key_value_string(options_.optim_opt);
+        SupportedListOfOptions = {'CreationFcn', 'Display', 'DisplayInterval', 'FunctionTolerance', ...
+                                    'FunValCheck', 'HybridFcn', 'InertiaRange', 'InitialSwarmMatrix', 'InitialSwarmSpan', ...
+                                    'MaxIterations', 'MaxStallIterations', 'MaxStallTime', 'MaxTime', ...
+                                    'MinNeighborsFraction', 'ObjectiveLimit', 'OutputFcn', 'PlotFcn', 'SelfAdjustmentWeight', ...
+                                    'SocialAdjustmentWeight', 'SwarmSize', 'UseParallel', 'UseVectorized'};
+        for i=1:rows(options_list)
+            if ismember(options_list{i,1}, SupportedListOfOptions)
+                particleswarmOptions = optimoptions(particleswarmOptions, options_list{i,1}, options_list{i,2});
+            else
+                warning(['particleswarm: Unknown option (' options_list{i,1} ')!'])
+            end
+        end
+    end
+    % Get number of instruments.
+    numberofvariables = length(start_par_value);
+    % Set objective function.
+    objfun = @(x) objective_function(x, varargin{:});
+    if ischar(particleswarmOptions.SwarmSize)
+        eval(['particleswarmOptions.SwarmSize = ' particleswarmOptions.SwarmSize ';'])
+    end
+    if isempty(particleswarmOptions.InitialSwarmMatrix)
+        particleswarmOptions.InitialSwarmMatrix = zeros(particleswarmOptions.SwarmSize, numberofvariables);
+        p = 1;
+        FVALS = zeros(particleswarmOptions.SwarmSize, 1);
+        while p<=particleswarmOptions.SwarmSize
+            candidate = rand(numberofvariables, 1).*(UB-LB)+LB;
+            [fval, info, exit_flag] = objfun(candidate);
+            if exit_flag
+                particleswarmOptions.InitialSwarmMatrix(p,:) = transpose(candidate);
+                FVALS(p) = fval;
+                p = p + 1;
+            end
+        end
+    end
+    % Set penalty to the worst value of the objective function.
+    TMP = [particleswarmOptions.InitialSwarmMatrix, FVALS];
+    TMP = sortrows(TMP, length(start_par_value)+1);
+    penalty = TMP(end,end);
+    % Define penalized objective.
+    objfun = @(x) penalty_objective_function(x, objective_function, penalty, varargin{:});
+    % Minimize the penalized objective (note that the penalty is not updated).
+    [opt_par_values, fval, exitflag, output] = particleswarm(objfun, length(start_par_value), LB, UB, particleswarmOptions);
+    opt_par_values = opt_par_values(:);
   case 101
     solveoptoptions = options_.solveopt;
     if ~isempty(options_.optim_opt)

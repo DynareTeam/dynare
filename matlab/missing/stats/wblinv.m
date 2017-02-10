@@ -155,7 +155,11 @@ t = exp(log(scale)+log(-log(1-proba))/shape);
 %$           if debug
 %$               [s, abs(p-s)]
 %$           end
+%$         if isoctave
+%$           t(k) = abs(p-s)<1e-10;  
+%$         else
 %$           t(k) = abs(p-s)<1e-12;
+%$         end
 %$       end
 %$    end
 %$ end

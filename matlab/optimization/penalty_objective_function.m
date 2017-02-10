@@ -1,7 +1,19 @@
-function [fval,exit_flag,arg1,arg2] = penalty_objective_function(x0,fcn,penalty,varargin)
-%function [fval,exit_flag,arg1,arg2] = penalty_objective_function(x0,fcn,penalty,varargin)
+function [fval, exit_flag, arg1, arg2] = penalty_objective_function(x, fcn, base_penalty, varargin)
 
-% Copyright (C) 2016 Dynare Team
+% Encapsulates an objective function to be minimized, adding a penalty if necessary.
+%
+% INPUTS 
+% - x             [double]    n*1 vector of instrument values.
+% - fcn           [fhandle]   objective function.
+% - base_penalty  [double]    scalar, base of the penality (typically the value of the objective at the previous iteration).
+% - varagin       [cell]      additional parameters for fcn.
+%
+% OUTPUTS 
+% - fval          [double]    scalar, value of the objective function at x.
+% - exit_flag     [integer]   scalar, flag returned by fcn (third output).
+% - arg1, arg2                fourth and fifth output arguments of the objective function.
+
+% Copyright (C) 2016-2017 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -18,9 +30,8 @@ function [fval,exit_flag,arg1,arg2] = penalty_objective_function(x0,fcn,penalty,
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-    [fval,info,exit_flag,arg1,arg2] = fcn(x0,varargin{:});
+[fval, info, exit_flag, arg1, arg2] = fcn(x, varargin{:});
 
-    if info(1) ~= 0
-        fval = penalty + info(4);
-    end
+if info(1)
+    fval = base_penalty + info(4);
 end

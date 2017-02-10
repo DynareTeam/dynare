@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2016 Dynare Team
+ * Copyright (C) 2003-2017 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -336,7 +336,7 @@ RamseyConstraintsStatement::writeOutput(ostream &output, const string &basename,
 	  break;
 	default:
 	  cerr << "Ramsey constraints: this shouldn't happen." << endl;
-	  exit(1);
+	  exit(EXIT_FAILURE);
 	}
       output << "', '";
       it->expression->writeOutput(output);
@@ -1044,10 +1044,7 @@ void
 ObservationTrendsStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
 {
   output << "options_.trend_coeff = {};" << endl;
-
-  trend_elements_t::const_iterator it;
-
-  for (it = trend_elements.begin(); it != trend_elements.end(); it++)
+  for (trend_elements_t::const_iterator it = trend_elements.begin(); it != trend_elements.end(); it++)
     {
       SymbolType type = symbol_table.getType(it->first);
       if (type == eEndogenous)
@@ -1058,7 +1055,7 @@ ObservationTrendsStatement::writeOutput(ostream &output, const string &basename,
           output << "';" << endl;
         }
       else
-        cout << "Error : Non-variable symbol used in TREND_COEFF: " << it->first << endl;
+        cerr << "Warning : Non-variable symbol used in observation_trends: " << it->first << endl;
     }
 }
 

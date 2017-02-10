@@ -5012,7 +5012,7 @@ DynamicModel::writeFirstDerivativesC_csr(const string &basename, bool cuda) cons
 	  break;
 	default:
 	  std::cerr << "This case shouldn't happen" << std::endl;
-	  exit(1);
+	  exit(EXIT_FAILURE);
 	}
       derivative deriv(col_id + eq*cols_nbr,col_id,eq,it->second);
       D.push_back(deriv);

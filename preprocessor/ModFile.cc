@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2016 Dynare Team
+ * Copyright (C) 2006-2017 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -107,7 +107,7 @@ ModFile::addStatementAtFront(Statement *st)
 }
 
 void
-ModFile::checkPass()
+ModFile::checkPass(bool nostrict)
 {
   for (vector<Statement *>::iterator it = statements.begin();
        it != statements.end(); it++)
@@ -299,19 +299,22 @@ ModFile::checkPass()
       exit(EXIT_FAILURE);
     }
 
-  // Check if some exogenous is not used in the model block
+  // Check if some exogenous is not used in the model block, Issue #841
   set<int> unusedExo = dynamic_model.findUnusedExogenous();
   if (unusedExo.size() > 0)
     {
-      warnings << "WARNING: some exogenous (";
-      for (set<int>::const_iterator it = unusedExo.begin();
-           it != unusedExo.end(); )
+      ostringstream unused_exos;
+      for (set<int>::iterator it = unusedExo.begin(); it != unusedExo.end(); it++)
+        unused_exos << symbol_table.getName(*it) << " ";
+
+      if (nostrict)
+        warnings << "WARNING: " << unused_exos.str()
+                 << "not used in model block, removed by nostrict command-line option" << endl;
+      else
         {
-          warnings << symbol_table.getName(*it);
-          if (++it != unusedExo.end())
-            warnings << ", ";
+          cerr << "ERROR: " << unused_exos.str() << "not used in model block. To bypass this error, use the `nostrict` option. This may lead to crashes or unexpected behavior." << endl;
+          exit(EXIT_FAILURE);
         }
-      warnings << ") are declared but not used in the model. This may lead to crashes or unexpected behaviour." << endl;
     }
 }
 
@@ -428,7 +431,7 @@ ModFile::transformPass(bool nostrict)
 
   if (symbol_table.exo_det_nbr() > 0 && mod_file_struct.perfect_foresight_solver_present)
     {
-      cerr << "ERROR: A .mod file cannot contain both one of {perfect_foresight_solver,simul}  and varexo_det declaration (all exogenous variables are deterministic in this case)" << endl;
+      cerr << "ERROR: A .mod file cannot contain both one of {perfect_foresight_solver, simul} and varexo_det declaration (all exogenous variables are deterministic in this case)" << endl;
       exit(EXIT_FAILURE);
     }
 

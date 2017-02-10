@@ -1,7 +1,7 @@
 /*
- * This file replicates the estimation of the cash in advance model described
- * Frank Schorfheide (2000): "Loss function-based evaluation of DSGE models",
- * Journal of Applied Econometrics, 15(6), 645-670.
+ * This file replicates (except for a small difference in the priors)the estimation of
+ * the cash in advance model described Frank Schorfheide (2000): "Loss function-based
+ * evaluation of DSGE models", Journal of Applied Econometrics, 15(6), 645-670.
  *
  * The data are in file "fs2000/fsdat_simul.m", and have been artificially generated.
  * They are therefore different from the original dataset used by Schorfheide.
@@ -17,7 +17,7 @@
  */
 
 /*
- * Copyright (C) 2004-2010 Dynare Team
+ * Copyright (C) 2004-2017 Dynare Team
  *
  * This file is part of Dynare.
  *
@@ -106,7 +106,16 @@ alp, beta_pdf, 0.356, 0.02;
 bet, beta_pdf, 0.993, 0.002;
 gam, normal_pdf, 0.0085, 0.003;
 mst, normal_pdf, 1.0002, 0.007;
-rho, beta_pdf, 0.129, 0.223;
+/*
+ * The prior on the autoregressive parameter rho is different from the one considered in the original paper.
+ * We lowered the prior variance to ensure that the prior does not have an asymptote at zero, which causes
+ * troubles for some optimizers. For instance, mode_compute=12 (which relies on Mathworks' particleswarm
+ * routine) finds a posterior at zero for rho (with a much higher posterior density than the one reported
+ * by csminwell or other optimization routines). Because zero is on the boundary of the prior, this is an
+ * an issue when we have to compute the hessian matrix (which is not full rank) at the mode or if we try to
+ * use this solution as an initial guess for csminwell.
+ */
+rho, beta_pdf, 0.129, 0.100;
 psi, beta_pdf, 0.65, 0.05;
 del, beta_pdf, 0.01, 0.005;
 stderr e_a, inv_gamma_pdf, 0.035449, inf;

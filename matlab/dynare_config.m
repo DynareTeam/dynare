@@ -91,6 +91,15 @@ if isoctave
     p{end+1} = '/missing/ordeig';
 end
 
+if isoctave && ~isequal(supported_octave_version(), version())
+    skipline()
+    warning(['This version of Octave is not supported. Consider installing ' ...
+             'version %s of Octave,\notherwise m files will be used instead ' ...
+             'of precompiled mex files and some features, like solution\n' ...
+             'of models approximated at third order, will not be available.'], supported_octave_version())
+    skipline()
+end
+
 % ilu is missing in Octave < 4.0
 if isoctave && octave_ver_less_than('4.0')
     p{end+1} = '/missing/ilu';

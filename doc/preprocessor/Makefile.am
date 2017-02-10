@@ -4,7 +4,7 @@ pdf-local: preprocessor.pdf
 endif
 endif
 
-SRC = preprocessor.tex expr.png expr-sharing.png matrices.png overview.png
+SRC = preprocessor.tex expr.png expr-sharing.png matrices.png overview.png json-preprocessor.png
 
 EXTRA_DIST = $(SRC)
 

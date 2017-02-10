@@ -107,7 +107,7 @@ function [fval,info,exit_flag,DLIK,Hess,ys,trend_coeff,Model,DynareOptions,Bayes
 %! @end deftypefn
 %@eod:
 
-% Copyright (C) 2010-2016 Dynare Team
+% Copyright (C) 2010-2017 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -124,9 +124,6 @@ function [fval,info,exit_flag,DLIK,Hess,ys,trend_coeff,Model,DynareOptions,Bayes
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-% AUTHOR(S) stephane DOT adjemian AT univ DASH lemans DOT fr
-%           frederic DOT karame AT univ DASH lemans DOT fr
-
 % Declaration of the penalty as a persistent variable.
 persistent init_flag
 persistent restrict_variables_idx observed_variables_idx state_variables_idx mf0 mf1
@@ -139,6 +136,9 @@ trend_coeff     = [];
 exit_flag       = 1;
 DLIK            = [];
 Hess            = [];
+
+% Ensure that xparam1 is a column vector.
+xparam1 = xparam1(:);
 
 % Issue an error if loglinear option is used.
 if DynareOptions.loglinear

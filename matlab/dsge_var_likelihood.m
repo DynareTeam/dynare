@@ -37,7 +37,7 @@ function [fval,info,exit_flag,grad,hess,SteadyState,trend_coeff,PHI_tilde,SIGMA_
 % SPECIAL REQUIREMENTS
 %   None.
 
-% Copyright (C) 2006-2016 Dynare Team
+% Copyright (C) 2006-2017 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -67,6 +67,9 @@ SIGMA_u_tilde = [];
 iXX = [];
 prior = [];
 trend_coeff=[];
+
+% Ensure that xparam1 is a column vector.
+xparam1 = xparam1(:);
 
 % Initialization of of the index for parameter dsge_prior_weight in Model.params.
 if isempty(dsge_prior_weight_idx)

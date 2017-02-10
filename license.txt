@@ -169,6 +169,10 @@ Files: doc/macroprocessor/*
 Copyright: 2008-2015 Dynare Team
 License: CC-BY-SA-4.0
 
+Files: doc/preprocessor/*
+Copyright: 2007-2017 Dynare Team
+License: CC-BY-SA-4.0
+
 Files: doc/dr.tex doc/bvar_a_la_sims.tex
 Copyright: 2007-2011 Sébastien Villemot
 License: GFDL-NIV-1.3+
