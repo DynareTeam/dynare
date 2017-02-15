@@ -64,6 +64,14 @@ end
 tmp = fieldnames(smoothedvars);
 if isstruct(getfield(smoothedvars, tmp{1}))
     post_metropolis = 1;
+    if ~ isstruct(getfield(smoothedvars, tmp{end}))
+        % point and metropolis results are simultaneously present
+        post_metropolis = 2;
+    end
+    
+elseif isstruct(getfield(smoothedvars, tmp{end}))
+    % point and metropolis results are simultaneously present
+    post_metropolis = 2;
 else
     post_metropolis = 0;
 end
@@ -78,11 +86,11 @@ if isempty(options_.parameter_set)
 else
     switch options_.parameter_set
       case 'calibration'
-        if post_metropolis
+        if post_metropolis == 1
             error('Option parameter_set=calibration is not consistent with computed smoothed values.')
         end
       case 'posterior_mode'
-        if post_metropolis
+        if post_metropolis == 1
             error('Option parameter_set=posterior_mode is not consistent with computed smoothed values.')
         end
       case 'posterior_mean'
@@ -105,7 +113,11 @@ else
 end
 
 % Determine number of periods
-tmp = fieldnames(smoothedvars);
+if post_metropolis==2
+    tmp = fieldnames(smoothedvars.Mean);
+else
+    tmp = fieldnames(smoothedvars);
+end
 n = size(getfield(smoothedvars, tmp{1}));
 
 if n < M_.maximum_endo_lag
