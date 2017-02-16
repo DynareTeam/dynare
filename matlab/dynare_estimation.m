@@ -32,7 +32,7 @@ function oo_recursive_=dynare_estimation(var_list,dname)
 global options_ oo_ M_ dataset_ dataset_info
 
 oo_recursive_={};
-
+mode_file0 = options_.mode_file; % store mode_file set by the user
 % Test if the order of approximation is nonzero (the preprocessor tests if order is non negative).
 if isequal(options_.order,0)
     error('Estimation:: The order of the Taylor approximation cannot be 0!')
@@ -212,4 +212,5 @@ if nnobs > 1 && horizon > 0
         end
     end
 end
-options_.mode_file = ''; %delete stored mode-file so that it is not reaccessed in later calls (and in case it was only set by the recursive estimation)
+options_.mode_file = mode_file0; 
+%reset stored mode-file to user defined one (and in case it was only set by the recursive estimation)
