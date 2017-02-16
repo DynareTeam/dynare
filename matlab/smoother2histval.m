@@ -76,6 +76,14 @@ else
     post_metropolis = 0;
 end
 
+if post_metropolis
+    tmp = fieldnames(smoothedvars.Mean);
+    tmpexo = fieldnames(smoothedshocks.Mean);
+else
+    tmp = fieldnames(smoothedvars);
+    tmpexo = fieldnames(smoothedshocks);
+end
+
 % If post-Metropolis, select the parameter set
 if isempty(options_.parameter_set)
     if post_metropolis
@@ -113,11 +121,6 @@ else
 end
 
 % Determine number of periods
-if post_metropolis==2
-    tmp = fieldnames(smoothedvars.Mean);
-else
-    tmp = fieldnames(smoothedvars);
-end
 n = size(getfield(smoothedvars, tmp{1}));
 
 if n < M_.maximum_endo_lag
@@ -130,7 +133,7 @@ if isfield(opts, 'invars')
         invars = cellstr(invars);
     end
 else
-    invars = [fieldnames(smoothedvars); fieldnames(smoothedshocks)];
+    invars = [tmp; tmpexo];
 end
 
 if isfield(opts, 'period')
