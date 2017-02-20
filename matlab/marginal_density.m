@@ -65,7 +65,8 @@ end
 % save the posterior mean and the inverse of the covariance matrix
 % (usefull if the user wants to perform some computations using
 % the posterior mean instead of the posterior mode ==> ). 
-save([M_.fname '_mean.mat'],'xparam1','hh','SIGMA');
+parameter_names = bayestopt_.name;
+save([M_.fname '_mean.mat'],'xparam1','hh','parameter_names','SIGMA');
 
 fprintf('Estimation::marginal density: I''m computing the posterior log marginal density (modified harmonic mean)... ');
 logdetSIGMA = log(det(SIGMA));
