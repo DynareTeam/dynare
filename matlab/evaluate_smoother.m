@@ -1,4 +1,4 @@
-function [oo_,options_,bayestopt_,Smoothed_variables_declaration_order_deviation_form]=evaluate_smoother(parameters,var_list,M_,oo_,options_,bayestopt_,estim_params_)
+function [oo_,M_,options_,bayestopt_,Smoothed_variables_declaration_order_deviation_form]=evaluate_smoother(parameters,var_list,M_,oo_,options_,bayestopt_,estim_params_)
 % Evaluate the smoother at parameters.
 %
 % INPUTS
@@ -21,13 +21,14 @@ function [oo_,options_,bayestopt_,Smoothed_variables_declaration_order_deviation
 %                              - SmoothedMeasurementErrors
 %                              - FilteredVariablesKStepAhead
 %                              - FilteredVariablesKStepAheadVariances
+%    o M_          [structure]  Definition of the model
+%    o options_    [structure]  Options; returns options_.first_obs
+%    o bayestopt_  [structure]  describing the priors; returns fields like bayestopt_.smoother_var_list from the smoother 
 %    o Smoothed_variables_declaration_order_deviation_form
 %                           Smoothed variables from the Kalman smoother in
 %                           order of declaration of variables (M_.endo_names)
 %                           in deviations from their respective mean, i.e.
 %                           without trend and constant part (used for shock_decomposition)
-%    o options_    [structure]  Options; returns options_.first_obs
-%    o bayestopt_  [structure]  describing the priors; returns fields like bayestopt_.smoother_var_list from the smoother 
 %
 % SPECIAL REQUIREMENTS
 %    None

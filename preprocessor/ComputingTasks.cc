@@ -1662,7 +1662,7 @@ ShockDecompositionStatement::writeOutput(ostream &output, const string &basename
 {
   options_list.writeOutput(output);
   symbol_list.writeOutput("var_list_", output);
-  output << "oo_ = shock_decomposition(M_,oo_,options_,var_list_,bayestopt_,estim_params_);" << endl;
+  output << "[oo_,M_]= shock_decomposition(M_,oo_,options_,var_list_,bayestopt_,estim_params_);" << endl;
 }
 
 ConditionalForecastStatement::ConditionalForecastStatement(const OptionsList &options_list_arg) :
@@ -3191,7 +3191,7 @@ CalibSmootherStatement::writeOutput(ostream &output, const string &basename, boo
   symbol_list.writeOutput("var_list_", output);
   output << "options_.smoother = 1;" << endl;
   output << "options_.order = 1;" << endl;
-  output << "[oo_,options_,bayestopt_]=evaluate_smoother('calibration',var_list_,M_,oo_,options_,bayestopt_,estim_params_);" << endl;
+  output << "[oo_,M_,options_,bayestopt_]=evaluate_smoother('calibration',var_list_,M_,oo_,options_,bayestopt_,estim_params_);" << endl;
 }
 
 ExtendedPathStatement::ExtendedPathStatement(const OptionsList &options_list_arg)

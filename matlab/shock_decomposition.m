@@ -1,4 +1,4 @@
-function oo_ = shock_decomposition(M_,oo_,options_,varlist,bayestopt_,estim_params_)
+function [oo_,M_] = shock_decomposition(M_,oo_,options_,varlist,bayestopt_,estim_params_)
 % function z = shock_decomposition(M_,oo_,options_,varlist)
 % Computes shocks contribution to a simulated trajectory. The field set is
 % oo_.shock_decomposition. It is a n_var by nshock+2 by nperiods array. The
@@ -17,6 +17,8 @@ function oo_ = shock_decomposition(M_,oo_,options_,varlist,bayestopt_,estim_para
 %
 % OUTPUTS
 %    oo_:         [structure]  Storage of results
+%    M_:          [structure]  Definition of the model; makes sure that
+%                               M_.params is correctly updated
 %
 % SPECIAL REQUIREMENTS
 %    none
@@ -68,10 +70,10 @@ end
 
 
 options_.selected_variables_only = 0; %make sure all variables are stored
-[oo,junk1,junk2,Smoothed_Variables_deviation_from_mean] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
+[oo_,M_,junk1,junk2,Smoothed_Variables_deviation_from_mean] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
 
 % reduced form
-dr = oo.dr;
+dr = oo_.dr;
 
 % data reordering
 order_var = dr.order_var;
@@ -83,10 +85,10 @@ A = dr.ghx;
 B = dr.ghu;
 
 % initialization
-gend = size(oo.SmoothedShocks.(deblank(M_.exo_names(1,:))),1);
+gend = size(oo_.SmoothedShocks.(deblank(M_.exo_names(1,:))),1);
 epsilon=NaN(nshocks,gend);
 for i=1:nshocks
-    epsilon(i,:) = oo.SmoothedShocks.(deblank(M_.exo_names(i,:)));
+    epsilon(i,:) = oo_.SmoothedShocks.(deblank(M_.exo_names(i,:)));
 end
 
 z = zeros(endo_nbr,nshocks+2,gend);
@@ -94,7 +96,6 @@ z = zeros(endo_nbr,nshocks+2,gend);
 z(:,end,:) = Smoothed_Variables_deviation_from_mean;
 
 maximum_lag = M_.maximum_lag;
-lead_lag_incidence = M_.lead_lag_incidence;
 
 k2 = dr.kstate(find(dr.kstate(:,2) <= maximum_lag+1),[1 2]);
 i_state = order_var(k2(:,1))+(min(i,maximum_lag)+1-k2(:,2))*M_.endo_nbr;
@@ -123,7 +124,7 @@ if options_.use_shock_groups
     shock_ind = fieldnames(shock_groups);
     ngroups = length(shock_ind);
     shock_names = shock_ind;
-    for i=1:ngroups,
+    for i=1:ngroups
        shock_names{i} = (shock_groups.(shock_ind{i}).label);
     end
     zz = zeros(endo_nbr,ngroups+2,gend);

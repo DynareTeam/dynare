@@ -7057,7 +7057,10 @@ Specify the parameter set to use for running the smoother. The
 @var{PARAMETER_SET} can take one of the following seven values:
 @code{calibration}, @code{prior_mode}, @code{prior_mean},
 @code{posterior_mode}, @code{posterior_mean},
-@code{posterior_median}, @code{mle_mode}. Default value: @code{posterior_mean} if
+@code{posterior_median}, @code{mle_mode}. Note that the parameter
+set used in subsequent commands like @code{stoch_simul} will be set to 
+the specified @code{parameter_set}.
+Default value: @code{posterior_mean} if
 Metropolis has been run, @code{mle_mode} if MLE has been run.
 
 @item datafile = @var{FILENAME}
