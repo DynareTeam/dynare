@@ -62,8 +62,11 @@ if ischar(parameters) && strcmp(parameters,'calibration')
     options_.smoother=1;
 end
 
-if isempty(dataset_) || isempty(bayestopt_)
+if isempty(dataset_) || isempty(bayestopt_) || (options_.nobs ~= dataset_.nobs)
     [dataset_,dataset_info,xparam1, hh, M_, options_, oo_, estim_params_,bayestopt_] = dynare_estimation_init(var_list, M_.fname, [], M_, options_, oo_, estim_params_, bayestopt_);
+else 
+% set the qz_criterium
+    options_=select_qz_criterium_value(options_);
 end
 
 if nargin==0

@@ -69,6 +69,7 @@ end
 if isempty(dataset)
     [dataset, dataset_info] = makedataset(options_);
 end
+options_=select_qz_criterium_value(options_);
 
 llik = -dsge_likelihood(parameters,dataset,dataset_info,options_,M_,estim_params_,bayestopt_,prior_bounds(bayestopt_,options_.prior_trunc),oo_);
 ldens = evaluate_prior(parameters);

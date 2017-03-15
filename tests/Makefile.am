@@ -286,6 +286,7 @@ MODFILES = \
 	shock_decomposition/fs2000_est.mod \
 	shock_decomposition/fs2000_est_varlist.mod \
 	shock_decomposition/fs2000_cal_groups.mod \
+	shock_decomposition/ls2003_plot.mod \
 	stochastic_purely_forward/stochastic_purely_forward.mod \
 	stochastic_purely_forward/stochastic_purely_forward_with_static.mod \
 	forecast/Hansen_exo_det_forecast.mod \

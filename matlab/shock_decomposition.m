@@ -68,6 +68,7 @@ end
 
 
 options_.selected_variables_only = 0; %make sure all variables are stored
+options_.plot_priors=0;
 [oo,junk1,junk2,Smoothed_Variables_deviation_from_mean] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
 
 % reduced form
@@ -111,34 +112,15 @@ for i=1:gend
         lags = lags+1;
     end
 
-    z(:,1:nshocks,i) = z(:,1:nshocks,i) + B(inv_order_var,:).*repmat(epsilon(:,i)',endo_nbr,1);
+    if i > options_.shock_decomp.init_state
+       z(:,1:nshocks,i) = z(:,1:nshocks,i) + B(inv_order_var,:).*repmat(epsilon(:,i)',endo_nbr,1);
+    end
     z(:,nshocks+1,i) = z(:,nshocks+2,i) - sum(z(:,1:nshocks,i),2);
 end
 
 
 oo_.shock_decomposition = z;
-
-if options_.use_shock_groups
-    shock_groups = M_.shock_groups.(options_.use_shock_groups);
-    shock_ind = fieldnames(shock_groups);
-    ngroups = length(shock_ind);
-    shock_names = shock_ind;
-    for i=1:ngroups,
-       shock_names{i} = (shock_groups.(shock_ind{i}).label);
-    end
-    zz = zeros(endo_nbr,ngroups+2,gend);
-    for i=1:ngroups
-        for j = shock_groups.(shock_ind{i}).shocks
-            k = find(strcmp(j,cellstr(M_.exo_names)));
-            zz(:,i,:) = zz(:,i,:) + z(:,k,:);
-        end
-    end
-    zz(:,ngroups+(1:2),:) = z(:,nshocks+(1:2),:);
-    z = zz;
-else
-    shock_names = M_.exo_names;
-end
-        
+       
 if ~options_.no_graph.shock_decomposition
-    graph_decomp(z,shock_names,M_.endo_names,i_var,options_.initial_date,M_,options_)
+    plot_shock_decomposition(M_,oo_,options_,varlist);
 end
