@@ -9,10 +9,12 @@ function [y, meany, stdy] = stand_(x)
 % my: Vector of mean values for each column of y
 % sy: Vector of standard deviations for each column of y
 %
-% Author : Marco Ratto
+% Written by Marco Ratto
+% Joint Research Centre, The European Commission,
+% marco.ratto@ec.europa.eu 
 
-% Copyright (C) 2012 Dynare Team
-%
+% Copyright (C) 2012 European Commission
+% Copyright (C) 2012 Dynare Team%
 % This file is part of Dynare.
 %
 % Dynare is free software: you can redistribute it and/or modify

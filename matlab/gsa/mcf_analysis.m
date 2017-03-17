@@ -2,7 +2,7 @@ function indmcf = mcf_analysis(lpmat, ibeha, inobeha, options_mcf, DynareOptions
 %
 % Written by Marco Ratto
 % Joint Research Centre, The European Commission,
-% marco.ratto@jrc.ec.europa.eu
+% marco.ratto@ec.europa.eu
 %
 
 % Copyright (C) 2014 European Commission

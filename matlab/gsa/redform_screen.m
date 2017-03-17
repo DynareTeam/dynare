@@ -8,12 +8,9 @@ function redform_screen(dirname, options_gsa_)
 %
 % Written by Marco Ratto
 % Joint Research Centre, The European Commission,
-% (http://eemc.jrc.ec.europa.eu/),
-% marco.ratto@jrc.it
-%
-% Reference:
-% M. Ratto, Global Sensitivity Analysis for Macroeconomic models, MIMEO, 2006.
+% marco.ratto@ec.europa.eu 
 
+% Copyright (C) 2012-2016 European Commission
 % Copyright (C) 2012-2016 Dynare Team
 %
 % This file is part of Dynare.

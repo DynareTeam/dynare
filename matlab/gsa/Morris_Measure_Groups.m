@@ -21,7 +21,12 @@ function [SAmeas, OutMatrix] = Morris_Measure_Groups(NumFact, Sample, Output, p,
 % OutMatrix (NumFactor*NumOutputs, 3)= [Mu*, Mu, StDev]
 % for each output it gives the three measures of each factor
 % -------------------------------------------------------------------------
+%
+% Written by Jessica Cariboni and Francesca Campolongo
+% Joint Research Centre, The European Commission,
+%
 
+% Copyright (C) 2005 European Commission
 % Copyright (C) 2012 Dynare Team
 %
 % This file is part of Dynare.

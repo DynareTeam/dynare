@@ -86,6 +86,54 @@ Copyright: 2016 Benjamin Born and Johannes Pfeifer
            2016 Dynare Team
 License: GPL-3+
 
+Files: matlab\gsa\Morris_Measure_Groups.m
+matlab\gsa\Sampling_Function_2.m
+Written by Jessica Cariboni and Francesca Campolongo
+Joint Research Centre, The European Commission,
+Copyright (C) 2005 European Commission
+Copyright (C) 2012 Dynare Team
+
+Files: matlab\gsa\cumplot.m
+matlab\gsa\filt_mc_.m
+matlab\gsa\gsa_plotmatrix.m
+matlab\gsa\gsa_skewness.m
+matlab\gsa\gsa_speed.m
+matlab\gsa\log_trans_.m
+matlab\gsa\map_calibration.m
+matlab\gsa\map_ident_.m
+matlab\gsa\mcf_analysis.m
+matlab\gsa\myboxplot.m
+matlab\gsa\myprctilecol.m
+matlab\gsa\prior_draw_gsa.m
+matlab\gsa\read_data.m
+matlab\gsa\redform_map.m
+matlab\gsa\redform_screen.m
+matlab\gsa\scatter_mcf.m
+matlab\gsa\smirnov.m
+matlab\gsa\stab_map_.m
+matlab\gsa\stab_map_1.m
+matlab\gsa\stab_map_2.m
+matlab\gsa\stand_.m
+matlab\gsa\tcrit.m
+matlab\gsa\teff.m
+matlab\gsa\trank.m
+Copyright (C) 2011-2017 European Commission
+Copyright (C) 2011-2017 Dynare Team
+
+Files: matlab/gsa/pick.m
+Copyright (C) 2001-2017 European Commission
+This file is part of GLUEWIN
+The program has been developed by M. Ratto, European Commission, Joint Research Centre,
+Institute for the Protection and Security of The Citizen, Technological and Economic Risk Management,
+Applied Statistics, as a deliverable of the IMPACT project 
+(EC Fifth Framework Programme, SCA Project, IST-1999-11313, DG-INFSO).
+Disclaimer: This software has been developed at the Joint Research Centre of European Commission
+by officers in the course of their official duties. This software is not subject to copyright
+protection and is in the public domain. It is an experimental system. The Joint Research Centre
+of European Commission assumes no responsibility whatsoever for its use by other parties
+and makes no guarantees, expressed or implied, about its quality, reliability, or any other
+characteristic. We would appreciate acknowledgement if the software is used.
+
 Files: matlab/optimization/simpsa.m matlab/optimization/simpsaget.m matlab/optimization/simpsaset.m
 Copyright: 2005 Henning Schmidt, FCC, henning@fcc.chalmers.se
            2006 Brecht Donckels, BIOMATH, brecht.donckels@ugent.be

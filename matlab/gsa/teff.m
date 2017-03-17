@@ -3,12 +3,12 @@ function [yt, j0, ir, ic]=teff(T,Nsam,istable)
 %
 % Written by Marco Ratto
 % Joint Research Centre, The European Commission,
-% (http://eemc.jrc.ec.europa.eu/),
-% marco.ratto@jrc.it 
+% marco.ratto@ec.europa.eu 
 %
 % Reference:
 % M. Ratto, Global Sensitivity Analysis for Macroeconomic models, MIMEO, 2006.
 
+% Copyright (C) 2012 European Commission
 % Copyright (C) 2012 Dynare Team
 %
 % This file is part of Dynare.

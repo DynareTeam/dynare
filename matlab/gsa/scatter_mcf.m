@@ -1,9 +1,10 @@
 function  scatter_mcf(X,Y,vnames,plotsymbol, fnam, dirname, figtitle, xparam1, DynareOptions, beha_name, non_beha_name)
-% Frontend to the Sensitivity Analysis Toolbox for DYNARE
 %
-% Reference:
-% M. Ratto, Global Sensitivity Analysis for Macroeconomic models, MIMEO, 2006.
+% Written by Marco Ratto
+% Joint Research Centre, The European Commission,
+% marco.ratto@ec.europa.eu 
 
+% Copyright (C) 2014-2016 European Commission
 % Copyright (C) 2014-2016 Dynare Team
 %
 % This file is part of Dynare.

@@ -1,12 +1,12 @@
-function h = cumplot(x);
-%function h =cumplot(x)
-
+function  scatter_callback(K, type)
+%
 % Written by Marco Ratto
 % Joint Research Centre, The European Commission,
-% marco.ratto@ec.europa.eu 
+% marco.ratto@ec.europa.eu
+%
 
-% Copyright (C) 2012 European Commission
-% Copyright (C) 2012 Dynare Team
+% Copyright (C) 2017 European Commission
+% Copyright (C) 2017 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -23,12 +23,20 @@ function h = cumplot(x);
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-n=length(x);
-x=[-inf; sort(x); Inf];
-y=[0:n n]./n;
-h0 = stairs(x,y);
-grid on,
+global oo_ M_
 
-if nargout,
-    h=h0;
+x=get(gcf,'userdata');
+r2=x{1};
+x=x{2};
+
+xparam1=x(K,:)';
+
+switch type
+    case 'save'
+        save(['my_params_' int2str(K)],'xparam1')
+        
+    case 'eval'
+        disp('Evaluating smoother ...')
+        oo_=evaluate_smoother(xparam1,M_.endo_names);
+        % [rmse, lnam, r2,vv] = plot_fit(obsname{:});
 end

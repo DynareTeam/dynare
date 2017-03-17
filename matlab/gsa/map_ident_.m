@@ -1,5 +1,10 @@
 function map_ident_(OutputDirectoryName,opt_gsa)
 
+% Written by Marco Ratto
+% Joint Research Centre, The European Commission,
+% marco.ratto@ec.europa.eu 
+
+% Copyright (C) 2012-2016 European Commission
 % Copyright (C) 2012-2016 Dynare Team
 %
 % This file is part of Dynare.

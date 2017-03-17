@@ -216,6 +216,7 @@ disp('Press ENTER to continue'); pause(5);
 
 dynare_sensitivity(nodisplay, stab=0, // no need for stability analysis since the posterior sample is surely OK
 datafile='data_ca1.m',first_obs=8,nobs=79,prefilter=1,
+alpha2_rmse=0, // no correlation analysis
 rmse=1,ppost=1,Nsam=512);
 
 collect_latex_files;

@@ -50,7 +50,12 @@ function [Outmatrix, OutFact] = Sampling_Function_2(p, k, r, UB, LB, GroupMat)
 %
 %   F. Campolongo, J. Cariboni, JRC - IPSC Ispra, Varese, IT
 %   Last Update: 15 November 2005 by J.Cariboni
+%
+% Written by Jessica Cariboni and Francesca Campolongo
+% Joint Research Centre, The European Commission,
+%
 
+% Copyright (C) 2005 European Commission
 % Copyright (C) 2012 Dynare Team
 %
 % This file is part of Dynare.

@@ -16,12 +16,9 @@ function pdraw = prior_draw_gsa(init,rdraw)
 %  
 % Written by Marco Ratto
 % Joint Research Centre, The European Commission,
-% (http://eemc.jrc.ec.europa.eu/),
-% marco.ratto@jrc.it 
-%
-% Reference:
-% M. Ratto, Global Sensitivity Analysis for Macroeconomic models, MIMEO, 2006.
+% marco.ratto@ec.europa.eu 
 
+% Copyright (C) 2012-2015 European Commission
 % Copyright (C) 2012-2015 Dynare Team
 %
 % This file is part of Dynare.

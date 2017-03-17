@@ -11,11 +11,9 @@ function [rmse_MC, ixx] = filt_mc_(OutDir,options_gsa_,dataset_,dataset_info)
 %
 % Written by Marco Ratto
 % Joint Research Centre, The European Commission,
-% (http://eemc.jrc.ec.europa.eu/),
-% marco.ratto@jrc.it
-% Reference:
-% M. Ratto, Global Sensitivity Analysis for Macroeconomic models, MIMEO, 2006.
+% marco.ratto@ec.europa.eu 
 
+% Copyright (C) 2012-2016 European Commission
 % Copyright (C) 2012-2016 Dynare Team
 %
 % This file is part of Dynare.
@@ -39,6 +37,8 @@ global bayestopt_ estim_params_ M_ options_ oo_
 vvarvecm = options_gsa_.var_rmse;
 if options_.TeX
     vvarvecm_tex = options_gsa_.var_rmse_tex;
+else
+    vvarvecm_tex = [];
 end
 loadSA   = options_gsa_.load_rmse;
 pfilt    = options_gsa_.pfilt_rmse;
@@ -57,6 +57,7 @@ skipline(2)
 disp('Starting sensitivity analysis')
 disp('for the fit of EACH observed series ...')
 skipline()
+if ~options_.nograph,
 disp('Deleting old SA figures...')
 a=dir([OutDir,filesep,'*.*']);
 tmp1='0';
@@ -84,7 +85,7 @@ for j=1:length(a),
     end,
 end
 disp('done !')
-
+end
 
 nshock=estim_params_.nvx + estim_params_.nvn + estim_params_.ncx + estim_params_.ncn;
 npar=estim_params_.np;
@@ -113,6 +114,16 @@ else
         DirectoryName = CheckPath(['gsa' filesep 'mc'],M_.dname);
     end
 end
+if loadSA,
+    tmplist =load([OutDir,filesep,fnamtmp, '.mat'],'vvarvecm');
+    if isempty(fieldnames(tmplist)),
+        disp('WARNING: cannot load results since the list of variables used is not present in the mat file')
+        loadSA=0;
+    elseif ~isequal(tmplist.vvarvecm,vvarvecm)
+        disp('WARNING: cannot load results since the list of variables in the mat file differs from the one requested.')
+        loadSA=0;
+    end
+end
 if ~loadSA,
     if exist('xparam1','var')
         M_ = set_all_parameters(xparam1,estim_params_,M_);
@@ -134,7 +145,14 @@ if ~loadSA,
     %stock_data = data_info.data;
     load([DirectoryName filesep M_.fname '_data.mat']);
     filfilt = dir([DirectoryName filesep M_.fname '_filter_step_ahead*.mat']);
-    filsmooth = dir([DirectoryName filesep M_.fname '_smooth*.mat']);
+    temp_smooth_file_list = dir([DirectoryName filesep M_.fname '_smooth*.mat']);
+    jfile=0;
+    for j=1:length(temp_smooth_file_list),
+        if isempty(strfind(temp_smooth_file_list(j).name,'smoothed')),
+            jfile=jfile+1;
+            filsmooth(jfile)=temp_smooth_file_list(j);
+        end
+    end
     filupdate = dir([DirectoryName filesep M_.fname '_update*.mat']);
     filparam = dir([DirectoryName filesep M_.fname '_param*.mat']);
     x=[];
@@ -164,7 +182,7 @@ if ~loadSA,
         end
         if exist('xparam1','var')
             [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1,gend,Y,data_index,missing_value,M_,oo_,options_,bayestopt_,estim_params_);
-            y0 = transpose( squeeze(aK(1,jxj,1:gend)));% + kron(ys_mode(js),ones(1,gend)));
+            y0 = reshape( squeeze(aK(1,jxj,1:gend)),[gend length(jxj)]);% + kron(ys_mode(js),ones(1,gend)));
             yobs = transpose( ahat(jxj,:));% + kron(ys_mode(js),ones(1,gend)));
             rmse_mode = sqrt(mean((yobs(istart:end,:)-y0(istart:end,:)).^2));
             r2_mode = 1-sum((yobs(istart:end,:)-y0(istart:end,:)).^2)./sum(yobs(istart:end,:).^2);
@@ -174,7 +192,7 @@ if ~loadSA,
         for j=1:length(filfilt),
             load([DirectoryName filesep M_.fname '_filter_step_ahead',num2str(j),'.mat']);
             nb = size(stock,4);
-            y0(:,:,nbb+1:nbb+nb)=y0(:,:,nbb+1:nbb+nb)+squeeze(stock(1,js,1:gend,:));
+            y0(:,:,nbb+1:nbb+nb)=y0(:,:,nbb+1:nbb+nb)+reshape(stock(1,js,1:gend,:),[length(js) gend nb]);
             nbb=nbb+nb;
             clear stock;
         end
@@ -183,7 +201,7 @@ if ~loadSA,
         for j=1:length(filupdate),
             load([DirectoryName filesep M_.fname '_update',num2str(j),'.mat']);
             nb = size(stock,3);
-            yobs(:,:,nbb+1:nbb+nb)=yobs(:,:,nbb+1:nbb+nb)+squeeze(stock(js,1:gend,:));
+            yobs(:,:,nbb+1:nbb+nb)=yobs(:,:,nbb+1:nbb+nb)+reshape(stock(js,1:gend,:),[length(js) gend nb]);
             nbb=nbb+nb;
             clear stock;
         end
@@ -197,7 +215,7 @@ if ~loadSA,
         if exist('xparam1_mean','var')
             %eval(['rmse_pmean(i) = sqrt(mean((',vj,'(fobs-1+istart:fobs-1+nobs)-y0M(istart:end-1)).^2));'])
             [alphahat,etahat,epsilonhat,ahat,SteadyState,trend_coeff,aK] = DsgeSmoother(xparam1_mean,gend,Y,data_index,missing_value,M_,oo_,options_,bayestopt_,estim_params_);
-            y0 = transpose( squeeze(aK(1,jxj,1:gend)));% + kron(ys_mean(js),ones(1,gend)));
+            y0 = reshape( squeeze(aK(1,jxj,1:gend)),[gend length(jxj)]);% + kron(ys_mean(js),ones(1,gend)));
             yobs = transpose( ahat(jxj,:));% + kron(ys_mean(js),ones(1,gend)));
             rmse_pmean = sqrt(mean((yobs(istart:end,:)-y0(istart:end,:)).^2));
             r2_pmean = 1-mean((yobs(istart:end,:)-y0(istart:end,:)).^2)./mean(yobs(istart:end,:).^2);
@@ -211,7 +229,7 @@ if ~loadSA,
     disp('... done!')
     
     if options_.opt_gsa.ppost
-        save([OutDir,filesep,fnamtmp,'.mat'], 'x', 'logpo2', 'likelihood', 'rmse_MC', 'r2_MC')
+        save([OutDir,filesep,fnamtmp,'.mat'], 'x', 'logpo2', 'likelihood', 'rmse_MC', 'r2_MC', 'vvarvecm')
         if exist('xparam1_mean','var')
             save([OutDir,filesep,fnamtmp, '.mat'], 'rmse_pmean', 'r2_pmean','-append')
         end
@@ -222,7 +240,7 @@ if ~loadSA,
         if options_.opt_gsa.lik_only
             save([OutDir,filesep,fnamtmp, '.mat'], 'x', 'logpo2','likelihood', '-append')
         else
-            save([OutDir,filesep,fnamtmp, '.mat'], 'x', 'logpo2','likelihood', 'rmse_MC', 'r2_MC','-append')
+            save([OutDir,filesep,fnamtmp, '.mat'], 'x', 'logpo2','likelihood', 'rmse_MC', 'r2_MC', 'vvarvecm','-append')
             if exist('xparam1_mean','var')
                 save([OutDir,filesep,fnamtmp, '.mat'], 'rmse_pmean', 'r2_pmean','-append')
             end
@@ -235,7 +253,7 @@ else
     if options_.opt_gsa.lik_only && options_.opt_gsa.ppost==0
         load([OutDir,filesep,fnamtmp, '.mat'],'x','logpo2','likelihood');
     else
-        load([OutDir,filesep,fnamtmp, '.mat'],'x','logpo2','likelihood','rmse_MC','rmse_mode','rmse_pmean', 'r2_MC', 'r2_mode','r2_pmean');
+        load([OutDir,filesep,fnamtmp, '.mat'],'x','logpo2','likelihood','rmse_MC','rmse_mode','rmse_pmean', 'r2_MC', 'vvarvecm', 'r2_mode','r2_pmean');
     end
     lnprior=logpo2(:)-likelihood(:);
     nruns=size(x,1);
@@ -248,6 +266,34 @@ if ~options_.opt_gsa.ppost
     [dum, ipost]=sort(-logpo2);
     [dum, ilik]=sort(-likelihood);
 end
+
+%% visual scatter analysis!
+if options_.opt_gsa.ppost
+    tmp_title='R2 Posterior:';
+    atitle='R2 Posterior:';
+    asname='r2_post';
+else
+    if options_.opt_gsa.pprior
+        tmp_title='R2 Prior:';
+        atitle='R2 Prior:';
+        asname='r2_prior';
+    else
+        tmp_title='R2 MC:';
+        atitle='R2 MC:';
+        asname='r2_mc';
+    end
+end
+options_scatter.param_names = vvarvecm;
+options_scatter.param_names_tex = vvarvecm_tex;
+options_scatter.fname_ = fname_;
+options_scatter.OutputDirectoryName = OutDir;
+options_scatter.amcf_name = asname;
+options_scatter.amcf_title = atitle;
+options_scatter.title = tmp_title;
+scatter_analysis(r2_MC, x,options_scatter, options_);
+%% end of visual scatter analysis
+
+
 if ~options_.opt_gsa.ppost && options_.opt_gsa.lik_only
     if options_.opt_gsa.pprior
         anam='rmse_prior_post';
@@ -266,6 +312,7 @@ if ~options_.opt_gsa.ppost && options_.opt_gsa.lik_only
     else
         [pnames]=get_LaTeX_parameter_names(M_,options_,estim_params_,bayestopt_);
         options_mcf.param_names = char(pnames);
+        options_mcf.param_names_tex = [];
     end
     options_mcf.fname_ = fname_;
     options_mcf.OutputDirectoryName = OutDir;
@@ -377,14 +424,20 @@ else
                 end
                 if options_.opt_gsa.ppost
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnprior',int2str(ifig)],options_);
+                    if options_.TeX
                     create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_post_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1))
+                    end
                 else
                     if options_.opt_gsa.pprior
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnprior',int2str(ifig) ],options_);
+                    if options_.TeX
                         create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_prior_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1))
+                    end
                     else
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnprior',int2str(ifig) ],options_);
+                    if options_.TeX
                         create_TeX_loader(options_,[OutDir '/' fname_ '_rmse_mc_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1))
+                    end
                     end
                 end
             end
@@ -422,14 +475,20 @@ else
                 end
                 if options_.opt_gsa.ppost
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnlik',int2str(ifig) ],options_);
-                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_post_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                    if options_.TeX
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_post_lnprior',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnprior',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                    end
                 else
                     if options_.opt_gsa.pprior
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnlik',int2str(ifig)],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_lnlik',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnlik',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                        if options_.TeX
+                            create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_lnlik',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnlik',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                        end
                     else
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnlik',int2str(ifig) ],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_lnlik',int2str(ifig) ],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnlik',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                        if options_.TeX
+                            create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_lnlik',int2str(ifig) ],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnlik',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                        end
                     end
                 end
             end
@@ -467,14 +526,20 @@ else
                 end
                 if options_.opt_gsa.ppost
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_post_lnpost',int2str(ifig) ],options_);
-                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_post_lnpost',int2str(ifig) ],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                    if options_.TeX
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_post_lnpost',int2str(ifig) ],ifig,[temp_name,' ',int2str(ifig)],'rmse_post_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                    end
                 else
                     if options_.opt_gsa.pprior
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_lnpost',int2str(ifig)],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_lnpost',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                        if options_.TeX
+                            create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_lnpost',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_prior_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                        end
                     else
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_lnpost',int2str(ifig)],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_lnpost',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                        if options_.TeX
+                            create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_lnpost',int2str(ifig)],ifig,[temp_name,' ',int2str(ifig)],'rmse_mc_lnpost',options_.figures.textwidth*min((i-9*(ifig-1))/3,1));
+                        end
                     end
                 end
             end
@@ -488,6 +553,7 @@ else
     else
         [pnames]=get_LaTeX_parameter_names(M_,options_,estim_params_,bayestopt_);
         param_names = char(pnames);
+        param_names_tex = [];
     end
 
     
@@ -509,6 +575,8 @@ else
         disp('These variables are excluded from SA')
         disp('[Unless you treat these series as exogenous, there is something wrong in your estimation !]')
     end
+    vvarvecm0=vvarvecm;
+
     ivar = find( std(rmse_MC)./mean(rmse_MC)>0.0001 );
     vvarvecm=vvarvecm(ivar,:);
     rmse_MC=rmse_MC(:,ivar);
@@ -580,7 +648,7 @@ else
     end
     
     %%%%% R2 table
-    
+    vvarvecm=vvarvecm0;
     skipline()
     title_string='R2 over the MC sample:';
     data_mat=[min(r2_MC)' max(r2_MC)'];
@@ -592,6 +660,7 @@ else
     end
     
     r2_MC=r2_MC(:,ivar);
+    vvarvecm=vvarvecm(ivar,:);
     
     skipline()
     disp(['Sample filtered the ',num2str(pfilt*100),'% best R2''s for each observed series ...' ])
@@ -769,14 +838,20 @@ else
                 %set(findobj(get(h0,'children'),'type','text'),'interpreter','none')
                 if options_.opt_gsa.ppost
                     dyn_saveas(hh,[ OutDir filesep fname_ '_rmse_post_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],options_);
-                    create_TeX_loader(options_,[ OutDir filesep fname_ '_rmse_post_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_post_' deblank(vvarvecm(iy,:))],1)
+                    if options_.TeX
+                        create_TeX_loader(options_,[ OutDir filesep fname_ '_rmse_post_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_post_' deblank(vvarvecm(iy,:))],1)
+                    end
                 else
                     if options_.opt_gsa.pprior
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_' deblank(vvarvecm(iy,:)) '_' int2str(ix) ],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_' deblank(vvarvecm(iy,:)) '_' int2str(ix) ],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_prior_' deblank(vvarvecm(iy,:))],1)
+                        if options_.TeX
+                            create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_' deblank(vvarvecm(iy,:)) '_' int2str(ix) ],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_prior_' deblank(vvarvecm(iy,:))],1)
+                        end
                     else
                         dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],options_);
-                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_mc_' deblank(vvarvecm(iy,:))],1)
+                        if options_.TeX
+                            create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_' deblank(vvarvecm(iy,:)) '_' int2str(ix)],ix,[temp_name,' observed variable $',deblank(vvarvecm_tex(iy,:)) '$'],['rmse_mc_' deblank(vvarvecm(iy,:))],1)
+                        end
                     end
                 end
             end
@@ -830,14 +905,20 @@ else
             %set(findobj(get(h0,'children'),'type','text'),'interpreter','none')
             if options_.opt_gsa.ppost
                 dyn_saveas(hh,[ OutDir filesep fname_ '_rmse_post_params_' int2str(ix)],options_);
-                create_TeX_loader(options_,[ OutDir filesep fname_ '_rmse_post_params_' int2str(ix)],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_post_params',1)
+                if options_.TeX
+                    create_TeX_loader(options_,[ OutDir filesep fname_ '_rmse_post_params_' int2str(ix)],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_post_params',1)
+                end
             else
                 if options_.opt_gsa.pprior
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_prior_params_' int2str(ix) ],options_);
-                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_params_' int2str(ix) ],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_prior_params',1)
+                    if options_.TeX
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_prior_params_' int2str(ix) ],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_prior_params',1)
+                    end
                 else
                     dyn_saveas(hh,[OutDir filesep fname_ '_rmse_mc_params_' int2str(ix)],options_);
-                    create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_params_' int2str(ix)],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_mc_params',1)
+                    if options_.TeX
+                        create_TeX_loader(options_,[OutDir filesep fname_ '_rmse_mc_params_' int2str(ix)],ix,[temp_name,' estimated params and shocks ',int2str(ix)],'rmse_mc_params',1)
+                    end
                 end
             end
         end

@@ -3,11 +3,8 @@ function [A,B] = ghx2transition(mm,iv,ic,aux)
 %
 % Adapted by M. Ratto (from kalman_transition_matrix.m)
 % Joint Research Centre, The European Commission,
-% (http://eemc.jrc.ec.europa.eu/),
-% marco.ratto@jrc.it 
+% marco.ratto@ec.europa.eu 
 %
-% Reference:
-% M. Ratto, Global Sensitivity Analysis for Macroeconomic models, MIMEO, 2006.
 
 % Copyright (C) 2012 Dynare Team
 %

@@ -31,6 +31,39 @@ fname_ = M_.fname;
 lgy_ = M_.endo_names;
 x0=[];
 
+% check user defined options
+if isfield(options_gsa,'neighborhood_width') && options_gsa.neighborhood_width,
+    if isfield(options_gsa,'pprior') && options_gsa.pprior,
+        error('sensitivity:: neighborhood_width is incompatible with prior sampling')
+    end
+    if isfield(options_gsa,'ppost') && options_gsa.ppost,
+        error('sensitivity:: neighborhood_width is incompatible with posterior sampling')
+    end
+end
+
+if isfield(options_gsa,'morris') && options_gsa.morris==1,
+    if isfield(options_gsa,'identification') && options_gsa.identification==0,
+%         options_gsa.redform=1;
+    end
+    if isfield(options_gsa,'ppost') && options_gsa.ppost,
+        error('sensitivity:: Morris is incompatible with posterior sampling')
+    elseif isfield(options_gsa,'pprior') && options_gsa.pprior==0,
+        if ~(isfield(options_gsa,'neighborhood_width') && options_gsa.neighborhood_width),
+            error('sensitivity:: Morris is incompatible with MC sampling with correlation matrix')
+        end
+    end
+    if isfield(options_gsa,'rmse') && options_gsa.rmse,
+        error('sensitivity:: Morris is incompatible with rmse analysis')
+    end
+    if (isfield(options_gsa,'alpha2_stab') && options_gsa.alpha2_stab<1) || ...
+            (isfield(options_gsa,'ksstat') && options_gsa.ksstat<1) || ...
+            (isfield(options_gsa,'pvalue_ks') && options_gsa.pvalue_ks) || ...
+            (isfield(options_gsa,'pvalue_corr') && options_gsa.pvalue_corr)
+
+        error('sensitivity:: Morris is incompatible with Monte Carlo filtering')
+    end
+end
+% end check user defined options
 options_gsa = set_default_option(options_gsa,'datafile',[]);
 options_gsa = set_default_option(options_gsa,'rmse',0);
 options_gsa = set_default_option(options_gsa,'useautocorr',0);
