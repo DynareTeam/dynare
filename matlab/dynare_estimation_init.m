@@ -606,7 +606,7 @@ if options_.load_results_after_load_mh
     end
 end
 
-if options_.mh_replic
+if options_.mh_replic || options_.load_mh_file,
     [current_options, options_] = check_posterior_sampler_options([], options_, bounds);
     options_.posterior_sampler_options.current_options = current_options;
 end

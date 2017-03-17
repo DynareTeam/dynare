@@ -5265,8 +5265,8 @@ smoothed shocks,  forecast, moments,  IRF).  The  draws used  to compute
 these posterior moments are sampled uniformly in the estimated empirical
 posterior  distribution (@i{ie}  draws of  the MCMC).   @code{sub_draws}
 should  be  smaller than  the  total  number  of MCMC  draws  available.
-Default:  @code{min(posterior_max_subsample_draws,0.25*Total  number  of
-draws)}
+Default:  @code{min(posterior_max_subsample_draws,(Total  number  of
+draws)*(number of chains))}
 
 @item posterior_max_subsample_draws = @var{INTEGER}
 @anchor{posterior_max_subsample_draws} maximum number  of draws from the

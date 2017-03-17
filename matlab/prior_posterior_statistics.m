@@ -203,11 +203,35 @@ localVars.ifil=ifil;
 localVars.DirectoryName = DirectoryName;
 
 if strcmpi(type,'posterior'),
+    BaseName = [DirectoryName filesep M_.fname];
+    load_last_mh_history_file(DirectoryName, M_.fname);
+    FirstMhFile = record.KeepedDraws.FirstMhFile;
+    FirstLine = record.KeepedDraws.FirstLine; 
+    TotalNumberOfMhFiles = sum(record.MhDraws(:,2)); 
+    LastMhFile = TotalNumberOfMhFiles; 
+    TotalNumberOfMhDraws = sum(record.MhDraws(:,1));
+    NumberOfDraws = TotalNumberOfMhDraws-floor(options_.mh_drop*TotalNumberOfMhDraws);
+    mh_nblck = options_.mh_nblck;
+    if B==NumberOfDraws*mh_nblck,
+        % we load all retained MH runs !
+        logpost=GetAllPosteriorDraws(0, FirstMhFile, FirstLine, TotalNumberOfMhFiles, NumberOfDraws);
+        for column=1:npar
+            x(:,column) = GetAllPosteriorDraws(column, FirstMhFile, FirstLine, TotalNumberOfMhFiles, NumberOfDraws);
+        end
+    else
+
     b=0;
     logpost=NaN(B,1);
-    while b<=B
+        while b<B
         b = b + 1;
-        [x(b,:), logpost(b,1)] = GetOneDraw(type);
+            [xtmp, ltmp] = GetOneDraw(type);
+            if ~ismember(ltmp,logpost(1:b-1))
+                x(b,:)=xtmp;
+                logpost(b,1) = ltmp;
+            else
+                b=b-1;
+            end
+        end
     end
     localVars.logpost=logpost;
 end
