@@ -127,8 +127,13 @@ else
     % which files have to be copied to run remotely
     NamFileInput(1,:) = {'',[ModelName '_static.m']};
     NamFileInput(2,:) = {'',[ModelName '_dynamic.m']};
+    NamFileInput(3,:) = {'',[M_.fname '_set_auxiliary_variables.m']};
     if options_.steadystate_flag,
-        NamFileInput(length(NamFileInput)+1,:)={'',[ModelName '_steadystate.m']};
+        if options_.steadystate_flag == 1,
+            NamFileInput(length(NamFileInput)+1,:)={'',[M_.fname '_steadystate.m']};
+        else
+            NamFileInput(length(NamFileInput)+1,:)={'',[M_.fname '_steadystate2.m']};
+        end
     end
     if (options_.load_mh_file~=0)  && any(fline>1) ,
         NamFileInput(length(NamFileInput)+1,:)={[M_.dname '/metropolis/'],[ModelName '_mh' int2str(NewFile(1)) '_blck*.mat']};

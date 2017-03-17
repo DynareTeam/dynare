@@ -235,8 +235,13 @@ else
     % which files have to be copied to run remotely
     NamFileInput(1,:) = {'',[M_.fname '_static.m']};
     NamFileInput(2,:) = {'',[M_.fname '_dynamic.m']};
+    NamFileInput(3,:) = {'',[M_.fname '_set_auxiliary_variables.m']};
     if options_.steadystate_flag,
-        NamFileInput(length(NamFileInput)+1,:)={'',[M_.fname '_steadystate.m']};
+        if options_.steadystate_flag == 1,
+            NamFileInput(length(NamFileInput)+1,:)={'',[M_.fname '_steadystate.m']};
+        else
+            NamFileInput(length(NamFileInput)+1,:)={'',[M_.fname '_steadystate2.m']};
+        end
     end
     [fout] = masterParallel(options_.parallel, 1, B,NamFileInput,'PosteriorIRF_core1', localVars, globalVars, options_.parallel_info);
     nosaddle=0;
