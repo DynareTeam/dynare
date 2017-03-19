@@ -132,7 +132,11 @@ if ~options_.nodecomposition
         if isempty(M_.endo_histval)
             y0 = oo_.dr.ys;
         else
-            y0 = M_.endo_histval;
+            if options_.loglinear
+                y0 = log_variable(1:M_.endo_nbr,M_.endo_histval,M_);
+            else
+                y0 = M_.endo_histval;
+            end
         end
         %back out shock matrix used for generating y
         i_exo_var = setdiff([1:M_.exo_nbr],find(diag(M_.Sigma_e) == 0)); % find shocks with 0 variance

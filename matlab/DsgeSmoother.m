@@ -97,15 +97,13 @@ end
 %------------------------------------------------------------------------------
 % 2. call model setup & reduction program
 %------------------------------------------------------------------------------
+%store old setting of restricted var_list
 oldoo.restrict_var_list = oo_.dr.restrict_var_list; 
 oldoo.restrict_columns = oo_.dr.restrict_columns;
 oo_.dr.restrict_var_list = bayestopt_.smoother_var_list;
 oo_.dr.restrict_columns = bayestopt_.smoother_restrict_columns;
 
 [T,R,SteadyState,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_);
-
-oo_.dr.restrict_var_list = oldoo.restrict_var_list;
-oo_.dr.restrict_columns = oldoo.restrict_columns;
 
 %get location of observed variables and requested smoothed variables in
 %decision rules
@@ -179,7 +177,7 @@ elseif options_.lik_init == 3           % Diffuse Kalman filter
             Z   = [Z, eye(vobs)];
         end
     end
-    [Pstar,Pinf] = compute_Pinf_Pstar(mf,T,R,Q,options_.qz_criterium,oo_.dr.restrict_var_list);
+    [Pstar,Pinf] = compute_Pinf_Pstar(mf,T,R,Q,options_.qz_criterium);
 elseif options_.lik_init == 4           % Start from the solution of the Riccati equation.
     [err, Pstar] = kalman_steady_state(transpose(T),R*Q*transpose(R),transpose(build_selection_matrix(mf,np,vobs)),H);
     mexErrCheck('kalman_steady_state',err);
@@ -224,7 +222,10 @@ ST = T;
 R1 = R;
 
 if kalman_algo == 1 || kalman_algo == 3
-    [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp,state_uncertainty] = missing_DiffuseKalmanSmootherH1_Z(ST, ...
+    a_initial     = zeros(np,1);
+    a_initial=set_Kalman_smoother_starting_values(a_initial,M_,oo_,options_,bayestopt_);
+    a_initial=T*a_initial; %set state prediction for first Kalman step;
+    [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp,state_uncertainty] = missing_DiffuseKalmanSmootherH1_Z(a_initial,ST, ...
                                                       Z,R1,Q,H,Pinf,Pstar, ...
                                                       data1,vobs,np,smpl,data_index, ...
                                                       options_.nk,kalman_tol,diffuse_kalman_tol,options_.filter_decomposition,options_.smoothed_state_uncertainty);
@@ -263,8 +264,10 @@ if kalman_algo == 2 || kalman_algo == 4
                 %do nothing, state vector was already expanded
             end
         end
-        
-    [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp,state_uncertainty] = missing_DiffuseKalmanSmootherH3_Z(ST, ...
+    a_initial     = zeros(np,1);
+    a_initial=set_Kalman_smoother_starting_values(a_initial,M_,oo_,options_,bayestopt_);
+    a_initial=ST*a_initial; %set state prediction for first Kalman step;
+    [alphahat,epsilonhat,etahat,ahat,P,aK,PK,decomp,state_uncertainty] = missing_DiffuseKalmanSmootherH3_Z(a_initial,ST, ...
                                                       Z,R1,Q,diag(H), ...
                                                       Pinf,Pstar,data1,vobs,np,smpl,data_index, ...
                                                       options_.nk,kalman_tol,diffuse_kalman_tol, ...
@@ -292,5 +295,33 @@ if expanded_state_vector_for_univariate_filter && (kalman_algo == 2 || kalman_al
     end
     if ~isempty(state_uncertainty)
         state_uncertainty = state_uncertainty(k,k,:);
+    end
+end
+
+%reset old setting of restricted var_list
+oo_.dr.restrict_var_list = oldoo.restrict_var_list;
+oo_.dr.restrict_columns = oldoo.restrict_columns;
+
+function a=set_Kalman_smoother_starting_values(a,M_,oo_,options_,bayestopt_)
+% function a=set_Kalman_smoother_starting_values(a,M_,oo_,options_,bayestopt_)
+% Sets initial states guess for Kalman filter/smoother based on histval 
+% 
+% INPUTS 
+%   o a             [double]   (p*1) vector of states
+%   o M_            [structure] decribing the model
+%   o oo_           [structure] storing the results
+%   o options_      [structure] describing the options
+%   o bayestopt_    [structure] describing the priors
+%  
+% OUTPUTS
+%   o a             [double]    (p*1) vector of set initial states
+
+if ~isempty(M_.endo_histval)
+    if options_.loglinear && ~options_.logged_steady_state
+        a(oo_.dr.restrict_columns)      = log(M_.endo_histval(oo_.dr.order_var(oo_.dr.restrict_columns),:)) - log(oo_.dr.ys(oo_.dr.order_var(oo_.dr.restrict_columns)));            
+    elseif ~options_.loglinear && ~options_.logged_steady_state
+        a(oo_.dr.restrict_columns)      = M_.endo_histval(oo_.dr.order_var(oo_.dr.restrict_columns),:) - oo_.dr.ys(oo_.dr.order_var(oo_.dr.restrict_columns));        
+    else
+        error(['The steady state is logged. This should not happen. Please contact the developers'])
     end
 end

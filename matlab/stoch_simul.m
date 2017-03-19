@@ -150,7 +150,11 @@ if options_.periods > 0 && ~PI_PCL_solver
     if isempty(M_.endo_histval)
         y0 = oo_.dr.ys;
     else
-        y0 = M_.endo_histval;
+        if options_.loglinear
+            y0 = log_variable(1:M_.endo_nbr,M_.endo_histval,M_);
+        else
+            y0 = M_.endo_histval;
+        end
     end
     [ys, oo_] = simult(y0,oo_.dr,M_,options_,oo_);
     oo_.endo_simul = ys;

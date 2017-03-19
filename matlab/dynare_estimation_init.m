@@ -400,12 +400,12 @@ nstatic = M_.nstatic;          % Number of static variables.
 npred = M_.nspred;             % Number of predetermined variables.
 nspred = M_.nspred;            % Number of predetermined variables in the state equation.
 
-%% Setting resticted state space (observed + predetermined variables)
+%% Setting restricted state space (observed + predetermined variables)
 % oo_.dr.restrict_var_list: location of union of observed and state variables in decision rules (decision rule order)
 % bayestopt_.mfys: position of observables in oo_.dr.ys (declaration order)
 % bayestopt_.mf0: position of state variables in restricted state vector (oo_.dr.restrict_var_list)
-% bayestopt_.mf1: positions of observed variables in decision rules (oo_.dr.restrict_var_list)
-% bayestopt_.mf2: positions of observed variables in decision rules (decision rule order)
+% bayestopt_.mf1: positions of observed variables in restricted state vector (oo_.dr.restrict_var_list order)
+% bayestopt_.mf2: positions of observed variables in decision rules/expanded state vector (decision rule order)
 % bayestopt_.smoother_var_list: positions of observed variables and requested smoothed variables in decision rules (decision rule order)
 % bayestopt_.smoother_saved_var_list: positions of requested smoothed variables in bayestopt_.smoother_var_list
 % bayestopt_.smoother_restrict_columns: positions of states in observed variables and requested smoothed variables in decision rules (decision rule order)

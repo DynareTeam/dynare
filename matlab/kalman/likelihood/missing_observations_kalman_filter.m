@@ -8,7 +8,7 @@ function  [LIK, lik, a, P] = missing_observations_kalman_filter(data_index,numbe
 %    Y                            [double]    pp*smpl matrix of data.    
 %    start                        [integer]   scalar, index of the first observation.
 %    last                         [integer]   scalar, index of the last observation.
-%    a                            [double]    pp*1 vector, initial level of the state vector.
+%    a                            [double]    pp*1 vector, levels of the predicted initial state variables (E_{0}(alpha_1)).
 %    P                            [double]    pp*pp matrix, covariance matrix of the initial state vector.
 %    kalman_tol                   [double]    scalar, tolerance parameter (rcond).
 %    riccati_tol                  [double]    scalar, tolerance parameter (riccati iteration).    
@@ -25,7 +25,7 @@ function  [LIK, lik, a, P] = missing_observations_kalman_filter(data_index,numbe
 % OUTPUTS 
 %    LIK        [double]    scalar, MINUS loglikelihood
 %    lik        [double]    vector, density of observations in each period.
-%    a          [double]    mm*1 vector, estimated level of the states.
+%    a          [double]    mm*1 vector, current estimate of the state vector tomorrow (E_{T}(alpha_{T+1}))
 %    P          [double]    mm*mm matrix, covariance matrix of the states.        
 %        
 %

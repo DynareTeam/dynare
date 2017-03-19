@@ -2627,18 +2627,26 @@ Moreover, as only states enter the recursive policy functions, all values specif
 
 @item
 in @ref{stoch_simul}, if the @code{periods} option is specified. Note that this only affects the starting point for the simulation, but not for the impulse response functions.
+When using the @ref{loglinear} option, the @code{histval}-block nevertheless takes the unlogged starting values.
 
 @item
-in @ref{forecast} as the initial point at which the forecasts are computed
+in @ref{forecast} as the initial point at which the forecasts are computed. When using the @ref{loglinear} option, 
+the @code{histval}-block nevertheless takes the unlogged starting values.
 
 @item
-in @ref{conditional_forecast} for a calibrated model as the initial point at which the conditional forecasts are computed
+in @ref{conditional_forecast} for a calibrated model as the initial point at which the conditional forecasts are computed.
+When using the @ref{loglinear} option, the @code{histval}-block nevertheless takes the unlogged starting values.
 
 @item 
 in @ref{Ramsey} policy, where it also specifies the values of the endogenous states at 
 which the objective function of the planner is computed. Note that the initial values 
 of the Lagrange multipliers associated with the planner's problem cannot be set
 (@pxref{planner_objective_value}).
+
+@item 
+in @ref{estimation_cmd}, where it specifies the initial values of the endogenous states at the beginning 
+of the Kalman filter recursions. If nothing is specified, the initial condition is assumed to be at 
+the steady state (which is the unconditional mean for a stationary model).
 
 @end itemize
 
@@ -5156,7 +5164,7 @@ first observation of the rolling window.
 @item prefilter = @var{INTEGER}
 @anchor{prefilter}
 A value of @code{1} means that the estimation procedure will demean
-each data series by its empirical mean. If the (@ref{loglinear}) option without the (@ref{logdata}) option is requested, the data will first be logged and then demeaned. Default: @code{0}, @i{i.e.} no prefiltering
+each data series by its empirical mean. If the @ref{loglinear} option without the @ref{logdata} option is requested, the data will first be logged and then demeaned. Default: @code{0}, @i{i.e.} no prefiltering
 
 @item presample = @var{INTEGER}
 @anchor{presample}
@@ -7742,8 +7750,8 @@ is not specified, a value of 0 is assumed. That is, if you specify only
 values for periods 1 and 3, the values for period 2 will be 0. Currently, it is not 
 possible to have uncontrolled intermediate periods.
 In case of the presence of @code{observation_trends}, the specified controlled path for 
-these variables needs to include the trend component.
-
+these variables needs to include the trend component. When using the @ref{loglinear} option, 
+it is necessary to specify the logarithm of the controlled variables.
 
 @end deffn
 

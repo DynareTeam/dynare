@@ -63,7 +63,15 @@ var u; stderr 0.009;
 var e, u = phi*0.009*0.009;
 end;
 
-stoch_simul(order=1);
+histval;
+k(0) = log(11.08);
+a(0) = log(1.2);
+b(0) = log(1);
+end;
+
+stoch_simul(order=1,periods=1000);
+forecast;
+
 forecast;
 conditional_forecast_paths;
 var a;
@@ -79,4 +87,6 @@ conditional_forecast(parameter_set=calibration, controlled_varexo=(u,e));
 oo_exp=oo_;
 load('conditional_forecasts.mat')
 conditional_forecasts_exp=forecasts;
-save results_exp.mat oo_exp conditional_forecasts_exp
+
+oo_exp=oo_;
+save results_exp_histval.mat oo_exp conditional_forecasts_exp

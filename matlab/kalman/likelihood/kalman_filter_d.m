@@ -5,7 +5,7 @@ function [dLIK,dlik,a,Pstar] = kalman_filter_d(Y, start, last, a, Pinf, Pstar, k
 %    Y           [double]      pp*smpl matrix of (detrended) data, where pp is the number of observed variables.
 %    start       [integer]     scalar, first observation.
 %    last        [integer]     scalar, last observation.
-%    a           [double]      mm*1 vector, levels of the state variables.
+%    a           [double]      mm*1 vector, levels of the predicted initial state variables (E_{0}(alpha_1)).
 %    Pinf        [double]      mm*mm matrix used to initialize the covariance matrix of the state vector.
 %    Pstar       [double]      mm*mm matrix used to initialize the covariance matrix of the state vector.
 %    kalman_tol  [double]      scalar, tolerance parameter (rcond) of F_star.
@@ -25,7 +25,7 @@ function [dLIK,dlik,a,Pstar] = kalman_filter_d(Y, start, last, a, Pinf, Pstar, k
 % OUTPUTS 
 %    LIK         [double]      scalar, minus loglikelihood
 %    lik         [double]      smpl*1 vector, log density of each vector of observations.
-%    a           [double]      mm*1 vector, current estimate of the state vector.
+%    a           [double]      mm*1 vector, current estimate of the state vector tomorrow (E_{T}(alpha_{T+1}))
 %    Pstar       [double]      mm*mm matrix, covariance matrix of the state vector.    
 %        
 % REFERENCES 

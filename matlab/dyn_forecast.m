@@ -73,9 +73,17 @@ switch task
         horizon = 5;
     end
     if isempty(M.endo_histval)
-        y0 = repmat(oo.dr.ys,1,maximum_lag);
+        if options.loglinear && ~options.logged_steady_state
+            y0 = repmat(log(oo.dr.ys),1,maximum_lag);
+        else
+            y0 = repmat(oo.dr.ys,1,maximum_lag);
+        end
     else
-        y0 = M.endo_histval;
+        if options.loglinear
+            y0 = log_variable(1:M.endo_nbr,M.endo_histval,M);
+        else
+            y0 = M.endo_histval;
+        end
     end
   case 'smoother'
     horizon = options.forecast;

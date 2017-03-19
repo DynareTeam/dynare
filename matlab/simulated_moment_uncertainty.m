@@ -12,7 +12,7 @@ function [cmm, mm] = simulated_moment_uncertainty(indx, periods, replic,options_
 %   - cmm:      [n_moments by n_moments] covariance matrix of simulated moments
 %   - mm:       [n_moments by replic] matrix of moments
 %  
-% Copyright (C) 2009-2016 Dynare Team
+% Copyright (C) 2009-2017 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -80,9 +80,17 @@ end
 
 %set starting point of simulations
 if isempty(M_.endo_histval)
-    y0 = oo_.dr.ys;
+    if options_.loglinear
+        y0 = log(oo_.dr.ys);
+    else
+        y0 = oo_.dr.ys;
+    end
 else
-    y0 = M_.endo_histval;
+    if options_.loglinear
+        y0 = log_variable(1:M_.endo_nbr,M_.endo_histval,M_);
+    else
+        y0 = M_.endo_histval;
+    end
 end
 
 

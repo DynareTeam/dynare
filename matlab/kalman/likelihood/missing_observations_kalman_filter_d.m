@@ -12,7 +12,7 @@ function [dLIK,dlik,a,Pstar] = missing_observations_kalman_filter_d(data_index,n
 %    Y                            [double]      pp*smpl matrix of (detrended) data, where pp is the number of observed variables.
 %    start                        [integer]     scalar, first observation.
 %    last                         [integer]     scalar, last observation.
-%    a                            [double]      mm*1 vector, levels of the state variables.
+%    a                            [double]      mm*1 vector, levels of the predicted initial state variables (E_{0}(alpha_1)).
 %    Pinf                         [double]      mm*mm matrix used to initialize the covariance matrix of the state vector.
 %    Pstar                        [double]      mm*mm matrix used to initialize the covariance matrix of the state vector.
 %    kalman_tol                   [double]      scalar, tolerance parameter (rcond).
@@ -30,7 +30,7 @@ function [dLIK,dlik,a,Pstar] = missing_observations_kalman_filter_d(data_index,n
 % OUTPUTS 
 %    dLIK        [double]    scalar, MINUS loglikelihood
 %    dlik        [double]    vector, density of observations in each period.
-%    a           [double]    mm*1 vector, estimated level of the states.
+%    a           [double]    mm*1 vector, current estimate of the state vector tomorrow (E_{T}(alpha_{T+1}))
 %    Pstar       [double]    mm*mm matrix, covariance matrix of the states.        
 %        
 % REFERENCES

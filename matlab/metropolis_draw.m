@@ -70,7 +70,7 @@ if init
     mh_nblck = options_.mh_nblck;
     % set sub_draws option if empty
     if isempty(options_.sub_draws)
-        options_.sub_draws = min(options_.posterior_max_subsample_draws, round(NumberOfDraws*mh_nblck));
+        options_.sub_draws = min(options_.posterior_max_subsample_draws, ceil(.25*NumberOfDraws));
     else
         if options_.sub_draws>NumberOfDraws*mh_nblck
             skipline()

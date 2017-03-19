@@ -17,7 +17,7 @@ function [LIK, likk, a] = kalman_filter_ss(Y,start,last,a,T,K,iF,log_dF,Z,pp,Zfl
 %! @item last
 %! Integer scalar, last period (@var{last}-@var{first} has to be inferior to T).
 %! @item a
-%! Vector (mm*1) of doubles, initial mean of the state vector.
+%! Vector (mm*1) of doubles, levels of the predicted initial state variables (E_{0}(alpha_1)).
 %! @item T
 %! Matrix (mm*mm) of doubles, transition matrix of the state equation.
 %! @item K
@@ -42,7 +42,7 @@ function [LIK, likk, a] = kalman_filter_ss(Y,start,last,a,T,K,iF,log_dF,Z,pp,Zfl
 %! @item likk
 %! Column vector of doubles, values of the density of each observation.
 %! @item a
-%! Vector (mm*1) of doubles, mean of the state vector at the end of the (sub)sample.
+%! Vector (mm*1) of doubles, current estimate of the state vector tomorrow (E_{T}(alpha_{T+1}))
 %! @end table
 %! @sp 2
 %! @strong{This function is called by:}

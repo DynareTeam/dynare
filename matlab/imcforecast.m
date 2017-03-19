@@ -162,7 +162,20 @@ else
     end
 end
 
+if options_.logged_steady_state %if steady state was previously logged, undo this
+    oo_.dr.ys=exp(oo_.dr.ys);
+    oo_.steady_state=exp(oo_.steady_state);
+    options_.logged_steady_state=0;
+end
+
 [T,R,ys,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_);
+
+if options_.loglinear && isfield(oo_.dr,'ys') && options_.logged_steady_state==0 %log steady state
+    oo_.dr.ys=log_variable(1:M_.endo_nbr,oo_.dr.ys,M_);
+    ys=oo_.dr.ys;
+    oo_.steady_state=log_variable(1:M_.endo_nbr,oo_.steady_state,M_);
+    options_.logged_steady_state=1; %set option for use in stoch_simul
+end
 
 if ~isdiagonal(M_.Sigma_e)
     warning(sprintf('The innovations are correlated (the covariance matrix has non zero off diagonal elements), the results of the conditional forecasts will\ndepend on the ordering of the innovations (as declared after varexo) because a Cholesky decomposition is used to factorize the covariance matrix.\n\n=> It is preferable to declare the correlations in the model block (explicitly imposing the identification restrictions), unless you are satisfied\nwith the implicit identification restrictions implied by the Cholesky decomposition.'))
@@ -175,7 +188,14 @@ if ~estimated_model
     if isempty(M_.endo_histval)
         y0 = ys;
     else
-        y0 = M_.endo_histval;
+        if options_.loglinear
+            %make sure that only states are updated (controls have value of 0 in vector)
+            y0=zeros(size(ys));
+            y0_logged = log_variable(1:M_.endo_nbr,M_.endo_histval,M_);
+            y0(M_.endo_histval~=0)=y0_logged(M_.endo_histval~=0);
+        else
+            y0 = M_.endo_histval;
+        end
     end
     InitState(:,1) = y0(oo_.dr.order_var)-ys(oo_.dr.order_var,:); %initial state in deviations from steady state
     trend = repmat(ys(oo_.dr.order_var,:),1,options_cond_fcst.periods+1); %trend needs to contain correct steady state
