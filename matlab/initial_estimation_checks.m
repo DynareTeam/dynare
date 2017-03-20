@@ -165,8 +165,15 @@ elseif imag(fval)
 end
 
 if info(1) > 0
+    if DynareOptions.order>1
+        [eigenvalues_] = check(Model,DynareOptions, DynareResults);
+        if any(abs(1-abs(eigenvalues_))<1e-10)
+            error('Your model has a unit root, but estimation at order>1 currently only supports stationary models')
+        end
+    else
     disp('Error in computing likelihood for initial parameter values')
     print_info(info, DynareOptions.noprint, DynareOptions)
+    end
 end
 
 if DynareOptions.prefilter==1
