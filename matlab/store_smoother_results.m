@@ -76,6 +76,11 @@ if nargin<16
     Trend=zeros(options_.number_of_observed_variables,gend);
 end
 
+if options_.loglinear
+    oo_.Smoother.loglinear=1;
+else
+    oo_.Smoother.loglinear=0;
+end
 %% write variable steady state
 oo_.Smoother.SteadyState = ys;
 
