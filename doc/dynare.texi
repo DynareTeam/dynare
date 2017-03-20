@@ -6723,6 +6723,11 @@ Fields are of the form:
 @end example
 @end defvr
 
+@defvr {MATLAB/Octave variable} oo_.Smoother.loglinear
+Indicator keeping track of whether the smoother was run with the @ref{loglinear} option 
+and thus whether stored smoothed objects are in logs.
+@end defvr
+
 @defvr {MATLAB/Octave variable} oo_.PosteriorTheoreticalMoments
 @anchor{oo_.PosteriorTheoreticalMoments}
 Variable set by the @code{estimation} command, if it is used with the

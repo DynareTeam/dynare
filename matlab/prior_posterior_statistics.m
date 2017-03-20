@@ -141,6 +141,11 @@ ifil = zeros(n_variables_to_fill,1);
 run_smoother = 0;
 if options_.smoother || options_.forecast || options_.filter_step_ahead || options_.smoothed_state_uncertainty
     run_smoother = 1;
+    if options_.loglinear
+        oo_.Smoother.loglinear=1;
+    else
+        oo_.Smoother.loglinear=0;
+    end
 end
 
 filter_covariance=0;
