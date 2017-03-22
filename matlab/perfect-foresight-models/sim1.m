@@ -151,6 +151,11 @@ for iter = 1:options.simul.maxit
     end
     iA = iA(1:m,:);
     A = sparse(iA(:,1),iA(:,2),iA(:,3),periods*ny,periods*ny);
+
+    if iter>1,
+        dy0=dy; % store previous update step
+    end
+    
     if endogenous_terminal_period && iter>1
         dy = ZERO;
         if options.simul.robust_lin_solve
@@ -163,8 +168,21 @@ for iter = 1:options.simul.maxit
             dy = -lin_solve_robust( A, res, verbose );            
         else
             dy = -lin_solve( A, res, verbose );
-        end
     end
+    if iter>1 && (any(~isreal(dy)) || any(isnan(dy)) || any(isinf(dy)) || (err/err0)>10),
+        % relaxation step, reducing length of update of previous
+        % iteration
+        if verbose
+            display_critical_variables(reshape(dy,[ny periods])', M);
+        end
+        disp('Try relaxation step.')
+        Y=Y0;
+        dy=dy0/10; %max(10,(err/err0));
+        err=err0;
+    end
+    Y0=Y; % store previous endogenous variables path
+    err0=err;
+    
     Y(i_upd) = Y(i_upd) + dy;
 end
 
@@ -184,7 +202,12 @@ if stop
         if verbose
             skipline()
             disp(sprintf('Total time of simulation: %s.', num2str(etime(clock,h1))))
-            disp('Simulation terminated with NaN or Inf in the residuals or endogenous variables.')
+            if ~isreal(res) || ~isreal(Y)
+                disp('Simulation terminated with imaginary parts in the residuals or endogenous variables.')
+            else
+                disp('Simulation terminated with NaN or Inf in the residuals or endogenous variables.')
+            end
+            display_critical_variables(reshape(dy,[ny periods])', M);
             disp('There is most likely something wrong with your model. Try model_diagnostics or another simulation method.')
             printline(105)
         end
@@ -297,3 +320,29 @@ function [ x, flag, relres ] = lin_solve_robust( A, b , verbose)
     if flag ~= 0 && verbose
         fprintf( 'WARNING : Failed to find a solution to the linear system\n' );
     end
+    
+function display_critical_variables(dyy, M)
+
+            if any(isnan(dyy))
+                indx = find(any(isnan(dyy)));
+                endo_names=cellstr(M.endo_names(indx,:));
+                disp('Last iteration provided NaN for the following variables:')
+                fprintf('%s, ',endo_names{:}),
+                fprintf('\n'),
+            end
+            if any(isinf(dyy))
+                indx = find(any(isinf(dyy)));
+                endo_names=cellstr(M.endo_names(indx,:));
+                disp('Last iteration diverged (Inf) for the following variables:')
+                fprintf('%s, ',endo_names{:}),
+                fprintf('\n'),
+            end
+            if any(~isreal(dyy))
+                indx = find(any(~isreal(dyy)));
+                endo_names=cellstr(M.endo_names(indx,:));
+                disp('Last iteration provided complex number for the following variables:')
+                fprintf('%s, ',endo_names{:}),
+                fprintf('\n'),                
+            end
+
+        
