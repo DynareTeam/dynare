@@ -24,7 +24,7 @@ Mem_Mngr::Mem_Mngr()
   swp_f = false;
   swp_f_b = 0;
 }
-void
+/*void
 Mem_Mngr::Print_heap()
 {
   unsigned int i;
@@ -33,6 +33,7 @@ Mem_Mngr::Print_heap()
     mexPrintf("%3d ", i);
   mexPrintf("\n");
 }
+*/
 
 void
 Mem_Mngr::init_Mem()
@@ -49,7 +50,7 @@ Mem_Mngr::init_Mem()
 void
 Mem_Mngr::fixe_file_name(string filename_arg)
 {
-  filename = filename_arg;
+  filename_mem = filename_arg;
 }
 
 void
@@ -78,25 +79,25 @@ Mem_Mngr::mxMalloc_NZE()
       CHUNK_SIZE += CHUNK_BLCK_SIZE;
       Nb_CHUNK++;
       NZE_Mem = (NonZeroElem *) mxMalloc(CHUNK_BLCK_SIZE*sizeof(NonZeroElem));      /*The block of memory allocated*/
+      error_msg.test_mxMalloc(NZE_Mem, __LINE__, __FILE__, __func__, CHUNK_BLCK_SIZE*sizeof(NonZeroElem));
       NZE_Mem_Allocated.push_back(NZE_Mem);
       if (!NZE_Mem)
-        {
-          mexPrintf("Not enough memory available\n");
-          mexEvalString("drawnow;");
-        }
+        mexPrintf("Not enough memory available\n");
       if (NZE_Mem_add)
-        NZE_Mem_add = (NonZeroElem **) mxRealloc(NZE_Mem_add, CHUNK_SIZE*sizeof(NonZeroElem *));                                                                                                     /*We have to redefine the size of pointer on the memory*/
+        {
+          NZE_Mem_add = (NonZeroElem **) mxRealloc(NZE_Mem_add, CHUNK_SIZE*sizeof(NonZeroElem *));                                                                                                     /*We have to redefine the size of pointer on the memory*/
+          error_msg.test_mxMalloc(NZE_Mem_add , __LINE__, __FILE__, __func__, CHUNK_SIZE*sizeof(NonZeroElem *));
+        }
       else
-        NZE_Mem_add = (NonZeroElem **) mxMalloc(CHUNK_SIZE*sizeof(NonZeroElem *));                                                                                       /*We have to define the size of pointer on the memory*/
+        {
+          NZE_Mem_add = (NonZeroElem **) mxMalloc(CHUNK_SIZE*sizeof(NonZeroElem *));                                                                                       /*We have to define the size of pointer on the memory*/
+          error_msg.test_mxMalloc(NZE_Mem_add , __LINE__, __FILE__, __func__, CHUNK_SIZE*sizeof(NonZeroElem *));
+        }
+
       if (!NZE_Mem_add)
-        {
-          mexPrintf("Not enough memory available\n");
-          mexEvalString("drawnow;");
-        }
+        mexPrintf("Not enough memory available\n");
       for (i = CHUNK_heap_pos; i < CHUNK_SIZE; i++)
-        {
-          NZE_Mem_add[i] = (NonZeroElem *) (NZE_Mem+(i-CHUNK_heap_pos));
-        }
+        NZE_Mem_add[i] = (NonZeroElem *) (NZE_Mem+(i-CHUNK_heap_pos));
       i = CHUNK_heap_pos++;
       return (NZE_Mem_add[i]);
     }

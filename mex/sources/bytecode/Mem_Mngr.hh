@@ -20,6 +20,7 @@
 #ifndef MEM_MNGR_HH_INCLUDED
 #define MEM_MNGR_HH_INCLUDED
 
+#include "ErrorHandling.hh"
 #include <vector>
 #include <fstream>
 #ifndef DEBUG_EX
@@ -27,7 +28,7 @@
 #else
 # include "mex_interface.hh"
 #endif
-using namespace std;
+//using namespace std;
 
 struct NonZeroElem
 {
@@ -41,7 +42,7 @@ typedef vector<NonZeroElem *> v_NonZeroElem;
 class Mem_Mngr
 {
 public:
-  void Print_heap();
+  //void Print_heap();
   void init_Mem();
   void mxFree_NZE(void *pos);
   NonZeroElem *mxMalloc_NZE();
@@ -50,6 +51,7 @@ public:
   Mem_Mngr();
   void fixe_file_name(string filename_arg);
   bool swp_f;
+  ErrorMsg error_msg;
 private:
   v_NonZeroElem Chunk_Stack;
   unsigned int CHUNK_SIZE, CHUNK_BLCK_SIZE, Nb_CHUNK;
@@ -59,7 +61,7 @@ private:
   vector<NonZeroElem *> NZE_Mem_Allocated;
   int swp_f_b;
   fstream  SaveCode_swp;
-  string filename;
+  string filename_mem;
 };
 
 #endif

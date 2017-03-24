@@ -91,9 +91,9 @@ Get_Argument(const mxArray *prhs)
 #endif
 
 
-//#include <windows.h> 
-#include <stdio.h> 
- 
+//#include <windows.h>
+#include <stdio.h>
+
 
 #ifdef CUDA
 int
@@ -450,6 +450,7 @@ main(int nrhs, const char *prhs[])
   load_global((char *) prhs[1]);
 #endif
   mxArray *pfplan_struct = NULL;
+  ErrorMsg error_msg;
   size_t i, row_y = 0, col_y = 0, row_x = 0, col_x = 0, nb_row_xd = 0;
   size_t steady_row_y, steady_col_y;
   int y_kmin = 0, y_kmax = 0, y_decal = 0;
@@ -527,7 +528,7 @@ main(int nrhs, const char *prhs[])
           DYN_MEX_FUNC_ERR_MSG_TXT(tmp.c_str());
         }
       int nb_periods = mxGetM(date_str) * mxGetN(date_str);
-      
+
       mxArray* constrained_vars_ = mxGetField(extended_path_struct, 0, "constrained_vars_");
       if (constrained_vars_ == NULL)
         {
@@ -556,7 +557,7 @@ main(int nrhs, const char *prhs[])
           tmp.insert(0,"The extended_path description structure does not contain the member: ");
           DYN_MEX_FUNC_ERR_MSG_TXT(tmp.c_str());
         }
-      
+
       mxArray* shock_var_ = mxGetField(extended_path_struct, 0, "shock_vars_");
       if (shock_var_ == NULL)
         {
@@ -621,7 +622,7 @@ main(int nrhs, const char *prhs[])
               table_conditional_global[i] = vector_conditional_local;
             }
         }
-      
+
       vector_table_conditional_local_type vv3 = table_conditional_global[0];
       for (int i = 0; i < nb_constrained; i++)
         {
@@ -632,6 +633,7 @@ main(int nrhs, const char *prhs[])
           double *specific_constrained_int_date_ = mxGetPr(mxGetCell(constrained_int_date_, i));
           int nb_local_periods = mxGetM(Array_constrained_paths_) * mxGetN(Array_constrained_paths_);
           int* constrained_int_date = (int*)mxMalloc(nb_local_periods * sizeof(int));
+    		  error_msg.test_mxMalloc(constrained_int_date, __LINE__, __FILE__, __func__, nb_local_periods * sizeof(int));
           if (nb_periods < nb_local_periods)
             {
               ostringstream oss;
@@ -642,7 +644,7 @@ main(int nrhs, const char *prhs[])
               oss << nb_local_periods;
               string tmp1 = oss.str();
               tmp.append(tmp1);
-              tmp.append(")");  
+              tmp.append(")");
               DYN_MEX_FUNC_ERR_MSG_TXT(tmp.c_str());
             }
           (sconditional_extended_path[i]).per_value.resize(nb_local_periods);
@@ -685,7 +687,7 @@ main(int nrhs, const char *prhs[])
               oss << nb_local_periods;
               string tmp1 = oss.str();
               tmp.append(tmp1);
-              tmp.append(")");  
+              tmp.append(")");
               DYN_MEX_FUNC_ERR_MSG_TXT(tmp.c_str());
             }
           (sextended_path[i]).per_value.resize(nb_local_periods);
@@ -713,7 +715,7 @@ main(int nrhs, const char *prhs[])
           dates.push_back(string(buf));//string(Dates[i]);
           mxFree(buf);
         }
-    }
+   }
   if (plan.length()>0)
     {
       mxArray* plan_struct = mexGetVariable("base", plan.c_str());
@@ -1061,10 +1063,15 @@ main(int nrhs, const char *prhs[])
 
   size_t size_of_direction = col_y*row_y*sizeof(double);
   double *y = (double *) mxMalloc(size_of_direction);
+  error_msg.test_mxMalloc(y, __LINE__, __FILE__, __func__, size_of_direction);
   double *ya = (double *) mxMalloc(size_of_direction);
+  error_msg.test_mxMalloc(ya, __LINE__, __FILE__, __func__, size_of_direction);
   direction = (double *) mxMalloc(size_of_direction);
+  error_msg.test_mxMalloc(direction, __LINE__, __FILE__, __func__, size_of_direction);
   memset(direction, 0, size_of_direction);
+  /*mexPrintf("col_x : %d, row_x : %d\n",col_x, row_x);*/
   double *x = (double *) mxMalloc(col_x*row_x*sizeof(double));
+  error_msg.test_mxMalloc(x, __LINE__, __FILE__, __func__, col_x*row_x*sizeof(double));
   for (i = 0; i < row_x*col_x; i++)
     {
       x[i] = double (xd[i]);

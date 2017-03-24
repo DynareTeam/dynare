@@ -118,7 +118,9 @@ Interpreter::evaluate_a_block(bool initialization)
       break;
     case SOLVE_FORWARD_SIMPLE:
       g1 = (double *) mxMalloc(size*size*sizeof(double));
+      test_mxMalloc(g1, __LINE__, __FILE__, __func__, size*size*sizeof(double));
       r = (double *) mxMalloc(size*sizeof(double));
+      test_mxMalloc(r, __LINE__, __FILE__, __func__, size*sizeof(double));
       if (steady_state)
         {
           compute_block_time(0, true, /*block_num, size, steady_state,*/ false);
@@ -158,6 +160,7 @@ Interpreter::evaluate_a_block(bool initialization)
       mexPrintf("in SOLVE_FORWARD_COMPLETE r = mxMalloc(%d*sizeof(double))\n", size);
 #endif
       r = (double *) mxMalloc(size*sizeof(double));
+      test_mxMalloc(r, __LINE__, __FILE__, __func__, size*sizeof(double));
       if (steady_state)
         {
           compute_block_time(0, true, /*block_num, size, steady_state,*/ false);
@@ -216,7 +219,9 @@ Interpreter::evaluate_a_block(bool initialization)
       break;
     case SOLVE_BACKWARD_SIMPLE:
       g1 = (double *) mxMalloc(size*size*sizeof(double));
+      test_mxMalloc(g1, __LINE__, __FILE__, __func__, size*size*sizeof(double));
       r = (double *) mxMalloc(size*sizeof(double));
+      test_mxMalloc(r, __LINE__, __FILE__, __func__, size*sizeof(double));
       if (steady_state)
         {
           compute_block_time(0, true, /*block_num, size, steady_state,*/ false);
@@ -253,6 +258,7 @@ Interpreter::evaluate_a_block(bool initialization)
           Read_SparseMatrix(bin_base_name, size, 1, 0, 0, false, stack_solve_algo, solve_algo);
         }
       r = (double *) mxMalloc(size*sizeof(double));
+      test_mxMalloc(r, __LINE__, __FILE__, __func__, size*sizeof(double));
       if (steady_state)
         {
           compute_block_time(0, true, /*block_num, size, steady_state,*/ false);
@@ -290,6 +296,7 @@ Interpreter::evaluate_a_block(bool initialization)
         }
       u_count = u_count_int*(periods+y_kmax+y_kmin);
       r = (double *) mxMalloc(size*sizeof(double));
+      test_mxMalloc(r, __LINE__, __FILE__, __func__, size*sizeof(double));
       begining = it_code;
       for (it_ = y_kmin; it_ < periods+y_kmin; it_++)
         {
@@ -431,8 +438,11 @@ Interpreter::simulate_a_block(vector_table_conditional_local_type vector_table_c
         }
       u_count = u_count_int*(periods+y_kmax+y_kmin);
       r = (double *) mxMalloc(size*sizeof(double));
+      test_mxMalloc(r, __LINE__, __FILE__, __func__, size*sizeof(double));
       res = (double *) mxMalloc(size*periods*sizeof(double));
+      test_mxMalloc(res, __LINE__, __FILE__, __func__, size*periods*sizeof(double));
       y_save = (double *) mxMalloc(y_size*sizeof(double)*(periods+y_kmax+y_kmin));
+      test_mxMalloc(y_save, __LINE__, __FILE__, __func__, y_size*sizeof(double)*(periods+y_kmax+y_kmin));
       start_code = it_code;
       iter = 0;
       if (!is_linear)
@@ -457,7 +467,7 @@ Interpreter::simulate_a_block(vector_table_conditional_local_type vector_table_c
                           //mexPrintf("y[%d] = %f\n", it1->var_endo + y_kmin * size, y[it1->var_endo + y_kmin * size]);
                           y[it1->var_endo + y_kmin * size] = it1->constrained_value;
                         }
-                        
+
                     }
                 }
               compute_complete_2b(false, &res1, &res2, &max_res, &max_res_idx);
@@ -499,12 +509,18 @@ Interpreter::simulate_a_block(vector_table_conditional_local_type vector_table_c
           max_res = 0; max_res_idx = 0;
         }
       it_code = end_code;
-      mxFree(r);
-      mxFree(y_save);
-      mxFree(u);
-      mxFree(index_vara);
-      mxFree(index_equa);
-      mxFree(res);
+      if (r)
+        mxFree(r);
+      if (y_save)
+        mxFree(y_save);
+      if (u)
+        mxFree(u);
+      if (index_vara)
+        mxFree(index_vara);
+      if (index_equa)
+        mxFree(index_equa);
+      if (res)
+        mxFree(res);
       memset(direction, 0, size_of_direction);
       End_Solver();
       break;
@@ -558,14 +574,14 @@ Interpreter::print_a_block()
     }
 }
 
-void 
+void
 Interpreter::ReadCodeFile(string file_name, CodeLoad &code)
 {
   if (steady_state)
     file_name += "_static";
   else
     file_name += "_dynamic";
- 
+
   //First read and store in memory the code
   code_liste = code.get_op_code(file_name);
   EQN_block_number = code.get_block_number();
@@ -653,9 +669,7 @@ Interpreter::MainLoop(string bin_basename, CodeLoad code, bool evaluate, int blo
             Block_Contain = fb->get_Block_Contain();
             it_code++;
             if (constrained)
-              {
-                check_for_controlled_exo_validity(fb,sconstrained_extended_path);
-              }
+              check_for_controlled_exo_validity(fb,sconstrained_extended_path);
             set_block(fb->get_size(), fb->get_type(), file_name, bin_basename, Block_Count, fb->get_is_linear(), fb->get_endo_nbr(), fb->get_Max_Lag(), fb->get_Max_Lead(), fb->get_u_count_int(), block);
             if (print)
               print_a_block();
@@ -690,7 +704,7 @@ Interpreter::MainLoop(string bin_basename, CodeLoad code, bool evaluate, int blo
 #ifdef DEBUG
                 mexPrintf("endo in Block_Count=%d, block=%d, type=%d, steady_state=%d, print_it=%d, Block_Count=%d, fb->get_is_linear()=%d, fb->get_endo_nbr()=%d, fb->get_Max_Lag()=%d, fb->get_Max_Lead()=%d, fb->get_u_count_int()=%d\n",
                           Block_Count, fb->get_size(), fb->get_type(), steady_state, print_it, Block_Count, fb->get_is_linear(), fb->get_endo_nbr(), fb->get_Max_Lag(), fb->get_Max_Lead(), fb->get_u_count_int());
-#endif      
+#endif
                 bool result;
                 if (sconstrained_extended_path.size())
                   {
@@ -702,7 +716,7 @@ Interpreter::MainLoop(string bin_basename, CodeLoad code, bool evaluate, int blo
                     jacobian_other_endo_block.push_back(mxCreateDoubleMatrix(fb->get_size(), fb->get_nb_col_other_endo_jacob(), mxREAL));
                     residual = vector<double>(fb->get_size()*(periods+y_kmin));
                     result = simulate_a_block(vector_table_conditional_local);
-                    
+
                     mxDestroyArray(jacobian_block.back());
                     jacobian_block.pop_back();
                     mxDestroyArray(jacobian_exo_block.back());
@@ -713,10 +727,7 @@ Interpreter::MainLoop(string bin_basename, CodeLoad code, bool evaluate, int blo
                     jacobian_other_endo_block.pop_back();
                   }
                 else
-                  {
-                    result = simulate_a_block(vector_table_conditional_local);
-                  }
-                  
+                  result = simulate_a_block(vector_table_conditional_local);
                 //mexPrintf("OKe\n");
                 if (max_res > max_res_local)
                   {
@@ -751,6 +762,7 @@ Interpreter::MainLoop(string bin_basename, CodeLoad code, bool evaluate, int blo
           if (T)
             mxFree(T);
           T = (double *) mxMalloc(var*(periods+y_kmin+y_kmax)*sizeof(double));
+          test_mxMalloc(T, __LINE__, __FILE__, __func__, var*(periods+y_kmin+y_kmax)*sizeof(double));
           if (block >= 0)
             {
               it_code = code_liste.begin() + code.get_begin_block(block);
@@ -776,7 +788,11 @@ Interpreter::MainLoop(string bin_basename, CodeLoad code, bool evaluate, int blo
               T = mxGetPr(GlobalTemporaryTerms);
             }
           else
-            T = (double *) mxMalloc(var*sizeof(double));
+            {
+              T = (double *) mxMalloc(var*sizeof(double));
+              test_mxMalloc(T, __LINE__, __FILE__, __func__, var*sizeof(double));
+            }
+
 
           if (block >= 0)
             it_code = code_liste.begin() + code.get_begin_block(block);
@@ -842,9 +858,18 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
   ReadCodeFile(file_name, code);
   it_code = code_liste.begin();
   it_code_type Init_Code = code_liste.begin();
-  size_t size_of_direction = y_size*(periods + y_kmax + y_kmin)*sizeof(double);
+  /*size_t size_of_direction = y_size*(periods + y_kmax + y_kmin)*sizeof(double);
   double *y_save = (double *) mxMalloc(size_of_direction);
-  double *x_save = (double *) mxMalloc((periods + y_kmax + y_kmin) * col_x *sizeof(double));
+  double *x_save = (double *) mxMalloc((periods + y_kmax + y_kmin) * col_x *sizeof(double));*/
+  int max_periods = max(periods, nb_periods);
+  size_t size_of_direction = y_size*(max_periods + y_kmax + y_kmin)*sizeof(double);
+  double *y_save = (double *) mxMalloc(size_of_direction);
+  test_mxMalloc(y_save, __LINE__, __FILE__, __func__, size_of_direction);
+
+
+  double *x_save = (double *) mxMalloc((max_periods + y_kmax + y_kmin) * col_x *sizeof(double));
+  test_mxMalloc(x_save, __LINE__, __FILE__, __func__, (max_periods + y_kmax + y_kmin) * col_x *sizeof(double));
+
   vector_table_conditional_local_type vector_table_conditional_local;
   vector_table_conditional_local.clear();
 
@@ -896,7 +921,7 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
         vector_table_conditional_local = table_conditional_global[t];
       if (t < nb_periods)
         MainLoop(bin_basename, code, evaluate, block, false, true, sconstrained_extended_path, vector_table_conditional_local);
-      else 
+      else
         MainLoop(bin_basename, code, evaluate, block, true, true, sconstrained_extended_path, vector_table_conditional_local);
       for (int j = 0; j < y_size; j++)
         {
@@ -909,7 +934,7 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
           x_save[t + y_kmin + j * nb_row_x] = x[y_kmin + j * nb_row_x];
           x[y_kmin + j * nb_row_x] = x_save[t + 1 + y_kmin + j * nb_row_x];
         }
-        
+
       if (old_print_it)
         {
           ostringstream res, res1;
@@ -932,10 +957,12 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
     y[i]  = y_save[i];
   for (int j = 0; j < col_x* nb_row_x; j++)
     x[j] = x_save[j];
-    
-  mxFree(Init_Code->second);
-  mxFree(y_save);
-  mxFree(x_save);
+  if (Init_Code->second)
+    mxFree(Init_Code->second);
+  if (y_save)
+    mxFree(y_save);
+  if (x_save)
+    mxFree(x_save);
   nb_blocks = Block_Count+1;
   if (T && !global_temporary_terms)
     mxFree(T);
@@ -947,7 +974,7 @@ Interpreter::compute_blocks(string file_name, string bin_basename, bool evaluate
 {
   CodeLoad code;
   ReadCodeFile(file_name, code);
-  
+
   //The big loop on intructions
   it_code = code_liste.begin();
   it_code_type Init_Code = it_code;
@@ -955,8 +982,8 @@ Interpreter::compute_blocks(string file_name, string bin_basename, bool evaluate
   vector_table_conditional_local_type vector_table_conditional_local_junk;
 
   MainLoop(bin_basename, code, evaluate, block, true, false, s_plan_junk, vector_table_conditional_local_junk);
-  
-  
+
+
   mxFree(Init_Code->second);
   nb_blocks = Block_Count+1;
   if (T && !global_temporary_terms)

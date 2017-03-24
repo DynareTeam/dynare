@@ -146,7 +146,7 @@ private:
   void Solve_Matlab_LU_UMFPack(mxArray *A_m, mxArray *b_m, int Size, double slowc_l, bool is_two_boundaries, int it_);
   void Print_UMFPack(SuiteSparse_long *Ap, SuiteSparse_long *Ai, double *Ax, int n);
   void Printfull_UMFPack(SuiteSparse_long *Ap, SuiteSparse_long *Ai, double *Ax, double *b, int n);
-
+  void PrintM(int n, double* Ax, mwIndex *Ap, mwIndex *Ai);
   void Solve_LU_UMFPack(mxArray *A_m, mxArray *b_m, int Size, double slowc_l, bool is_two_boundaries, int  it_);
   void Solve_LU_UMFPack(SuiteSparse_long *Ap, SuiteSparse_long *Ai, double *Ax, double *b, int n, int Size, double slowc_l, bool is_two_boundaries, int  it_, vector_table_conditional_local_type vector_table_conditional_local);
   void Solve_LU_UMFPack(SuiteSparse_long *Ap, SuiteSparse_long *Ai, double *Ax, double *b, int n, int Size, double slowc_l, bool is_two_boundaries, int  it_);

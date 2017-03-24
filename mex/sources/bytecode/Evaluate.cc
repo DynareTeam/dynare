@@ -140,7 +140,7 @@ Evaluate::compute_block_time(const int Per_u_, const bool evaluate, /*const int 
 	if ( utIsInterruptPending() )
 		throw UserExceptionHandling();
 #endif
-  
+
   while (go_on)
     {
 #ifdef DEBUG
@@ -1172,6 +1172,7 @@ Evaluate::compute_block_time(const int Per_u_, const bool evaluate, /*const int 
               case ExternalFunctionWithFirstandSecondDerivative:
                 {
                   input_arguments = (mxArray **) mxMalloc(nb_input_arguments * sizeof(mxArray *));
+                  test_mxMalloc(input_arguments, __LINE__, __FILE__, __func__, nb_input_arguments * sizeof(mxArray *));
 #ifdef DEBUG
                   mexPrintf("Stack.size()=%d\n", Stack.size());
                   mexEvalString("drawnow;");
@@ -1188,7 +1189,7 @@ Evaluate::compute_block_time(const int Per_u_, const bool evaluate, /*const int 
                       tmp << " external function: " << function_name << " not found";
                       throw FatalExceptionHandling(tmp.str());
                     }
- 
+
                   double *rr = mxGetPr(output_arguments[0]);
                   Stack.push(*rr);
                   if (function_type == ExternalFunctionWithFirstDerivative || function_type == ExternalFunctionWithFirstandSecondDerivative)
@@ -1215,6 +1216,7 @@ Evaluate::compute_block_time(const int Per_u_, const bool evaluate, /*const int 
               case ExternalFunctionNumericalFirstDerivative:
                 {
                   input_arguments = (mxArray **) mxMalloc((nb_input_arguments+1+nb_add_input_arguments) * sizeof(mxArray *));
+				          test_mxMalloc(input_arguments, __LINE__, __FILE__, __func__, (nb_input_arguments+1+nb_add_input_arguments) * sizeof(mxArray *));
                   mxArray *vv = mxCreateString(arg_func_name.c_str());
                   input_arguments[0] = vv;
                   vv = mxCreateDoubleScalar(fc->get_row());
@@ -1254,6 +1256,7 @@ Evaluate::compute_block_time(const int Per_u_, const bool evaluate, /*const int 
               case ExternalFunctionFirstDerivative:
                 {
                   input_arguments = (mxArray **) mxMalloc(nb_input_arguments * sizeof(mxArray *));
+                  test_mxMalloc(input_arguments, __LINE__, __FILE__, __func__, nb_input_arguments * sizeof(mxArray *));
                   for (unsigned int i = 0; i < nb_input_arguments; i++)
                     {
                       mxArray *vv = mxCreateDoubleScalar(Stack.top());
@@ -1277,6 +1280,7 @@ Evaluate::compute_block_time(const int Per_u_, const bool evaluate, /*const int 
               case ExternalFunctionNumericalSecondDerivative:
                 {
                   input_arguments = (mxArray **) mxMalloc((nb_input_arguments+1+nb_add_input_arguments) * sizeof(mxArray *));
+                  test_mxMalloc(input_arguments, __LINE__, __FILE__, __func__, (nb_input_arguments+1+nb_add_input_arguments) * sizeof(mxArray *));
                   mxArray *vv = mxCreateString(arg_func_name.c_str());
                   input_arguments[0] = vv;
                   vv = mxCreateDoubleScalar(fc->get_row());
@@ -1315,6 +1319,7 @@ Evaluate::compute_block_time(const int Per_u_, const bool evaluate, /*const int 
               case ExternalFunctionSecondDerivative:
                 {
                   input_arguments = (mxArray **) mxMalloc(nb_input_arguments * sizeof(mxArray *));
+                  test_mxMalloc(input_arguments, __LINE__, __FILE__, __func__, nb_input_arguments * sizeof(mxArray *));
                   for (unsigned int i = 0; i < nb_input_arguments; i++)
                     {
                       mxArray *vv = mxCreateDoubleScalar(Stack.top());
@@ -1583,7 +1588,9 @@ void
 Evaluate::solve_simple_over_periods(const bool forward)
 {
   g1 = (double *) mxMalloc(sizeof(double));
+  test_mxMalloc(g1, __LINE__, __FILE__, __func__, sizeof(double));
   r = (double *) mxMalloc(sizeof(double));
+  test_mxMalloc(r, __LINE__, __FILE__, __func__, sizeof(double));
   start_code = it_code;
   if (steady_state)
     {

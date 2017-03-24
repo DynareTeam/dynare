@@ -24,8 +24,20 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <stack>
 #define BYTE_CODE
 #include "CodeInterpreter.hh"
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
+#ifndef M_SQRT2
+#define M_SQRT2 1.41421356237309504880
+#endif
+
 #ifdef DEBUG_EX
 # include <math.h>
 # include "mex_interface.hh"
@@ -35,15 +47,6 @@
 # define CHAR_LENGTH 1
 #else
 # define CHAR_LENGTH 2
-#endif
-
-//Work around for: https://sourceware.org/bugzilla/show_bug.cgi?id=19439
-#ifndef __builtin_isnan
-# define isnan(x) std::isnan(x)
-#endif
-
-#ifndef __builtin_isinf
-# define isinf(x) std::isinf(x)
 #endif
 
 #ifdef _MSC_VER
@@ -250,7 +253,7 @@ public:
                                                                value2(value2_arg)
   {
     ostringstream tmp;
-    if (abs(value1) > 1e-10 )
+    if (fabs(value1) > 1e-10 )
       tmp << " with X=" << value1 << "\n";
     else
       tmp << " with X=" << value1 << " and a=" << value2 << "\n";
@@ -2231,6 +2234,17 @@ public:
     it_code_ret = it_code;
     return (tmp_out.str());
   }
+  void
+
+inline test_mxMalloc(void* z, int line, string file, string func, int amount)
+{
+  if (!z && (amount > 0))
+    {
+      ostringstream tmp;
+      tmp << " mxMalloc: out of memory " << amount << " bytes required at line " << line << " in function " << func << " (file " << file;
+      throw FatalExceptionHandling(tmp.str());
+    }
+}
 
 };
 
