@@ -100,6 +100,8 @@ SampleAddress = sortrows(SampleAddress,[3 2]);
 % Selected draws in the posterior distribution, and if drsize>0
 % reduced form solutions, are saved on disk.
 if info
+    %delete old stale files before creating new ones
+    delete_stale_file([BaseName '_posterior_draws*.mat'])
     if  SampleSize*drawsize <= MAX_mega_bytes% The posterior draws are saved in one file.
         pdraws = cell(SampleSize,info);
         old_mhfile = 0;
