@@ -126,7 +126,6 @@ for file = 1:NumberOfDrawsFiles
             if ~test% Prepare the last round...
                 Covariance_matrix = zeros(NumberOfLinesInTheLastCovarFile,nvar*(nvar+1)/2);
                 NumberOfCovarLines = NumberOfLinesInTheLastCovarFile;
-                CovarFileNumber = CovarFileNumber - 1;
             elseif test<0
                 Covariance_matrix = zeros(MaXNumberOfCovarLines,nvar*(nvar+1)/2);
             else
