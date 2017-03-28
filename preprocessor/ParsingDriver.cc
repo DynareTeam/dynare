@@ -2233,7 +2233,7 @@ ParsingDriver::declare_and_init_model_local_variable(string *name, expr_t rhs)
       // It can have already been declared in a steady_state_model block, check that it is indeed a ModelLocalVariable
       symb_id = mod_file->symbol_table.getID(*name);
       if (mod_file->symbol_table.getType(symb_id) != eModelLocalVariable)
-        error(*name + " has wrong type, you cannot use it within as left-hand side of a pound ('#') expression");
+        error(*name + " has wrong type or was already used on the right-hand side. You cannot use it on the left-hand side of a pound ('#') expression");
     }
 
   try
