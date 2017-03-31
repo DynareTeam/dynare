@@ -122,7 +122,7 @@ end
 
 t = 0;
 icc=0;
-newRank = rank(Pinf(:,:,1),diffuse_kalman_tol);
+newRank = rank(Z*Pinf(:,:,1)*Z',diffuse_kalman_tol);
 while newRank && t < smpl
     t = t+1;
     a(:,t) = a1(:,t);
@@ -156,7 +156,7 @@ while newRank && t < smpl
         end
     end
     if newRank
-        oldRank = rank(Pinf(:,:,t),diffuse_kalman_tol);
+        oldRank = rank(Z*Pinf(:,:,t)*Z',diffuse_kalman_tol);
     else
         oldRank = 0;
     end
@@ -168,7 +168,7 @@ while newRank && t < smpl
     Pstar(:,:,t+1) = T*Pstar(:,:,t)*T'+ QQ;
     Pinf(:,:,t+1) = T*Pinf(:,:,t)*T';
     if newRank
-        newRank       = rank(Pinf(:,:,t+1),diffuse_kalman_tol);
+        newRank       = rank(Z*Pinf(:,:,t+1)*Z',diffuse_kalman_tol);
     end
     if oldRank ~= newRank
         disp('univariate_diffuse_kalman_filter:: T does influence the rank of Pinf!')   
@@ -367,3 +367,9 @@ if decomp_flag
 end
 
 epsilonhat = Y - Z*alphahat;
+
+
+if (d==smpl)
+    warning(['missing_DiffuseKalmanSmootherH3_Z:: There isn''t enough information to estimate the initial conditions of the nonstationary variables']);    
+    return
+end
