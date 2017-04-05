@@ -527,13 +527,16 @@ if ~isempty(options_.datafile)
     end
 end
 
+if isnan(options_.first_obs)
+    options_.first_obs=1;
+end
 [dataset_, dataset_info, newdatainterfaceflag] = makedataset(options_, options_.dsge_var*options_.dsge_varlag, gsa_flag);
 
 %set options for old interface from the ones for new interface
 if ~isempty(dataset_)
     options_.nobs = dataset_.nobs;
-    options_.first_obs=double(dataset_.init);
 end
+
 % setting steadystate_check_flag option
 if options_.diffuse_filter || options_.steadystate.nocheck
     steadystate_check_flag = 0;

@@ -44,6 +44,11 @@ end
 
 %store qz_criterium
 qz_criterium_old=options_.qz_criterium;
+if isnan(options_.first_obs)
+    first_obs_nan_indicator=true;
+else
+    first_obs_nan_indicator=false;
+end
 
 % Set particle filter flag.
 if options_.order > 1
@@ -774,4 +779,7 @@ options_.qz_criterium=qz_criterium_old;
 if reset_options_related_to_estimation
     options_.mode_compute = mode_compute_o;
     options_.mh_replic = mh_replic_o;
+end
+if first_obs_nan_indicator
+    options_.first_obs=NaN;
 end

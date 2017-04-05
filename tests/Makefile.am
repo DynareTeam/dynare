@@ -12,6 +12,7 @@ MODFILES = \
 	observation_trends_and_prefiltering/MCMC/Trend_loglin_prefilt_first_obs_MC.mod \
 	observation_trends_and_prefiltering/MCMC/Trend_prefilter_MC.mod \
 	observation_trends_and_prefiltering/MCMC/Trend_prefilter_first_obs_MC.mod \
+    dates/dseries_interact.mod \
 	estimation/slice/fs2000_slice.mod \
 	optimizers/fs2000_9.mod \
 	optimizers/fs2000_10.mod \
