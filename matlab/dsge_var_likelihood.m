@@ -233,6 +233,15 @@ assignin('base','GYX',GYX);
 iGXX = inv(GXX);
 PHI_star = iGXX*transpose(GYX); %formula (22), DS (2004)
 SIGMA_u_star=GYY - GYX*PHI_star; %formula (23), DS (2004)
+[SIGMA_u_star_is_positive_definite, penalty] = ispd(SIGMA_u_star);
+if ~SIGMA_u_star_is_positive_definite
+    fval = Inf;
+    info(1) = 53;
+    info(4) = penalty;
+    exit_flag = 0;
+    return;
+end
+
 if ~isinf(dsge_prior_weight)% Evaluation of the likelihood of the dsge-var model when the dsge prior weight is finite.
     tmp0 = dsge_prior_weight*NumberOfObservations*TheoreticalAutoCovarianceOfTheObservedVariables(:,:,1) + mYY ;  %first term of square bracket in formula (29), DS (2004)
     tmp1 = dsge_prior_weight*NumberOfObservations*GYX + mYX;        %first element of second term of square bracket in formula (29), DS (2004)

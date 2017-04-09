@@ -122,7 +122,9 @@ if ~noprint
         fprintf('\n The dsge_prior_weight is dsge_var=%5.4f, but must be at least %5.4f for the prior to be proper.\n',info(2),info(3));
         error('You are estimating a DSGE-VAR model, but the value of the dsge prior weight is too low!')
       case 52 %dsge_var_likelihood
-        error('You are estimating a DSGE-VAR model, but the implied covariance matrix of the VAR''s innovations is not positive definite!');
+        error('You are estimating a DSGE-VAR model, but the implied covariance matrix of the VAR''s innovations, based on artificial and actual sample is not positive definite!');
+      case 53 %dsge_var_likelihood
+        error('You are estimating a DSGE-VAR model, but the implied covariance matrix of the VAR''s innovations, based on the artificial sample, is not positive definite!');
       case 55
         error('Fast Kalman filter only works with stationary models [lik_init=1] or stationary observables for non-stationary models [lik_init=3]')
       case 61 %Discretionary policy
