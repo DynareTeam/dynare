@@ -8582,7 +8582,7 @@ This command triggers sensitivity analysis on a DSGE model.
 @anchor{Sampling Options}
 @table @code
 
-@item nsam = @var{INTEGER}
+@item Nsam = @var{INTEGER}
 Size of the Monte-Carlo sample. Default: @code{2048}
 
 @item ilptau = @var{INTEGER}
@@ -8639,7 +8639,7 @@ If equal to @code{0}, generate a new sample. Default: @code{0}
 @item alpha2_stab = @var{DOUBLE}
 Critical value for correlations @math{\rho} in filtered samples:
 plot couples of parmaters with @math{\left|\rho\right|>} @code{alpha2_stab}.
-Default: @code{0.3}
+Default: @code{0}
 
 @item ksstat = @var{DOUBLE}
 Critical value for Smirnov statistics @math{d}: plot parameters with
@@ -8676,7 +8676,7 @@ An empty vector indicates that these entries will not be filtered. Default: @cod
 
 @item ksstat_redform = @var{DOUBLE}
 Critical value for Smirnov statistics @math{d} when reduced form entries
-are filtered. Default: @code{0.1}
+are filtered. Default: @code{0.001}
 
 @item alpha2_redform = @var{DOUBLE}
 Critical value for correlations @math{\rho}  when reduced form entries
@@ -8723,7 +8723,7 @@ error). Default: @code{presample+1}
 
 @item alpha_rmse = @var{DOUBLE}
 Critical value for Smirnov statistics @math{d}: plot parameters with
-@math{d>} @code{alpha_rmse}. Default: @code{0.002}
+@math{d>} @code{alpha_rmse}. Default: @code{0.001}
 
 @item alpha2_rmse = @var{DOUBLE}
 Critical value for correlation @math{\rho}: plot couples of parmaters with
