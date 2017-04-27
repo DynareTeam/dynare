@@ -99,11 +99,16 @@ end
 
 % Load the data in a dseries object.
 if ~isempty(datafile)
-    if ~( newdatainterface==0 && strcmp(datafile(end-1:end),'.m'))
+    if ~( newdatainterface==0 && (strcmp(datafile(end-1:end),'.m')|| strcmp(datafile(end-3:end),'.mat')))
         DynareDataset = dseries(datafile);
     else
+        if strcmp(datafile(end-1:end),'.m')
         % Load an m file with the old interface.
-        DynareDataset = load_m_file_data_legacy(datafile, DynareOptions.varobs);
+            DynareDataset = load_m_file_data_legacy(datafile, DynareOptions.varobs);
+        elseif strcmp(datafile(end-3:end),'.mat')
+        % Load a mat file with the old interface.
+            DynareDataset = load_mat_file_data_legacy(datafile, DynareOptions.varobs);            
+        end
     end
 else
     DynareDataset = dseriesobjectforuserdataset;
