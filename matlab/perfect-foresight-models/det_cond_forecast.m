@@ -144,7 +144,8 @@ else
             end
             %Compute the initial path using the the steady-state
             % steady-state
-            for jj = 2 : (options_.periods + 2)
+            %for jj = 2 : (options_.periods + 2)
+			for jj = 2 : (range.ndat + 2)
               oo_.endo_simul(:, jj) = oo_.steady_state;  
             end
             missings = isnan(oo_.endo_simul(:,1));
@@ -161,6 +162,7 @@ else
                 options_.dynatol.f = 1e-7;
                 [Info, endo, exo] = bytecode('extended_path', plan, oo_.endo_simul, oo_.exo_simul, M_.params, oo_.steady_state, options_.periods);
                 options_.dynatol.f = save_options_dynatol_f;
+
                 if Info == 0
                   oo_.endo_simul = endo;
                   oo_.exo_simul = exo;

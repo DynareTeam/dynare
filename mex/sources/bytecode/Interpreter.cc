@@ -862,13 +862,13 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
   double *y_save = (double *) mxMalloc(size_of_direction);
   double *x_save = (double *) mxMalloc((periods + y_kmax + y_kmin) * col_x *sizeof(double));*/
   int max_periods = max(periods, nb_periods);
-  size_t size_of_direction = y_size*(max_periods + y_kmax + y_kmin)*sizeof(double);
+  size_t size_of_direction = y_size*(/*max_periods*/ nb_periods + y_kmax + y_kmin)*sizeof(double);
   double *y_save = (double *) mxMalloc(size_of_direction);
   test_mxMalloc(y_save, __LINE__, __FILE__, __func__, size_of_direction);
 
 
-  double *x_save = (double *) mxMalloc((max_periods + y_kmax + y_kmin) * col_x *sizeof(double));
-  test_mxMalloc(x_save, __LINE__, __FILE__, __func__, (max_periods + y_kmax + y_kmin) * col_x *sizeof(double));
+  double *x_save = (double *) mxMalloc((/*max_periods*/nb_periods + y_kmax + y_kmin) * col_x *sizeof(double));
+  test_mxMalloc(x_save, __LINE__, __FILE__, __func__, (/*max_periods*/nb_periods + y_kmax + y_kmin) * col_x *sizeof(double));
 
   vector_table_conditional_local_type vector_table_conditional_local;
   vector_table_conditional_local.clear();
@@ -880,9 +880,18 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
       x[j] = 0;
     }
   for (int j = 0; j < col_x; j++)
+    for (int i = nb_row_x; i < nb_periods; i++)
+      x_save[j * (nb_periods + y_kmin + y_kmax) + i] = 0;//x[(j * nb_row_x) + 1];
+  for (int j = 0; j < col_x; j++)
     x[y_kmin + j * nb_row_x] = x_save[1 + y_kmin + j * nb_row_x];
-  for (int i = 0; i < (y_size*(periods + y_kmax + y_kmin)); i++)
-    y_save[i]  = y[i];
+  //for (int i = 0; i < (y_size*(periods + y_kmax + y_kmin)); i++)
+  for (int j = 0; j < y_size; j++)
+    for (int i = 0; i < nb_periods; i++)
+      if (i < periods)
+        y_save[j + (i + y_kmin) * y_size] = y[ j +  (i + y_kmin) * y_size];
+      else
+        y_save[j + (i + y_kmin) * y_size] = y[ j +  (periods + y_kmin) * y_size];
+
   if (endo_name_length_l < 8)
     endo_name_length_l = 8;
   bool old_print_it = print_it;
@@ -914,7 +923,10 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
           mexEvalString("drawnow;");
         }
       for (vector<s_plan>::const_iterator it = sextended_path.begin(); it != sextended_path.end(); it++)
-        x[y_kmin + (it->exo_num - 1) * (periods + y_kmax + y_kmin)] = it->value[t];
+        {
+          x[y_kmin + (it->exo_num - 1) * /*(nb_periods + y_kmax + y_kmin)*/ nb_row_x] = it->value[t];
+        }
+
       it_code = Init_Code;
       vector_table_conditional_local.clear();
       if (table_conditional_global.size())
@@ -932,7 +944,8 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
       for (int j = 0; j < col_x; j++)
         {
           x_save[t + y_kmin + j * nb_row_x] = x[y_kmin + j * nb_row_x];
-          x[y_kmin + j * nb_row_x] = x_save[t + 1 + y_kmin + j * nb_row_x];
+          if (t < nb_periods)
+            x[y_kmin + j * nb_row_x] = x_save[t + 1 + y_kmin + j * nb_row_x];
         }
 
       if (old_print_it)
@@ -941,19 +954,19 @@ Interpreter::extended_path(string file_name, string bin_basename, bool evaluate,
           for (unsigned int i = 0; i < endo_name_length; i++)
             if (P_endo_names[CHAR_LENGTH*(max_res_idx+i*y_size)] != ' ')
               res << P_endo_names[CHAR_LENGTH*(max_res_idx+i*y_size)];
-           res1 << std::scientific << max_res;
+          res1 << std::scientific << max_res;
           mexPrintf("%s|%s| %4d  |  x  |\n",elastic(res.str(),endo_name_length_l+2, true).c_str(), elastic(res1.str(), real_max_length+2, false).c_str(), iter);
           mexPrintf(line.c_str());
           mexEvalString("drawnow;");
         }
     }
   print_it = old_print_it;
-  for (int j = 0; j < y_size; j++)
+  /*for (int j = 0; j < y_size; j++)
     {
       for(int k = nb_periods; k < periods; k++)
         y_save[j + (k + y_kmin) * y_size] = y[ j +  ( k - (nb_periods-1) + y_kmin) * y_size];
-    }
-  for (int i = 0; i < (y_size*(periods + y_kmax + y_kmin)); i++)
+    }*/
+  for (int i = 0; i < (y_size*(nb_periods + y_kmax + y_kmin)); i++)
     y[i]  = y_save[i];
   for (int j = 0; j < col_x* nb_row_x; j++)
     x[j] = x_save[j];
