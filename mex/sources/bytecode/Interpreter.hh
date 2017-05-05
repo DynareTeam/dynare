@@ -59,7 +59,7 @@ public:
               int maxit_arg_, double solve_tolf_arg, size_t size_of_direction_arg, double slowc_arg, int y_decal_arg, double markowitz_c_arg,
               string &filename_arg, int minimal_solving_periods_arg, int stack_solve_algo_arg, int solve_algo_arg,
               bool global_temporary_terms_arg, bool print_arg, bool print_error_arg, mxArray *GlobalTemporaryTerms_arg,
-              bool steady_state_arg, bool print_it_arg, int col_x_arg
+              bool steady_state_arg, bool print_it_arg, int col_x_arg, int col_y_arg
 #ifdef CUDA
               , const int CUDA_device, cublasHandle_t cublas_handle_arg, cusparseHandle_t cusparse_handle_arg, cusparseMatDescr_t descr_arg
 #endif

@@ -105,15 +105,16 @@ else
             
             sym_dset = dset(dates(-range(1)):dates(range(range.ndat)));
             periods = options_.periods + M_.maximum_lag + M_.maximum_lead;
+			total_periods = periods + range.ndat;
             if isfield(oo_, 'exo_simul')
-                if size(oo_.exo_simul, 1) ~= max(range.ndat + 1, periods)
-                    oo_.exo_simul = repmat(oo_.exo_steady_state',max(range.ndat + 1, periods),1);
+                if size(oo_.exo_simul, 1) ~= total_periods
+                    oo_.exo_simul = repmat(oo_.exo_steady_state',total_periods,1);
                 end
             else
-                oo_.exo_simul = repmat(oo_.exo_steady_state',max(range.ndat + 1, periods),1);
+                oo_.exo_simul = repmat(oo_.exo_steady_state',total_periods,1);
             end
             
-            oo_.endo_simul = repmat(oo_.steady_state, 1, max(range.ndat + 1, periods));
+            oo_.endo_simul = repmat(oo_.steady_state, 1, total_periods);
             
             for i = 1:sym_dset.vobs
                 iy = find(strcmp(strtrim(sym_dset.name{i}), strtrim(plan.endo_names)));
@@ -168,7 +169,7 @@ else
                   oo_.exo_simul = exo;
                 end
                 endo = endo';
-                endo_l = size(endo(1+M_.maximum_lag:end,:),1);
+                endo_l = size(endo(1+M_.maximum_lag:end,:),1);	
                 jrng = dates(plan.date(1)):dates(plan.date(1)+endo_l);
                 data_set = dseries(nan(endo_l, dset.vobs), plan.date(1), dset.name);
                 for i = 1:length(dset.name)

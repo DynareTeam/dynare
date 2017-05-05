@@ -316,7 +316,7 @@ public:
   double *y, *ya;
   int y_size;
   double *T;
-  int nb_row_xd, nb_row_x, col_x;
+  int nb_row_xd, nb_row_x, col_x, col_y;
   int y_kmin, y_kmax, periods;
   double *x, *params;
   double *u;
