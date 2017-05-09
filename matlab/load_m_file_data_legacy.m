@@ -32,16 +32,28 @@ if ~isempty(pathtocXDHdrXnqo5KwwVpTRuc6OprAW)
 end
 
 try
-    data = dseries(eval(cellofstring4eval(varobs)),[],varobs);
+    if size(eval(varobs{1,1}),2)>size(eval(varobs{1,1}),1)
+        data = dseries(eval(cellofstring4eval(varobs,'transpose')),[],varobs);
+    else
+        data = dseries(eval(cellofstring4eval(varobs)),[],varobs);
+    end
 catch
-    errmsg = sprintf('makedataset: Check that all the variables listed in varobs exist in %s and have the same number of observations.',datafile);
+    errmsg = sprintf('makedataset: Check that all the variables listed in varobs exist in %s, have the same number of observations, and are all column or row vectors.',datafile);
     error(errmsg)
 end
 
-function str = cellofstring4eval(A)
+function str = cellofstring4eval(A,transpose_option)
     n = length(A);
     str = '[';
     for i=1:n-1
-        str = [str, A{i}, ','];
+        if nargin==2 && strcmp(transpose_option,'transpose')
+            str = [str, A{i}, ''','];
+        else
+            str = [str, A{i}, ','];
+        end
     end
-    str = [str, A{n}, ']'];
+    if nargin==2 && strcmp(transpose_option,'transpose')
+        str = [str, A{n}, ''']'];
+    else
+        str = [str, A{n}, ']'];
+    end
