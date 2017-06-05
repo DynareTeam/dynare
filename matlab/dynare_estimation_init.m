@@ -310,7 +310,7 @@ if options_.use_calibration_initialization %set calibration as starting values
         [xparam1,estim_params_]=do_parameter_initialization(estim_params_,xparam1_calib,xparam1); %get explicitly initialized parameters that have precedence to calibrated values
     end
 end
-if all(bayestopt_.pshape==0) && any(isnan(xparam1))
+if ~isempty(bayestopt_) && all(bayestopt_.pshape==0) && any(isnan(xparam1))
     error('ML estimation requires all estimated parameters to be initialized, either in an estimated_params or estimated_params_init-block ')
 end
 
