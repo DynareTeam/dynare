@@ -113,7 +113,7 @@ for file = 1:NumberOfDrawsFiles
         if isdrsaved
             dr = pdraws{linee,2};
         else
-            set_parameters(pdraws{linee,1});
+            M_=set_parameters_locally(M_,pdraws{linee,1});
             [dr,info,M_,options_,oo_] = resol(0,M_,options_,oo_);
         end
         if file==1 && linee==1
