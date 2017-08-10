@@ -104,6 +104,10 @@ oo_.dr.restrict_columns = bayestopt_.smoother_restrict_columns;
 
 [T,R,SteadyState,info,M_,options_,oo_] = dynare_resolve(M_,options_,oo_);
 
+if info~=0
+    print_info(info,options_.noprint, options_);
+    return
+end
 oo_.dr.restrict_var_list = oldoo.restrict_var_list;
 oo_.dr.restrict_columns = oldoo.restrict_columns;
 
