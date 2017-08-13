@@ -365,7 +365,7 @@ public:
   void end_shocks(bool overwrite);
   //! Writes a mshocks statement
   void end_mshocks(bool overwrite);
-  //! Adds a deterministic chock or a path element inside a conditional_forecast_paths block
+  //! Adds a deterministic shock or a path element inside a conditional_forecast_paths block
   void add_det_shock(string *var, bool conditional_forecast);
   //! Adds a std error chock
   void add_stderr_shock(string *var, expr_t value);
