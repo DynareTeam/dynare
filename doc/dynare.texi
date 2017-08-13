@@ -7764,7 +7764,7 @@ Fields are of the form:
 @end defvr
 
 
-@deffn Command conditional_forecast (@var{OPTIONS}@dots{}) [@var{VARIABLE_NAME}@dots{}];
+@deffn Command conditional_forecast (@var{OPTIONS}@dots{});
 @anchor{conditional_forecast}
 @descriptionhead
 
@@ -7819,7 +7819,7 @@ constrained endogenous, and their constrained future path.
 Option @code{controlled_varexo} is used to specify the structural shocks
 which will be matched to generate the constrained path.
 
-Use @code{plot_conditional_forecast} to graph the results.
+Use @ref{plot_conditional_forecast} to graph the results.
 
 @optionshead
 
@@ -7915,7 +7915,8 @@ periods 1:5;
 values 3;
 end;
 
-conditional_forecast(parameter_set = calibration, controlled_varexo = (e, u), replic = 3000);
+conditional_forecast(parameter_set = calibration, controlled_varexo = (e, u),
+replic = 3000);
 
 plot_conditional_forecast(periods = 10) a y;
 @end example
@@ -7944,7 +7945,7 @@ it is necessary to specify the logarithm of the controlled variables.
 
 @deffn Command plot_conditional_forecast [@var{VARIABLE_NAME}@dots{}];
 @deffnx Command plot_conditional_forecast (periods = @var{INTEGER}) [@var{VARIABLE_NAME}@dots{}];
-
+@anchor{plot_conditional_forecast}
 @descriptionhead
 
 Plots the conditional (plain lines) and unconditional (dashed lines) forecasts.
