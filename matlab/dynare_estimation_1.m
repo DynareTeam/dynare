@@ -610,7 +610,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
         number_of_plots_to_draw = 0;
         index = [];
         for obs_iter=1:n_varobs
-            if max(abs(measurement_error(obs_iter,:))) > 0.0000001
+            if max(abs(measurement_error(obs_iter,:))) > options_.ME_plot_tol;
                 number_of_plots_to_draw = number_of_plots_to_draw + 1;
                 index = cat(1,index,obs_iter);
             end

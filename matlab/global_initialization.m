@@ -467,6 +467,7 @@ options_.prior_trunc = 1e-10;
 options_.smoother = 0;
 options_.posterior_max_subsample_draws = 1200;
 options_.sub_draws = [];
+options_.ME_plot_tol=1e-6;
 % options_.use_mh_covariance_matrix = 0;
 options_.gradient_method = 2; %used by csminwel and newrat
 options_.gradient_epsilon = 1e-6; %used by csminwel and newrat
