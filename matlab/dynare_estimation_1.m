@@ -609,10 +609,10 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
     if nvn
         number_of_plots_to_draw = 0;
         index = [];
-        for i=1:n_varobs
-            if max(abs(measurement_error)) > 0.000000001
+        for obs_iter=1:n_varobs
+            if max(abs(measurement_error(obs_iter,:))) > 0.0000001
                 number_of_plots_to_draw = number_of_plots_to_draw + 1;
-                index = cat(1,index,i);
+                index = cat(1,index,obs_iter);
             end
         end
         if ~options_.nograph
@@ -627,7 +627,7 @@ if (~((any(bayestopt_.pshape > 0) && options_.mh_replic) || (any(bayestopt_.psha
                 fh = dyn_figure(options_.nodisplay,'Name','Smoothed observation errors');
                 NAMES = [];
                 if options_.TeX, TeXNAMES = []; end
-                nstar0=min(nstar,number_of_plots_to_draw-(nbplt-1)*nstar);
+                nstar0=min(nstar,number_of_plots_to_draw-(plt-1)*nstar);
                 if gend==1
                     marker_string{1,1}='-ro';
                     marker_string{2,1}='-ko';
