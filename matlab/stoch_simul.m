@@ -36,6 +36,11 @@ if options_.order == 1
     options_.replic = 1;
 end
 
+if M_.hessian_eq_zero && options_.order~=1
+    options_.order = 1;
+    warning('stoch_simul: using order = 1 because Hessian is equal to zero');
+end
+
 if isempty(options_.qz_criterium)
     options_.qz_criterium = 1+1e-6;
 end
