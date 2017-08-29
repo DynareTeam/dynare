@@ -41,3 +41,11 @@ var u = 0.009^2;
 end;
 
 stoch_simul(periods=2000, drop=200);
+
+%% test that simul_replic does not affect simulated moments
+moments_temp=oo_.var;
+set_dynare_seed('default');
+stoch_simul(periods=2000, drop=200,simul_replic=2);
+if ~isequal(moments_temp,oo_.var)
+    error('Simul_replic affects simulated moments')
+end

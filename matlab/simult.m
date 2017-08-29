@@ -1,4 +1,4 @@
-function [y_,DynareResults] =simult(y0, dr,DynareModel,DynareOptions,DynareResults)
+function [y_out,DynareResults] =simult(y0, dr,DynareModel,DynareOptions,DynareResults)
 % Simulate a DSGE model (perturbation approach).
 
 %@info:
@@ -25,7 +25,7 @@ function [y_,DynareResults] =simult(y0, dr,DynareModel,DynareOptions,DynareResul
 %! @strong{Outputs}
 %! @sp 1
 %! @table @ @var
-%! @item y_
+%! @item y_out
 %! Matrix of doubles, simulated time series for all the endogenous variables (one per row).
 %! @item DynareResults
 %! Matlab's structure gathering the results (see @ref{oo_}).
@@ -87,6 +87,9 @@ for i=1:replic
     y_ = y_(:,2:end);
     if replic > 1
         fwrite(fh,y_,'float64');
+    end
+    if i==1
+        y_out=y_;
     end
 end
 
