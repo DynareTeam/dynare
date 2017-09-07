@@ -14,6 +14,7 @@ TAGS
 *.xls
 *.xlsx
 *.orig
+*.asv
 
 # Build system rules
 .deps
