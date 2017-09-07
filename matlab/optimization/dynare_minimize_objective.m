@@ -62,6 +62,37 @@ fval=NaN;
 opt_par_values=NaN(size(start_par_value));
 new_rat_hess_info=[];
 
+if ~isempty(options_.optim_opt)
+    options_list = read_key_value_string(options_.optim_opt);
+    UseParallelOptionIndex = find( strcmpi( options_list(:,1), 'UseParallel' ), 1 );
+    if ~isempty( UseParallelOptionIndex ) && ( all( options_list{UseParallelOptionIndex,2}==1 ) || strcmpi( options_list{UseParallelOptionIndex,2}, 'always' ) )
+        disp( 'Performing parallel initialization.' );
+        for i = 1 : numel( varargin )
+            if isa( varargin{i}, 'dates' )
+                varargin{i} = struct( varargin{i} );
+            end
+            if isa( varargin{i}, 'dseries' )
+                varargin{i} = struct( varargin{i} );
+                if isfield( varargin{i}, 'dates' )
+                    varargin{i}.dates = struct( varargin{i}.dates );
+                end
+            end
+        end
+        spmd
+            try
+                dates( 'initialize' );
+            catch Error
+                disp( Error );
+            end
+            try
+                dseries( 'initialize' );
+            catch Error
+                disp( Error );
+            end
+        end
+    end
+end
+
 switch minimizer_algorithm
   case 1
     if isoctave
@@ -311,8 +342,9 @@ switch minimizer_algorithm
     [opt_par_values,fval,exitflag] = simplex_optimization_routine(objective_function,start_par_value,simplexOptions,parameter_names,varargin{:});
   case 9
     % Set defaults
-    H0 = (bounds(:,2)-bounds(:,1))*0.2;
-    H0(~isfinite(H0)) = 0.01;
+    H0 = prior_information.p2;
+    H0(~isfinite(H0)) = (bounds(~isfinite(H0),2)-bounds(~isfinite(H0),1))*0.2;
+    H0(~isfinite(H0)) = 0.2;
     while max(H0)/min(H0)>1e6 %make sure initial search volume (SIGMA) is not badly conditioned
         H0(H0==max(H0))=0.9*H0(H0==max(H0));
     end
@@ -326,6 +358,8 @@ switch minimizer_algorithm
             switch options_list{i,1}
               case 'MaxIter'
                 cmaesOptions.MaxIter = options_list{i,2};
+              case 'SigmaScale'
+                H0 = options_list{i,2} .* H0;
               case 'TolFun'
                 cmaesOptions.TolFun = options_list{i,2};
               case 'TolX'
@@ -345,7 +379,11 @@ switch minimizer_algorithm
                 end
               case 'CMAESResume'
                 if options_list{i,2}==1
-                    cmaesOptions.Resume = 'yes';
+                    cmaesOptions.Resume = true;
+                end
+              case 'UseParallel'
+                if all( options_list{i,2}==1 ) || strcmpi( options_list{i,2}, 'always' )
+                    cmaesOptions.EvalParallel = true;
                 end
               otherwise
                 warning(['cmaes: Unknown option (' options_list{i,1}  ')!'])
@@ -356,12 +394,42 @@ switch minimizer_algorithm
         cmaesOptions.DispFinal  = 'off';   % display messages like initial and final message';
         cmaesOptions.DispModulo = '0';   % [0:Inf], disp messages after every i-th iteration';
         cmaesOptions.SaveVariables='off';
-        cmaesOptions.LogModulo = '0';    % [0:Inf] if >1 record data less frequently after gen=100';
+        cmaesOptions.LogModulo = 'Inf';    % [0:Inf] if >1 record data less frequently after gen=100';
         cmaesOptions.LogTime   = '0';    % [0:100] max. percentage of time for recording data';
+    else
+        cmaesOptions.DispFinal  = 'on';   % display messages like initial and final message';
+        cmaesOptions.DispModulo = '1';   % [0:Inf], disp messages after every i-th iteration';
+        cmaesOptions.SaveVariables='on';
+        cmaesOptions.LogModulo = '0';    % [0:Inf] if >1 record data less frequently after gen=100';
+        cmaesOptions.LogTime   = '100';    % [0:100] max. percentage of time for recording data';
     end
     warning('off','CMAES:NonfinitenessRange');
     warning('off','CMAES:InitialSigma');
-    [x, fval, COUNTEVAL, STOPFLAG, OUT, BESTEVER] = cmaes(func2str(objective_function),start_par_value,H0,cmaesOptions,varargin{:});
+    if cmaesOptions.EvalParallel
+        try
+            pool = gcp;
+            nw = pool.NumWorkers;
+        catch
+            nw = 1;
+        end
+        cmaesOptions.PopSize = [ 'max( 1*' int2str( nw ) ', (4 + floor(3*log(N))) )' ];
+        cmaesOptions.CMA.active = 1;
+        cmaesOptions.StopOnStagnation = false;
+        ErrorCaught=true;
+        while ErrorCaught
+            try
+                [~, ~, ~, ~, ~, BESTEVER] = cmaes(@(XV) parallel_wrapper(objective_function,XV,varargin{:}),start_par_value,H0,cmaesOptions);
+                ErrorCaught = false;
+            catch Error
+                disp( Error.identifier );
+                disp( Error.message );
+                disp( Error.stack( 1 ) );
+                cmaesOptions.Resume = true;
+            end
+        end
+    else
+        [~, ~, ~, ~, ~, BESTEVER] = cmaes(objective_function,start_par_value,H0,cmaesOptions,varargin{:});
+    end
     opt_par_values=BESTEVER.x;
     fval=BESTEVER.f;
   case 10
