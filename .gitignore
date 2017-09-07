@@ -13,6 +13,7 @@ TAGS
 *.mat
 *.xls
 *.xlsx
+*.orig
 
 # Build system rules
 .deps
