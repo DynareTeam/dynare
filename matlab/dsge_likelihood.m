@@ -146,6 +146,10 @@ Hess        = [];
 % Ensure that xparam1 is a column vector.
 xparam1 = xparam1(:);
 
+if isstruct( DynareDataset )
+    DynareDataset = dseries( DynareDataset );
+end
+
 if DynareOptions.estimation_dll
     [fval,exit_flag,SteadyState,trend_coeff,info,params,H,Q] ...
         = logposterior(xparam1,DynareDataset, DynareOptions,Model, ...
