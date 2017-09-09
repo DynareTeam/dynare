@@ -86,7 +86,7 @@ switch type
   case 'conditional decomposition'
     generic_post_data_file_name = 'PosteriorConditionalVarianceDecomposition';
   otherwise
-    disp('This feature is not yest implemented!')
+    disp('This feature is not yet implemented!')
 end
 pdfinfo = dir([ MetropolisFolder filesep M_.fname '_' generic_post_data_file_name '*']);
 if isempty(pdfinfo)
