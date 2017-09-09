@@ -121,6 +121,19 @@ if ~options_.noprint
         lh = size(labels,2)+2;
         dyn_latex_table(M_,options_,my_title,'covar_ex_shocks',headers,labels,M_.Sigma_e,lh,10,6);
     end
+    if ~all(M_.H==0)
+        my_title='MATRIX OF COVARIANCE OF MEASUREMENT ERRORS';
+        labels = [repmat('SE_',length(options_.varobs),1),char(options_.varobs')];
+        headers = char('Variables',labels);
+        lh = size(labels,2)+2;
+        dyntable(options_,my_title,headers,labels,M_.H,lh,10,6);
+        if options_.TeX
+            labels = deblank(M_.exo_names_tex);
+            headers = char('Variables',labels);
+            lh = size(labels,2)+2;
+            dyn_latex_table(M_,options_,my_title,'covar_ME',headers,labels,M_.H,lh,10,6);
+        end
+    end
     if options_.partial_information
         skipline()
         disp('SOLUTION UNDER PARTIAL INFORMATION')

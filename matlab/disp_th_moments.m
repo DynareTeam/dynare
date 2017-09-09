@@ -52,9 +52,22 @@ z = [ m sd s2 ];
 oo_.mean = m;
 oo_.var = oo_.gamma_y{1};
 
+ME_present=0;
+if ~all(M_.H==0)
+    [observable_pos_requested_vars,index_subset,index_observables]=intersect(ivar,options_.varobs_id,'stable');
+    if ~isempty(observable_pos_requested_vars)
+        ME_present=1;
+    end
+end
+                
 if size(stationary_vars, 1) > 0
     if ~nodecomposition
         oo_.variance_decomposition=100*oo_.gamma_y{options_.ar+2};
+        if ME_present
+            ME_Variance=diag(M_.H);
+            oo_.variance_decomposition_ME=oo_.variance_decomposition(index_subset,:).*repmat(diag(oo_.var(index_subset,index_subset))./(diag(oo_.var(index_subset,index_subset))+ME_Variance(index_observables)),1,M_.exo_nbr);
+            oo_.variance_decomposition_ME(:,end+1)=100-sum(oo_.variance_decomposition_ME,2);
+        end
     end
     if ~options_.noprint %options_.nomoments == 0
         if options_.order == 2
@@ -88,12 +101,22 @@ if size(stationary_vars, 1) > 0
             dyntable(options_,title,headers,deblank(M_.endo_names(ivar(stationary_vars), ...
                                                               :)),100* ...
                      oo_.gamma_y{options_.ar+2}(stationary_vars,:),lh,8,2);
+            if ME_present
+                [stationary_observables,pos_index_subset]=intersect(index_subset,stationary_vars,'stable');
+                headers_ME=char(headers,'ME');
+                dyntable(options_,[title,' WITH MEASUREMENT ERROR'],headers_ME,deblank(M_.endo_names(ivar(stationary_observables), ...
+                                                  :)),oo_.variance_decomposition_ME(pos_index_subset,:),lh,8,2);
+            end
             if options_.TeX
                 headers=M_.exo_names_tex;
                 headers = char(' ',headers);
                 labels = deblank(M_.endo_names_tex(ivar(stationary_vars),:));
                 lh = size(labels,2)+2;
                 dyn_latex_table(M_,options_,title,'th_var_decomp_uncond',headers,labels,100*oo_.gamma_y{options_.ar+2}(stationary_vars,:),lh,8,2);
+                if ME_present
+                    headers_ME=char(headers,'ME');
+                    dyn_latex_table(M_,options_,[title,' WITH MEASUREMENT ERROR'],'th_var_decomp_uncond_ME',headers_ME,labels,oo_.variance_decomposition_ME(pos_index_subset,:),lh,8,2);
+                end
             end
         end
     end
@@ -106,11 +129,17 @@ if size(stationary_vars, 1) > 0
         [StateSpaceModel.transition_matrix,StateSpaceModel.impulse_matrix] = kalman_transition_matrix(dr,(1:M_.endo_nbr)',M_.nstatic+(1:M_.nspred)',M_.exo_nbr);
         StateSpaceModel.state_innovations_covariance_matrix = M_.Sigma_e;
         StateSpaceModel.order_var = dr.order_var;
-        oo_.conditional_variance_decomposition = conditional_variance_decomposition(StateSpaceModel,conditional_variance_steps,ivar);
+        StateSpaceModel.measurement_error=M_.H;
+        StateSpaceModel.observable_pos=options_.varobs_id;
+        [oo_.conditional_variance_decomposition, oo_.conditional_variance_decomposition_ME]= conditional_variance_decomposition(StateSpaceModel,conditional_variance_steps,ivar);
 
         if options_.noprint == 0
             display_conditional_variance_decomposition(oo_.conditional_variance_decomposition,conditional_variance_steps,...
                                                        ivar,M_,options_);
+            if ME_present
+                display_conditional_variance_decomposition(oo_.conditional_variance_decomposition_ME,conditional_variance_steps,...
+                                                       observable_pos_requested_vars,M_,options_);               
+            end                                                       
         end
     end
 end

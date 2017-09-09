@@ -41,6 +41,86 @@ var u; stderr 0.009;
 //var e, u = phi*0.009*0.009;
 end;
 
-stoch_simul(conditional_variance_decomposition = 100,irf=0);
+varobs a y;
+
+
+@#for order in [1,2]
+options_.order=@{order};
+stoch_simul(conditional_variance_decomposition = 100,irf=0) a y k;
+if max(abs(sum(oo_.variance_decomposition,2)-100))>1e-6
+    error(['Variance decomposition at order ',num2str(options_.order),' does not work'])
+end
 
 stoch_simul(conditional_variance_decomposition = [1 2 3 5 10 100],irf=0) a y k;
+if max(max(abs(sum(oo_.conditional_variance_decomposition,3)-1)))>1e-6
+    error(['Conditional variance decomposition at order ',num2str(options_.order),' does not work'])
+end
+
+shocks;
+var y; stderr 0.01;
+var a; stderr 0.009;
+end;
+
+stoch_simul(conditional_variance_decomposition = [1 2 3 5 10 200],irf=0) a y k;
+if max(max(abs(sum(oo_.conditional_variance_decomposition,3)-1)))>1e-6
+    error(['Conditional variance decomposition at order ',num2str(options_.order),' does not work'])
+end
+if max(max(abs(sum(oo_.conditional_variance_decomposition_ME,3)-1)))>1e-6
+    error(['Conditional variance decomposition at order ',num2str(options_.order),' does not work'])
+end
+
+nvar = size(var_list_,1);
+SubsetOfVariables=zeros(nvar,1);
+for i=1:nvar
+    i_tmp = strmatch(var_list_(i,:),M_.endo_names,'exact');
+    SubsetOfVariables(i) = i_tmp;
+end
+
+[observable_pos,index_observables,index_subset]=intersect(SubsetOfVariables,options_.varobs_id,'stable');
+y_pos=strmatch('y',var_list_,'exact');
+y_pos_varobs=strmatch('y',options_.varobs,'exact');
+a_pos_varobs=strmatch('a',options_.varobs,'exact');
+
+if (oo_.conditional_variance_decomposition_ME(index_observables(y_pos_varobs),end,end)+oo_.var(y_pos,y_pos)/(oo_.var(y_pos,y_pos)+M_.H(y_pos_varobs,y_pos_varobs)))-1>1e-5...
+        || abs(oo_.conditional_variance_decomposition_ME(index_observables(a_pos_varobs),1,end)-0.5)>1e-5    
+    error(['Conditional variance decomposition at order ',num2str(options_.order),' with ME does not work'])
+end
+
+if (oo_.variance_decomposition_ME(index_observables(y_pos_varobs),end)/100+oo_.var(y_pos,y_pos)/(oo_.var(y_pos,y_pos)+M_.H(y_pos_varobs,y_pos_varobs)))-1>1e-5   
+    error(['Unconditional variance decomposition at order ',num2str(options_.order),' with ME does not work'])
+end
+
+shocks;
+var y; stderr 0;
+end;
+
+@#endfor
+
+%% do simulated moments
+@#for order in [1,2]
+options_.order=@{order};
+
+shocks;
+var y; stderr 0.01;
+var a; stderr 0.009;
+end;
+
+stoch_simul(irf=0,periods=1000000) a y k;
+if max(abs(sum(oo_.variance_decomposition,2)-100))>2
+    error(['Variance decomposition at order ',num2str(options_.order),' does not work'])
+end
+
+[observable_pos,index_observables,index_subset]=intersect(SubsetOfVariables,options_.varobs_id,'stable');
+y_pos=strmatch('y',var_list_,'exact');
+y_pos_varobs=strmatch('y',options_.varobs,'exact');
+a_pos_varobs=strmatch('a',options_.varobs,'exact');
+
+if (oo_.variance_decomposition_ME(index_observables(y_pos_varobs),end)/100+oo_.var(y_pos,y_pos)/(oo_.var(y_pos,y_pos)+M_.H(y_pos_varobs,y_pos_varobs)))-1>1e-5   
+    error(['Unconditional variance decomposition at order ',num2str(options_.order),' with ME does not work'])
+end
+
+shocks;
+var y; stderr 0;
+end;
+
+@#endfor

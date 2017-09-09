@@ -1,5 +1,5 @@
-function oo_ = variance_decomposition_mc_analysis(NumberOfSimulations,type,dname,fname,exonames,exo,vartan,var,mh_conf_sig,oo_,options_)
-% function oo_ = variance_decomposition_mc_analysis(NumberOfSimulations,type,dname,fname,exonames,exo,vartan,var,mh_conf_sig,oo_)
+function oo_ = variance_decomposition_ME_mc_analysis(NumberOfSimulations,type,dname,fname,exonames,exo,vartan,var,mh_conf_sig,oo_,options_)
+% function oo_ = variance_decomposition_ME_mc_analysis(NumberOfSimulations,type,dname,fname,exonames,exo,vartan,var,mh_conf_sig,oo_)
 % This function analyses the (posterior or prior) distribution of the
 % endogenous variables' variance decomposition.
 %
@@ -25,7 +25,7 @@ function oo_ = variance_decomposition_mc_analysis(NumberOfSimulations,type,dname
 
 
 
-% Copyright (C) 2008-2017 Dynare Team
+% Copyright (C) 2017 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -57,10 +57,12 @@ if isempty(indx)
 end
 jndx = check_name(exonames,exo);
 if isempty(jndx)
-        if ~isequal(exo,'ME')
-            disp([ type '_analysis:: ' exo ' is not a declared exogenous variable!'])
-        end
-        return
+    if isequal(exo,'ME')
+       jndx=size(exonames,1)+1; 
+    else
+        disp([ type '_analysis:: ' exo ' is not a declared exogenous variable!'])
+    return
+    end
 end
 
 var=deblank(var);
@@ -71,8 +73,8 @@ if isfield(oo_, [ TYPE 'TheoreticalMoments'])
     temporary_structure = oo_.([TYPE, 'TheoreticalMoments']);
     if isfield(temporary_structure,'dsge')
         temporary_structure = oo_.([TYPE, 'TheoreticalMoments']).dsge;
-        if isfield(temporary_structure,'VarianceDecomposition')
-            temporary_structure = oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecomposition.Mean;
+        if isfield(temporary_structure,'VarianceDecompositionME')
+            temporary_structure = oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecompositionME.Mean;
             if isfield(temporary_structure,name)
                 % Nothing to do.
                 return
@@ -81,13 +83,13 @@ if isfield(oo_, [ TYPE 'TheoreticalMoments'])
     end
 end
 
-ListOfFiles = dir([ PATH  fname '_' TYPE 'VarianceDecomposition*.mat']);
+ListOfFiles = dir([ PATH  fname '_' TYPE 'VarianceDecompME*.mat']);
 i1 = 1; tmp = zeros(NumberOfSimulations,1);
 indice = (indx-1)*rows(exonames)+jndx;
 for file = 1:length(ListOfFiles)
     load([ PATH ListOfFiles(file).name ]);
-    i2 = i1 + rows(Decomposition_array) - 1;
-    tmp(i1:i2) = Decomposition_array(:,indice);
+    i2 = i1 + rows(Decomposition_array_ME) - 1;
+    tmp(i1:i2) = Decomposition_array_ME(:,indice);
     i1 = i2+1;
 end
 
@@ -99,12 +101,12 @@ else
         posterior_moments(tmp,0,mh_conf_sig);
 end
 
-oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecomposition.Mean.(var).(exo) = p_mean;
-oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecomposition.Median.(var).(exo) = p_median;
-oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecomposition.Variance.(var).(exo) = p_var;
-oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecomposition.HPDinf.(var).(exo) = hpd_interval(1);
-oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecomposition.HPDsup.(var).(exo) = hpd_interval(2);
-oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecomposition.deciles.(var).(exo) = p_deciles;
+oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecompositionME.Mean.(var).(exo) = p_mean;
+oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecompositionME.Median.(var).(exo) = p_median;
+oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecompositionME.Variance.(var).(exo) = p_var;
+oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecompositionME.HPDinf.(var).(exo) = hpd_interval(1);
+oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecompositionME.HPDsup.(var).(exo) = hpd_interval(2);
+oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecompositionME.deciles.(var).(exo) = p_deciles;
 if options_.estimation.moments_posterior_density.indicator
-    oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecomposition.density.(var).(exo) = density;
+    oo_.([TYPE, 'TheoreticalMoments']).dsge.VarianceDecompositionME.density.(var).(exo) = density;
 end

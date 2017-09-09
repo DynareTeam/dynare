@@ -53,8 +53,10 @@ end
 %delete old stale files before creating new ones
 if posterior
     delete_stale_file([M_.dname '/metropolis/' M_.fname '_PosteriorConditionalVarianceDecomposition*'])
+    delete_stale_file([M_.dname '/metropolis/' M_.fname '_PosteriorConditionalVarianceDecompositionME*'])
 else
     delete_stale_file([M_.dname '/prior/moments/' M_.fname '_PriorConditionalVarianceDecomposition*'])
+    delete_stale_file([M_.dname '/prior/moments/' M_.fname '_PriorConditionalVarianceDecompositionME*'])
 end
 
 % Set varlist (vartan)
@@ -80,6 +82,17 @@ NumberOfDrawsFiles = rows(DrawsFiles);
 NumberOfSavedElementsPerSimulation = nvar*M_.exo_nbr*length(Steps);
 MaXNumberOfConditionalDecompLines = ceil(options_.MaxNumberOfBytes/NumberOfSavedElementsPerSimulation/8);
 
+ME_present=0;
+if ~all(M_.H==0)
+    [observable_pos_requested_vars,index_subset,index_observables]=intersect(ivar,options_.varobs_id,'stable');
+    if ~isempty(observable_pos_requested_vars)
+        ME_present=1;
+        nobs_ME=length(observable_pos_requested_vars);
+        NumberOfSavedElementsPerSimulation_ME = nobs_ME*(M_.exo_nbr+1)*length(Steps);
+        MaXNumberOfConditionalDecompLines_ME = ceil(options_.MaxNumberOfBytes/NumberOfSavedElementsPerSimulation_ME/8);
+    end
+end
+
 if SampleSize<=MaXNumberOfConditionalDecompLines
     Conditional_decomposition_array = zeros(nvar,length(Steps),M_.exo_nbr,SampleSize);
     NumberOfConditionalDecompFiles = 1;
@@ -89,8 +102,22 @@ else
     NumberOfConditionalDecompFiles = ceil(SampleSize/MaXNumberOfConditionalDecompLines);
 end
 
+if ME_present
+    if SampleSize<=MaXNumberOfConditionalDecompLines_ME
+        Conditional_decomposition_array_ME = zeros(nobs_ME,length(Steps),M_.exo_nbr+1,SampleSize);
+        NumberOfConditionalDecompFiles_ME = 1;
+    else
+        Conditional_decomposition_array_ME = zeros(nobs_ME,length(Steps),M_.exo_nbr+1,SampleSize);
+        NumberOfLinesInTheLastConditionalDecompFile_ME = mod(SampleSize,MaXNumberOfConditionalDecompLines_ME);
+        NumberOfConditionalDecompFiles_ME = ceil(SampleSize/MaXNumberOfConditionalDecompLines_ME);
+    end    
+    NumberOfConditionalDecompLines_ME = size(Conditional_decomposition_array_ME,4);
+    ConditionalDecompFileNumber_ME = 0;
+end
+
 NumberOfConditionalDecompLines = size(Conditional_decomposition_array,4);
 ConditionalDecompFileNumber = 0;
+
 
 StateSpaceModel.number_of_state_equations = M_.endo_nbr;
 StateSpaceModel.number_of_state_innovations = M_.exo_nbr;
@@ -98,6 +125,7 @@ StateSpaceModel.number_of_state_innovations = M_.exo_nbr;
 first_call = 1;
 
 linea = 0;
+linea_ME = 0;
 for file = 1:NumberOfDrawsFiles
     if posterior
         load([M_.dname '/metropolis/' DrawsFiles(file).name ]);
@@ -108,6 +136,7 @@ for file = 1:NumberOfDrawsFiles
     NumberOfDraws = rows(pdraws);
     for linee = 1:NumberOfDraws
         linea = linea+1;
+        linea_ME = linea_ME+1;
         if isdrsaved
             M_=set_parameters_locally(M_,pdraws{linee,1});% Needed to update the covariance matrix of the state innovations.
             dr = pdraws{linee,2};
@@ -125,13 +154,19 @@ for file = 1:NumberOfDrawsFiles
             StateSpaceModel.number_of_state_innovations = M_.exo_nbr;
             StateSpaceModel.sigma_e_is_diagonal = M_.sigma_e_is_diagonal;
             StateSpaceModel.order_var = dr.order_var;
+            StateSpaceModel.observable_pos=options_.varobs_id;
             first_call = 0;
             clear('endo_nbr','nstatic','nspred','k');
         end
         [StateSpaceModel.transition_matrix,StateSpaceModel.impulse_matrix] = kalman_transition_matrix(dr,iv,ic,M_.exo_nbr);
         StateSpaceModel.state_innovations_covariance_matrix = M_.Sigma_e;
+        StateSpaceModel.measurement_error=M_.H;
         clear('dr');
-        Conditional_decomposition_array(:,:,:,linea) = conditional_variance_decomposition(StateSpaceModel, Steps, ivar);
+        [ConditionalVarianceDecomposition, ConditionalVarianceDecomposition_ME]=conditional_variance_decomposition(StateSpaceModel, Steps, ivar);
+        Conditional_decomposition_array(:,:,:,linea) =ConditionalVarianceDecomposition;
+        if ME_present
+            Conditional_decomposition_array_ME(:,:,:,linea) =ConditionalVarianceDecomposition_ME;
+        end
         if linea == NumberOfConditionalDecompLines
             ConditionalDecompFileNumber = ConditionalDecompFileNumber + 1;
             linea = 0;
@@ -149,6 +184,28 @@ for file = 1:NumberOfDrawsFiles
                 Conditional_decomposition_array = zeros(nvar,length(Steps),M_.exo_nbr,MaXNumberOfConditionalDecompLines);
             else
                 clear('Conditional_decomposition_array');
+            end
+        end
+        %with measurement error
+        if ME_present
+            if linea_ME == NumberOfConditionalDecompLines_ME
+                ConditionalDecompFileNumber_ME = ConditionalDecompFileNumber_ME + 1;
+                linea_ME = 0;
+                if posterior
+                    save([M_.dname '/metropolis/' M_.fname '_PosteriorConditionalVarianceDecompME' int2str(ConditionalDecompFileNumber_ME) '.mat' ], ...
+                        'Conditional_decomposition_array_ME');
+                else
+                    save([M_.dname '/prior/moments/' M_.fname '_PriorConditionalVarianceDecompME' int2str(ConditionalDecompFileNumber_ME) '.mat' ], ...
+                        'Conditional_decomposition_array_ME');
+                end
+                if (ConditionalDecompFileNumber_ME==NumberOfConditionalDecompFiles_ME-1)% Prepare last round.
+                    Conditional_decomposition_array_ME = zeros(nobs_ME, length(Steps),M_.exo_nbr+1,NumberOfLinesInTheLastConditionalDecompFile_ME) ;
+                    NumberOfConditionalDecompLines_ME = NumberOfLinesInTheLastConditionalDecompFile_ME;
+                elseif ConditionalDecompFileNumber_ME<NumberOfConditionalDecompFiles_ME-1
+                    Conditional_decomposition_array_ME = zeros(nobs_ME,length(Steps),M_.exo_nbr+1,MaXNumberOfConditionalDecompLines_ME);
+                else
+                    clear('Conditional_decomposition_array_ME');
+                end
             end
         end
     end

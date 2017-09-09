@@ -1,20 +1,21 @@
-function ConditionalVarianceDecomposition = conditional_variance_decomposition(StateSpaceModel, Steps, SubsetOfVariables,sigma_e_is_diagonal)
+function [ConditionalVarianceDecomposition, ConditionalVarianceDecomposition_ME]= conditional_variance_decomposition(StateSpaceModel, Steps, SubsetOfVariables,sigma_e_is_diagonal)
 % This function computes the conditional variance decomposition of a given state space model
 % for a subset of endogenous variables.
 %
 % INPUTS
 %   StateSpaceModel     [structure]   Specification of the state space model.
 %   Steps               [integer]     1*h vector of dates.
-%   SubsetOfVariables   [integer]     1*q vector of indices.
+%   SubsetOfVariables   [integer]     1*q vector of indices (declaration order).
 %
 % OUTPUTS
 %   ConditionalVarianceDecomposition  [double] [n h p] array, where
 %                                                    n is equal to length(SubsetOfVariables)
 %                                                    h is the number of Steps
 %                                                    p is the number of state innovations and
-% SPECIAL REQUIREMENTS
-%
-% [1] In this version, absence of measurement errors is assumed...
+%   ConditionalVarianceDecomposition_ME  [double] [m h p] array, where
+%                                                    m is equal to length(intersect(SubsetOfVariables,varobs))
+%                                                    h is the number of Steps
+%                                                    p is the number of state innovations and
 
 % Copyright (C) 2010-2017 Dynare Team
 %
@@ -82,4 +83,22 @@ for i=1:number_of_state_innovations
     for h = 1:length(Steps)
         ConditionalVarianceDecomposition(:,h,i) = squeeze(ConditionalVariance(:,h,i))./SumOfVariances(:,h);
     end
+end
+
+% get intersection of requested variables and observed variables with
+% Measurement error
+
+if ~all(StateSpaceModel.measurement_error==0)
+    [observable_pos,index_subset,index_observables]=intersect(SubsetOfVariables,StateSpaceModel.observable_pos,'stable');
+    ME_Variance=diag(StateSpaceModel.measurement_error);
+    
+    ConditionalVarianceDecomposition_ME = zeros(length(observable_pos),length(Steps),number_of_state_innovations+1);
+    for i=1:number_of_state_innovations
+        for h = 1:length(Steps)
+            ConditionalVarianceDecomposition_ME(:,h,i) = squeeze(ConditionalVariance(index_subset,h,i))./(SumOfVariances(index_subset,h)+ME_Variance(index_observables));
+        end
+    end
+    ConditionalVarianceDecomposition_ME(:,:,number_of_state_innovations+1)=1-sum(ConditionalVarianceDecomposition_ME(:,:,1:number_of_state_innovations),3);
+else
+    ConditionalVarianceDecomposition_ME=[];    
 end

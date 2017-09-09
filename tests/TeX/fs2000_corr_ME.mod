@@ -182,6 +182,8 @@ trace_plot(options_,M_,estim_params_,'StructuralShock',1,'e_a')
 
 shock_decomposition y W R;
 
+stoch_simul(order=1,irf=20,graph_format=eps,periods=0,contemporaneous_correlation,conditional_variance_decomposition=[1,3]);
+
 collect_latex_files;
 
 //identification(advanced=1,max_dim_cova_group=3,prior_mc=250);

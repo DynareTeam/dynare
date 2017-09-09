@@ -53,9 +53,10 @@ end
 %delete old stale files before creating new ones
 if posterior
     delete_stale_file([M_.dname '/metropolis/' M_.fname '_PosteriorVarianceDecomposition*']);
+    delete_stale_file([M_.dname '/metropolis/' M_.fname '_PosteriorVarianceDecompME*']);
 else
     delete_stale_file([M_.dname '/prior/moments/' M_.fname '_PriorVarianceDecomposition*']);
-end
+    delete_stale_file([M_.dname '/prior/moments/' M_.fname '_PriorVarianceDecompME*']);end
 
 % Set varlist (vartan)
 if ~posterior
@@ -84,6 +85,17 @@ NumberOfDrawsFiles = rows(DrawsFiles);
 NumberOfSavedElementsPerSimulation = nvar*(nexo+1);
 MaXNumberOfDecompLines = ceil(options_.MaxNumberOfBytes/NumberOfSavedElementsPerSimulation/8);
 
+ME_present=0;
+if ~all(M_.H==0)
+    [observable_pos_requested_vars,index_subset,index_observables]=intersect(ivar,options_.varobs_id,'stable');
+    if ~isempty(observable_pos_requested_vars)
+        ME_present=1;
+        nobs_ME=length(observable_pos_requested_vars);
+        NumberOfSavedElementsPerSimulation_ME = nobs_ME*(nexo+1);
+        MaXNumberOfDecompLines_ME = ceil(options_.MaxNumberOfBytes/NumberOfSavedElementsPerSimulation_ME/8);
+    end
+end
+
 if SampleSize<=MaXNumberOfDecompLines
     Decomposition_array = zeros(SampleSize,nvar*nexo);
     NumberOfDecompFiles = 1;
@@ -96,9 +108,22 @@ end
 NumberOfDecompLines = rows(Decomposition_array);
 DecompFileNumber = 1;
 
+if ME_present
+    if SampleSize<=MaXNumberOfDecompLines_ME
+        Decomposition_array_ME = zeros(SampleSize,nobs_ME*(nexo+1));
+        NumberOfDecompFiles_ME = 1;
+    else
+        Decomposition_array_ME = zeros(MaXNumberOfDecompLines_ME,nobs_ME*(nexo+1));
+        NumberOfLinesInTheLastDecompFile_ME = mod(SampleSize,MaXNumberOfDecompLines_ME);
+        NumberOfDecompFiles_ME = ceil(SampleSize/MaXNumberOfDecompLines_ME);
+    end
+    NumberOfDecompLines_ME = rows(Decomposition_array_ME);
+    DecompFileNumber_ME = 1;
+end
 % Compute total variances (covariances are not saved) and variances
 % implied by each structural shock.
 linea = 0;
+linea_ME = 0;
 only_non_stationary_vars=0;
 for file = 1:NumberOfDrawsFiles
     if posterior
@@ -110,6 +135,7 @@ for file = 1:NumberOfDrawsFiles
     NumberOfDraws = rows(pdraws);
     for linee = 1:NumberOfDraws
         linea = linea+1;
+        linea_ME = linea_ME+1;
         if isdrsaved
             dr = pdraws{linee,2};
         else
@@ -125,16 +151,23 @@ for file = 1:NumberOfDrawsFiles
             end
         end
         if only_non_stationary_vars
-            for i=1:nvar
-                for j=1:nexo
-                    Decomposition_array(linea,(i-1)*nexo+j) = NaN;
-                end
-            end
+             Decomposition_array(linea,:) = NaN;
         else
             tmp = th_autocovariances(dr,ivar,M_,options_,nodecomposition);
             for i=1:nvar
                 for j=1:nexo
                     Decomposition_array(linea,(i-1)*nexo+j) = tmp{2}(i,j);
+                end
+            end
+            if ME_present
+                ME_Variance=diag(M_.H);
+                tmp_ME=NaN(nobs_ME,nexo+1);
+                tmp_ME(:,1:end-1)=tmp{2}(index_subset,:).*repmat(diag(tmp{1}(index_subset,index_subset))./(diag(tmp{1}(index_subset,index_subset))+ME_Variance(index_observables)),1,nexo);
+                tmp_ME(:,end)=1-sum(tmp_ME(:,1:end-1),2);
+                for i=1:nobs_ME
+                    for j=1:nexo+1
+                        Decomposition_array_ME(linea,(i-1)*(nexo+1)+j) = tmp_ME(i,j);
+                    end
                 end
             end
         end
@@ -154,6 +187,26 @@ for file = 1:NumberOfDrawsFiles
                 Decomposition_array = zeros(MaXNumberOfDecompLines,nvar*nexo);
             else
                 clear('Decomposition_array');
+            end
+        end
+        if ME_present
+            if linea_ME == NumberOfDecompLines_ME
+                if posterior
+                    save([M_.dname '/metropolis/' M_.fname '_PosteriorVarianceDecompME' int2str(DecompFileNumber_ME) '.mat' ],'Decomposition_array_ME');
+                else
+                    save([M_.dname '/prior/moments/' M_.fname '_PriorVarianceDecompME' int2str(DecompFileNumber_ME) '.mat' ],'Decomposition_array_ME');
+                end
+                DecompFileNumber_ME = DecompFileNumber_ME + 1;
+                linea_ME = 0;
+                test = DecompFileNumber_ME-NumberOfDecompFiles_ME;
+                if ~test% Prepare the last round...
+                    Decomposition_array_ME = zeros(NumberOfLinesInTheLastDecompFile_ME,nobs_ME*(nexo+1));
+                    NumberOfDecompLines_ME = NumberOfLinesInTheLastDecompFile_ME;
+                elseif test<0
+                    Decomposition_array_ME = zeros(MaXNumberOfDecompLines_ME,nobs_ME*(nexo+1));
+                else
+                    clear('Decomposition_array_ME');
+                end
             end
         end
     end
