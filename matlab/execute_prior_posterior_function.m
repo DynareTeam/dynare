@@ -62,6 +62,13 @@ if strcmpi(type,'posterior')
     n_draws=options_.sub_draws;
     prior = false;
 elseif strcmpi(type,'prior')
+    if isempty(bayestopt_)
+        if ~isempty(estim_params_) && ~(isfield(estim_params_,'nvx') && (size(estim_params_.var_exo,1)+size(estim_params_.var_endo,1)+size(estim_params_.corrx,1)+size(estim_params_.corrn,1)+size(estim_params_.param_vals,1))==0)
+            [xparam1,estim_params_,bayestopt_,lb,ub,M_] = set_prior(estim_params_,M_,options_);
+        else
+            error('The prior distributions are not properly set up.')
+        end
+    end
     prior_draw(bayestopt_, options_.prior_trunc);
 else
     error('EXECUTE_POSTERIOR_FUNCTION: Unknown type!')
