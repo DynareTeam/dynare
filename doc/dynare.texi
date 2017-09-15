@@ -7003,10 +7003,16 @@ Auto- and cross-correlation of endogenous variables. Fields are vectors with cor
 
 
 @item VarianceDecomposition
+@anchor{VarianceDecomposition}
 Decomposition of variance (unconditional variance, @i{i.e.} at horizon infinity)@footnote{When the shocks are correlated, it
 is the decomposition of orthogonalized shocks via Cholesky
 decomposition according to the order of declaration of shocks
 (@pxref{Variable declarations})}
+
+@item VarianceDecompositionME
+Same as @ref{VarianceDecomposition}, but contains the decomposition of the
+measured as opposed to the actual variable. The joint contribution of the measurement error
+will be saved in a field named @code{ME}.
 
 @item ConditionalVarianceDecomposition
 @anchor{ConditionalVarianceDecomposition}
