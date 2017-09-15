@@ -115,7 +115,7 @@ y_pos=strmatch('y',var_list_,'exact');
 y_pos_varobs=strmatch('y',options_.varobs,'exact');
 a_pos_varobs=strmatch('a',options_.varobs,'exact');
 
-if (oo_.variance_decomposition_ME(index_observables(y_pos_varobs),end)/100+oo_.var(y_pos,y_pos)/(oo_.var(y_pos,y_pos)+M_.H(y_pos_varobs,y_pos_varobs)))-1>1e-5   
+if (oo_.variance_decomposition_ME(index_observables(y_pos_varobs),end)/100+oo_.var(y_pos,y_pos)/(oo_.var(y_pos,y_pos)+M_.H(y_pos_varobs,y_pos_varobs)))-1>5e-4
     error(['Unconditional variance decomposition at order ',num2str(options_.order),' with ME does not work'])
 end
 
