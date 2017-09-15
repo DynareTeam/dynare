@@ -111,8 +111,15 @@ for plt = 1:nbplt
             end
         end
         xx = x;
-        l1 = max(BoundsInfo.lb(kk),(1-sign(x(kk))*ll)*x(kk)); m1 = 0; %lower bound
-        l2 = min(BoundsInfo.ub(kk),(1+sign(x(kk))*ll)*x(kk)); %upper bound
+        if x(kk)~=0
+            l1 = max(BoundsInfo.lb(kk),(1-sign(x(kk))*ll)*x(kk)); m1 = 0; %lower bound
+            l2 = min(BoundsInfo.ub(kk),(1+sign(x(kk))*ll)*x(kk)); %upper bound
+        else
+            %size info for 0 parameter is missing, use prior standard
+            %deviation
+            l1 = max(BoundsInfo.lb(kk),-BayesInfo.p2(kk)); m1 = 0; %lower bound
+            l2 = min(BoundsInfo.ub(kk),BayesInfo.p2(kk)); %upper bound
+        end            
         binding_lower_bound=0;
         binding_upper_bound=0;
         if isequal(x(kk),BoundsInfo.lb(kk))
