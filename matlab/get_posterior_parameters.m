@@ -1,11 +1,13 @@
-function xparam = get_posterior_parameters(type,field1)
+function xparam = get_posterior_parameters(type,M_,estim_params_,oo_,options_,field1)
 
-% function xparam = get_posterior_parameters(type)
+% function xparam = get_posterior_parameters(type,M_,estim_params_,oo_,options_,field1)
 % Selects (estimated) parameters (posterior mode or posterior mean).
 %
 % INPUTS
-%   o type       [char]     = 'mode' or 'mean'.
-%   o field_1    [char]     optional field like 'mle_'.
+%   o type              [char]     = 'mode' or 'mean'.
+%   o M_:               [structure] Dynare structure describing the model.
+%   o estim_params_:    [structure] Dynare structure describing the estimated parameters.
+%   o field_1           [char]     optional field like 'mle_'.
 %
 % OUTPUTS
 %   o xparam     vector of estimated parameters
@@ -30,9 +32,7 @@ function xparam = get_posterior_parameters(type,field1)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global estim_params_ oo_ options_ M_
-
-if nargin<2
+if nargin<6
     field1='posterior_';
 end
 nvx = estim_params_.nvx;
@@ -48,7 +48,6 @@ for i=1:nvx
     k1 = estim_params_.var_exo(i,1);
     name1 = deblank(M_.exo_names(k1,:));
     xparam(m) = oo_.([field1 type]).shocks_std.(name1);
-    M_.Sigma_e(k1,k1) = xparam(m)^2;
     m = m+1;
 end
 
@@ -65,8 +64,6 @@ for i=1:ncx
     name1 = deblank(M_.exo_names(k1,:));
     name2 = deblank(M_.exo_names(k2,:));
     xparam(m) = oo_.([field1 type]).shocks_corr.([name1 '_' name2]);
-    M_.Sigma_e(k1,k2) = xparam(m);
-    M_.Sigma_e(k2,k1) = xparam(m);
     m = m+1;
 end
 
@@ -84,10 +81,5 @@ FirstDeep = m;
 for i=1:np
     name1 = deblank(M_.param_names(estim_params_.param_vals(i,1),:));
     xparam(m) = oo_.([field1 type]).parameters.(name1);
-    %assignin('base',name1,xparam(m));% Useless with version 4 (except maybe for users)
     m = m+1;
-end
-
-if np
-    M_.params(estim_params_.param_vals(:,1)) = xparam(FirstDeep:end);
 end

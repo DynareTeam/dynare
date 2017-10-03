@@ -190,14 +190,14 @@ end
 for b=fpar:B
     if strcmpi(type,'prior')
 
-        [deep, logpo] = GetOneDraw(type);
+        [deep, logpo] = GetOneDraw(type,M_,estim_params_,oo_,options_,bayestopt_);
 
     else
         deep = x(b,:);
         if strcmpi(type,'posterior')
             logpo = logpost(b);
         else
-            logpo = evaluate_posterior_kernel(deep');
+            logpo = evaluate_posterior_kernel(deep',M_,estim_params_,oo_,options_,bayestopt_);
         end
     end
     M_ = set_all_parameters(deep,estim_params_,M_);

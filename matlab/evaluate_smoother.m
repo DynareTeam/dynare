@@ -73,13 +73,13 @@ end
 if ischar(parameters)
     switch parameters
       case 'posterior_mode'
-        parameters = get_posterior_parameters('mode');
+        parameters = get_posterior_parameters('mode',M_,estim_params_,oo_,options_);
       case 'posterior_mean'
-        parameters = get_posterior_parameters('mean');
+        parameters = get_posterior_parameters('mean',M_,estim_params_,oo_,options_);
       case 'posterior_median'
-        parameters = get_posterior_parameters('median');
+        parameters = get_posterior_parameters('median',M_,estim_params_,oo_,options_);
       case 'mle_mode'
-        parameters = get_posterior_parameters('mode','mle_');
+        parameters = get_posterior_parameters('mode',M_,estim_params_,oo_,options_,'mle_');
       case 'prior_mode'
         parameters = bayestopt_.p5(:);
       case 'prior_mean'

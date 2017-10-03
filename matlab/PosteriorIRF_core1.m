@@ -141,7 +141,7 @@ while fpar<B
     irun = irun+1;
     irun2 = irun2+1;
     if strcmpi(type,'prior')
-        deep = GetOneDraw(type);
+        deep = GetOneDraw(type,M_,estim_params_,oo_,options_,bayestopt_);
     else
         deep = x(fpar,:);
     end

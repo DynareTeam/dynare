@@ -6,7 +6,7 @@ function xparam1=get_all_parameters(estim_params_,M_)
 % parameter values
 %
 % INPUTS
-%        estim_params_:  Dynare structure describing the estimated parameters.
+%    estim_params_:  Dynare structure describing the estimated parameters.
 %    M_:             Dynare structure describing the model.
 %
 % OUTPUTS

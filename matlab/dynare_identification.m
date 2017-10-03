@@ -271,15 +271,15 @@ if iload <=0
               case 'posterior_mode'
                 parameters_TeX = 'Posterior mode';
                 disp('Testing posterior mode')
-                params(1,:) = get_posterior_parameters('mode');
+                params(1,:) = get_posterior_parameters('mode',M_,estim_params_,oo_,options_);
               case 'posterior_mean'
                 parameters_TeX = 'Posterior mean';
                 disp('Testing posterior mean')
-                params(1,:) = get_posterior_parameters('mean');
+                params(1,:) = get_posterior_parameters('mean',M_,estim_params_,oo_,options_);
               case 'posterior_median'
                 parameters_TeX = 'Posterior median';
                 disp('Testing posterior median')
-                params(1,:) = get_posterior_parameters('median');
+                params(1,:) = get_posterior_parameters('median',M_,estim_params_,oo_,options_);
               case 'prior_mode'
                 parameters_TeX = 'Prior mode';
                 disp('Testing prior mode')

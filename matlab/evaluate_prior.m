@@ -1,9 +1,14 @@
-function [ldens,parameters] = evaluate_prior(parameters)
+function [ldens,parameters] = evaluate_prior(parameters,M_,estim_params_,oo_,options_,bayestopt_)
 % Evaluate the prior density at parameters.
 %
 % INPUTS
 %    o parameters  a string ('posterior mode','posterior mean','posterior median','prior mode','prior mean') or a vector of values for
 %                  the (estimated) parameters of the model.
+%    o M_          [structure]  Definition of the model
+%    o oo_         [structure]  Storage of results
+%    o options_    [structure]  Options
+%    o bayestopt_  [structure]  describing the priors
+%    o estim_params_ [structure] characterizing parameters to be estimated
 %
 %
 % OUTPUTS
@@ -33,8 +38,6 @@ function [ldens,parameters] = evaluate_prior(parameters)
 % You should have received a copy of the GNU General Public License
 % along with Dynare.  If not, see <http://www.gnu.org/licenses/>.
 
-global bayestopt_
-
 if nargin==0
     parameters = 'posterior mode';
 end
@@ -42,11 +45,11 @@ end
 if ischar(parameters)
     switch parameters
       case 'posterior mode'
-        parameters = get_posterior_parameters('mode');
+        parameters = get_posterior_parameters('mode',M_,estim_params_,oo_,options_);
       case 'posterior mean'
-        parameters = get_posterior_parameters('mean');
+        parameters = get_posterior_parameters('mean',M_,estim_params_,oo_,options_);
       case 'posterior median'
-        parameters = get_posterior_parameters('median');
+        parameters = get_posterior_parameters('median',M_,estim_params_,oo_,options_);
       case 'prior mode'
         parameters = bayestopt_.p5(:);
       case 'prior mean'

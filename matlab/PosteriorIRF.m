@@ -174,7 +174,7 @@ localVars.type=type;
 if strcmpi(type,'posterior')
     while b<B
         b = b + 1;
-        x(b,:) = GetOneDraw(type);
+        x(b,:) = GetOneDraw(type,M_,estim_params_,oo_,options_,bayestopt_);
     end
 end
 

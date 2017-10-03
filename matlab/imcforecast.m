@@ -80,16 +80,16 @@ if estimated_model
     if ischar(options_cond_fcst.parameter_set)
         switch options_cond_fcst.parameter_set
           case 'posterior_mode'
-            xparam = get_posterior_parameters('mode');
+            xparam = get_posterior_parameters('mode',M_,estim_params_,oo_,options_);
             graph_title='Posterior Mode';
           case 'posterior_mean'
-            xparam = get_posterior_parameters('mean');
+            xparam = get_posterior_parameters('mean',M_,estim_params_,oo_,options_);
             graph_title='Posterior Mean';
           case 'posterior_median'
-            xparam = get_posterior_parameters('median');
+            xparam = get_posterior_parameters('median',M_,estim_params_,oo_,options_);
             graph_title='Posterior Median';
           case 'mle_mode'
-            xparam = get_posterior_parameters('mode','mle_');
+            xparam = get_posterior_parameters('mode',M_,estim_params_,oo_,options_,'mle_');
             graph_title='ML Mode';
           case 'prior_mode'
             xparam = bayestopt_.p5(:);

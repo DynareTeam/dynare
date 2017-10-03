@@ -1,10 +1,15 @@
-function [xparams, logpost] = GetOneDraw(type)
-% function [xparams, logpost] = GetOneDraw(type)
+function [xparams, logpost] = GetOneDraw(type,M_,estim_params_,oo_,options_,bayestopt_)
+% function [xparams, logpost] = GetOneDraw(type,M_,estim_params_,oo_,options_,bayestopt_)
 % draws one parameter vector and its posterior from MCMC or the prior
 %
 % INPUTS
 %    type:      [string]       'posterior': draw from MCMC draws
 %                              'prior': draw from prior
+%    M_         [structure]     Definition of the model
+%    estim_params_ [structure]  characterizing parameters to be estimated
+%    oo_         [structure]    Storage of results
+%    options_    [structure]    Options
+%    bayestopt_  [structure]    describing the priors
 %
 % OUTPUTS
 %    xparams:   vector of estimated parameters (drawn from posterior or prior distribution)
@@ -36,6 +41,6 @@ switch type
   case 'prior'
     xparams = prior_draw();
     if nargout>1
-        logpost = evaluate_posterior_kernel(xparams');
+        logpost = evaluate_posterior_kernel(xparams',M_,estim_params_,oo_,options_,bayestopt_);
     end
 end

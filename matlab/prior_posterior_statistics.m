@@ -226,7 +226,7 @@ if strcmpi(type,'posterior')
     else
         logpost=NaN(B,1);
         for b=1:B
-            [x(b,:), logpost(b)] = GetOneDraw(type);
+            [x(b,:), logpost(b)] = GetOneDraw(type,M_,estim_params_,oo_,options_,bayestopt_);
         end
     end
     localVars.logpost=logpost;

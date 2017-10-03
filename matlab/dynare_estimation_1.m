@@ -519,7 +519,7 @@ if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
             end
             prior_posterior_statistics('posterior',dataset_,dataset_info);
         end
-        xparam1 = get_posterior_parameters('mean');
+        xparam1 = get_posterior_parameters('mean',M_,estim_params_,oo_,options_);
         M_ = set_all_parameters(xparam1,estim_params_,M_);
     end
 end

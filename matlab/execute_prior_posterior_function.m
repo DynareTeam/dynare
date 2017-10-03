@@ -68,11 +68,11 @@ else
 end
 
 %get draws for later use
-first_draw=GetOneDraw(type);
+first_draw=GetOneDraw(type,M_,estim_params_,oo_,options_,bayestopt_);
 parameter_mat=NaN(n_draws,length(first_draw));
 parameter_mat(1,:)=first_draw;
 for draw_iter=2:n_draws
-    parameter_mat(draw_iter,:) = GetOneDraw(type);
+    parameter_mat(draw_iter,:) = GetOneDraw(type,M_,estim_params_,oo_,options_,bayestopt_);
 end
 
 % get output size
