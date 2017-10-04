@@ -59,9 +59,6 @@ else
     if ~isempty(strmatch('dsge_prior_weight',M_.param_names))
         options_.dsge_var = 1;
     end
-    % Get the list of the endogenous variables for which posterior statistics wil be computed
-    var_list_ = check_list_of_variables(options_, M_, var_list_);
-    options_.varlist = var_list_;
 end
 
 if options_.dsge_var && options_.presample~=0
