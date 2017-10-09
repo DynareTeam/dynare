@@ -154,7 +154,7 @@ while norm(gg)>gtol && check==0 && jit<nit
     if length(find(ig))<nx
         ggx=ggx*0;
         ggx(find(ig))=gg(find(ig));
-        if analytic_derivation
+        if analytic_derivation || ~outer_product_gradient,
             hhx=hh;
         else
             hhx = reshape(dum,nx,nx);
