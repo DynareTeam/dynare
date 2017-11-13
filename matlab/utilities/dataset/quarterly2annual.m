@@ -105,7 +105,7 @@ switch type
     [yra, yrass] = quarterly2annual(yaux,yauxss,GYTREND0aux,typeaux,0,0);
     % deflator
     yass = ynass/yrass;
-    ya = (yna+ynass)./(yr+yrass)-yass;
+    ya = (yna+ynass)./(yra+yrass)-yass;
   case 6
     % nominal series
     yn = (y+yss).*(yaux+yauxss) - yss.*yauxss;
