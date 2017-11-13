@@ -98,6 +98,9 @@ end
 if abs(floor(x(1))-xind_tick(1))-abs(ceil(x(end))-xind_tick(end))<-1
     xind_tick = xind_tick+1;
 end
+if length(xind_tick)==gend,
+    xind_tick = x(2:end);
+end
 % xind_tick = [x(ind_yrs(1))-floor(dind_tick/2):dind_tick:x(ind_yrs(end))+floor(dind_tick/2)]+1;
 % xind_tick = x(ind_yrs(1))-1:dind_tick:x(ind_yrs(end))+1;
 % xind_tick = x(ind_yrs(1))-1:dind_tick:x(ind_yrs(end))+dind_tick;
@@ -162,12 +165,22 @@ for j=1:nvar
             ipos=zz>0;
             ineg=zz<0;
             hax = subplot(nrow,ncol,i); set(gca,'box','on')
-            hbar = bar(x(2:end),(zz.*ipos)','stacked');
-            colormap([0.15 0.15 0.15;0.85 0.85 0.85]),
+            hbar = bar(x(2:end),(zz.*ipos)','stacked','FaceColor','flat');
+            if ~matlab_ver_less_than('9.3.0')
+            % make bar obey colormap under MATLAB R2017b
+            for k = 1:2
+                hbar(k).CData = k;
+            end
+            end
             set(hbar,'edgecolor','flat');
             hold on,
-            hbar = bar(x(2:end),(zz.*ineg)','stacked');
-            colormap([0.15 0.15 0.15;0.85 0.85 0.85]),
+            hbar = bar(x(2:end),(zz.*ineg)','stacked','FaceColor','flat');
+            if ~matlab_ver_less_than('9.3.0')
+            % make bar obey colormap under MATLAB R2017b
+            for k = 1:2
+                hbar(k).CData = k;
+            end
+            end
             set(hbar,'edgecolor','flat');
             title(deblank(labels(ic,:)),'Interpreter','none'),
             axis tight;
@@ -217,6 +230,7 @@ for j=1:nvar
             hold on
             x1 = x1 + width;
         end
+       colormap([0.15 0.15 0.15;0.85 0.85 0.85]),
 
 
         if nfigs>1
