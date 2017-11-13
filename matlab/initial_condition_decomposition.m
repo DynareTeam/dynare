@@ -74,7 +74,7 @@ end
 if ~isfield(oo_,'initval_decomposition')
     options_.selected_variables_only = 0; %make sure all variables are stored
     options_.plot_priors=0;
-    [oo,junk1,junk2,Smoothed_Variables_deviation_from_mean] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
+    [oo,M,junk1,junk2,Smoothed_Variables_deviation_from_mean] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
 
     % reduced form
     dr = oo.dr;
@@ -125,8 +125,9 @@ oo=oo_;
 oo.shock_decomposition = oo_.initval_decomposition;
 M_.exo_names = M_.endo_names;
 M_.exo_nbr = M_.endo_nbr;
+options_.plot_shock_decomp.realtime=0;
 options_.plot_shock_decomp.screen_shocks=1;
 options_.plot_shock_decomp.use_shock_groups = '';
-options_.plot_shock_decomp.fig_names='initval';
+options_.plot_shock_decomp.fig_name='initval';
 plot_shock_decomposition(M_,oo,options_,varlist);
 % end
