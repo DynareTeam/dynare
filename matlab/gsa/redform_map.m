@@ -232,10 +232,27 @@ for j=1:size(anamendo,1)
                             istable=[1:length(iy)];
                             save([xdir,filesep, fname_ '_' type '_' namendo,'_vs_', namexo '_threshold' ],'lpmat','lpmat0','istable','y0','x0','xx0','iy','iyc')
                             lpmat=[]; lpmat0=[]; istable=[];
+                            if length(iy)<=10 || length(iyc)<=10
+                                icheck = [];  % do the generic plot in any case
+                            end
                         else
                             icheck=[];
                         end
                         if isempty(icheck)
+                            if length(iy)<=10 
+                                if isempty(iy)
+                                    disp(['There are NO MC samples in the desired range [' num2str(threshold) ']!'])
+                                else
+                                    disp(['There are TOO FEW (<=10) MC samples  in the desired range [' num2str(threshold) ']!'])
+                                end
+                            elseif length(iyc)<=10
+                                if isempty(iyc)
+                                    disp(['ALL MC samples are in the desired range [' num2str(threshold) ']!'])
+                                else
+                                    disp(['Almost ALL MC samples are in the desired range [' num2str(threshold) ']!'])
+                                    disp('There are TOO FEW (<=10) MC samples OUTSIDE the desired range!')
+                                end
+                            end
                             atitle0=['Monte Carlo Filtering for ',namendo,' vs ', namexo];
                             options_mcf.title = atitle0;
                             indmcf = redform_mcf(y0, x0, options_mcf, options_);
@@ -280,6 +297,8 @@ for j=1:size(anamendo,1)
                     end
                 end
 
+            else
+               disp(['This entry in the shock matrix is CONSTANT = ' num2str(mean(y0),3)])
             end
         end
     end
@@ -369,11 +388,28 @@ for j=1:size(anamendo,1)
                             istable=[1:length(iy)];
                             save([xdir,filesep, fname_ '_' type '_' namendo,'_vs_', namlagendo '_threshold' ],'lpmat','lpmat0','istable','y0','x0','xx0','iy','iyc')
                             lpmat=[]; lpmat0=[]; istable=[];
+                            if length(iy)<=10 || length(iyc)<=10,
+                                icheck = [];  % do the generic plot in any case
+                            end
 
                         else
                             icheck = [];
                         end
                         if isempty(icheck)
+                            if length(iy)<=10 
+                                if isempty(iy)
+                                    disp(['There are NO MC samples in the desired range [' num2str(threshold) ']!'])
+                                else
+                                    disp(['There are TOO FEW (<=10) MC samples  in the desired range [' num2str(threshold) ']!'])
+                                end
+                            elseif length(iyc)<=10
+                                if isempty(iyc)
+                                    disp(['ALL MC samples are in the desired range [' num2str(threshold) ']!'])
+                                else
+                                    disp(['Almost ALL MC samples are in the desired range [' num2str(threshold) ']!'])
+                                    disp('There are TOO FEW (<=10) MC samples OUTSIDE the desired range!')
+                                end
+                            end
                             atitle0=['Monte Carlo Filtering for ',namendo,' vs ', namlagendo];
                             options_mcf.title = atitle0;
                             indmcf = redform_mcf(y0, x0, options_mcf, options_);
@@ -417,6 +453,8 @@ for j=1:size(anamendo,1)
                     end
                 end
 
+            else
+               disp(['This entry in the transition matrix is CONSTANT = ' num2str(mean(y0),3)])
             end
         end
     end
@@ -736,6 +774,11 @@ for jt=1:10
 end
 [proba, dproba] = stab_map_1(x0, indy{1}, indy{end}, [],0);
 indmcf=find(proba<options_mcf.pvalue_ks);
+if isempty(indmcf)
+    [tmp,jtmp] = sort(proba,2,'ascend');
+    indmcf = jtmp(1);
+%     indmcf = jtmp(1:min(2,length(proba)));
+end
 [tmp,jtmp] = sort(proba(indmcf),2,'ascend');
 indmcf = indmcf(jtmp);
 nbr_par = length(indmcf);
