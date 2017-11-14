@@ -75,6 +75,15 @@ if vintage_
 end
 
 initial_date = options_.initial_date;
+if isempty(initial_date)
+    if isempty(type)
+        % we assume annual model
+        initial_date = dates('1Y');
+    else
+        % we assume the sample starts in Q1
+        initial_date = dates('1Q1');
+    end
+end
 
 if isfield(options_.plot_shock_decomp,'q2a') % private trap for aoa calls
     q2a=options_.plot_shock_decomp.q2a;
@@ -103,7 +112,7 @@ switch realtime_
   case 2 % conditional
     if vintage_
         z = oo_.realtime_conditional_shock_decomposition.(['time_' int2str(vintage_)]);
-        initial_date = options_.initial_date+vintage_-1;
+        initial_date = initial_date+vintage_-1;
         fig_name1=[fig_name ' ' int2str(forecast_) '-step ahead conditional forecast (given ' char(initial_date) ')'];
     else
         z = oo_.conditional_shock_decomposition.pool;
@@ -113,7 +122,7 @@ switch realtime_
   case 3 % forecast
     if vintage_
         z = oo_.realtime_forecast_shock_decomposition.(['time_' int2str(vintage_)]);
-        initial_date = options_.initial_date+vintage_-1;
+        initial_date = initial_date+vintage_-1;
         fig_name1=[fig_name ' ' int2str(forecast_) '-step ahead forecast (given ' char(initial_date) ')'];
     else
         z = oo_.realtime_forecast_shock_decomposition.pool;
@@ -124,22 +133,13 @@ end
 steady_state = oo_.steady_state;
 
 if isequal(type,'aoa') && isstruct(q2a) && realtime_
-    if isempty(initial_date)
-        t0=1;
-        initial_date = dates('1Y');
-    else
-        initial_date0 = dates([int2str(initial_date.time(1)) 'Y']);
-        if initial_date.time(2)==1
-            t0=1;
-            initial_date1=initial_date0;
-        else
-            t0=(4-initial_date.time(2)+2);
-            initial_date1=initial_date0+1;
-        end
+    % take all dates where realtime is saved
+    qqq=initial_date+options_.shock_decomp.save_realtime(:)-1; 
+    % take the first Q4 of saved realtime
+    t0=min(options_.shock_decomp.save_realtime(qqq.time(:,2)==4)); 
+    if isempty(t0)
+        error('the realtime decompositions are not stored in Q4! Please check your dates and settings.')
     end
-    t0=min(options_.plot_shock_decomp.save_realtime);
-    ini1 = initial_date+t0-1;
-    t0=t0+(4-ini1.time(2));
     if ~isfield(q2a,'var_type') % private trap for aoa calls
         q2a.var_type=1;
     end
@@ -232,7 +232,7 @@ switch type
 
   case 'yoy'
     z=z(:,:,1:end-3)+z(:,:,2:end-2)+z(:,:,3:end-1)+z(:,:,4:end);
-    if ~isempty(initial_date),
+    if ~isempty(initial_date)
         initial_date = initial_date+3;
     else
         initial_date = dates('1Q4');
@@ -242,17 +242,23 @@ switch type
   case 'aoa'
 
     if isempty(initial_date)
-        t0=4;
+        t0=1; % we assume the sample starts Q1 of 1st year
         initial_date = dates('1Y');
     else
         initial_date0 = dates([int2str(initial_date.time(1)) 'Y']);
-        if initial_date.time(2)==1
+        if initial_date.time(2)==1  % the first year is full
             t0=1;
             initial_date1=initial_date0;
         else
-            t0=(4-initial_date.time(2)+2);
+            t0=(4-initial_date.time(2)+2); % 1st period of the 1st full year in sample
             initial_date1=initial_date0+1;
         end
+    end
+    if realtime_ == 0
+        t0=t0+4-1; % we start in Q4 of the first full year
+        end
+    if isempty(options_.plot_shock_decomp.plot_init_date) && realtime_ == 0
+        options_.plot_shock_decomp.plot_init_date=initial_date+t0;
     end
     if isstruct(q2a)
         if realtime_ == 0
@@ -295,6 +301,7 @@ switch type
             initial_date = initial_date0;
         end
     else
+	    % this is for quarterly-annualized variables already defined in model, so we can just take Q4
         t0=4-initial_date.time(2)+1;
         initial_date = initial_date0;
         z=z(:,:,t0:4:end);
