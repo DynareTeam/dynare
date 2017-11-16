@@ -65,7 +65,7 @@ dLIK = Inf;                % Default value of the log likelihood.
 oldK = Inf;
 s    = 0;
 
-while rank(Pinf,diffuse_kalman_tol) && (t<=last)
+while rank(Z*Pinf*Z',diffuse_kalman_tol) && (t<=last)
     s = t-start+1;
     v = Y(:,t)-Z*a;                                                     %get prediction error v^(0) in (5.13) DK (2012)
     Finf  = Z*Pinf*Z';                                                  % (5.7) in DK (2012)
