@@ -166,6 +166,7 @@ while newRank && (t<=last)
     end
     if oldRank ~= newRank
         disp('univariate_diffuse_kalman_filter:: T does influence the rank of Pinf!')
+        disp('This may happen for models with order of integration >1.')
     end
     t = t+1;
 end
