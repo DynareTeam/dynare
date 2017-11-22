@@ -584,6 +584,7 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <DYNARE_STATEMENT>controlled_varexo {return token::CONTROLLED_VAREXO; }
 <DYNARE_STATEMENT>parameter_set {return token::PARAMETER_SET; }
 <DYNARE_STATEMENT>init_state {return token::INIT_STATE; }
+<DYNARE_STATEMENT>fast_realtime {return token::FAST_REALTIME; }
 <DYNARE_STATEMENT>save_realtime {return token::SAVE_REALTIME;}
 <DYNARE_STATEMENT>detail_plot {return token::DETAIL_PLOT;}
 <DYNARE_STATEMENT>interactive {return token::INTERACTIVE;}
