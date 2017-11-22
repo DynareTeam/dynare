@@ -129,6 +129,12 @@ close all
 plot_shock_decomposition(detail_plot, interactive, use_shock_groups = row, type = qoq);
 plot_shock_decomposition(detail_plot, interactive, realtime = 3, vintage = 29);
 
+close all,
+
+
+// testing realtime decomposition with fast_realtime option
+realtime_shock_decomposition(fast_realtime);
+
 collect_latex_files;
 if system(['pdflatex -halt-on-error -interaction=batchmode ' M_.fname '_TeX_binder.tex'])
     error('TeX-File did not compile.')
