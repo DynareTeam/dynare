@@ -57,6 +57,9 @@ if M_.hessian_eq_zero && local_order~=1
     local_order = 1;
     warning('stochastic_solvers: using order = 1 because Hessian is equal to zero');
 end
+if options_.order>2 && ~options_.k_order_solver
+    error('You need to set k_order_solver for order>2')
+end
 
 if (options_.aim_solver == 1) && (local_order > 1)
     error('Option "aim_solver" is incompatible with order >= 2')
