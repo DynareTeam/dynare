@@ -2418,7 +2418,7 @@ InitialConditionDecompositionStatement::writeOutput(ostream &output, const strin
   output << "options_ = set_default_initial_condition_decomposition_options(options_);" << endl;
   options_list.writeOutput(output);
   symbol_list.writeOutput("var_list_", output);
-  output << "initial_condition_decomposition(M_, oo_, options_, var_list_, bayestopt_, estim_params_);" << endl;
+  output << "oo_ = initial_condition_decomposition(M_, oo_, options_, var_list_, bayestopt_, estim_params_);" << endl;
 }
 
 ConditionalForecastStatement::ConditionalForecastStatement(const OptionsList &options_list_arg) :
