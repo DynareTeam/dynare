@@ -2719,6 +2719,9 @@ initial_condition_decomposition_option : o_icd_type
                                        | o_icd_write_xls
                                        | o_icd_plot_init_date
                                        | o_icd_plot_end_date
+                                       | o_nodisplay
+                                       | o_graph_format
+                                       | o_psd_fig_name
                                        ;
 
 homotopy_setup: HOMOTOPY_SETUP ';' homotopy_list END ';'
