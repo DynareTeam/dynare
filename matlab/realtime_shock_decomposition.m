@@ -78,6 +78,10 @@ forecast_params=0;
 if forecast_ && isfield(options_.shock_decomp,'forecast_params')
     forecast_params = options_.shock_decomp.forecast_params;
 end
+fast_realtime = 0;
+if isfield(options_.shock_decomp,'fast_realtime')
+    fast_realtime = options_.shock_decomp.fast_realtime;
+end
 
 % save_realtime=0;
 save_realtime = options_.shock_decomp.save_realtime;
@@ -85,11 +89,6 @@ save_realtime = options_.shock_decomp.save_realtime;
 
 zreal = zeros(endo_nbr,nshocks+2,options_.nobs+forecast_);
 zcond = zeros(endo_nbr,nshocks+2,options_.nobs);
-skipline()
-skipline()
-running_text = 'Realtime shock decomposition ';
-newString=sprintf(running_text);
-fprintf(['\b%s'],newString);
 
 options_.selected_variables_only = 0; %make sure all variables are stored
 options_.plot_priors=0;
@@ -103,11 +102,58 @@ if forecast_ && any(forecast_params)
     clear junk1 junk2 junk3 junk4 junk5 junk6
 end
 
+if fast_realtime
+    skipline()
+    skipline()
+    running_text = 'Fast realtime shock decomposition ';
+    newString=sprintf(running_text);
+    fprintf(['%s'],newString);
+    options_.nobs=fast_realtime;
+    [oo0,M_,junk1,junk2,Smoothed_Variables_deviation_from_mean0] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
+    gend0 = size(oo0.SmoothedShocks.(deblank(M_.exo_names(1,:))),1);
+    prctdone=0.5;
+    if isoctave
+        printf([running_text,' %3.f%% done\r'], prctdone*100);
+    else
+        s0=repmat('\b',1,length(newString)+1);
+        newString=sprintf([running_text,' %3.1f%% done'], prctdone*100);
+        fprintf([s0,'%s'],newString);
+    end
+    options_.nobs=nobs;
+    [oo2,M_,junk1,junk2,Smoothed_Variables_deviation_from_mean2] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
+    gend2 = size(oo2.SmoothedShocks.(deblank(M_.exo_names(1,:))),1);
+    prctdone=1;
+    if isoctave
+        printf([running_text,' %3.f%% done\r'], prctdone*100);
+    else
+        s0=repmat('\b',1,length(newString)+1);
+        newString=sprintf([running_text,' %3.1f%% done'], prctdone*100);
+        fprintf([s0,'%s'],newString);
+    end
+end
+
+skipline()
+skipline()
+running_text = 'Realtime shock decomposition ';
+newString=sprintf(running_text);
+fprintf(['%s'],newString);
+
 for j=presample+1:nobs
     %    evalin('base',['options_.nobs=' int2str(j) ';'])
     options_.nobs=j;
-    [oo, M_, junk2, junk3, Smoothed_Variables_deviation_from_mean] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
-
+    if ~fast_realtime
+        [oo,M_,junk1,junk2,Smoothed_Variables_deviation_from_mean] = evaluate_smoother(parameter_set,varlist,M_,oo_,options_,bayestopt_,estim_params_);
+        gend = size(oo.SmoothedShocks.(deblank(M_.exo_names(1,:))),1);
+    else
+        gend = gend0+j-fast_realtime;
+        if j>fast_realtime
+            oo=oo2;
+            Smoothed_Variables_deviation_from_mean = Smoothed_Variables_deviation_from_mean2(:,1:gend);
+        else
+            oo=oo0;
+            Smoothed_Variables_deviation_from_mean = Smoothed_Variables_deviation_from_mean0(:,1:gend);
+        end
+    end
     % reduced form
     dr = oo.dr;
 
@@ -131,10 +177,9 @@ for j=presample+1:nobs
     end
 
     % initialization
-    gend = size(oo.SmoothedShocks.(deblank(M_.exo_names(1,:))),1);
     epsilon=NaN(nshocks,gend);
     for i=1:nshocks
-        epsilon(i,:) = oo.SmoothedShocks.(deblank(M_.exo_names(i,:)));
+        epsilon(i,:) = oo.SmoothedShocks.(deblank(M_.exo_names(i,:)))(1:gend);
     end
     epsilon=[epsilon zeros(nshocks,forecast_)];
 
@@ -224,6 +269,7 @@ for j=presample+1:nobs
                 zreal(:,:,j-forecast_:j) - ...
                 oo_.realtime_forecast_shock_decomposition.(['time_' int2str(j-forecast_)]);
             oo_.realtime_conditional_shock_decomposition.(['time_' int2str(j-forecast_)])(:,end-1,:) = ...
+                oo_.realtime_conditional_shock_decomposition.(['time_' int2str(j-forecast_)])(:,end-1,:) + ...
                 oo_.realtime_forecast_shock_decomposition.(['time_' int2str(j-forecast_)])(:,end,:);
             oo_.realtime_conditional_shock_decomposition.(['time_' int2str(j-forecast_)])(:,end,:) = ...
                 zreal(:,end,j-forecast_:j);
@@ -234,6 +280,7 @@ for j=presample+1:nobs
                         zreal(:,:,j-my_forecast_:j) - ...
                         oo_.realtime_forecast_shock_decomposition.(['time_' int2str(j-my_forecast_)])(:,:,1:my_forecast_+1);
                     oo_.realtime_conditional_shock_decomposition.(['time_' int2str(j-my_forecast_)])(:,end-1,:) = ...
+                        oo_.realtime_conditional_shock_decomposition.(['time_' int2str(j-my_forecast_)])(:,end-1,:) + ...
                         oo_.realtime_forecast_shock_decomposition.(['time_' int2str(j-my_forecast_)])(:,end,1:my_forecast_+1);
                     oo_.realtime_conditional_shock_decomposition.(['time_' int2str(j-my_forecast_)])(:,end,:) = ...
                         zreal(:,end,j-my_forecast_:j);
