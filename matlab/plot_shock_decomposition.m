@@ -134,7 +134,7 @@ steady_state = oo_.steady_state;
 
 if isequal(type,'aoa') && isstruct(q2a) && realtime_
     % take all dates where realtime is saved
-    qqq=initial_date+options_.shock_decomp.save_realtime(:)-1; 
+    qqq=options_.initial_date+options_.shock_decomp.save_realtime(:)-1; 
     % take the first Q4 of saved realtime
     t0=min(options_.shock_decomp.save_realtime(qqq.time(:,2)==4)); 
     if isempty(t0)
