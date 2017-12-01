@@ -127,7 +127,7 @@ else
     % which files have to be copied to run remotely
     NamFileInput(1,:) = {'',[ModelName '_static.m']};
     NamFileInput(2,:) = {'',[ModelName '_dynamic.m']};
-    if M.set_auxiliary_variables
+    if M_.set_auxiliary_variables
         NamFileInput(3,:) = {'',[M_.fname '_set_auxiliary_variables.m']};
     end
     if options_.steadystate_flag
