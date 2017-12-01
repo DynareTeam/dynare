@@ -347,9 +347,9 @@ for j=1:totCPU
                 end
             else    % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
                 if  regexpi([Parallel(indPC).MatlabOctavePath], 'octave')
-                    command1=['psexec -d -W "',DyMo, '" -a ',my_affinity,' -low  ',Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7''); addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')"'];
+                    command1=['psexec -accepteula -d -W "',DyMo, '" -a ',my_affinity,' -low  ',Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7''); addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')"'];
                 else
-                    command1=['psexec -d -W "',DyMo, '" -a ',my_affinity,' -low  ',Parallel(indPC).MatlabOctavePath,' -nosplash -nodesktop -minimize ',compThread,' -r "addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')"'];
+                    command1=['psexec -accepteula -d -W "',DyMo, '" -a ',my_affinity,' -low  ',Parallel(indPC).MatlabOctavePath,' -nosplash -nodesktop -minimize ',compThread,' -r "addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')"'];
                 end
             end
         else                                                            % 0.2 Parallel(indPC).Local==0: Run using network on remote machine or also on local machine.
@@ -387,20 +387,20 @@ for j=1:totCPU
                 if ~strcmpi(Parallel(indPC).ComputerName,MasterName)  % 0.3 Run on a remote machine!
                                                                       % Hybrid computing Matlab(Master)-> Octave(Slaves) and Vice Versa!
                     if  regexpi([Parallel(indPC).MatlabOctavePath], 'octave')
-                        command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
+                        command1=['psexec \\',Parallel(indPC).ComputerName,' -accepteula -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
                                   ' -low  ',Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7''); addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')"'];
                     else
 
-                        command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
+                        command1=['psexec \\',Parallel(indPC).ComputerName,' -accepteula -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
                                   ' -low  ',Parallel(indPC).MatlabOctavePath,' -nosplash -nodesktop -minimize ',compThread,' -r "addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')"'];
                     end
                 else                                                  % 0.4 Run on the local machine via the network
                                                                       % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
                     if  regexpi([Parallel(indPC).MatlabOctavePath], 'octave')
-                        command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
+                        command1=['psexec \\',Parallel(indPC).ComputerName,' -accepteula -d -e -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
                                   ' -low  ',Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7''); addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')"'];
                     else
-                        command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
+                        command1=['psexec \\',Parallel(indPC).ComputerName,' -accepteula -d -e -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
                                   ' -low  ',Parallel(indPC).MatlabOctavePath,' -nosplash -nodesktop -minimize ',compThread,' -r "addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); fParallel(',int2str(offset+1),',',int2str(sum(nBlockPerCPU(1:j))),',',int2str(j),',',int2str(indPC),',''',fname,''')"'];
                     end
                 end
@@ -418,9 +418,9 @@ for j=1:totCPU
                 end
             else    % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
                 if  regexpi([Parallel(indPC).MatlabOctavePath], 'octave')
-                    command1=['psexec -d -W "',DyMo, '" -a ',my_affinity,' -low  ',Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7'');addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); slaveParallel(',int2str(j),',',int2str(indPC),')"'];
+                    command1=['psexec -accepteula -d -W "',DyMo, '" -a ',my_affinity,' -low  ',Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7'');addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); slaveParallel(',int2str(j),',',int2str(indPC),')"'];
                 else
-                    command1=['psexec -d -W "',DyMo, '" -a ',my_affinity,' -low  ',Parallel(indPC).MatlabOctavePath,' -nosplash -nodesktop -minimize ',compThread,' -r "addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); slaveParallel(',int2str(j),',',int2str(indPC),')"'];
+                    command1=['psexec -accepteula -d -W "',DyMo, '" -a ',my_affinity,' -low  ',Parallel(indPC).MatlabOctavePath,' -nosplash -nodesktop -minimize ',compThread,' -r "addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); slaveParallel(',int2str(j),',',int2str(indPC),')"'];
                 end
             end
         elseif Parallel(indPC).Local==0                                % 1.2 Run using network on remote machine or also on local machine.
@@ -462,19 +462,19 @@ for j=1:totCPU
                     if ~strcmpi(Parallel(indPC).ComputerName,MasterName) % 1.3 Run on a remote machine.
                                                                          % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
                         if  regexpi([Parallel(indPC).MatlabOctavePath], 'octave')
-                            command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
+                            command1=['psexec \\',Parallel(indPC).ComputerName,' -accepteula -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
                                       ' -low  ',Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7'');addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); slaveParallel(',int2str(j),',',int2str(indPC),')"'];
                         else
-                            command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
+                            command1=['psexec \\',Parallel(indPC).ComputerName,' -accepteula -d -e -u ',Parallel(indPC).UserName,' -p ',Parallel(indPC).Password,' -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
                                       ' -low  ',Parallel(indPC).MatlabOctavePath,' -nosplash -nodesktop -minimize ',compThread,' -r "addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); slaveParallel(',int2str(j),',',int2str(indPC),')"'];
                         end
                     else                                                % 1.4 Run on the local machine via the network.
                                                                         % Hybrid computing Matlab(Master)->Octave(Slaves) and Vice Versa!
                         if  regexpi([Parallel(indPC).MatlabOctavePath], 'octave')
-                            command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
+                            command1=['psexec \\',Parallel(indPC).ComputerName,' -accepteula -d -e -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
                                       ' -low  ',Parallel(indPC).MatlabOctavePath,' -f --eval "default_save_options(''-v7''); addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); slaveParallel(',int2str(j),',',int2str(indPC),')"'];
                         else
-                            command1=['psexec \\',Parallel(indPC).ComputerName,' -d -e -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
+                            command1=['psexec \\',Parallel(indPC).ComputerName,' -accepteula -d -e -W "',Parallel(indPC).RemoteDrive,':\',Parallel(indPC).RemoteDirectory,'\',PRCDir,'\" -a ',my_affinity, ...
                                       ' -low  ',Parallel(indPC).MatlabOctavePath,' -nosplash -nodesktop -minimize ',compThread,' -r "addpath(''',Parallel(indPC).DynarePath,'''), dynareroot = dynare_config(); slaveParallel(',int2str(j),',',int2str(indPC),')"'];
                         end
                     end
