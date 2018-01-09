@@ -569,6 +569,33 @@ end
 
 if info(1)
     fprintf('\ndynare_estimation_init:: The steady state at the initial parameters cannot be computed.\n')
+    if options_.debug
+        M.params=params;       
+        plist = list_of_parameters_calibrated_as_NaN(M);
+        if ~isempty(plist)
+            message = ['dynare_estimation_init:: Some of the parameters are NaN (' ];
+            for i=1:size(plist,1)
+                if i<size(plist,1)
+                    message = [message, deblank(plist(i,:)) ', '];
+                else
+                    message = [message, deblank(plist(i,:)) ')'];
+                end
+            end
+        end
+        fprintf('%s\n',message)
+        plist = list_of_parameters_calibrated_as_Inf(M);
+        if ~isempty(plist)
+            message = ['dynare_estimation_init:: Some of the parameters are Inf (' ];
+            for i=1:size(plist,1)
+                if i<size(plist,1)
+                    message = [message, deblank(plist(i,:)) ', '];
+                else
+                    message = [message, deblank(plist(i,:)) ')'];
+                end
+            end
+        end        
+        fprintf('%s\n',message)
+    end
     print_info(info, 0, options_);
 end
 
