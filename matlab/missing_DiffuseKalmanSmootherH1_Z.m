@@ -49,7 +49,7 @@ function [alphahat,epsilonhat,etahat,atilde,P,aK,PK,decomp,V] = missing_DiffuseK
 %   Durbin/Koopman (2012): "Time Series Analysis by State Space Methods", Oxford University Press,
 %   Second Edition, Ch. 5
 
-% Copyright (C) 2004-2017 Dynare Team
+% Copyright (C) 2004-2018 Dynare Team
 %
 % This file is part of Dynare.
 %
@@ -134,9 +134,9 @@ while rank(Pinf(:,:,t+1),diffuse_kalman_tol) && t<smpl
                 return
             else                                                            %rank of F_{\infty,t} is 0
                 Finf_singular(1,t) = 1;
-                Fstar(:,:,t)  = ZZ*Pstar(:,:,t)*ZZ' + H(di,di);             % (5.7) in DK (2012)
-                if rcond(Fstar(:,:,t)) < kalman_tol                         %F_{*} is singular
-                    if ~all(abs(Fstar(:,:,t))<kalman_tol)
+                Fstar(di,di,t)  = ZZ*Pstar(:,:,t)*ZZ' + H(di,di);             % (5.7) in DK (2012)
+                if rcond(Fstar(di,di,t)) < kalman_tol                         %F_{*} is singular
+                    if ~all(all(abs(Fstar(di,di,t))<kalman_tol))
                         % The univariate diffuse kalman filter should be used.
                         alphahat = Inf;
                         return
@@ -146,12 +146,12 @@ while rank(Pinf(:,:,t+1),diffuse_kalman_tol) && t<smpl
                         Pinf(:,:,t+1)  = T*Pinf(:,:,t)*transpose(T);
                     end
                 else
-                    iFstar(:,:,t)   = inv(Fstar(:,:,t));
-                    Kstar(:,:,t)    = Pstar(:,:,t)*ZZ'*iFstar(:,:,t);       %(5.15) of DK (2012) with Kstar=T^{-1}*K^(0)
+                    iFstar(di,di,t) = inv(Fstar(di,di,t));
+                    Kstar(:,di,t)   = Pstar(:,:,t)*ZZ'*iFstar(di,di,t);       %(5.15) of DK (2012) with Kstar=T^{-1}*K^(0)
                     Pinf(:,:,t+1)   = T*Pinf(:,:,t)*transpose(T);           % DK (2012), 5.16
                     Lstar(:,:,t)    = T - T*Kstar(:,di,t)*ZZ;               %L^(0) in DK (2012), eq. 5.12
                     Pstar(:,:,t+1)  = T*Pstar(:,:,t)*Lstar(:,:,t)'+QQ;      % (5.17) DK (2012)
-                    a(:,t+1)        = T*(a(:,t)+Kstar(:,:,t)*v(:,t));       % (5.13) DK (2012)
+                    a(:,t+1)        = T*(a(:,t)+Kstar(:,di,t)*v(di,t));       % (5.13) DK (2012)
                 end
             end
         else
