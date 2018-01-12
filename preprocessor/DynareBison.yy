@@ -3096,7 +3096,7 @@ o_init_state : INIT_STATE EQUAL INT_NUMBER { driver.option_num("shock_decomp.ini
 o_shock_decomposition_presample : PRESAMPLE EQUAL INT_NUMBER { driver.option_num("shock_decomp.presample", $3); };
 o_shock_decomposition_forecast : FORECAST EQUAL INT_NUMBER { driver.option_num("shock_decomp.forecast", $3); };
 o_save_realtime : SAVE_REALTIME EQUAL vec_int { driver.option_vec_int("shock_decomp.save_realtime", $3); };
-o_fast_realtime : FAST_REALTIME { driver.option_num("shock_decomp.fast_realtime", "1"); };
+o_fast_realtime : FAST_REALTIME EQUAL INT_NUMBER { driver.option_num("shock_decomp.fast_realtime", $3); };
 o_nodisplay : NODISPLAY { driver.option_num("nodisplay","1"); };
 o_psd_nodisplay : NODISPLAY { driver.option_num("plot_shock_decomp.nodisplay","1"); };
 o_graph_format : GRAPH_FORMAT EQUAL allowed_graph_formats

@@ -133,7 +133,7 @@ close all,
 
 
 // testing realtime decomposition with fast_realtime option
-realtime_shock_decomposition(fast_realtime);
+realtime_shock_decomposition(fast_realtime=75);
 
 collect_latex_files;
 if system(['pdflatex -halt-on-error -interaction=batchmode ' M_.fname '_TeX_binder.tex'])

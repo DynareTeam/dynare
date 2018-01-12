@@ -7544,9 +7544,11 @@ realtime shock decompositions are computed, @i{i.e.} for
 @anchor{save_realtime} Choose for which vintages to save the full realtime
 shock decomposition. Default: @math{0}.
 
-@item fast_realtime
+@item fast_realtime = @var{INTEGER}
 @anchor{fast_realtime} Runs the smoother only twice: once for the last in-sample 
-and once for the last out-of-sample data point. Default: not enabled.
+and once for the last out-of-sample data point, where the provided integer defines the last observation 
+(equivalent to @ref{nobs}). 
+Default: not enabled.
 
 @end table
 
