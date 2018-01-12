@@ -138,7 +138,7 @@ elseif isempty(varlist) && isempty(options_.endo_vars_for_moment_computations_in
                 end
             end
         end
-        if isnan(varlist)
+        if ~iscell(varlist) && isnan(varlist)
             edit([M_.fname '.mod'])
         end
         skipline()
