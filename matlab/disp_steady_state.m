@@ -32,9 +32,9 @@ function disp_steady_state(M,oo)
 skipline()
 disp('STEADY-STATE RESULTS:')
 skipline()
-endo_names = M.endo_names;
+endo_names = char(M.endo_names);
 steady_state = oo.steady_state;
 
 for i = 1:M.orig_endo_nbr
-    disp(sprintf('%s \t\t %g', endo_names{i}, steady_state(i)));
+    fprintf('%s \t\t %g\n', endo_names(i,:), steady_state(i));
 end
