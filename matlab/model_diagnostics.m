@@ -154,7 +154,7 @@ for b=1:nb
                     break
                 end
             end
-            disp(endo_names{k})
+            fprintf('%s\n',endo_names{k})
         end
         neq = null(jacob');
         n_rel = size(neq,2);
