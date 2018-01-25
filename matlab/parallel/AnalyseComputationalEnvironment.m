@@ -284,13 +284,18 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
             else
                 ssh_token = '';
             end
-
-            [si2 de2]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' ls ',DataInput(Node).RemoteDirectory,'/',RemoteTmpFolder,'/']);
+            command_string=['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' ls ',DataInput(Node).RemoteDirectory,'/',RemoteTmpFolder,'/'];
+            [si2 de2]=system(command_string);
 
             if (si2)
                 disp ('Remote Directory does not exist or is not reachable!')
                 skipline()
                 disp('ErrorCode 5.')
+                skipline(2)
+                disp('The command causing the error was:')
+                disp(command_string)
+                disp('The system returned:')
+                disp(de2)
                 skipline(2)
                 ErrorCode=5;
                 return
@@ -317,12 +322,18 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
 
             si2=[];
             de2=[];
-            [si2 de2]=system(['dir \\',DataInput(Node).ComputerName,'\',DataInput(Node).RemoteDrive,'$\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder]);
+            command_string=['dir \\',DataInput(Node).ComputerName,'\',DataInput(Node).RemoteDrive,'$\',DataInput(Node).RemoteDirectory,'\',RemoteTmpFolder];
+            [si2 de2]=system(command_string);
 
             if (si2)
                 disp ('Remote Directory does not exist or it is not reachable!')
                 skipline()
                 disp('ErrorCode 5.')
+                skipline(2)
+                disp('The command causing the error was:')
+                disp(command_string)
+                disp('The system returned:')
+                disp(de2)
                 skipline(2)
                 ErrorCode=5;
                 return
@@ -576,19 +587,30 @@ for Node=1:length(DataInput) % To obtain a recoursive function remove the 'for'
             end
             if OStargetUnix
                 if RemoteEnvironment ==1
-                    [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' grep processor /proc/cpuinfo']);
+                    command_string=['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' grep processor /proc/cpuinfo'];
+                    [si0 de0]=system(command_string);
                 else % it is MAC
-                    [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' sysctl -n hw.ncpu']);
+                    command_string=['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' sysctl -n hw.ncpu'];
+                    [si0 de0]=system(command_string);
                     Environment1=2;
                 end
             else
-                [si0 de0]=system(['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' psinfo']);
+                command_string=['ssh ',ssh_token,' ',DataInput(Node).UserName,'@',DataInput(Node).ComputerName,' psinfo'];
+                [si0 de0]=system(command_string);
             end
         else
-            [si0 de0]=system(['psinfo \\',DataInput(Node).ComputerName,' -u ',DataInput(Node).UserName,' -p ',DataInput(Node).Password]);
+            command_string=['psinfo \\',DataInput(Node).ComputerName,' -u ',DataInput(Node).UserName,' -p ',DataInput(Node).Password];
+            [si0 de0]=system(command_string);
         end
     end
 
+    if (si0)
+        disp('The command causing the error was:')
+        disp(command_string)
+        disp('The system returned:')
+        disp(de0)        
+        skipline(2)
+    end
 
     RealCPUnbr='';
     %    keyboard;
