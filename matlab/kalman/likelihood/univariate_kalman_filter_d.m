@@ -154,7 +154,7 @@ while newRank && (t<=last)
         end
     end
     if newRank
-        oldRank = rank(Pinf,diffuse_kalman_tol);
+        oldRank = rank(Z*Pinf*Z',diffuse_kalman_tol);
     else
         oldRank = 0;
     end
@@ -162,10 +162,11 @@ while newRank && (t<=last)
     Pstar = T*Pstar*T'+QQ;
     Pinf  = T*Pinf*T';
     if newRank
-        newRank = rank(Pinf,diffuse_kalman_tol);
+        newRank = rank(Z*Pinf*Z',diffuse_kalman_tol);
     end
     if oldRank ~= newRank
         disp('univariate_diffuse_kalman_filter:: T does influence the rank of Pinf!')
+        disp('This may happen for models with order of integration >1.')
     end
     t = t+1;
 end
