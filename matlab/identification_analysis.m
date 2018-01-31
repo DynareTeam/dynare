@@ -152,7 +152,7 @@ if info(1)==0
             end
             analytic_derivation = options_.analytic_derivation;
             options_.analytic_derivation = -2;
-            info = stoch_simul(char(options_.varobs));
+            info = stoch_simul(options_.varobs);
             dataset_ = dseries(oo_.endo_simul(options_.varobs_id,100+1:end)',dates('1Q1'), options_.varobs);
             derivatives_info.no_DLIK=1;
             %bounds = prior_bounds(bayestopt_, options_.prior_trunc);
