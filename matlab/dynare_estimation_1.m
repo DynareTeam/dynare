@@ -422,6 +422,7 @@ end
 
 if (any(bayestopt_.pshape  >0 ) && options_.mh_replic) || ...
         (any(bayestopt_.pshape >0 ) && options_.load_mh_file)  %% not ML estimation
+    bounds = prior_bounds(bayestopt_, options_.prior_trunc); %reset bounds as lb and ub must only be operational during mode-finding
     outside_bound_pars=find(xparam1 < bounds.lb | xparam1 > bounds.ub);
     if ~isempty(outside_bound_pars)
         for ii=1:length(outside_bound_pars)
