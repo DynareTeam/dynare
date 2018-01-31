@@ -112,9 +112,9 @@ F1=F10;
 while 1
     iter=iter+1;
     P=SylvesterDoubling(W+beta*F1'*Q*F1,beta*H1',H1,discretion_tol,solve_maxit);
-    if any(any(isnan(P)))
+    if any(any(isnan(P))) || any(any(isinf(P))) 
         P=SylvesterHessenbergSchur(W+beta*F1'*Q*F1,beta*H1',H1);
-        if any(any(isnan(P)))
+        if any(any(isnan(P))) || any(any(isinf(P)))
             retcode=2;
             return
         end
