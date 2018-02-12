@@ -1411,6 +1411,51 @@ ObservationTrendsStatement::writeJsonOutput(ostream &output) const
          << "}";
 }
 
+FilterInitialStateStatement::FilterInitialStateStatement(const filter_initial_state_elements_t &filter_initial_state_elements_arg,
+                                                         const SymbolTable &symbol_table_arg) :
+  filter_initial_state_elements(filter_initial_state_elements_arg),
+  symbol_table(symbol_table_arg)
+{
+}
+
+void
+FilterInitialStateStatement::writeOutput(ostream &output, const string &basename, bool minimal_workspace) const
+{
+  output << "M_.filter_initial_state = cell(M_.endo_nbr, 2);" << endl;
+  for (filter_initial_state_elements_t::const_iterator it = filter_initial_state_elements.begin();
+       it != filter_initial_state_elements.end(); it++)
+    {
+      int symb_id = it->first.first;
+      int lag = it->first.second;
+      SymbolType type = symbol_table.getType(symb_id);
+
+      if ((type == eEndogenous && lag < 0) || type == eExogenous)
+        {
+          try
+            {
+              // This function call must remain the 1st statement in this block
+              symb_id = symbol_table.searchAuxiliaryVars(symb_id, lag);
+            }
+          catch (SymbolTable::SearchFailedException &e)
+            {
+              if (type == eEndogenous)
+                {
+                  cerr << "filter_initial_state: internal error, please contact the developers";
+                  exit(EXIT_FAILURE);
+                }
+              // We don't fail for exogenous, because they are not replaced by
+              // auxiliary variables in deterministic mode.
+            }
+        }
+
+      output << "M_.filter_initial_state("
+             << symbol_table.getTypeSpecificID(symb_id) + 1
+             << ",:) = {'" << symbol_table.getName(symb_id) << "', '";
+      it->second->writeOutput(output);
+      output << ";'};" << endl;
+    }
+}
+
 OsrParamsStatement::OsrParamsStatement(const SymbolList &symbol_list_arg, const SymbolTable &symbol_table_arg) :
   symbol_list(symbol_list_arg),
   symbol_table(symbol_table_arg)

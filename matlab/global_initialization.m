@@ -566,6 +566,8 @@ M_.osr.param_bounds=[];
 M_.osr.variable_weights=[];
 M_.osr.variable_indices =[];
 
+M_.filter_initial_state=[];
+
 % homotopy for steady state
 options_.homotopy_mode = 0;
 options_.homotopy_steps = 1;

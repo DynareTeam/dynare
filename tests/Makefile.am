@@ -235,6 +235,9 @@ MODFILES = \
 	kalman/likelihood_from_dynare/fs2000ns_corr_ME_missing.mod \
 	kalman/likelihood_from_dynare/fs2000ns_uncorr_ME.mod \
 	kalman/likelihood_from_dynare/fs2000ns_uncorr_ME_missing.mod \
+	kalman/kalman_initial_state/fs2000_smoother_only_initial_state.mod \
+	kalman/kalman_initial_state/fs2000_ns_smoother_only_initial_state.mod \
+	kalman/kalman_initial_state/fs2000_kalman_initial.mod \
 	second_order/burnside_1.mod \
 	kalman_filter_smoother/compare_results_simulation/fs2000_ML.mod \
 	kalman_filter_smoother/compare_results_simulation/fs2000_ML_loglinear.mod \
@@ -357,6 +360,7 @@ XFAIL_MODFILES = ramst_xfail.mod \
 	identification/ident_unit_root/ident_unit_root_xfail.mod \
 	steady_state/Linear_steady_state_xfail.mod \
 	optimal_policy/Ramsey/ramsey_histval_xfail.mod \
+	kalman/kalman_initial_state/fs2000_kalman_initial_xfail.mod \
 	example1_extra_exo_xfail.mod
 
 MFILES = initval_file/ramst_initval_file_data.m

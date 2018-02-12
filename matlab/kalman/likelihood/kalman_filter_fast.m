@@ -20,7 +20,7 @@ function [LIK, LIKK, a, P] = kalman_filter_fast(Y,start,last,a,P,kalman_tol,ricc
 %! @item last
 %! Integer scalar, last period (@var{last}-@var{first} has to be inferior to T).
 %! @item a
-%! Vector (@var{mm}*1) of doubles, initial mean of the state vector.
+%! Vector (@var{mm}*1) of doubles, levels of the predicted initial state variables (E_{0}(alpha_1)).
 %! @item P
 %! Matrix (@var{mm}*@var{mm}) of doubles, initial covariance matrix of the state vector.
 %! @item kalman_tol
@@ -59,7 +59,7 @@ function [LIK, LIKK, a, P] = kalman_filter_fast(Y,start,last,a,P,kalman_tol,ricc
 %! @item likk
 %! Column vector of doubles, values of the density of each observation.
 %! @item a
-%! Vector (@var{mm}*1) of doubles, mean of the state vector at the end of the (sub)sample.
+%! Vector (@var{mm}*1) of doubles, mean of the state vector at the end of the (sub)sample (E_{T}(alpha_{T+1})).
 %! @item P
 %! Matrix (@var{mm}*@var{mm}) of doubles, covariance of the state vector at the end of the (sub)sample.
 %! @end table

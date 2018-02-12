@@ -111,6 +111,19 @@ if info
     error('The initial value of the prior is -Inf')
 end
 
+if ~isempty(Model.filter_initial_state)
+    state_indices=DynareResults.dr.order_var(DynareResults.dr.restrict_var_list(BayesInfo.mf0));
+    for ii=1:size(state_indices,1)
+        if ~isempty(Model.filter_initial_state{state_indices(ii),1})
+            try
+                evaluate_expression(Model.filter_initial_state{state_indices(ii),2},Model,DynareResults)
+            catch
+                fprintf('Unable to evaluate the expression\n %s \nfor the filter_initial_state of variable %s\n',Model.filter_initial_state{state_indices(ii),2},Model.endo_names(state_indices(ii),:))
+            end
+        end
+    end
+end
+                
 if DynareOptions.ramsey_policy
     %test whether specification matches
     inst_nbr = size(DynareOptions.instruments,1);
@@ -187,3 +200,8 @@ end
 if ~isequal(DynareOptions.mode_compute,11)
     disp(['Initial value of the log posterior (or likelihood): ' num2str(-fval)]);
 end
+
+function evaluate_expression(expression,M_,oo_)
+% function evaluate_expression(expression,M_,oo_)
+%evaluates expressions relying on M_ and oo_ having their original names
+eval(expression);

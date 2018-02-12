@@ -193,6 +193,7 @@ DATE -?[0-9]+([YyAa]|[Mm]([1-9]|1[0-2])|[Qq][1-4]|[Ww]([1-9]{1}|[1-4][0-9]|5[0-2
 <INITIAL>initval {BEGIN DYNARE_BLOCK; return token::INITVAL;}
 <INITIAL>endval {BEGIN DYNARE_BLOCK; return token::ENDVAL;}
 <INITIAL>histval {BEGIN DYNARE_BLOCK; return token::HISTVAL;}
+<INITIAL>filter_initial_state {BEGIN DYNARE_BLOCK; return token::FILTER_INITIAL_STATE;}
 <INITIAL>shocks {BEGIN DYNARE_BLOCK; return token::SHOCKS;}
 <INITIAL>shock_groups {BEGIN DYNARE_BLOCK; return token::SHOCK_GROUPS;}
 <INITIAL>mshocks {BEGIN DYNARE_BLOCK; return token::MSHOCKS;}

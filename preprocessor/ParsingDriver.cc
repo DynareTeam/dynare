@@ -1837,6 +1837,13 @@ ParsingDriver::set_trends()
 }
 
 void
+ParsingDriver::set_filter_initial_state()
+{
+  mod_file->addStatement(new FilterInitialStateStatement(filter_initial_state_elements, mod_file->symbol_table));
+  filter_initial_state_elements.clear();
+}
+
+void
 ParsingDriver::set_trend_element(string *arg1, expr_t arg2)
 {
   check_symbol_existence(*arg1);
@@ -1844,6 +1851,39 @@ ParsingDriver::set_trend_element(string *arg1, expr_t arg2)
     error("observation_trends: " + *arg1 + " declared twice");
   trend_elements[*arg1] = arg2;
   delete arg1;
+}
+
+void
+ParsingDriver::set_filter_initial_state_element(string *name, string *lag, expr_t rhs)
+{
+  check_symbol_existence(*name);
+  int symb_id = mod_file->symbol_table.getID(*name);
+  SymbolType type = mod_file->symbol_table.getType(symb_id);
+  int ilag = atoi(lag->c_str());
+
+  if (type != eEndogenous
+      && type != eExogenous
+      && type != eExogenousDet)
+    error("filter_initial_state: " + *name + " should be an endogenous or exogenous variable");
+
+  if ((type == eExogenous || type == eExogenousDet) && lag == 0)
+    error("filter_initial_state: exogenous variable " + *name + " must be provided with a lag");
+
+  pair<int, int> key(symb_id, ilag);
+  if (filter_initial_state_elements.find(key) != filter_initial_state_elements.end())
+    error("filter_initial_state: (" + *name + ", " + *lag + ") declared twice");
+
+  if (mod_file->dynamic_model.minLagForSymbol(symb_id) > ilag - 1)
+    {
+      ostringstream s;
+      s << ilag - 1;
+      error("filter_initial_state: variable " + *name + " does not appear in the model with the lag " + s.str() + " (see the reference manual for the timing convention in 'filter_initial_state')");
+    }
+
+  filter_initial_state_elements[key] = rhs;
+
+  delete name;
+  delete lag;
 }
 
 void

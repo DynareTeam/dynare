@@ -268,6 +268,19 @@ public:
   virtual void writeJsonOutput(ostream &output) const;
 };
 
+class FilterInitialStateStatement : public Statement
+{
+public:
+  typedef map<pair<int, int>, expr_t> filter_initial_state_elements_t;
+private:
+  const filter_initial_state_elements_t filter_initial_state_elements;
+  const SymbolTable &symbol_table;
+public:
+  FilterInitialStateStatement(const filter_initial_state_elements_t &filter_initial_state_elements_arg,
+                              const SymbolTable &symbol_table_arg);
+  virtual void writeOutput(ostream &output, const string &basename, bool minimal_workspace) const;
+};
+
 class OsrParamsStatement : public Statement
 {
 private:

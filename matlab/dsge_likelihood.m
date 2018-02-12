@@ -354,6 +354,8 @@ switch DynareOptions.lik_init
     Pstar=lyapunov_solver(T,R,Q,DynareOptions);
     Pinf  = [];
     a     = zeros(mm,1);
+    a=set_Kalman_starting_values(a,Model,DynareResults,DynareOptions,BayesInfo);
+    a_0_given_tm1=T*a; %set state prediction for first Kalman step;
     Zflag = 0;
   case 2% Initialization with large numbers on the diagonal of the covariance matrix if the states (for non stationary models).
     if kalman_algo ~= 2
@@ -361,8 +363,10 @@ switch DynareOptions.lik_init
         kalman_algo = 1;
     end
     Pstar = DynareOptions.Harvey_scale_factor*eye(mm);
-    Pinf  = [];
-    a     = zeros(mm,1);
+    Pinf = [];
+    a = zeros(mm,1);
+    a = set_Kalman_starting_values(a,Model,DynareResults,DynareOptions,BayesInfo);
+    a_0_given_tm1 = T*a; %set state prediction for first Kalman step;
     Zflag = 0;
   case 3% Diffuse Kalman filter (Durbin and Koopman)
         % Use standard kalman filter except if the univariate filter is explicitely choosen.
@@ -381,16 +385,19 @@ switch DynareOptions.lik_init
     % Run diffuse kalman filter on first periods.
     if (kalman_algo==3)
         % Multivariate Diffuse Kalman Filter
+        a = zeros(mm,1);
+        a = set_Kalman_starting_values(a,Model,DynareResults,DynareOptions,BayesInfo);
+        a_0_given_tm1 = T*a; %set state prediction for first Kalman step;
         Pstar0 = Pstar; % store Pstar
         if no_missing_data_flag
-            [dLIK,dlik,a,Pstar] = kalman_filter_d(Y, 1, size(Y,2), ...
-                                                  zeros(mm,1), Pinf, Pstar, ...
+            [dLIK,dlik,a_0_given_tm1,Pstar] = kalman_filter_d(Y, 1, size(Y,2), ...
+                                                  a_0_given_tm1, Pinf, Pstar, ...
                                                   kalman_tol, diffuse_kalman_tol, riccati_tol, DynareOptions.presample, ...
                                                   T,R,Q,H,Z,mm,pp,rr);
         else
-            [dLIK,dlik,a,Pstar] = missing_observations_kalman_filter_d(DatasetInfo.missing.aindex,DatasetInfo.missing.number_of_observations,DatasetInfo.missing.no_more_missing_observations, ...
+            [dLIK,dlik,a_0_given_tm1,Pstar] = missing_observations_kalman_filter_d(DatasetInfo.missing.aindex,DatasetInfo.missing.number_of_observations,DatasetInfo.missing.no_more_missing_observations, ...
                                                               Y, 1, size(Y,2), ...
-                                                              zeros(mm,1), Pinf, Pstar, ...
+                                                              a_0_given_tm1, Pinf, Pstar, ...
                                                               kalman_tol, diffuse_kalman_tol, riccati_tol, DynareOptions.presample, ...
                                                               T,R,Q,H,Z,mm,pp,rr);
         end
@@ -430,15 +437,17 @@ switch DynareOptions.lik_init
                 Pinf  = blkdiag(Pinf,zeros(pp));
                 H1 = zeros(pp,1);
                 mmm   = mm+pp;
-
             end
         end
 
-        [dLIK,dlik,a,Pstar] = univariate_kalman_filter_d(DatasetInfo.missing.aindex,...
+        a = zeros(mmm,1);
+        a = set_Kalman_starting_values(a,Model,DynareResults,DynareOptions,BayesInfo);
+        a_0_given_tm1 = T*a;
+        [dLIK,dlik,a_0_given_tm1,Pstar] = univariate_kalman_filter_d(DatasetInfo.missing.aindex,...
                                                          DatasetInfo.missing.number_of_observations,...
                                                          DatasetInfo.missing.no_more_missing_observations, ...
                                                          Y, 1, size(Y,2), ...
-                                                         zeros(mmm,1), Pinf, Pstar, ...
+                                                         a_0_given_tm1, Pinf, Pstar, ...
                                                          kalman_tol, diffuse_kalman_tol, riccati_tol, DynareOptions.presample, ...
                                                          T,R,Q,H1,Z,mmm,pp,rr);
         diffuse_periods = size(dlik,1);
@@ -466,7 +475,9 @@ switch DynareOptions.lik_init
         Pstar=lyapunov_solver(T,R,Q,DynareOptions);
     end
     Pinf  = [];
-    a = zeros(mm,1);
+    a     = zeros(mm,1);
+    a = set_Kalman_starting_values(a,Model,DynareResults,DynareOptions,BayesInfo);
+    a_0_given_tm1 = T*a;    
     Zflag = 0;
   case 5            % Old diffuse Kalman filter only for the non stationary variables
     [eigenvect, eigenv] = eig(T);
@@ -487,6 +498,8 @@ switch DynareOptions.lik_init
     Pstar(stable, stable) = Pstar_tmp;
     Pinf  = [];
     a = zeros(mm,1);
+    a = set_Kalman_starting_values(a,Model,DynareResults,DynareOptions,BayesInfo);
+    a_0_given_tm1 = T*a;
     Zflag = 0;
   otherwise
     error('dsge_likelihood:: Unknown initialization approach for the Kalman filter!')
@@ -644,14 +657,14 @@ if ((kalman_algo==1) || (kalman_algo==3))% Multivariate Kalman Filter
                 return
             end
             [LIK,lik] = kalman_filter_fast(Y,diffuse_periods+1,size(Y,2), ...
-                                           a,Pstar, ...
+                                           a_0_given_tm1,Pstar, ...
                                            kalman_tol, riccati_tol, ...
                                            DynareOptions.presample, ...
                                            T,Q,R,H,Z,mm,pp,rr,Zflag,diffuse_periods, ...
                                            analytic_deriv_info{:});
         else
             [LIK,lik] = kalman_filter(Y,diffuse_periods+1,size(Y,2), ...
-                                      a,Pstar, ...
+                                      a_0_given_tm1,Pstar, ...
                                       kalman_tol, riccati_tol, ...
                                       DynareOptions.rescale_prediction_error_covariance, ...
                                       DynareOptions.presample, ...
@@ -664,7 +677,7 @@ if ((kalman_algo==1) || (kalman_algo==3))% Multivariate Kalman Filter
                                                  T,R,Q,H,Pstar,Y,start,Z,kalman_tol,riccati_tol, Model.nz_state_var, Model.n_diag, Model.nobs_non_statevar);
         else
             [LIK,lik] = missing_observations_kalman_filter(DatasetInfo.missing.aindex,DatasetInfo.missing.number_of_observations,DatasetInfo.missing.no_more_missing_observations,Y,diffuse_periods+1,size(Y,2), ...
-                                                           a, Pstar, ...
+                                                           a_0_given_tm1, Pstar, ...
                                                            kalman_tol, DynareOptions.riccati_tol, ...
                                                            DynareOptions.rescale_prediction_error_covariance, ...
                                                            DynareOptions.presample, ...
@@ -744,9 +757,11 @@ if (kalman_algo==2) || (kalman_algo==4)
             end
             mmm   = mm+pp;
             if singularity_has_been_detected
-                a = zeros(mmm,1);
+                a_tmp = zeros(mmm,1);
+                a_tmp(1:length(a_0_given_tm1)) = a_0_given_tm1;
+                a_0_given_tm1 = a_tmp;
             elseif ~expanded_state_vector_for_univariate_filter
-                a = [a; zeros(pp,1)];
+                a_0_given_tm1 = [a_0_given_tm1; zeros(pp,1)];
             end
         end
     end
@@ -754,7 +769,7 @@ if (kalman_algo==2) || (kalman_algo==4)
         analytic_deriv_info{5}=DH;
     end
     [LIK, lik] = univariate_kalman_filter(DatasetInfo.missing.aindex,DatasetInfo.missing.number_of_observations,DatasetInfo.missing.no_more_missing_observations,Y,diffuse_periods+1,size(Y,2), ...
-                                          a,Pstar, ...
+                                          a_0_given_tm1,Pstar, ...
                                           DynareOptions.kalman_tol, ...
                                           DynareOptions.riccati_tol, ...
                                           DynareOptions.presample, ...
@@ -880,4 +895,33 @@ end
 if analytic_derivation==0 && nargout>3
     lik=lik(start:end,:);
     DLIK=[-lnprior; lik(:)];
+end
+
+function a=set_Kalman_starting_values(a,M_,oo_,options_,bayestopt_)
+% function a=set_Kalman_starting_values(a,M_,oo_,options_,bayestopt_)
+% Sets initial states guess for Kalman filter/smoother based on M_.filter_initial_state 
+% 
+% INPUTS 
+%   o a             [double]   (p*1) vector of states
+%   o M_            [structure] decribing the model
+%   o oo_           [structure] storing the results
+%   o options_      [structure] describing the options
+%   o bayestopt_    [structure] describing the priors
+%  
+% OUTPUTS
+%   o a             [double]    (p*1) vector of set initial states
+
+if ~isempty(M_.filter_initial_state)
+    state_indices=oo_.dr.order_var(oo_.dr.restrict_var_list(bayestopt_.mf0));
+    for ii=1:size(state_indices,1)
+        if ~isempty(M_.filter_initial_state{state_indices(ii),1})
+            if options_.loglinear && ~options_.logged_steady_state
+                a(bayestopt_.mf0(ii)) = log(eval(M_.filter_initial_state{state_indices(ii),2})) - log(oo_.dr.ys(state_indices(ii)));
+            elseif ~options_.loglinear && ~options_.logged_steady_state
+                a(bayestopt_.mf0(ii)) = eval(M_.filter_initial_state{state_indices(ii),2}) - oo_.dr.ys(state_indices(ii));
+            else
+                error(['The steady state is logged. This should not happen. Please contact the developers'])
+            end
+        end
+    end
 end

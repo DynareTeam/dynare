@@ -128,6 +128,8 @@ private:
   OptionsList options_list;
   //! Temporary storage for trend elements
   ObservationTrendsStatement::trend_elements_t trend_elements;
+  //! Temporary storage for filter_initial_state elements
+  FilterInitialStateStatement::filter_initial_state_elements_t filter_initial_state_elements;
   //! Temporary storage for filename list of ModelComparison (contains weights)
   ModelComparisonStatement::filename_list_t filename_list;
   //! Temporary storage for list of EstimationParams (from estimated_params* statements)
@@ -539,6 +541,10 @@ public:
   void forecast();
   void set_trends();
   void set_trend_element(string *arg1, expr_t arg2);
+  //! filter_initial_state block
+  void set_filter_initial_state();
+  //! element for filter_initial_state block
+  void set_filter_initial_state_element(string *name, string *lag, expr_t rhs);
   void set_unit_root_vars();
   void optim_weights();
   void set_optim_weights(string *name, expr_t value);

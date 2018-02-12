@@ -1,9 +1,10 @@
-function [alphahat,epsilonhat,etahat,a,P,aK,PK,decomp,V] = missing_DiffuseKalmanSmootherH3_Z(T,Z,R,Q,H,Pinf1,Pstar1,Y,pp,mm,smpl,data_index,nk,kalman_tol,diffuse_kalman_tol,decomp_flag,state_uncertainty_flag)
+function [alphahat,epsilonhat,etahat,a,P,aK,PK,decomp,V] = missing_DiffuseKalmanSmootherH3_Z(a_initial,T,Z,R,Q,H,Pinf1,Pstar1,Y,pp,mm,smpl,data_index,nk,kalman_tol,diffuse_kalman_tol,decomp_flag,state_uncertainty_flag)
 % function [alphahat,epsilonhat,etahat,a1,P,aK,PK,d,decomp] = missing_DiffuseKalmanSmootherH3_Z(T,Z,R,Q,H,Pinf1,Pstar1,Y,pp,mm,smpl,data_index,nk,kalman_tol,decomp_flag,state_uncertainty_flag)
 % Computes the diffuse kalman smoother in the case of a singular var-cov matrix.
 % Univariate treatment of multivariate time series.
 %
 % INPUTS
+%    a_initial:mm*1 vector of initial states
 %    T:        mm*mm matrix     state transition matrix
 %    Z:        pp*mm matrix     selector matrix for observables in augmented state vector
 %    R:        mm*rr matrix     second matrix of the state equation relating the structural innovations to the state variables
@@ -89,6 +90,8 @@ spstar          = size(Pstar1);
 v               = zeros(pp,smpl);
 a               = zeros(mm,smpl);
 a1              = zeros(mm,smpl+1);
+a(:,1)          = a_initial;
+a1(:,1)         = a_initial;
 aK              = zeros(nk,mm,smpl+nk);
 
 Fstar           = zeros(pp,smpl);

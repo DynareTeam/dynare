@@ -110,7 +110,7 @@ class ParsingDriver;
 %token MODE_CHECK MODE_CHECK_NEIGHBOURHOOD_SIZE MODE_CHECK_SYMMETRIC_PLOTS MODE_CHECK_NUMBER_OF_POINTS MODE_COMPUTE MODE_FILE MODEL MODEL_COMPARISON MODEL_INFO MSHOCKS ABS SIGN
 %token MODEL_DIAGNOSTICS MODIFIEDHARMONICMEAN MOMENTS_VARENDO CONTEMPORANEOUS_CORRELATION DIFFUSE_FILTER SUB_DRAWS TAPER_STEPS GEWEKE_INTERVAL RAFTERY_LEWIS_QRS RAFTERY_LEWIS_DIAGNOSTICS MCMC_JUMPING_COVARIANCE MOMENT_CALIBRATION
 %token NUMBER_OF_PARTICLES RESAMPLING SYSTEMATIC GENERIC RESAMPLING_THRESHOLD RESAMPLING_METHOD KITAGAWA STRATIFIED SMOOTH
-%token CPF_WEIGHTS AMISANOTRISTANI MURRAYJONESPARSLOW WRITE_EQUATION_TAGS
+%token CPF_WEIGHTS AMISANOTRISTANI MURRAYJONESPARSLOW WRITE_EQUATION_TAGS FILTER_INITIAL_STATE
 %token NONLINEAR_FILTER_INITIALIZATION FILTER_ALGORITHM PROPOSAL_APPROXIMATION CUBATURE UNSCENTED MONTECARLO DISTRIBUTION_APPROXIMATION
 %token <string_val> NAME
 %token USE_PENALIZED_OBJECTIVE_FOR_HESSIAN INIT_STATE FAST_REALTIME RESCALE_PREDICTION_ERROR_COVARIANCE GENERATE_IRFS
@@ -237,6 +237,7 @@ statement : parameters
           | options_eq
           | varobs
           | observation_trends
+          | filter_initial_state
           | unit_root_vars
           | dsample
           | rplot
@@ -2039,6 +2040,14 @@ trend_list : trend_list trend_element
            ;
 
 trend_element :  symbol '(' expression ')' ';' { driver.set_trend_element($1, $3); };
+
+filter_initial_state : FILTER_INITIAL_STATE ';' filter_initial_state_list END ';' { driver.set_filter_initial_state(); };
+
+filter_initial_state_list : filter_initial_state_list filter_initial_state_element
+                          | filter_initial_state_element
+                          ;
+
+filter_initial_state_element : symbol '(' signed_integer ')' EQUAL expression ';' { driver.set_filter_initial_state_element($1, $3, $6); };
 
 unit_root_vars : UNIT_ROOT_VARS symbol_list ';' { driver.set_unit_root_vars(); };
 
